@@ -33,7 +33,7 @@ end
     function DecryptDrive:perform()
         forceDropHeavyItems(self.character)
         local inventoryItem = self.character:getInventory()
-        local ISUsbAvaible = inventoryItem:getItemCount("USBOpened") -- doublecheck
+        local ISUsbAvaible = inventoryItem:getItemCount("GValley.USBOpened") -- ensure fully-qualified type
         local randomLvl                 = 0
         local loopcter                  = 0
         local randomPerk                = 0
@@ -79,7 +79,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                         --self.character:Say("Well there is nothing else to decrypt here.")
                         self.character:Say(getText("GVDrive_Msg_Woodwork_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -94,7 +94,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                         self.character:Say(getText("GVDrive_Msg_Electricity_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -109,7 +109,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                         self.character:Say(getText("GVDrive_Msg_Farming_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -123,7 +123,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                        self.character:Say(getText("GVDrive_Msg_Aiming_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -137,7 +137,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                        self.character:Say(getText("GVDrive_Msg_Cooking_Consume")) 
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -151,7 +151,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                        self.character:Say(getText("GVDrive_Msg_Sneak_Consume")) 
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -164,7 +164,7 @@ end
                         self.character:Say(getText("GVDrive_Msg_Axe_Success"))
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                         self.character:Say(getText("GVDrive_Msg_Axe_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -178,7 +178,7 @@ end
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                        -- self.character:Say("Well there is nothing else to decrypt here.")
                        self.character:Say(getText("GVDrive_Msg_Fitness_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -193,7 +193,7 @@ end
                         self.character:Say(getText("GVDrive_Msg_Doctor_Success"))
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                         self.character:Say(getText("GVDrive_Msg_Doctor_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
@@ -207,13 +207,13 @@ end
                         self.character:Say(getText("GVDrive_Msg_Survivalist_Success"))
                     else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
                         self.character:Say(getText("GVDrive_Msg_Survivalist_Consume"))
-                        inventoryItem:Remove("USBOpened")
+                        inventoryItem:Remove("GValley.USBOpened")
                         inventoryItem:AddItem("GValley.USBOpened_Used",1)
                     end
                 end
             else
             self.character:Say(getText("GVDrive_Msg_USB_Corrupted"))
-            inventoryItem:Remove("USBOpened")
+            inventoryItem:Remove("GValley.USBOpened")
             inventoryItem:AddItem("GValley.USBOpened_Damaged")
         end
         if self.sound and self.character and self.character:getEmitter() then
@@ -235,6 +235,5 @@ end
         o.loopedAction = true;
         return o
     end
-
 
 

@@ -27,7 +27,7 @@ local function DecryptMyUSBPlease(playerObj, Item, LaptopModel)
 	end
 	
 	if isUSBCompatible then
-		local cnt = playerObj:getInventory():getItemCount("USBOpened")
+		local cnt = playerObj:getInventory():getItemCount("GValley.USBOpened")
 		for i = 1, cnt do
 			ISTimedActionQueue.add(DecryptDrive:new(playerObj, Item, time))
 		end
@@ -51,7 +51,7 @@ local function DecryptMyFloppyPlease(playerObj, Item, LaptopModel)
 	end
 	
 	if isFloppyCompatible then
-		local cnt = playerObj:getInventory():getItemCount("FloppyDrive")
+		local cnt = playerObj:getInventory():getItemCount("GValley.FloppyDrive")
 		for i = 1, cnt do
 			ISTimedActionQueue.add(DecryptFloppyDisk:new(playerObj, Item, time))
 		end
@@ -143,10 +143,10 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 				local lineOfSightTestResults = LosUtil.lineClear(playerObj:getCell(), objX, objY, objZ, pX, pY, pZ, false)
 				
 				if tostring(lineOfSightTestResults) ~= "Blocked" then
-					if inv:getItemCount("USBOpened") > 0 then
+					if inv:getItemCount("GValley.USBOpened") > 0 then
 						context:addOptionOnTop("Decrypt drive", playerObj, DecryptMyUSBPlease, worldObject, LaptopName)
 					end
-					if inv:getItemCount("FloppyDrive") > 0 then
+					if inv:getItemCount("GValley.FloppyDrive") > 0 then
 						context:addOptionOnTop("Check Floppy Disk", playerObj, DecryptMyFloppyPlease, worldObject, LaptopName)
 					end
 				end
