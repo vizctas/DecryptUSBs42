@@ -1,0 +1,8 @@
+Tooltip_EN = 
+{
+Tooltip_LPAsus = "A modern laptop from Asus ROG. <br> Processor: i7 9th Generation. <br> Graphics: RTX 20270 Super <br> Dimensions: 15.12 x 10.31 x 0.78 inches",
+Tooltip_USB = "Confidential Drive. <br> It may contain sensitive information to improve your skills",
+Tooltip_BUSB = "Confidential Drive. <br> There are no more uses for it. It can be dismantled",
+Tooltip_IBMPlm = "IBM Palm Top PC 110 <br> Processor: Intel 80486SX microprocessor <br> Dimensions: 6.2 by 5.2 by 1.3 in",
+Tooltip_Generic90 = "This Toshiba Laptop can take up to 320 MB RAM, with a fixed amount of 64 MB (non-removable) installed PC100 SDRAM SODIMMs <br> Processor: Intel Mobile Pentium III ",
+}

@@ -1,0 +1,14 @@
+name=Decrypt drives: Random Perks XP [42B]
+id=DecryptSkillSys42
+icon=poster.png
+author=GValley
+pzversion=42
+modversion=1.0
+versionMin=42.0.0
+
+description=<PUSHRGB:0.4,1,0.4><BR> <H1> <CENTRE> Decrypt Drives: Random Perks XP </CENTRE> </H1></BR>
+description= <SIZE:medium><PUSHRGB:0.3,0.7,0.3><BR><CENTRE>"Decrypt drives and USB sticks to gain random skill experience!" </CENTRE></BR>
+description=<PUSHRGB:1,1,1> <BR><H2> <CENTRE> Find encrypted drives and decrypt them to learn various skills. <LINE></CENTRE> </H2></BR>
+description= <PUSHRGB:1,1,1><LEFT><SIZE:medium> This mod adds the ability to decrypt USB drives found throughout the world to gain random skill experience. Use laptops to decrypt drives and discover government secrets that teach you various survival skills.
+
+poster=poster.png

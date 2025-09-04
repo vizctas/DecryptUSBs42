@@ -1,0 +1,73 @@
+module Base
+{
+	recipe Open Asus Laptop
+	{
+		GValley.AsusZephLaptopClosed=1,
+        Result:GValley.AsusZephLaptopOpened,
+        Time:100.0,
+		Category:Trade,
+	}
+	
+	recipe Close Asus Laptop
+	{
+		GValley.AsusZephLaptopOpened=1,
+		CanBeDoneFromFloor:true,
+        Result:GValley.AsusZephLaptopClosed,
+        Time:100.0,
+		Category:Trade,
+	}
+	
+	recipe Open Compaq Laptop
+	{
+		GValley.Laptop90sClosed=1,
+        Result:GValley.Laptop90sOpened,
+        Time:100.0,
+		Category:Trade,
+	}
+	
+	recipe Close Compaq Laptop
+	{
+		GValley.Laptop90sOpened=1,
+		CanBeDoneFromFloor:true,
+        Result:GValley.Laptop90sClosed,
+        Time:100.0,
+		Category:Trade,
+	}
+
+	recipe Open Portable IBM Laptop
+	{
+		GValley.PBIBM_LP90Closed=1,
+        Result:GValley.IBM_LP90Opened,
+        Time:150.0,
+		Category:Trade,
+	}
+	
+	recipe Close Portable IBM Laptop
+	{
+		GValley.IBM_LP90Opened=1,
+		CanBeDoneFromFloor:true,
+        Result:GValley.PBIBM_LP90Closed,
+        Time:150.0,
+		Category:Trade,
+	}
+	
+	recipe Open Rare USB
+	{
+		GValley.USB_Closed=1,
+        Result:GValley.USBTapa,
+        Time:50,
+		Category:Trade,
+		OnCreate:OnOpen_USB,
+	}
+
+	recipe Recycle Drive
+	{
+		GValley.FloppyDrive_Used/GValley.FloppyDrive_Damaged/GValley.USBOpened_Damaged/GValley.USBOpened_Used,
+        keep [Recipe.GetItemTypes.Screwdriver],
+		Result:ElectronicsScrap,
+ 		OnGiveXP:Recipe.OnGiveXP.DismantleElectronics,
+        Time:50,
+		Category:Electrical,
+		AnimNode:Disassemble,
+	}
+}

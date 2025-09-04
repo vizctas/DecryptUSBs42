@@ -1,0 +1,6 @@
+version=1
+id=3561701883
+title=DecryptUSB
+description=Old mod ported to v42 UNSTABLE
+tags=Build 42;Items
+visibility=unlisted

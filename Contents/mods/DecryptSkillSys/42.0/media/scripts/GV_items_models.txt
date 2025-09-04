@@ -1,0 +1,113 @@
+module Base
+{  
+	    model AsusLaptop_Open
+	{
+		mesh = WorldItems/AsusOpen,
+		texture = WorldItems/LaptopUV_IMG,
+		scale = 1.3,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model AsusLaptop_Close
+	{
+		mesh = WorldItems/AsuscClosed,
+		texture = WorldItems/LaptopUV_IMG,
+		scale = 1.3,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+	    model Laptop90Opened
+	{
+		mesh = WorldItems/90LaptopOpened,
+		texture = WorldItems/Laptop90s_Texture,
+		scale = 0.063,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model Laptop90Closed
+	{
+		mesh = WorldItems/90LaptopClosed,
+		texture = WorldItems/Laptop90s_Texture,
+		scale = 0.063,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+	    model IBM_LP90Opened
+	{
+		mesh = WorldItems/IBMLaptop_O,
+		texture = WorldItems/IBMLaptop_texture,
+		scale = 0.066,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model PBIBM_LP90Closed
+	{
+		mesh = WorldItems/PolaptopIBM90s_Closed,
+		texture = WorldItems/PolaptopIBM90s_closed,
+		scale = 0.066,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model FloppyDisk
+	{
+		mesh = WorldItems/Floppy,
+		texture = WorldItems/disktexture,
+		scale = 1.2,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model USB_Closed
+	{
+		mesh = WorldItems/USB_Closed,
+		texture = WorldItems/PZUSB,
+		scale = 1.2,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model USB_Opened
+	{
+		mesh = WorldItems/USB_Open,
+		texture = WorldItems/PZUSB,
+		scale = 1.2,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+		model USB_Tapa
+	{
+		mesh = WorldItems/USB_Tapa,
+		texture = WorldItems/PZUSB,
+		scale = 1.2,
+		attachment world
+		{
+			offset = 0.0000 0.0000 0.0000,
+			rotate = 0.0000 90.0000 0.0000,
+		}
+	}
+}

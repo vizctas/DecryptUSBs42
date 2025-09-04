@@ -1,0 +1,11 @@
+module Base
+{
+	sound USBSys
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/USBkeyboard.ogg,         
+	        }
+	}
+}	

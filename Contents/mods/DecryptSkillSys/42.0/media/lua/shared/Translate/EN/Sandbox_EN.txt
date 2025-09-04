@@ -1,0 +1,12 @@
+Sandbox_EN = 
+{
+	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
+	Sandbox_GVDrive_DriveDrop_Chance_U  = "USB Drop Chance out of 100 on Zeds (Keep it as low possible)",
+	Sandbox_GVDrive_DriveDrop_Chance_D  = "Diskette Drop Chance out of 100 on Zeds (Keep it as low possible)",
+    Sandbox_GVDrive_Minimun_Exp_by_Disk = "Min. expercience learn by Diskettes",
+    Sandbox_GVDrive_Maximun_Exp_by_Disk = "Max. expercience learn by Diskettes",
+    Sandbox_GVDrive_Minimun_Exp_by_USB  = "Min. expercience learn by USB",
+    Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. expercience learn by USB",
+    Sandbox_GVDrive_Percentage_Disk     = "successful rate to decrypt Diskette out of 100 (Recommended less than 40)",
+    Sandbox_GVDrive_Percentage_USB      = "successful rate to decrypt USB out of 100 (Recommended less than 40)",
+}

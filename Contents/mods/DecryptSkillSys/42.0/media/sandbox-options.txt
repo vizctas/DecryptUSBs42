@@ -1,0 +1,75 @@
+VERSION = 1,
+option GVDrive.DriveDropChance_USB
+{
+	type = double, 
+    min = 0, 
+    max = 100, 
+    default = 0.8,
+	page = Drive_Decrypt, 
+    translation = GVDrive_DriveDrop_Chance_U,
+}
+option GVDrive.DriveDropChance_Diskette
+{
+	type = double, 
+    min = 0, 
+    max = 100, 
+    default = 1,
+	page = Drive_Decrypt, 
+    translation = GVDrive_DriveDrop_Chance_D,
+}
+
+option GVDrive.Probability_Decrypt_Diskette
+{
+	type = integer, 
+    min = 0, 
+    max = 100, 
+    default = 30,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Percentage_Disk,
+}
+option GVDrive.Probability_Decrypt_USB
+{
+	type = integer, 
+    min = 0, 
+    max = 100, 
+    default = 33,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Percentage_USB,
+}
+
+option GVDrive.Min_Exp_Learn_By_Diskette
+{
+	type = double, 
+    min = 0, 
+    max = 50, 
+    default = 25,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Minimun_Exp_by_Disk,
+}
+option GVDrive.Max_Exp_Learn_By_Diskette
+{
+	type = double, 
+    min = 0, 
+    max = 500, 
+    default = 195,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Maximun_Exp_by_Disk,
+}
+option  GVDrive.Min_Exp_Learn_By_USB
+{
+	type = double, 
+    min = 0, 
+    max = 50, 
+    default = 35,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Minimun_Exp_by_USB,
+}
+option GVDrive.Max_Exp_Learn_By_USB 
+{
+	type = double, 
+    min = 0, 
+    max = 500, 
+    default = 245,
+	page = Drive_Decrypt, 
+    translation = GVDrive_Maximun_Exp_by_USB,
+}

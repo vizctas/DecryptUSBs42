@@ -1,0 +1,40 @@
+GVDrive_ES = 
+{
+    GVDrive_Msg_UsbTooOldLaptop = "¿Eh? Esta laptop es demasiado vieja para una unidad USB...",
+    GVDrive_Msg_NeedsFloppyLaptop = "Necesito una laptop con unidad de disquete...",
+
+    GVDrive_Msg_USB_Corrupted = "¿Unidad corrupta?",
+    GVDrive_Msg_Disk_Corrupted = "¿Disquete corrupto?",
+
+    GVDrive_Msg_Woodwork_Success = "¡Listo! Algunos tutoriales de carpintería. Debería seguir desencriptando... quizá haya más información.",
+    GVDrive_Msg_Woodwork_Consume = "¡Listo! Tutoriales de carpintería. Tal vez encuentre más info para desencriptar en otra unidad.",
+
+    GVDrive_Msg_Electricity_Success = "¡Listo! Habilidades de electricidad. Así escondieron los archivos. Debería seguir desencriptando...",
+    GVDrive_Msg_Electricity_Consume = "¡Listo! Habilidades de electricidad. Tal vez encuentre más info para desencriptar en otra unidad.",
+
+    GVDrive_Msg_Farming_Success = "¡Listo! Cómo armar tu propia granja de maíz... Aún hay más info.",
+    GVDrive_Msg_Farming_Consume = "¡Listo! Algunos consejos de agricultura.",
+
+    GVDrive_Msg_Aiming_Success = "¡Listo! Cómo mejorar tu puntería. Buen tutorial. Seguiré desencriptando esta unidad.",
+    GVDrive_Msg_Aiming_Consume = "¡Listo! Habilidades de puntería. Tal vez encuentre más info para desencriptar en otra unidad.",
+
+    GVDrive_Msg_Cooking_Success = "¡Listo! Habilidades de cocina. ¡El gobierno escondió comida en búnkers! Seguiré desencriptando esta unidad.",
+    GVDrive_Msg_Cooking_Consume = "¡Listo! Habilidades de cocina. ¿Qué son estas recetas? Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_Sneak_Success = "¡Listo! Archivos de entrenamiento encubierto... Así es como se escabullen. Podría haber más info.",
+    GVDrive_Msg_Sneak_Consume = "¡Listo! Archivos de entrenamiento encubierto... Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_Axe_Success = "¡Listo! Consejos para mejorar mi hachazo... Podría haber más info.",
+    GVDrive_Msg_Axe_Consume = "¡Listo! Consejos para mejorar mi hachazo... Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_Fitness_Success = "¡Listo! Batidos y dietas de fitness... Podría haber más info.",
+    GVDrive_Msg_Fitness_Consume = "¡Listo! Batidos y dietas de fitness... Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_Doctor_Success = "¡Listo! Algo de primeros auxilios. 'Las medicinas curan dudas como enfermedades.' Podría haber más info.",
+    GVDrive_Msg_Doctor_Consume = "¡Listo! Algo de primeros auxilios. 'Las medicinas curan dudas como enfermedades.' Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_Survivalist_Success = "¡Listo! Supervivencia en tres palabras: nunca te rindas. Podría haber más info por desencriptar.",
+    GVDrive_Msg_Survivalist_Consume = "¡Listo! Supervivencia en tres palabras: nunca te rindas. Tal vez encuentre más info en otra unidad.",
+
+    GVDrive_Msg_USB_Opened_OK = "Esta parece funcionar",
+}

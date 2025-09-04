@@ -1,0 +1,149 @@
+module GValley 
+{
+		item AsusZephLaptopOpened
+	{
+		DisplayCategory		= GValley,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Asus Zephyrus M (Opened),
+		Icon            	= Asus,
+		WorldStaticModel 	= AsusLaptop_Open,
+		Tooltip	= Tooltip_LPAsus,
+	}
+		item AsusZephLaptopClosed
+	{
+		DisplayCategory	= GValley,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Asus Zephyrus M (Closed),
+		Icon            = Asus,
+		WorldStaticModel = AsusLaptop_Close,
+		Tooltip = Tooltip_LPAsus,
+	}
+		item Laptop90sClosed
+	{
+		DisplayCategory		= GValley,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Toshiba Satellite Pro (Closed),
+		Icon            	= 90sLaptopClosed,
+		WorldStaticModel 	= Laptop90Closed,
+		Tooltip			 	= Tooltip_Generic90,
+	}
+		item Laptop90sOpened
+	{
+		DisplayCategory	= GValley,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Toshiba Satellite Pro (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = Laptop90Opened,
+		Tooltip			 = Tooltip_Generic90,
+	}
+
+		item IBM_LP90Opened
+	{
+		DisplayCategory	= GValley,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = IBM_LP90Opened,
+		Tooltip = Tooltip_IBMPlm,
+	}
+		item PBIBM_LP90Closed
+	{
+		DisplayCategory	= GValley,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Closed),
+		Icon            = 90sLaptopClosed,
+		WorldStaticModel = PBIBM_LP90Closed,
+		Tooltip = Tooltip_IBMPlm,
+	}
+		item FloppyDrive
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Floppy 1.24 MB,
+		Icon            = floppy,
+		WorldStaticModel = FloppyDisk,
+		Tooltip = Tooltip_USB,
+	}	
+
+		item FloppyDrive_Used
+	{
+		DisplayCategory	= 	GValley,
+		Weight          = 	0.1,
+		Type            = 	Normal,
+		DisplayName     = 	Floppy 1.24MB (Useless),
+		Icon            = 	floppy,
+		WorldStaticModel = 	FloppyDisk,
+		Tooltip			 = 	Tooltip_USB,
+	}	
+
+		item FloppyDrive_Damaged
+	{
+		DisplayCategory	= 	GValley,
+		Weight          = 	0.1,
+		Type            = 	Normal,
+		DisplayName     = 	Floppy 1.24MB (Broken),
+		Icon            = 	floppy_d,
+		WorldStaticModel = 	FloppyDisk,
+		Tooltip			 = 	Tooltip_USB,
+	}	
+		item USBOpened
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Opened Drive,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			 = Tooltip_USB,
+	}	
+
+		item USB_Closed
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Closed Drive,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			 = Tooltip_USB,
+	}	
+		item USBOpened_Damaged
+	{
+		DisplayCategory		= 	GValley,
+		Weight          	= 	0.1,
+		Type            	= 	Normal,	
+		DisplayName     	= 	Damaged Drive,
+		Icon            	= 	USBOpened_d,
+		WorldStaticModel 	= 	USB_Opened,
+		Tooltip				= 	Tooltip_BUSB,
+	}
+		item USBOpened_Used
+	{
+		DisplayCategory		= GValley,
+		Weight          	= 0.1,
+		Type            	= Normal,	
+		DisplayName     	= Used Drive,
+		Icon            	= USBOpened,
+		WorldStaticModel 	= USB_Opened,
+		Tooltip				= Tooltip_USB,
+	}
+		item USBTapa
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.0,
+		Type            = Normal,
+		DisplayName     = Drive Cover,
+		Icon            = USBTapa,
+		WorldStaticModel = USB_Tapa,
+		Tooltip = Tooltip_TUSB,
+	}	
+}

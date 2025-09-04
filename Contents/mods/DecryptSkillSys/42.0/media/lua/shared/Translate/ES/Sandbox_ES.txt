@@ -1,0 +1,12 @@
+Sandbox_ES = 
+{
+	Sandbox_GVDrive = "Configuracion desencriptado discos",
+	Sandbox_GVDrive_DriveDrop_Chance_U  = "Probabilidad de botin USB de Zeds (Mantener bajo posible)",
+	Sandbox_GVDrive_DriveDrop_Chance_D  = "Probabilidad de botin Diskettes de Zeds (Mantener bajo posible)",
+    Sandbox_GVDrive_Minimun_Exp_by_Disk = "Min. experiencia aprendida desencriptado Diskettes",
+    Sandbox_GVDrive_Maximun_Exp_by_Disk = "Max. experiencia aprendida desencriptado Diskettes",
+    Sandbox_GVDrive_Minimun_Exp_by_USB  = "Min. experiencia aprendida desencriptado USB",
+    Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. experiencia aprendida desencriptado USB",
+    Sandbox_GVDrive_Percentage_Disk     = "Tasa de exito desencriptado Diskette  (Rec. menos de 40)",
+    Sandbox_GVDrive_Percentage_USB      = "Tasa de exito desencriptado USB  (Rec. menos de 40)",
+}
