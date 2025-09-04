@@ -15,6 +15,10 @@ function OnOpen_USB(items, result, player)
     local selectedItem = choices[ZombRand(#choices) + 1]
     inv:AddItem(selectedItem)
 
-    -- Show feedback
-    HaloTextHelper.addTextWithArrow(ply, getText("GVDrive_Msg_USB_Opened_OK"), true, HaloTextHelper.getColorGreen())
+    -- Show feedback (client-only helper may not exist on server)
+    if HaloTextHelper and HaloTextHelper.addTextWithArrow then
+        HaloTextHelper.addTextWithArrow(ply, getText("GVDrive_Msg_USB_Opened_OK"), true, HaloTextHelper.getColorGreen())
+    else
+        print("[DecryptSkillSys] USB opened result granted: " .. tostring(selectedItem))
+    end
 end

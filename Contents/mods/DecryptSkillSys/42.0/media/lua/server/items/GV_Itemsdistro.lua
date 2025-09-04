@@ -1,35 +1,49 @@
-require "Items/ProceduralDistributions"
+-- Defensive requires to avoid hard crashes on servers where
+-- some vanilla files are renamed/missing (B42 changes, etc.)
+local function try_require(path)
+    local ok, err = pcall(require, path)
+    if not ok then
+        print("[DecryptSkillSys] Optional require failed: " .. tostring(path))
+    end
+    return ok
+end
 
-require "Vehicles/VehicleDistributions_List"
+try_require("Items/ProceduralDistributions")
+try_require("Vehicles/VehicleDistributions_List")
+try_require("Vehicles/VehicleDistribution_GloveBoxJunk")
+try_require("Vehicles/VehicleDistribution_TrunkJunk")
+try_require("Vehicles/VehicleDistribution_SeatJunk")
+try_require("Vehicles/VehicleDistributions")
 
-require "Vehicles/VehicleDistribution_GloveBoxJunk"
-require "Vehicles/VehicleDistribution_TrunkJunk"
-require "Vehicles/VehicleDistribution_SeatJunk"
-require "Vehicles/VehicleDistributions"
+try_require("Items/Distribution_BinJunk")
+try_require("Items/Distribution_ClosetJunk")
+try_require("Items/Distribution_CounterJunk")
+try_require("Items/Distribution_DeskJunk")
+try_require("Items/Distribution_ShelfJunk")
+try_require("Items/Distribution_SideTableJunk")
 
-require "Items/Distribution_BinJunk"
-require "Items/Distribution_ClosetJunk"
-require "Items/Distribution_CounterJunk"
-require "Items/Distribution_DeskJunk"
-require "Items/Distribution_ShelfJunk"
-require "Items/Distribution_SideTableJunk"
+try_require("Items/Distribution_BagsAndContainers")
+try_require("Items/ItemPicker")
 
-require "Items/Distribution_BagsAndContainers"
-
-require "Items/ItemPicker"
+print("[DecryptSkillSys] GV_Itemsdistro.lua loaded")
 
 function safeInsertItems(distriName, item, weight)
 	if not distriName or not item or not weight then return end
-	
+
 	local multiplier = 1.0  -- Default multiplier
-	local proceduralDistrib = ProceduralDistributions.list[distriName]
-	local vehicleDistrib = VehicleDistributions_List[distriName]
-	
+	local proceduralDistrib = (ProceduralDistributions and ProceduralDistributions.list) and ProceduralDistributions.list[distriName] or nil
+	local vehicleDistrib = (type(VehicleDistributions_List) == "table") and VehicleDistributions_List[distriName] or nil
+
+	if not proceduralDistrib and not vehicleDistrib then
+		-- Avoid spamming, but give one hint of what's happening
+		print("[DecryptSkillSys] Distribution '" .. tostring(distriName) .. "' not found in Procedural or Vehicle tables")
+	end
+
 	if proceduralDistrib and proceduralDistrib.items then
 		table.insert(proceduralDistrib.items, item)
 		table.insert(proceduralDistrib.items, weight * multiplier)
 	end
-	
+
 	if vehicleDistrib and vehicleDistrib.items then
 		table.insert(vehicleDistrib.items, item)
 		table.insert(vehicleDistrib.items, weight * multiplier)
@@ -74,7 +88,12 @@ function GVDrive_ProceduralDistributions()
 	safeInsertItems("SecurityLockers", "GValley.PBIBM_LP90Closed", 7.4)
 	safeInsertItems("ComputerStoreElectronics", "GValley.PBIBM_LP90Closed", 12.0)
 	
-	ItemPickerJava.Parse()
+	-- Re-parse item picker if available (some headless servers don't expose this)
+	if ItemPickerJava and ItemPickerJava.Parse then
+		ItemPickerJava.Parse()
+	else
+		print("[DecryptSkillSys] ItemPickerJava.Parse unavailable; skipping parse")
+	end
 end
 
 Events.OnPreDistributionMerge.Add(GVDrive_ProceduralDistributions)
@@ -117,7 +136,6 @@ end
 
 -- Register the zombie death event
 Events.OnZombieDead.Add(GVDrive_OnZombieDead)
-
 
 
 
