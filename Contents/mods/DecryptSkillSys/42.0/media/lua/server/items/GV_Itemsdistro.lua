@@ -88,12 +88,11 @@ function GVDrive_ProceduralDistributions()
 	safeInsertItems("SecurityLockers", "GValley.PBIBM_LP90Closed", 7.4)
 	safeInsertItems("ComputerStoreElectronics", "GValley.PBIBM_LP90Closed", 12.0)
 	
-	-- Re-parse item picker if available (some headless servers don't expose this)
-	if ItemPickerJava and ItemPickerJava.Parse then
-		ItemPickerJava.Parse()
-	else
-		print("[DecryptSkillSys] ItemPickerJava.Parse unavailable; skipping parse")
-	end
+	-- Do NOT call ItemPickerJava.Parse() here.
+	-- In Build 42 the engine parses/initializes the WorldDictionary after
+	-- OnPreDistributionMerge. Calling Parse() here can trigger recursive
+	-- initialization and crash clients/servers while joining a game.
+	-- The engine will pick up the injected items without a manual parse.
 end
 
 Events.OnPreDistributionMerge.Add(GVDrive_ProceduralDistributions)
