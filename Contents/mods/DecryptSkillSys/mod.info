@@ -1,14 +1,41 @@
-name=Decrypt drives: Random Perks XP
+name=Decrypt drives: Random Perks XP [42B]
 id=DecryptSkillSys42
 icon=poster.png
 author=GValley
 pzversion=42
-modversion=1.0
+modversion=2.0
 versionMin=42.0.0
 
 description=<PUSHRGB:0.4,1,0.4><BR> <H1> <CENTRE> Decrypt Drives: Random Perks XP </CENTRE> </H1></BR>
-description= <SIZE:medium><PUSHRGB:0.3,0.7,0.3><BR><CENTRE>"Decrypt drives and USB sticks to gain random skill experience!" </CENTRE></BR>
-description=<PUSHRGB:1,1,1> <BR><H2> <CENTRE> Find encrypted drives and decrypt them to learn various skills. <LINE></CENTRE> </H2></BR>
-description= <PUSHRGB:1,1,1><LEFT><SIZE:medium> This mod adds the ability to decrypt USB drives found throughout the world to gain random skill experience. Use laptops to decrypt drives and discover government secrets that teach you various survival skills.
+description= <SIZE:medium><PUSHRGB:0.3,0.7,0.3><BR><CENTRE>"¿Quién necesita libros cuando tienes USBs del gobierno?" </CENTRE></BR>
+description=<PUSHRGB:1,1,1> <BR><H2> <CENTRE> Hackea tu camino hacia la supervivencia <LINE></CENTRE> </H2></BR>
+description= <PUSHRGB:1,1,1><LEFT><SIZE:medium> 
+
+description=<PUSHRGB:1,0.8,0><B>🔓 ¿Qué diablos es esto?</B></PUSHRGB><BR>
+description=Encuentra USBs y disquetes encriptados por todo Knox County. Usa laptops para descifrarlos y aprende habilidades que el gobierno no quería que supieras. Desde carpintería hasta primeros auxilios, estos archivos clasificados contienen de todo.<BR><BR>
+
+description=<PUSHRGB:0.8,1,0.8><B>💻 Laptops Compatibles:</B></PUSHRGB><BR>
+description=• <B>Asus ROG:</B> Para USBs modernos (¡porque las laptops gaming sirven para algo!)<BR>
+description=• <B>IBM Palm Top & Toshiba:</B> Para disquetes retro (nostalgia nivel máximo)<BR><BR>
+
+description=<PUSHRGB:1,0.6,0.6><B>⚡ Sistema de Experiencia Inteligente:</B></PUSHRGB><BR>
+description=Se acabó recibir 10 puntos de experiencia cuando ya eres nivel 8. El mod ahora escala la experiencia según tu nivel actual. ¡Mientras más sabes, más puedes aprender!<BR><BR>
+
+description=<PUSHRGB:1,1,0><B>🏆 NUEVO: Discos Élite</B></PUSHRGB><BR>
+description=¿Te creías pro? Ahora hay discos súper raros (0.15% drop) que contienen protocolos militares. Recolecta los 5 tipos diferentes y créate un potenciador élite que te dará:<BR>
+description=• +5 kg de capacidad de carga<BR>
+description=• +10% velocidad de movimiento<BR>
+description=• Bonificaciones de combate<BR>
+description=<I>Spoiler: Solo puedes usarlo una vez, así que no lo desperdicies</I><BR><BR>
+
+description=<PUSHRGB:0.6,0.8,1><B>🎮 Cómo Jugar:</B></PUSHRGB><BR>
+description=1. Mata zombies → busca drives<BR>
+description=2. Encuentra una laptop → ponla en el suelo<BR>
+description=3. Click derecho en la laptop → "Desencriptar"<BR>
+description=4. Reza para que no se corrompa el archivo<BR>
+description=5. ¡Profit!<BR><BR>
+
+description=<PUSHRGB:0.8,0.8,0.8><B>⚙️ Totalmente Configurable</B></PUSHRGB><BR>
+description=Todo se puede ajustar en el sandbox: drop rates, probabilidades de éxito, experiencia... Porque sabemos que te gusta romper el balance del juego 😉
 
 poster=poster.png

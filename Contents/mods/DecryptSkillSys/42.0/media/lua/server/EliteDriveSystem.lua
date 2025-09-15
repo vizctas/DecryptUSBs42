@@ -65,9 +65,12 @@ end
 function onZombieDeath(zombie)
     if not zombie or zombie:isPlayer() then return end
     
+    -- Get elite drop chance from sandbox (convert to 0-1 range)
+    local eliteDropChance = ((SandboxVars.GVDrive and SandboxVars.GVDrive.EliteDrive_ZombieDrop_Chance) or 0.15)
+    
     -- Check for elite drive drop
     local chance = ZombRand(1, 10000) / 100.0
-    if chance <= ELITE_DROP_CHANCE then
+    if chance <= eliteDropChance then
         local driveTypes = {
             "GValley.EliteDrive_Strength",
             "GValley.EliteDrive_Endurance", 

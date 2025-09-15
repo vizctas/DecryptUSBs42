@@ -123,9 +123,9 @@ local function enableWorldLoot()
 
     -- Base weights; procedural values are relative within each list
     -- Apply sandbox multipliers (percentage intensity per item type)
-    local usbMul    = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_USB) or 100) / 100
-    local diskMul   = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_Diskette) or 100) / 100
-    local laptopMul = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_Laptop) or 100) / 100
+    local usbMul    = ((SandboxVars.GVDrive and SandboxVars.GVDrive.USB_WorldLoot_Chance) or 100) / 100
+    local diskMul   = ((SandboxVars.GVDrive and SandboxVars.GVDrive.Floppy_WorldLoot_Chance) or 100) / 100
+    local laptopMul = ((SandboxVars.GVDrive and SandboxVars.GVDrive.Laptop_WorldLoot_Chance) or 100) / 100
 
     local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
     local floppyWeightProc  = 0.06 * diskMul  -- slightly rarer
@@ -197,11 +197,11 @@ function GVDrive_OnZombieDead(zombie)
 	if not inventory then return end
 	
 	-- Get drop chances from sandbox variables (convert to 0-1 range)
-	local usbDropChance = (SandboxVars.GVDrive.DriveDropChance_USB or 0.8) / 100
-	local floppyDropChance = (SandboxVars.GVDrive.DriveDropChance_Diskette or 1.0) / 100
+	local usbDropChance = (SandboxVars.GVDrive.USB_ZombieDrop_Chance or 0.8) / 100
+	local floppyDropChance = (SandboxVars.GVDrive.Floppy_ZombieDrop_Chance or 1.0) / 100
 	
 	-- Very low chance for laptops (configurable via sandbox)
-	local laptopDropChance = ((SandboxVars.GVDrive.LaptopDropChance or 0.5) / 100)
+	local laptopDropChance = ((SandboxVars.GVDrive.Laptop_ZombieDrop_Chance or 0.5) / 100)
 	
 	-- Roll for USB drive drop
 	if ZombRand(100) / 100 < usbDropChance then

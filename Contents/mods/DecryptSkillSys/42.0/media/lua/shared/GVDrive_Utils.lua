@@ -8,20 +8,20 @@ function GVDrive_Utils.calculateScalableExperience(character, perk, isUSB)
     if not SandboxVars.GVDrive.Use_Scalable_Experience then
         -- Use old system
         if isUSB then
-            local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_USB
-            local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_USB
+            local maxExpGain = SandboxVars.GVDrive.USB_Max_Experience
+            local minExpGain = SandboxVars.GVDrive.USB_Min_Experience
             return ZombRand(minExpGain, maxExpGain) + 1
         else
-            local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_Diskette
-            local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_Diskette
+            local maxExpGain = SandboxVars.GVDrive.Floppy_Max_Experience
+            local minExpGain = SandboxVars.GVDrive.Floppy_Min_Experience
             return ZombRand(minExpGain, maxExpGain) + 1
         end
     end
 
     -- New scalable system
     local currentLevel = character:getPerkLevel(perk)
-    local baseMultiplier = SandboxVars.GVDrive.Exp_Base_Multiplier or 1.5
-    local levelFactor = SandboxVars.GVDrive.Exp_Level_Factor or 1.2
+    local baseMultiplier = SandboxVars.GVDrive.Scalable_Base_Experience or 50
+    local levelFactor = SandboxVars.GVDrive.Scalable_Level_Multiplier or 1.2
     
     -- Calculate base experience (higher for USB, lower for diskette)
     local baseExp = isUSB and 50 or 35

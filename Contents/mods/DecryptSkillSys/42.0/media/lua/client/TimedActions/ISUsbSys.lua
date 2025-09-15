@@ -39,12 +39,18 @@ end
             return
         end
 
-        -- Always consume one USB at the start
-        inventoryItem:Remove("GValley.USBOpened")
-
         local MaxRolls = 15
-        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Probability_Decrypt_USB / 100)
+        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.USB_Decrypt_Success_Chance / 100)
         local diceroll = ZombRand(1.0, MaxRolls)
+
+        -- Check if drive should be preserved (chance to NOT destroy it)
+        local preserveChance = (SandboxVars.GVDrive.Drive_Preserve_Chance or 30) / 100
+        local shouldPreserve = ZombRand(100) / 100 < preserveChance
+        
+        -- Always consume one USB unless it's preserved
+        if not shouldPreserve then
+            inventoryItem:Remove("GValley.USBOpened")
+        end
 
         if diceroll >= probabilityToGain then
             local randomPerk = GVDrive_Utils.getRandomPerk()

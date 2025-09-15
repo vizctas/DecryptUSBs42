@@ -41,12 +41,18 @@ function DecryptFloppyDisk:perform()
         return
     end
 
-    -- Always consume one floppy at the start
-    inventoryItem:Remove("GValley.FloppyDrive")
-
     local MaxRolls = 16
-    local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Probability_Decrypt_Diskette / 100)
+    local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Floppy_Decrypt_Success_Chance / 100)
     local diceroll = ZombRand(1.0, MaxRolls)
+
+    -- Check if drive should be preserved (chance to NOT destroy it)
+    local preserveChance = (SandboxVars.GVDrive.Drive_Preserve_Chance or 30) / 100
+    local shouldPreserve = ZombRand(100) / 100 < preserveChance
+    
+    -- Always consume one floppy unless it's preserved
+    if not shouldPreserve then
+        inventoryItem:Remove("GValley.FloppyDrive")
+    end
 
     if diceroll >= probabilityToGain then
         local randomPerk = GVDrive_Utils.getRandomPerk()
@@ -88,12 +94,12 @@ end
         end
 
         local MaxRolls = 16
-        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Probability_Decrypt_Diskette / 100)
+        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Floppy_Decrypt_Success_Chance / 100)
         local diceroll = ZombRand(1.0, MaxRolls)
 
         if diceroll >= probabilityToGain then
-            local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_Diskette
-            local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_Diskette
+            local maxExpGain = SandboxVars.GVDrive.Floppy_Max_Experience
+            local minExpGain = SandboxVars.GVDrive.Floppy_Min_Experience
             local randomLvl = ZombRand(minExpGain, maxExpGain) + 1
 
             local perkTable = {

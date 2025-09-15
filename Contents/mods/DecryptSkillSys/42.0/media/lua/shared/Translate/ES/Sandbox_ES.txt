@@ -1,20 +1,60 @@
 Sandbox_ES = 
 {
-	Sandbox_GVDrive = "Configuracion desencriptado discos",
-	Sandbox_GVDrive_DriveDrop_Chance_U  = "Probabilidad de botin USB de Zeds (Mantener bajo posible)",
-	Sandbox_GVDrive_DriveDrop_Chance_D  = "Probabilidad de botin Diskettes de Zeds (Mantener bajo posible)",
-    Sandbox_GVDrive_Minimun_Exp_by_Disk = "Min. experiencia aprendida desencriptado Diskettes",
-    Sandbox_GVDrive_Maximun_Exp_by_Disk = "Max. experiencia aprendida desencriptado Diskettes",
-    Sandbox_GVDrive_Minimun_Exp_by_USB  = "Min. experiencia aprendida desencriptado USB",
-    Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. experiencia aprendida desencriptado USB",
-    Sandbox_GVDrive_Percentage_Disk     = "Tasa de exito desencriptado Diskette  (Rec. menos de 40)",
-    Sandbox_GVDrive_Percentage_USB      = "Tasa de exito desencriptado USB  (Rec. menos de 40)",
-    Sandbox_GVDrive_LaptopDrop_Chance   = "Probabilidad de laptops (%) en zombis",
-    Sandbox_GVDrive_EnableWorldLoot     = "Habilitar loot mundial (contenedores y tiendas)",
-    Sandbox_GVDrive_WorldLoot_USB       = "Intensidad de loot mundial de USB (%)",
-    Sandbox_GVDrive_WorldLoot_Disk      = "Intensidad de loot mundial de Diskettes (%)",
-    Sandbox_GVDrive_WorldLoot_Laptop    = "Intensidad de loot mundial de Laptops (%)",
-    Sandbox_GVDrive_Use_Scalable_Exp    = "Usar experiencia escalable (se ajusta según nivel de habilidad)",
-    Sandbox_GVDrive_Exp_Base_Multiplier = "Multiplicador base de experiencia para sistema escalable",
-    Sandbox_GVDrive_Exp_Level_Factor    = "Factor de escalado por nivel (mayor = más exp en niveles altos)",
+	Sandbox_Drive_Decrypt = "Configuracion de Descifrado",
+	
+	// ============ PROBABILIDADES DE ZOMBIS ============
+    Sandbox_GVDrive_USB_ZombieDrop = "Probabilidad USB (Zombis)",
+    Sandbox_GVDrive_USB_ZombieDrop_tooltip = "Porcentaje de probabilidad de que los zombis suelten USBs al morir. 0% = nunca, 100% = siempre.",
+    
+    Sandbox_GVDrive_Floppy_ZombieDrop = "Probabilidad Disquete (Zombis)",
+    Sandbox_GVDrive_Floppy_ZombieDrop_tooltip = "Porcentaje de probabilidad de que los zombis suelten disquetes al morir. 0% = nunca, 100% = siempre.",
+    
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Probabilidad Laptop (Zombis)",
+    Sandbox_GVDrive_Laptop_ZombieDrop_tooltip = "Porcentaje de probabilidad de que los zombis suelten laptops al morir. 0% = nunca, 100% = siempre.",
+    
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Probabilidad Disco Elite (Zombis)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop_tooltip = "Porcentaje de probabilidad de que los zombis suelten discos elite al morir. ¡Son extremadamente raros! 5% ya es muy alto.",
+    
+    // ============ APARICION EN EL MUNDO ============
+    Sandbox_GVDrive_USB_WorldLoot = "Aparicion USB (Mundo)",
+    Sandbox_GVDrive_USB_WorldLoot_tooltip = "Porcentaje de la tasa normal de aparicion de USBs en el mundo (escritorios, computadoras, etc.). 100% = normal, 0% = nunca aparecen.",
+    
+    Sandbox_GVDrive_Floppy_WorldLoot = "Aparicion Disquete (Mundo)",
+    Sandbox_GVDrive_Floppy_WorldLoot_tooltip = "Porcentaje de la tasa normal de aparicion de disquetes en el mundo (escritorios, computadoras, etc.). 100% = normal, 0% = nunca aparecen.",
+    
+    Sandbox_GVDrive_Laptop_WorldLoot = "Aparicion Laptop (Mundo)",
+    Sandbox_GVDrive_Laptop_WorldLoot_tooltip = "Porcentaje de la tasa normal de aparicion de laptops en el mundo (oficinas, escuelas, etc.). 100% = normal, 0% = nunca aparecen.",
+    
+    // ============ EXITO DE DESCIFRADO ============
+    Sandbox_GVDrive_USB_Decrypt_Success = "Exito Descifrar USB",
+    Sandbox_GVDrive_USB_Decrypt_Success_tooltip = "Porcentaje de probabilidad de descifrar exitosamente un USB. Mas alto = mas facil descifrar.",
+    
+    Sandbox_GVDrive_Floppy_Decrypt_Success = "Exito Descifrar Disquete",
+    Sandbox_GVDrive_Floppy_Decrypt_Success_tooltip = "Porcentaje de probabilidad de descifrar exitosamente un disquete. Mas alto = mas facil descifrar.",
+    
+    Sandbox_GVDrive_Drive_Preserve = "Preservacion de Disco",
+    Sandbox_GVDrive_Drive_Preserve_tooltip = "Porcentaje de probabilidad de que un disco NO se destruya despues de descifrarlo. Mas alto = duran mas.",
+    
+    // ============ SISTEMA DE EXPERIENCIA ============
+    Sandbox_GVDrive_Use_Scalable_Exp = "Usar Sistema Inteligente",
+    Sandbox_GVDrive_Use_Scalable_Exp_tooltip = "Cuando ENCENDIDO: La experiencia escala con tu nivel (mas dificil en niveles altos). Cuando APAGADO: Usa rangos fijos aleatorios.",
+    
+    Sandbox_GVDrive_Scalable_Base_Exp = "Experiencia Base",
+    Sandbox_GVDrive_Scalable_Base_Exp_tooltip = "Puntos de experiencia base otorgados con el sistema inteligente. Niveles mas altos obtendran mas que esta cantidad.",
+    
+    Sandbox_GVDrive_Scalable_Level_Multiplier = "Multiplicador de Dificultad",
+    Sandbox_GVDrive_Scalable_Level_Multiplier_tooltip = "Que tan dificil se vuelve en niveles altos. 1.0 = misma dificultad, 2.0 = mucho mas dificil en niveles altos.",
+    
+    // ============ EXPERIENCIA CLASICA (cuando inteligente esta APAGADO) ============
+    Sandbox_GVDrive_USB_Min_Exp = "Exp Minima USB (Clasico)",
+    Sandbox_GVDrive_USB_Min_Exp_tooltip = "Puntos minimos de experiencia de USB (solo cuando Sistema Inteligente esta APAGADO).",
+    
+    Sandbox_GVDrive_USB_Max_Exp = "Exp Maxima USB (Clasico)",
+    Sandbox_GVDrive_USB_Max_Exp_tooltip = "Puntos maximos de experiencia de USB (solo cuando Sistema Inteligente esta APAGADO).",
+    
+    Sandbox_GVDrive_Floppy_Min_Exp = "Exp Minima Disquete (Clasico)",
+    Sandbox_GVDrive_Floppy_Min_Exp_tooltip = "Puntos minimos de experiencia de disquete (solo cuando Sistema Inteligente esta APAGADO).",
+    
+    Sandbox_GVDrive_Floppy_Max_Exp = "Exp Maxima Disquete (Clasico)",
+    Sandbox_GVDrive_Floppy_Max_Exp_tooltip = "Puntos maximos de experiencia de disquete (solo cuando Sistema Inteligente esta APAGADO).",
 }

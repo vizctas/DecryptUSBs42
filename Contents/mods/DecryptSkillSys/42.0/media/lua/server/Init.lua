@@ -12,14 +12,14 @@ local function logGVDriveSandbox(prefix)
     end
 
     local keys = {
-        "DriveDropChance_USB",
-        "DriveDropChance_Diskette",
-        "Probability_Decrypt_USB",
-        "Probability_Decrypt_Diskette",
-        "Min_Exp_Learn_By_USB",
-        "Max_Exp_Learn_By_USB",
-        "Min_Exp_Learn_By_Diskette",
-        "Max_Exp_Learn_By_Diskette",
+        "USB_ZombieDrop_Chance",
+        "Floppy_ZombieDrop_Chance",
+        "USB_Decrypt_Success_Chance",
+        "Floppy_Decrypt_Success_Chance",
+        "USB_Min_Experience",
+        "USB_Max_Experience",
+        "Floppy_Min_Experience",
+        "Floppy_Max_Experience",
     }
 
     for _, k in ipairs(keys) do
