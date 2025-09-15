@@ -9,4 +9,9 @@ Sandbox_EN =
     Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. expercience learn by USB",
     Sandbox_GVDrive_Percentage_Disk     = "successful rate to decrypt Diskette out of 100 (Recommended less than 40)",
     Sandbox_GVDrive_Percentage_USB      = "successful rate to decrypt USB out of 100 (Recommended less than 40)",
+    Sandbox_GVDrive_LaptopDrop_Chance   = "Laptop drop chance (%) on zeds",
+    Sandbox_GVDrive_EnableWorldLoot     = "Enable world loot (containers & stores)",
+    Sandbox_GVDrive_WorldLoot_USB       = "World loot intensity for USBs (%)",
+    Sandbox_GVDrive_WorldLoot_Disk      = "World loot intensity for Floppies (%)",
+    Sandbox_GVDrive_WorldLoot_Laptop    = "World loot intensity for Laptops (%)",
 }

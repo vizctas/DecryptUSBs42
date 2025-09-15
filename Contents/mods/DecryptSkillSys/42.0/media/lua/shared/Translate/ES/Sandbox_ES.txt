@@ -9,4 +9,9 @@ Sandbox_ES =
     Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. experiencia aprendida desencriptado USB",
     Sandbox_GVDrive_Percentage_Disk     = "Tasa de exito desencriptado Diskette  (Rec. menos de 40)",
     Sandbox_GVDrive_Percentage_USB      = "Tasa de exito desencriptado USB  (Rec. menos de 40)",
+    Sandbox_GVDrive_LaptopDrop_Chance   = "Probabilidad de laptops (%) en zombis",
+    Sandbox_GVDrive_EnableWorldLoot     = "Habilitar loot mundial (contenedores y tiendas)",
+    Sandbox_GVDrive_WorldLoot_USB       = "Intensidad de loot mundial de USB (%)",
+    Sandbox_GVDrive_WorldLoot_Disk      = "Intensidad de loot mundial de Diskettes (%)",
+    Sandbox_GVDrive_WorldLoot_Laptop    = "Intensidad de loot mundial de Laptops (%)",
 }

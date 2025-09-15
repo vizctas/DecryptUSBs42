@@ -1,5 +1,8 @@
 GVDrive_ES = 
 {
+    GVDrive_Ctx_Decrypt_Drive = "Desencriptar unidad",
+    GVDrive_Ctx_Check_Floppy = "Verificar disquete",
+    
     GVDrive_Msg_UsbTooOldLaptop = "¿Eh? Esta laptop es demasiado vieja para una unidad USB...",
     GVDrive_Msg_NeedsFloppyLaptop = "Necesito una laptop con unidad de disquete...",
 

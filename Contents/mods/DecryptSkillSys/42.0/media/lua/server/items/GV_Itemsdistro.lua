@@ -8,6 +8,8 @@ local function try_require(path)
     return ok
 end
 
+-- World loot distribution (re-enabled)
+-- Load vanilla distribution tables if available
 try_require("Items/ProceduralDistributions")
 try_require("Vehicles/VehicleDistributions_List")
 try_require("Vehicles/VehicleDistribution_GloveBoxJunk")
@@ -15,6 +17,7 @@ try_require("Vehicles/VehicleDistribution_TrunkJunk")
 try_require("Vehicles/VehicleDistribution_SeatJunk")
 try_require("Vehicles/VehicleDistributions")
 
+-- Older B41/B42 helper lists (optional)
 try_require("Items/Distribution_BinJunk")
 try_require("Items/Distribution_ClosetJunk")
 try_require("Items/Distribution_CounterJunk")
@@ -22,6 +25,7 @@ try_require("Items/Distribution_DeskJunk")
 try_require("Items/Distribution_ShelfJunk")
 try_require("Items/Distribution_SideTableJunk")
 
+-- Loads SuburbsDistributions via ItemPicker
 try_require("Items/Distribution_BagsAndContainers")
 try_require("Items/ItemPicker")
 
@@ -50,52 +54,140 @@ function safeInsertItems(distriName, item, weight)
 	end
 end
 
-function GVDrive_ProceduralDistributions()
-	-- USB Drives
-	safeInsertItems("SecurityLockers", "GValley.USB_Closed", 4.2)
-	safeInsertItems("SchoolLockers", "GValley.USB_Closed", 4.1)
-	safeInsertItems("GigamartHouseElectronics", "GValley.USB_Closed", 6.3)
-	safeInsertItems("OfficeDesk", "GValley.USB_Closed", 3.5)
-	safeInsertItems("ComputerStoreElectronics", "GValley.USB_Closed", 8.0)
-	
-	-- Floppy Drives
-	safeInsertItems("SecurityLockers", "GValley.FloppyDrive", SandboxVars.GVDrive.DriveDropChance_Diskette or 1.0)
-	safeInsertItems("SchoolLockers", "GValley.FloppyDrive", 2.5)
-	safeInsertItems("GigamartHouseElectronics", "GValley.FloppyDrive", 4.0)
-	safeInsertItems("OfficeDesk", "GValley.FloppyDrive", 2.8)
-	safeInsertItems("ComputerStoreElectronics", "GValley.FloppyDrive", 6.0)
-	
-	-- Laptops
-	safeInsertItems("Bag_SurvivorBag", "GValley.AsusZephLaptopClosed", 4.4)
-	safeInsertItems("Bag_DuffelBagTINT", "GValley.AsusZephLaptopClosed", 4.1)
-	safeInsertItems("SchoolLockers", "GValley.AsusZephLaptopClosed", 3.5)
-	safeInsertItems("LivingRoomShelf", "GValley.AsusZephLaptopClosed", 2.2)
-	safeInsertItems("GigamartHouseElectronics", "GValley.AsusZephLaptopClosed", 12.4)
-	safeInsertItems("SecurityLockers", "GValley.AsusZephLaptopClosed", 1.5)
-	safeInsertItems("ComputerStoreElectronics", "GValley.AsusZephLaptopClosed", 15.0)
-	
-	safeInsertItems("Bag_SurvivorBag", "GValley.Laptop90sClosed", 4.5)
-	safeInsertItems("Bag_DuffelBag", "GValley.Laptop90sClosed", 5.3)
-	safeInsertItems("SchoolLockers", "GValley.Laptop90sClosed", 7.2)
-	safeInsertItems("GigamartHouseElectronics", "GValley.Laptop90sClosed", 8.3)
-	safeInsertItems("SecurityLockers", "GValley.Laptop90sClosed", 5.4)
-	safeInsertItems("ComputerStoreElectronics", "GValley.Laptop90sClosed", 10.0)
-	
-	safeInsertItems("Bag_SurvivorBag", "GValley.PBIBM_LP90Closed", 5.5)
-	safeInsertItems("Bag_DuffelBag", "GValley.PBIBM_LP90Closed", 5.5)
-	safeInsertItems("SchoolLockers", "GValley.PBIBM_LP90Closed", 7.2)
-	safeInsertItems("GigamartHouseElectronics", "GValley.PBIBM_LP90Closed", 8.1)
-	safeInsertItems("SecurityLockers", "GValley.PBIBM_LP90Closed", 7.4)
-	safeInsertItems("ComputerStoreElectronics", "GValley.PBIBM_LP90Closed", 12.0)
-	
-	-- Do NOT call ItemPickerJava.Parse() here.
-	-- In Build 42 the engine parses/initializes the WorldDictionary after
-	-- OnPreDistributionMerge. Calling Parse() here can trigger recursive
-	-- initialization and crash clients/servers while joining a game.
-	-- The engine will pick up the injected items without a manual parse.
+-- Utilities to inject items into distributions by name/patterns
+local function stringContainsAny(hay, needles)
+    if type(hay) ~= "string" then return false end
+    local lhay = string.lower(hay)
+    for _, n in ipairs(needles or {}) do
+        if lhay:find(string.lower(n), 1, true) then
+            return true
+        end
+    end
+    return false
 end
 
-Events.OnPreDistributionMerge.Add(GVDrive_ProceduralDistributions)
+local function addToProceduralByPattern(patterns, item, weight)
+    if not (ProceduralDistributions and ProceduralDistributions.list) then return end
+    for name, list in pairs(ProceduralDistributions.list) do
+        local t = list and list.items
+        if t and stringContainsAny(name, patterns) then
+            table.insert(t, item)
+            table.insert(t, weight)
+        end
+    end
+end
+
+local function addToVehicleCommon(item, weight)
+    if type(VehicleDistributions_List) ~= "table" then return end
+    for name, list in pairs(VehicleDistributions_List) do
+        if list and list.items and stringContainsAny(name, {"glove", "glovebox", "trunk", "seat"}) then
+            table.insert(list.items, item)
+            table.insert(list.items, weight)
+        end
+    end
+end
+
+local function addToSuburbsByContainer(patterns, item, weight)
+    if type(SuburbsDistributions) ~= "table" then return end
+    for roomName, containers in pairs(SuburbsDistributions) do
+        if type(containers) == "table" then
+            for containerName, dist in pairs(containers) do
+                local t = dist and dist.items
+                if t and stringContainsAny(containerName, patterns) then
+                    table.insert(t, item)
+                    table.insert(t, weight)
+                end
+            end
+        end
+    end
+end
+
+local function enableWorldLoot()
+    -- Guard on sandbox toggle (fallback ON if option missing in old saves)
+    local gv = (SandboxVars and SandboxVars.GVDrive) or {}
+    local enable = gv.EnableWorldLoot
+    local enableFallback = false
+    if enable == nil then
+        enable = true
+        enableFallback = true
+    end
+    if not enable then
+        print("[DecryptSkillSys] World loot disabled by sandbox option")
+        return
+    end
+    if enableFallback then
+        print("[DecryptSkillSys] World loot enabled (fallback: option missing in save)")
+    end
+
+    print("[DecryptSkillSys] Enabling world loot for USBs, floppies, and laptops…")
+
+    -- Base weights; procedural values are relative within each list
+    -- Apply sandbox multipliers (percentage intensity per item type)
+    local usbMul    = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_USB) or 100) / 100
+    local diskMul   = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_Diskette) or 100) / 100
+    local laptopMul = ((SandboxVars.GVDrive and SandboxVars.GVDrive.WorldLootChance_Laptop) or 100) / 100
+
+    local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
+    local floppyWeightProc  = 0.06 * diskMul  -- slightly rarer
+    local laptopWeightProc  = 0.01 * laptopMul-- rare in stores/office-related
+
+    local usbWeightVehicle    = 0.5  * usbMul
+    local floppyWeightVehicle = 0.25 * diskMul
+    local laptopWeightVehicle = 0.05 * laptopMul
+
+    -- Patterns to target relevant procedural lists/containers
+    local elecPatterns  = {"electronic", "computer", "tech", "server"}
+    local officePatterns= {"office", "desk", "cubicle"}
+    local shelfCrate    = {"shelf", "crate", "storage", "warehouse"}
+    local schoolLib     = {"school", "library", "class"}
+    local homePatterns  = {"bedroom", "sidetable", "living", "garage"}
+
+    -- Items
+    local itemUSB       = "GValley.USB_Closed"
+    local itemFloppy    = "GValley.FloppyDrive"
+    local laptopsClosed = {"GValley.AsusZephLaptopClosed", "GValley.Laptop90sClosed", "GValley.PBIBM_LP90Closed"}
+
+    -- Procedural distributions
+    addToProceduralByPattern(elecPatterns,   itemUSB,    usbWeightProc)
+    addToProceduralByPattern(officePatterns, itemUSB,    usbWeightProc)
+    addToProceduralByPattern(shelfCrate,     itemUSB,    usbWeightProc)
+    addToProceduralByPattern(schoolLib,      itemUSB,    usbWeightProc)
+    addToProceduralByPattern(homePatterns,   itemUSB,    usbWeightProc)
+
+    addToProceduralByPattern(elecPatterns,   itemFloppy, floppyWeightProc)
+    addToProceduralByPattern(officePatterns, itemFloppy, floppyWeightProc)
+    addToProceduralByPattern(schoolLib,      itemFloppy, floppyWeightProc)
+
+    for _, lp in ipairs(laptopsClosed) do
+        addToProceduralByPattern(elecPatterns,   lp, laptopWeightProc)
+        addToProceduralByPattern(officePatterns, lp, laptopWeightProc)
+        addToProceduralByPattern(shelfCrate,     lp, laptopWeightProc)
+    end
+
+    -- Vehicles (glovebox, seats, trunk)
+    addToVehicleCommon(itemUSB,    usbWeightVehicle)
+    addToVehicleCommon(itemFloppy, floppyWeightVehicle)
+    for _, lp in ipairs(laptopsClosed) do
+        addToVehicleCommon(lp, laptopWeightVehicle)
+    end
+
+    -- SuburbsDistributions (broad container names across rooms)
+    local contPatternsCommon = {"desk", "counter", "shelf", "crate", "locker", "metal", "office"}
+    addToSuburbsByContainer(contPatternsCommon, itemUSB,   usbWeightProc)
+    addToSuburbsByContainer(contPatternsCommon, itemFloppy,floppyWeightProc)
+    for _, lp in ipairs(laptopsClosed) do
+        addToSuburbsByContainer({"electronics", "computer", "office", "counter", "shelf"}, lp, laptopWeightProc)
+    end
+
+    print("[DecryptSkillSys] World loot injected.")
+end
+
+-- Attempt to enable world loot on load
+Events.OnGameStart.Add(function()
+    if isServer() then
+        enableWorldLoot()
+    end
+end)
 
 -- Zombie Drop Function
 function GVDrive_OnZombieDead(zombie)
@@ -108,8 +200,8 @@ function GVDrive_OnZombieDead(zombie)
 	local usbDropChance = (SandboxVars.GVDrive.DriveDropChance_USB or 0.8) / 100
 	local floppyDropChance = (SandboxVars.GVDrive.DriveDropChance_Diskette or 1.0) / 100
 	
-	-- Very low chance for laptops (not configurable, fixed low rate)
-	local laptopDropChance = 0.005  -- 0.5% chance
+	-- Very low chance for laptops (configurable via sandbox)
+	local laptopDropChance = ((SandboxVars.GVDrive.LaptopDropChance or 0.5) / 100)
 	
 	-- Roll for USB drive drop
 	if ZombRand(100) / 100 < usbDropChance then

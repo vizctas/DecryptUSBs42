@@ -18,6 +18,52 @@ option GVDrive.DriveDropChance_Diskette
     translation = GVDrive_DriveDrop_Chance_D,
 }
 
+option GVDrive.LaptopDropChance
+{
+	type = double,
+    min = 0,
+    max = 100,
+    default = 0.5,
+	page = Drive_Decrypt,
+    translation = GVDrive_LaptopDrop_Chance,
+}
+
+option GVDrive.EnableWorldLoot
+{
+	type = boolean,
+    default = true,
+	page = Drive_Decrypt,
+    translation = GVDrive_EnableWorldLoot,
+}
+
+option GVDrive.WorldLootChance_USB
+{
+	type = double,
+    min = 0,
+    max = 300,
+    default = 100,
+	page = Drive_Decrypt,
+    translation = GVDrive_WorldLoot_USB,
+}
+option GVDrive.WorldLootChance_Diskette
+{
+	type = double,
+    min = 0,
+    max = 300,
+    default = 100,
+	page = Drive_Decrypt,
+    translation = GVDrive_WorldLoot_Disk,
+}
+option GVDrive.WorldLootChance_Laptop
+{
+	type = double,
+    min = 0,
+    max = 300,
+    default = 100,
+	page = Drive_Decrypt,
+    translation = GVDrive_WorldLoot_Laptop,
+}
+
 option GVDrive.Probability_Decrypt_Diskette
 {
 	type = integer, 

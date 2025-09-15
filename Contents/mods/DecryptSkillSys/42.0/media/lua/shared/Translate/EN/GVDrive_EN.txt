@@ -1,5 +1,8 @@
 GVDrive_EN = 
 {
+    GVDrive_Ctx_Decrypt_Drive = "Decrypt drive",
+    GVDrive_Ctx_Check_Floppy = "Check Floppy Disk",
+    
     GVDrive_Msg_UsbTooOldLaptop = "Eh? This laptop is too old for a USB drive...",
     GVDrive_Msg_NeedsFloppyLaptop = "I must find a laptop with a floppy drive...",
 

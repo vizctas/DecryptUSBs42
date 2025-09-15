@@ -34,193 +34,70 @@ end
         forceDropHeavyItems(self.character)
         local inventoryItem = self.character:getInventory()
         local ISUsbAvaible = inventoryItem:getItemCount("GValley.USBOpened") -- ensure fully-qualified type
-        local randomLvl                 = 0
-        local loopcter                  = 0
-        local randomPerk                = 0
-        local diceroll           = 0.00
-        local MaxRolls                  = 15
-        local probabilityToGain         = MaxRolls*(SandboxVars.GVDrive.Probability_Decrypt_USB/100) -- 90
-        local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_USB
-        local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_USB  
-        if ISUsbAvaible < 1  
-        then  
-            --self.character:Say("Need a drive first") 
+        if ISUsbAvaible < 1 then
+            --self.character:Say("Need a drive first")
             return
         end
-        diceroll        = 0
-        diceroll        = ZombRand(1.0,MaxRolls);
-        --self.character:Say(tostring(diceroll).."of"..tostring(MaxRolls));
-        if diceroll >= probabilityToGain
-        then 
-            randomPerk = 0 -- Reinitialize per queue action
-            randomLvl = ZombRand(minExpGain,maxExpGain)+1;	-- gain exp
-            randomPerk = ZombRand(1,11);
-            if randomPerk == 0 then randomPerk = randomPerk+1 end
+
+        local MaxRolls = 15
+        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Probability_Decrypt_USB / 100)
+        local diceroll = ZombRand(1.0, MaxRolls)
+
+        if diceroll >= probabilityToGain then
+            local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_USB
+            local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_USB
+            local randomLvl = ZombRand(minExpGain, maxExpGain) + 1
+
             local perkTable = {
-                [1]  = Perks.Woodwork,
-                [2]  = Perks.Electricity,
-                [3]  = Perks.Farming,
-                [4]  = Perks.Aiming,
-                [5]  = Perks.Cooking,
-                [6]  = Perks.Sneak,
-                [7]  = Perks.Axe,
-                [8]  = Perks.Fitness,
-                [9]  = Perks.Doctor,
-                [10] = Perks.Survivalist,
+                Perks.Woodwork,
+                Perks.Electricity,
+                Perks.Farming,
+                Perks.Aiming,
+                Perks.Cooking,
+                Perks.Sneak,
+                Perks.Axe,
+                Perks.Fitness,
+                Perks.Doctor,
+                Perks.Survivalist,
             }
+            local randomPerkIndex = ZombRand(1, #perkTable + 1)
+            local randomPerk = perkTable[randomPerkIndex]
+            
+            local perkNameMap = {
+                [Perks.Woodwork] = "Woodwork",
+                [Perks.Electricity] = "Electricity",
+                [Perks.Farming] = "Farming",
+                [Perks.Aiming] = "Aiming",
+                [Perks.Cooking] = "Cooking",
+                [Perks.Sneak] = "Sneak",
+                [Perks.Axe] = "Axe",
+                [Perks.Fitness] = "Fitness",
+                [Perks.Doctor] = "Doctor",
+                [Perks.Survivalist] = "Survivalist",
+            }
+            local perkName = perkNameMap[randomPerk] or "Woodwork"
 
-                if randomPerk == 1 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Woodwork, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Woodwork_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                        --self.character:Say("Well there is nothing else to decrypt here.")
-                        self.character:Say(getText("GVDrive_Msg_Woodwork_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
+            self.character:getXp():AddXP(randomPerk, randomLvl)
 
-                if randomPerk == 2 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Electricity, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Electricity_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                        self.character:Say(getText("GVDrive_Msg_Electricity_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-
-                if randomPerk == 3 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Farming, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Farming_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                        self.character:Say(getText("GVDrive_Msg_Farming_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-                if randomPerk == 4 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Aiming, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Aiming_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                       self.character:Say(getText("GVDrive_Msg_Aiming_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-                if randomPerk == 5 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Cooking, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Cooking_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                       self.character:Say(getText("GVDrive_Msg_Cooking_Consume")) 
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-                if randomPerk == 6 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Sneak, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Sneak_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                       self.character:Say(getText("GVDrive_Msg_Sneak_Consume")) 
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-                if randomPerk == 7 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Axe, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Axe_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                        self.character:Say(getText("GVDrive_Msg_Axe_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-                if randomPerk == 8 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Fitness, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Fitness_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                       -- self.character:Say("Well there is nothing else to decrypt here.")
-                       self.character:Say(getText("GVDrive_Msg_Fitness_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-
-
-                if randomPerk == 9 
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Doctor, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Doctor_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                        self.character:Say(getText("GVDrive_Msg_Doctor_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
-
-                if randomPerk == 10
-                then 
-                    self.character:getXp():AddXP(perkTable[randomPerk] or Perks.Survivalist, randomLvl)
-                    diceroll        = ZombRand(13)+1;
-                    if diceroll >= 10
-                    then
-                        self.character:Say(getText("GVDrive_Msg_Survivalist_Success"))
-                    else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                        self.character:Say(getText("GVDrive_Msg_Survivalist_Consume"))
-                        inventoryItem:Remove("GValley.USBOpened")
-                        inventoryItem:AddItem("GValley.USBOpened_Used",1)
-                    end
-                end
+            local consumeRoll = ZombRand(13) + 1
+            if consumeRoll >= 10 then
+                self.character:Say(getText("GVDrive_Msg_"..perkName.."_Success"))
             else
+                self.character:Say(getText("GVDrive_Msg_"..perkName.."_Consume"))
+                inventoryItem:Remove("GValley.USBOpened")
+                inventoryItem:AddItem("GValley.USBOpened_Used", 1)
+            end
+        else
             self.character:Say(getText("GVDrive_Msg_USB_Corrupted"))
             inventoryItem:Remove("GValley.USBOpened")
             inventoryItem:AddItem("GValley.USBOpened_Damaged")
         end
+
         if self.sound and self.character and self.character:getEmitter() then
             self.character:getEmitter():stopSound(self.sound)
             self.sound = nil
         end
-        ISBaseTimedAction.perform(self);
+        ISBaseTimedAction.perform(self)
     end
     function DecryptDrive:new (character, item, time)
         local o = {}
