@@ -119,3 +119,31 @@ option GVDrive.Max_Exp_Learn_By_USB
 	page = Drive_Decrypt, 
     translation = GVDrive_Maximun_Exp_by_USB,
 }
+
+option GVDrive.Use_Scalable_Experience
+{
+	type = boolean,
+    default = true,
+	page = Drive_Decrypt,
+    translation = GVDrive_Use_Scalable_Exp,
+}
+
+option GVDrive.Exp_Base_Multiplier
+{
+	type = double,
+    min = 0.1,
+    max = 5.0,
+    default = 1.5,
+	page = Drive_Decrypt,
+    translation = GVDrive_Exp_Base_Multiplier,
+}
+
+option GVDrive.Exp_Level_Factor
+{
+	type = double,
+    min = 0.5,
+    max = 3.0,
+    default = 1.2,
+	page = Drive_Decrypt,
+    translation = GVDrive_Exp_Level_Factor,
+}

@@ -40,4 +40,9 @@ GVDrive_EN =
     GVDrive_Msg_Survivalist_Consume = "Got it! Survival can be summed up in three words: never give up. Keep trying. I may find more info to decrypt from another drive.",
 
     GVDrive_Msg_USB_Opened_OK = "This one seems to work",
+    
+    -- Elite Drive System
+    GVDrive_Msg_Elite_Found = "Found something unusual... this drive looks different.",
+    GVDrive_Msg_Elite_Token_Created = "Elite enhancement protocol created! This could change everything.",
+    GVDrive_Msg_Enhancement_Applied = "Elite enhancement applied! You feel stronger, faster, and more capable.",
 }

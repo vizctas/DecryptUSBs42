@@ -1,0 +1,76 @@
+module GValley 
+{
+	// Special Elite Drives - Rare drops from zombies
+	item EliteDrive_Strength
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Drive: Combat Protocols,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Strength,
+		Tags			= EliteDrive,
+	}
+
+	item EliteDrive_Endurance
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Drive: Survival Manual,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Endurance,
+		Tags			= EliteDrive,
+	}
+
+	item EliteDrive_Capacity
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Drive: Storage Optimization,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Capacity,
+		Tags			= EliteDrive,
+	}
+
+	item EliteDrive_Speed
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Drive: Movement Techniques,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Speed,
+		Tags			= EliteDrive,
+	}
+
+	item EliteDrive_Luck
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Drive: Fortune Algorithms,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Luck,
+		Tags			= EliteDrive,
+	}
+
+	// Elite Enhancement Token - Created when all 5 drives are combined
+	item EliteEnhancement_Token
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Enhancement Protocol,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteEnhancement_Token,
+		Tags			= EliteToken,
+	}
+}

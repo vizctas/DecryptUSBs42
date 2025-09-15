@@ -1,0 +1,17 @@
+Tooltip_ES = 
+{
+Tooltip_LPAsus = "Una laptop moderna de Asus ROG. <br> Procesador: i7 9na Generación. <br> Gráficos: RTX 20270 Super <br> Dimensiones: 15.12 x 10.31 x 0.78 pulgadas",
+Tooltip_USB = "Unidad Confidencial. <br> Puede contener información sensible para mejorar tus habilidades",
+Tooltip_BUSB = "Unidad Confidencial. <br> Ya no tiene más usos. Puede ser desmontada",
+Tooltip_IBMPlm = "IBM Palm Top PC 110 <br> Procesador: Microprocesador Intel 80486SX <br> Dimensiones: 6.2 por 5.2 por 1.3 pulgadas",
+Tooltip_Generic90 = "Esta laptop Toshiba puede tener hasta 320 MB de RAM, con una cantidad fija de 64 MB (no removible) SODIMMs PC100 SDRAM instalados <br> Procesador: Intel Mobile Pentium III ",
+Tooltip_TUSB = "Tapa de Unidad. <br> Puede usarse para proteger unidades",
+
+-- Elite Drive Tooltips
+Tooltip_EliteDrive_Strength = "Unidad Élite: Protocolos de Combate <br> Contiene datos avanzados de entrenamiento de combate. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMADAMENTE RARO<RGBA:1.0,1.0,1.0,1.0> <br> Recolecta 5 unidades élite diferentes para crear un protocolo de mejora.",
+Tooltip_EliteDrive_Endurance = "Unidad Élite: Manual de Supervivencia <br> Contiene datos especializados de entrenamiento de resistencia. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMADAMENTE RARO<RGBA:1.0,1.0,1.0,1.0> <br> Recolecta 5 unidades élite diferentes para crear un protocolo de mejora.",
+Tooltip_EliteDrive_Capacity = "Unidad Élite: Optimización de Almacenamiento <br> Contiene técnicas avanzadas de gestión de carga. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMADAMENTE RARO<RGBA:1.0,1.0,1.0,1.0> <br> Recolecta 5 unidades élite diferentes para crear un protocolo de mejora.",
+Tooltip_EliteDrive_Speed = "Unidad Élite: Técnicas de Movimiento <br> Contiene entrenamiento optimizado de movimiento y agilidad. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMADAMENTE RARO<RGBA:1.0,1.0,1.0,1.0> <br> Recolecta 5 unidades élite diferentes para crear un protocolo de mejora.",
+Tooltip_EliteDrive_Luck = "Unidad Élite: Algoritmos de Fortuna <br> Contiene protocolos de mejora de probabilidades. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMADAMENTE RARO<RGBA:1.0,1.0,1.0,1.0> <br> Recolecta 5 unidades élite diferentes para crear un protocolo de mejora.",
+Tooltip_EliteEnhancement_Token = "Protocolo de Mejora Élite <br> Una mejora poderosa que mejora permanentemente tus capacidades. <br> <RGBA:0.0,1.0,0.0,1.0>+5 Peso de Carga<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:0.0,1.0,0.0,1.0>+10% Velocidad de Movimiento<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:0.0,1.0,0.0,1.0>Habilidades de combate mejoradas<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:1.0,0.0,0.0,1.0>¡Solo un uso!<RGBA:1.0,1.0,1.0,1.0>",
+}

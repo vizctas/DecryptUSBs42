@@ -14,4 +14,7 @@ Sandbox_EN =
     Sandbox_GVDrive_WorldLoot_USB       = "World loot intensity for USBs (%)",
     Sandbox_GVDrive_WorldLoot_Disk      = "World loot intensity for Floppies (%)",
     Sandbox_GVDrive_WorldLoot_Laptop    = "World loot intensity for Laptops (%)",
+    Sandbox_GVDrive_Use_Scalable_Exp    = "Use scalable experience (adjusts based on skill level)",
+    Sandbox_GVDrive_Exp_Base_Multiplier = "Base experience multiplier for scalable system",
+    Sandbox_GVDrive_Exp_Level_Factor    = "Level scaling factor (higher = more exp at higher levels)",
 }

@@ -5,4 +5,13 @@ Tooltip_USB = "Confidential Drive. <br> It may contain sensitive information to 
 Tooltip_BUSB = "Confidential Drive. <br> There are no more uses for it. It can be dismantled",
 Tooltip_IBMPlm = "IBM Palm Top PC 110 <br> Processor: Intel 80486SX microprocessor <br> Dimensions: 6.2 by 5.2 by 1.3 in",
 Tooltip_Generic90 = "This Toshiba Laptop can take up to 320 MB RAM, with a fixed amount of 64 MB (non-removable) installed PC100 SDRAM SODIMMs <br> Processor: Intel Mobile Pentium III ",
+Tooltip_TUSB = "Drive Cover. <br> Can be used to protect drives",
+
+-- Elite Drive Tooltips
+Tooltip_EliteDrive_Strength = "Elite Drive: Combat Protocols <br> Contains advanced combat training data. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMELY RARE<RGBA:1.0,1.0,1.0,1.0> <br> Collect 5 different elite drives to create an enhancement protocol.",
+Tooltip_EliteDrive_Endurance = "Elite Drive: Survival Manual <br> Contains specialized endurance training data. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMELY RARE<RGBA:1.0,1.0,1.0,1.0> <br> Collect 5 different elite drives to create an enhancement protocol.",
+Tooltip_EliteDrive_Capacity = "Elite Drive: Storage Optimization <br> Contains advanced load management techniques. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMELY RARE<RGBA:1.0,1.0,1.0,1.0> <br> Collect 5 different elite drives to create an enhancement protocol.",
+Tooltip_EliteDrive_Speed = "Elite Drive: Movement Techniques <br> Contains optimized movement and agility training. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMELY RARE<RGBA:1.0,1.0,1.0,1.0> <br> Collect 5 different elite drives to create an enhancement protocol.",
+Tooltip_EliteDrive_Luck = "Elite Drive: Fortune Algorithms <br> Contains probability enhancement protocols. <br> <RGBA:1.0,0.8,0.0,1.0>EXTREMELY RARE<RGBA:1.0,1.0,1.0,1.0> <br> Collect 5 different elite drives to create an enhancement protocol.",
+Tooltip_EliteEnhancement_Token = "Elite Enhancement Protocol <br> A powerful enhancement that permanently improves your capabilities. <br> <RGBA:0.0,1.0,0.0,1.0>+5 Carry Weight<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:0.0,1.0,0.0,1.0>+10% Movement Speed<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:0.0,1.0,0.0,1.0>Enhanced combat abilities<RGBA:1.0,1.0,1.0,1.0> <br> <RGBA:1.0,0.0,0.0,1.0>Single use only!<RGBA:1.0,1.0,1.0,1.0>",
 }
