@@ -1,28 +1,5 @@
 module Base
 {
-	recipe Combine Elite Drives
-	{
-		GValley.EliteDrive_Strength=1,
-		GValley.EliteDrive_Endurance=1,
-		GValley.EliteDrive_Capacity=1,
-		GValley.EliteDrive_Speed=1,
-		GValley.EliteDrive_Luck=1,
-		Result:GValley.EliteEnhancement_Token,
-		Time:300,
-		Category:Electrical,
-		AnimNode:Craft,
-		CanBeDoneFromFloor:true,
-		OnCreate:OnCreateEliteToken,
-	}
-
-	recipe Use Elite Enhancement
-	{
-		GValley.EliteEnhancement_Token=1,
-		Result:Base.Nothing,
-		Time:100,
-		Category:Trade,
-		AnimNode:Loot,
-		CanBeDoneFromFloor:true,
-		OnCreate:OnUseEliteEnhancement,
-	}
+	// Elite recipes temporarily removed to avoid script load order issues
+	// Elite drives functionality works through code-based systems
 }

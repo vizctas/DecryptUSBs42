@@ -72,25 +72,49 @@ function LaptopSystem.setLaptopHealth(item, health)
     if not item then return end
     local modData = item:getModData()
     if not modData then return end -- Safety check for nil modData
-    modData.laptopHealth = math.max(0, math.min(100, health))
-    
-    -- Update item condition based on health
-    local condition = health / 100
-    item:setCondition(condition)
-    
-    -- Change item name/description based on health
-    if health <= 0 then
-        item:setName(getText("GVDrive_Laptop_Broken"))
-        item:setTooltip(getText("GVDrive_Laptop_Broken_Tooltip"))
-    elseif health <= 25 then
-        item:setName(getText("GVDrive_Laptop_Critical"))
-        item:setTooltip(getText("GVDrive_Laptop_Critical_Tooltip"))
-    elseif health <= 50 then
-        item:setName(getText("GVDrive_Laptop_Damaged"))
-        item:setTooltip(getText("GVDrive_Laptop_Damaged_Tooltip"))
-    elseif health <= 75 then
-        item:setName(getText("GVDrive_Laptop_Worn"))
-        item:setTooltip(getText("GVDrive_Laptop_Worn_Tooltip"))
+
+    local clamped = math.floor(math.max(0, math.min(100, health or 0)))
+    modData.laptopHealth = clamped
+
+    if item.setCondition then
+        local maxCondition = 100
+        if item.getConditionMax then
+            local ok, value = pcall(function() return item:getConditionMax() end)
+            if ok and type(value) == "number" and value > 0 then
+                maxCondition = value
+            end
+        end
+        local newCondition = math.floor((clamped / 100) * maxCondition)
+        newCondition = math.max(0, math.min(maxCondition, newCondition))
+        item:setCondition(newCondition)
+    end
+
+    if item.setName and getText then
+        if clamped <= 0 then
+            item:setName(getText("GVDrive_Laptop_Broken"))
+        elseif clamped <= 25 then
+            item:setName(getText("GVDrive_Laptop_Critical"))
+        elseif clamped <= 50 then
+            item:setName(getText("GVDrive_Laptop_Damaged"))
+        elseif clamped <= 75 then
+            item:setName(getText("GVDrive_Laptop_Worn"))
+        else
+            item:setName(getText("GVDrive_Laptop_Healthy"))
+        end
+    end
+
+    if item.setTooltip and getText then
+        if clamped <= 0 then
+            item:setTooltip(getText("GVDrive_Laptop_Broken_Tooltip"))
+        elseif clamped <= 25 then
+            item:setTooltip(getText("GVDrive_Laptop_Critical_Tooltip"))
+        elseif clamped <= 50 then
+            item:setTooltip(getText("GVDrive_Laptop_Damaged_Tooltip"))
+        elseif clamped <= 75 then
+            item:setTooltip(getText("GVDrive_Laptop_Worn_Tooltip"))
+        else
+            item:setTooltip(getText("GVDrive_Laptop_Healthy_Tooltip"))
+        end
     end
 end
 

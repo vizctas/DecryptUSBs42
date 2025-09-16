@@ -473,6 +473,11 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 				
 				if distance <= maxDistance then
 					-- Simplified line of sight check for PZ42 compatibility
+					local laptopHealthValue = LaptopSystem.getLaptopHealth(item)
+					local healthLabel = getText("GVDrive_Laptop_Health_Label") or "Laptop Health"
+					local healthOption = context:addOptionOnTop(string.format("%s: %d%%", healthLabel, math.floor(laptopHealthValue or 0)))
+					healthOption.notAvailable = true
+					local hasLineOfSight = true
 					local hasLineOfSight = true
 					if LosUtil and LosUtil.lineClear then
 						local lineOfSightTestResults = LosUtil.lineClear(playerObj:getCell(), objX, objY, objZ, pX, pY, pZ, false)

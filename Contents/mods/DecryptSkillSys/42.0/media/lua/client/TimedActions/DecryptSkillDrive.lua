@@ -209,26 +209,39 @@ function DecryptSkillDrive:perform()
 
     local successChance = 50
     if utils and utils.getSuccessChance then
-        local ok, chance = pcall(utils.getSuccessChance, driveInfo.difficulty, driveInfo.isUSB)
+        local ok, chance = pcall(utils.getSuccessChance, driveInfo)
         if ok and type(chance) == "number" then
-            successChance = chance
+            successChance = math.max(0, math.min(100, chance))
         end
     end
 
     local MaxRolls = 100
-    local probabilityToGain = successChance
+    local probabilityToGain = math.max(0, math.min(100, successChance))
     local diceroll = ZombRand(1, MaxRolls)
 
     local sandboxDrive = SandboxVars and SandboxVars.GVDrive or nil
     local preserveChance = ((sandboxDrive and sandboxDrive.Drive_Preserve_Chance) or 30) / 100
     local shouldPreserve = ZombRand(100) / 100 < preserveChance
 
-    if not shouldPreserve and driveFullType then
-        if inventory.Remove then
-            inventory:Remove(driveFullType)
-        elseif inventory.RemoveOneOf then
-            inventory:RemoveOneOf(driveFullType)
+    local function removeDriveFromInventory()
+        if not inventory then return false end
+        local removed = false
+        if self.drive and inventory.contains and inventory:contains(self.drive) then
+            inventory:Remove(self.drive)
+            removed = true
+        elseif driveFullType then
+            if inventory.RemoveOneOf then
+                local removedItem = inventory:RemoveOneOf(driveFullType)
+                removed = removedItem ~= nil
+            elseif inventory.Remove then
+                inventory:Remove(driveFullType)
+                removed = true
+            end
         end
+        if not removed then
+            print("[DecryptSkillDrive] WARNING: failed to remove drive from inventory")
+        end
+        return removed
     end
 
     local xpGainDefault = 50
@@ -242,11 +255,11 @@ function DecryptSkillDrive:perform()
     local laptopDamageSuccess = driveInfo.isUSB and 2 or 1
     local laptopDamageFailure = driveInfo.isUSB and 2 or 1
     if utils and utils.getLaptopDamage then
-        local okSuccess, dmgSuccess = pcall(utils.getLaptopDamage, driveInfo.difficulty, true)
+        local okSuccess, dmgSuccess = pcall(utils.getLaptopDamage, driveInfo, true)
         if okSuccess and type(dmgSuccess) == "number" then
             laptopDamageSuccess = dmgSuccess
         end
-        local okFail, dmgFail = pcall(utils.getLaptopDamage, driveInfo.difficulty, false)
+        local okFail, dmgFail = pcall(utils.getLaptopDamage, driveInfo, false)
         if okFail and type(dmgFail) == "number" then
             laptopDamageFailure = dmgFail
         end
@@ -255,6 +268,13 @@ function DecryptSkillDrive:perform()
     local perk = resolvePerk(driveInfo.skill, skillName, utils)
 
     if diceroll <= probabilityToGain then
+        local preservedDrive = shouldPreserve
+        if not preservedDrive then
+            removeDriveFromInventory()
+        else
+            print("[DecryptSkillDrive] Drive preserved after success")
+        end
+
         if perk and self.character and self.character.getXp then
             local xp = self.character:getXp()
             if xp and xp.AddXP then
@@ -266,34 +286,42 @@ function DecryptSkillDrive:perform()
             LaptopSystem.damageLaptop(laptopItem, laptopDamageSuccess)
         end
 
-        local consumeRoll = ZombRand(13) + 1
-        if consumeRoll >= 10 then
-            self.character:Say(getText("GVDrive_Msg_"..skillName.."_Success") or ("Got it! Some "..skillName.." skills. Should keep trying to decrypt..."))
-            if inventory and inventory.AddItem then
-                if driveInfo.isUSB then
-                    inventory:AddItem("GValley.USBOpened_Used", 1)
-                else
-                    inventory:AddItem("GValley.FloppyDrive_Used", 1)
-                end
-            end
+        if preservedDrive then
+            local preservedText = getText("GVDrive_Msg_"..skillName.."_Preserved") or ("Drive survived the decryption. "..skillName.." data remains available.")
+            self.character:Say(preservedText)
         else
-            self.character:Say(getText("GVDrive_Msg_"..skillName.."_Consume") or ("Got it! Some "..skillName.." skills. Drive is consumed."))
-            if inventory and inventory.AddItem then
-                if driveInfo.isUSB then
-                    inventory:AddItem("GValley.USBOpened_Used", 1)
-                else
-                    inventory:AddItem("GValley.FloppyDrive_Used", 1)
+            local consumeRoll = ZombRand(13) + 1
+            if consumeRoll >= 10 then
+                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Success") or ("Got it! Some "..skillName.." skills. Should keep trying to decrypt..."))
+                if inventory and inventory.AddItem then
+                    if driveInfo.isUSB then
+                        inventory:AddItem("GValley.USBOpened_Used", 1)
+                    else
+                        inventory:AddItem("GValley.FloppyDrive_Used", 1)
+                    end
+                end
+            else
+                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Consume") or ("Got it! Some "..skillName.." skills. Drive is consumed."))
+                if inventory and inventory.AddItem then
+                    if driveInfo.isUSB then
+                        inventory:AddItem("GValley.USBOpened_Used", 1)
+                    else
+                        inventory:AddItem("GValley.FloppyDrive_Used", 1)
+                    end
                 end
             end
         end
     else
-        local malwareChance = ((sandboxDrive and sandboxDrive.Malware_Chance) or 15) / 100
+        removeDriveFromInventory()
+
+        local malwareChancePercent = (sandboxDrive and sandboxDrive.Malware_Chance) or 15
         if utils and utils.getMalwareChance then
-            local ok, malChance = pcall(utils.getMalwareChance, driveInfo.difficulty)
+            local ok, malChance = pcall(utils.getMalwareChance, driveInfo)
             if ok and type(malChance) == "number" then
-                malwareChance = malChance
+                malwareChancePercent = malChance
             end
         end
+        local malwareChance = math.max(0, math.min(100, malwareChancePercent)) / 100
 
         local gotMalware = ZombRand(100) / 100 < malwareChance
 

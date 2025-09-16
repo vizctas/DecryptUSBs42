@@ -71,6 +71,6 @@ module GValley
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip			= Tooltip_EliteEnhancement_Token,
-		Tags			= EliteToken,
+		Tags			= EliteEnhancement,
 	}
 }

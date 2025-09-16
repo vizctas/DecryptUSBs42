@@ -118,6 +118,7 @@ function DecryptFloppyDisk:perform()
     end
     
     ISBaseTimedAction.perform(self)
+end
 
 function DecryptFloppyDisk:new (character, item, time)
     local o = {}

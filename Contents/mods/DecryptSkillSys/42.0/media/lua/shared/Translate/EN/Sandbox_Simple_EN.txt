@@ -2,7 +2,7 @@ Sandbox_EN =
 {
 	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
 	
-	// Simple translations for sandbox options
+	-- Simple translations for sandbox options
     Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
     Sandbox_GVDrive_Floppy_ZombieDrop = "Floppy Drop Rate (Zombies)",
     Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)",
@@ -26,7 +26,7 @@ Sandbox_EN =
     Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Spawn Rate",
 }
 
-// Now add the simple GVDrive translations that the sandbox file expects
+-- Now add the simple GVDrive translations that the sandbox file expects
 Sandbox_EN.GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)"
 Sandbox_EN.GVDrive_Floppy_ZombieDrop = "Floppy Drop Rate (Zombies)"
 Sandbox_EN.GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)"
