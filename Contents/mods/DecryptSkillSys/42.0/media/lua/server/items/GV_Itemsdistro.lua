@@ -254,8 +254,9 @@ function GVDrive_OnZombieDead(zombie)
 	end
 end
 
--- Get random skill drive based on rarity distribution (SAFE VERSION)
+-- Get random skill drive based on NEW rarity distribution (Fácil/Moderado/Difícil)
 function getRandomSkillDrive(driveType)
+	-- Check for elite drives first (still 1% chance)
 	if ZombRand(100) < 1 then
 		local eliteTypes = {
 			"GValley.EliteDrive_Strength",
@@ -282,34 +283,37 @@ function getRandomSkillDrive(driveType)
 	local isUSB = driveType == "USB"
 	local isFloppy = driveType == "Floppy"
 
-	local normalInfo = { isSkillSpecific = false, isUSB = isUSB, isFloppy = isFloppy, rarity = "Normal" }
-	local commonInfo = { isSkillSpecific = true, isUSB = isUSB, isFloppy = isFloppy, rarity = "Common" }
-	local advancedInfo = { isSkillSpecific = true, isUSB = isUSB, isFloppy = isFloppy, rarity = "Rare" }
+	-- NEW RARITY SYSTEM: Fácil/Moderado/Difícil
+	local facilInfo = { isSkillSpecific = true, isUSB = isUSB, isFloppy = isFloppy, rarity = "Facil" }
+	local moderadoInfo = { isSkillSpecific = true, isUSB = isUSB, isFloppy = isFloppy, rarity = "Moderado" }
+	local dificilInfo = { isSkillSpecific = true, isUSB = isUSB, isFloppy = isFloppy, rarity = "Dificil" }
 
-	local normalWeight = getLootWeight(normalInfo)
-	local commonWeight = getLootWeight(commonInfo)
-	local advancedWeight = isUSB and getLootWeight(advancedInfo) or 0
+	local facilWeight = getLootWeight(facilInfo)
+	local moderadoWeight = getLootWeight(moderadoInfo)
+	local dificilWeight = isUSB and getLootWeight(dificilInfo) or 0
 
-	local scaledNormal = math.max(0, math.floor(normalWeight * 10 + 0.5))
-	local scaledCommon = math.max(0, math.floor(commonWeight * 10 + 0.5))
-	local scaledAdvanced = math.max(0, math.floor(advancedWeight * 10 + 0.5))
-	local totalScaled = scaledNormal + scaledCommon + scaledAdvanced
+	-- Scale weights for better distribution
+	local scaledFacil = math.max(0, math.floor(facilWeight * 10 + 0.5))
+	local scaledModerado = math.max(0, math.floor(moderadoWeight * 10 + 0.5))
+	local scaledDificil = math.max(0, math.floor(dificilWeight * 10 + 0.5))
+	local totalScaled = scaledFacil + scaledModerado + scaledDificil
 
+	-- Fallback weights if no sandbox values are available
 	if totalScaled <= 0 then
 		if driveType == "USB" then
-			scaledAdvanced = 30
-			scaledCommon = 70
-			scaledNormal = 100
+			scaledDificil = 15   -- Difícil: 15% (muy raro)
+			scaledModerado = 35  -- Moderado: 35% (común)
+			scaledFacil = 50     -- Fácil: 50% (más común)
 		elseif driveType == "Floppy" then
-			scaledAdvanced = 0
-			scaledCommon = 70
-			scaledNormal = 100
+			scaledDificil = 10   -- Difícil: 10% (más raro en floppies)
+			scaledModerado = 40  -- Moderado: 40%
+			scaledFacil = 50     -- Fácil: 50%
 		else
-			scaledAdvanced = 0
-			scaledCommon = 50
-			scaledNormal = 100
+			scaledDificil = 0
+			scaledModerado = 30
+			scaledFacil = 70
 		end
-		totalScaled = scaledNormal + scaledCommon + scaledAdvanced
+		totalScaled = scaledFacil + scaledModerado + scaledDificil
 	end
 
 	local roll = ZombRand(totalScaled)
@@ -318,23 +322,27 @@ function getRandomSkillDrive(driveType)
 		return skills[ZombRand(#skills) + 1]
 	end
 
-	if roll < scaledAdvanced and isUSB then
-		local selectedSkill = randomSkill()
-		return "GValley.SkillDrive_" .. selectedSkill .. "_Rare"
-	elseif roll < (scaledAdvanced + scaledCommon) then
+	-- NEW RARITY DISTRIBUTION: Difícil -> Moderado -> Fácil
+	if roll < scaledDificil and (isUSB or isFloppy) then
 		local selectedSkill = randomSkill()
 		if driveType == "USB" then
-			return "GValley.SkillDrive_" .. selectedSkill .. "_Common"
+			return "GValley.SkillDrive_" .. selectedSkill .. "_Dificil"
 		else
-			return "GValley.SkillFloppy_" .. selectedSkill .. "_Common"
+			return "GValley.SkillFloppy_" .. selectedSkill .. "_Dificil"
+		end
+	elseif roll < (scaledDificil + scaledModerado) then
+		local selectedSkill = randomSkill()
+		if driveType == "USB" then
+			return "GValley.SkillDrive_" .. selectedSkill .. "_Moderado"
+		else
+			return "GValley.SkillFloppy_" .. selectedSkill .. "_Moderado"
 		end
 	else
+		local selectedSkill = randomSkill()
 		if driveType == "USB" then
-			return "GValley.USB_Closed"
-		elseif driveType == "Floppy" then
-			return "GValley.FloppyDrive"
+			return "GValley.SkillDrive_" .. selectedSkill .. "_Facil"
 		else
-			return "GValley.USB_Closed"
+			return "GValley.SkillFloppy_" .. selectedSkill .. "_Facil"
 		end
 	end
 end

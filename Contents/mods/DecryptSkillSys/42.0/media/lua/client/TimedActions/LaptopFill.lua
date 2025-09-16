@@ -30,7 +30,7 @@ local function safe_getDriveInfo(item)
         if ok then return res end
     end
 
-    -- Basic fallback parsing from full type (e.g., GValley.SkillDrive_Electricity_Rare)
+    -- Basic fallback parsing from full type (e.g., GValley.SkillDrive_Electricity_Facil)
     local fullType = tostring(item:getFullType() or "")
     local name = fullType:match("([^%.]+)%.(.+)") or fullType
     -- Normalize to last component
@@ -41,7 +41,7 @@ local function safe_getDriveInfo(item)
         if #parts >= 3 then
             return {
                 skillName = parts[2],
-                rarity = parts[3],
+                rarity = parts[3], -- Now supports Facil/Moderado/Dificil
                 isUSB = string.find(short, "SkillDrive_") ~= nil,
             }
         end
@@ -472,12 +472,36 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 				local distance = math.sqrt(dX*dX + dY*dY + dZ*dZ)
 				
 				if distance <= maxDistance then
-					-- Simplified line of sight check for PZ42 compatibility
-					local laptopHealthValue = LaptopSystem.getLaptopHealth(item)
+					-- Get laptop health and create a modern health display
+					local laptopHealthValue = LaptopSystem.getLaptopHealth(item) or 0
 					local healthLabel = getText("GVDrive_Laptop_Health_Label") or "Laptop Health"
-					local healthOption = context:addOptionOnTop(string.format("%s: %d%%", healthLabel, math.floor(laptopHealthValue or 0)))
+					
+					-- Create a modern health display with color coding
+					local healthPercent = math.floor(laptopHealthValue)
+					local healthIcon = ""
+					local healthColor = ""
+					
+					if healthPercent >= 80 then
+						healthIcon = "💚"
+						healthColor = "<RGB:0.4,1.0,0.4>"
+					elseif healthPercent >= 60 then
+						healthIcon = "💛"
+						healthColor = "<RGB:1.0,1.0,0.4>"
+					elseif healthPercent >= 40 then
+						healthIcon = "🧡"
+						healthColor = "<RGB:1.0,0.8,0.4>"
+					elseif healthPercent >= 20 then
+						healthIcon = "❤️"
+						healthColor = "<RGB:1.0,0.6,0.4>"
+					else
+						healthIcon = "💀"
+						healthColor = "<RGB:1.0,0.4,0.4>"
+					end
+					
+					local healthOption = context:addOptionOnTop(string.format("%s %s %s: %d%%", healthIcon, healthLabel, healthColor, healthPercent))
 					healthOption.notAvailable = true
-					local hasLineOfSight = true
+					
+					-- Simplified line of sight check for PZ42 compatibility  
 					local hasLineOfSight = true
 					if LosUtil and LosUtil.lineClear then
 						local lineOfSightTestResults = LosUtil.lineClear(playerObj:getCell(), objX, objY, objZ, pX, pY, pZ, false)
@@ -485,15 +509,9 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 					end
 					
 					if hasLineOfSight then
-						-- DEBUG: Print laptop and drive info
-						print("[DecryptSkillSys] Laptop detected: " .. tostring(LaptopName))
-						
-						-- NEW SKILL DRIVE SYSTEM - Individual menu items for each drive type
+						-- Get skill drives for menu
 						local skillUSBs = getSkillDrives(inv, "USB")
 						local skillFloppies = getSkillDrives(inv, "Floppy")
-						
-						print("[DecryptSkillSys] Found " .. #skillUSBs .. " skill USBs")
-						print("[DecryptSkillSys] Found " .. #skillFloppies .. " skill Floppies")
 						
 						-- Add individual menu items for each skill USB type
 						if #skillUSBs > 0 then

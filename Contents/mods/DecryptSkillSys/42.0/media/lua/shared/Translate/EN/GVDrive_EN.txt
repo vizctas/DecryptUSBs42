@@ -1,5 +1,7 @@
 GVDrive_EN = 
 {
+    -- Context menu labels
+    GVDrive_Laptop_Health_Label = "Laptop Health",
     GVDrive_Ctx_Decrypt_Drive = "Decrypt drive",
     GVDrive_Ctx_Check_Floppy = "Check Floppy Disk",
     GVDrive_Ctx_Decrypt_Skill_USB = "Decrypt Skill USB Drives",
@@ -45,10 +47,92 @@ GVDrive_EN =
     GVDrive_Msg_Drive_Corrupted = "Drive corrupted during decryption!",
 
     Items_EN = {
-    -- USB Drives by Skill and Difficulty
-    DisplayName_USB_Woodwork_Easy = "USB: Basic Woodworking",
-    DisplayName_USB_Woodwork_Moderate = "USB: Intermediate Woodworking", 
-    DisplayName_USB_Woodwork_Advanced = "USB: Advanced Woodworking",
+    -- NEW RARITY SYSTEM: USB Drives by Skill and Difficulty (Fácil/Moderado/Difícil)
+    DisplayName_SkillDrive_Woodwork_Facil = "USB: Basic Woodworking",
+    DisplayName_SkillDrive_Woodwork_Moderado = "USB: Intermediate Woodworking", 
+    DisplayName_SkillDrive_Woodwork_Dificil = "USB: Advanced Woodworking",
+    
+    DisplayName_SkillDrive_Electricity_Facil = "USB: Basic Electronics",
+    DisplayName_SkillDrive_Electricity_Moderado = "USB: Intermediate Electronics",
+    DisplayName_SkillDrive_Electricity_Dificil = "USB: Advanced Electronics",
+    
+    DisplayName_SkillDrive_Farming_Facil = "USB: Basic Farming",
+    DisplayName_SkillDrive_Farming_Moderado = "USB: Intermediate Farming", 
+    DisplayName_SkillDrive_Farming_Dificil = "USB: Advanced Farming",
+    
+    DisplayName_SkillDrive_Aiming_Facil = "USB: Basic Marksmanship",
+    DisplayName_SkillDrive_Aiming_Moderado = "USB: Intermediate Marksmanship",
+    DisplayName_SkillDrive_Aiming_Dificil = "USB: Advanced Marksmanship",
+    
+    DisplayName_SkillDrive_Cooking_Facil = "USB: Basic Cooking",
+    DisplayName_SkillDrive_Cooking_Moderado = "USB: Intermediate Cooking",
+    DisplayName_SkillDrive_Cooking_Dificil = "USB: Advanced Cooking",
+    
+    DisplayName_SkillDrive_Sneak_Facil = "USB: Basic Stealth",
+    DisplayName_SkillDrive_Sneak_Moderado = "USB: Intermediate Stealth", 
+    DisplayName_SkillDrive_Sneak_Dificil = "USB: Advanced Stealth",
+    
+    DisplayName_SkillDrive_Axe_Facil = "USB: Basic Axe Combat",
+    DisplayName_SkillDrive_Axe_Moderado = "USB: Intermediate Axe Combat",
+    DisplayName_SkillDrive_Axe_Dificil = "USB: Advanced Axe Combat",
+    
+    DisplayName_SkillDrive_Fitness_Facil = "USB: Basic Fitness",
+    DisplayName_SkillDrive_Fitness_Moderado = "USB: Intermediate Fitness",
+    DisplayName_SkillDrive_Fitness_Dificil = "USB: Advanced Fitness",
+    
+    DisplayName_SkillDrive_Doctor_Facil = "USB: Basic Medicine",
+    DisplayName_SkillDrive_Doctor_Moderado = "USB: Intermediate Medicine",
+    DisplayName_SkillDrive_Doctor_Dificil = "USB: Advanced Medicine",
+    
+    DisplayName_SkillDrive_Survivalist_Facil = "USB: Basic Survival",
+    DisplayName_SkillDrive_Survivalist_Moderado = "USB: Intermediate Survival",
+    DisplayName_SkillDrive_Survivalist_Dificil = "USB: Advanced Survival",
+    
+    -- Floppy Drives by Skill and Difficulty
+    DisplayName_SkillFloppy_Woodwork_Facil = "Floppy: Basic Woodworking",
+    DisplayName_SkillFloppy_Woodwork_Moderado = "Floppy: Intermediate Woodworking",
+    DisplayName_SkillFloppy_Woodwork_Dificil = "Floppy: Advanced Woodworking",
+    
+    DisplayName_SkillFloppy_Electricity_Facil = "Floppy: Basic Electronics",
+    DisplayName_SkillFloppy_Electricity_Moderado = "Floppy: Intermediate Electronics",
+    DisplayName_SkillFloppy_Electricity_Dificil = "Floppy: Advanced Electronics",
+    
+    DisplayName_SkillFloppy_Farming_Facil = "Floppy: Basic Farming",
+    DisplayName_SkillFloppy_Farming_Moderado = "Floppy: Intermediate Farming",
+    DisplayName_SkillFloppy_Farming_Dificil = "Floppy: Advanced Farming",
+    
+    DisplayName_SkillFloppy_Aiming_Facil = "Floppy: Basic Marksmanship",
+    DisplayName_SkillFloppy_Aiming_Moderado = "Floppy: Intermediate Marksmanship",
+    DisplayName_SkillFloppy_Aiming_Dificil = "Floppy: Advanced Marksmanship",
+    
+    DisplayName_SkillFloppy_Cooking_Facil = "Floppy: Basic Cooking",
+    DisplayName_SkillFloppy_Cooking_Moderado = "Floppy: Intermediate Cooking",
+    DisplayName_SkillFloppy_Cooking_Dificil = "Floppy: Advanced Cooking",
+    
+    DisplayName_SkillFloppy_Sneak_Facil = "Floppy: Basic Stealth",
+    DisplayName_SkillFloppy_Sneak_Moderado = "Floppy: Intermediate Stealth",
+    DisplayName_SkillFloppy_Sneak_Dificil = "Floppy: Advanced Stealth",
+    
+    DisplayName_SkillFloppy_Axe_Facil = "Floppy: Basic Axe Combat",
+    DisplayName_SkillFloppy_Axe_Moderado = "Floppy: Intermediate Axe Combat",
+    DisplayName_SkillFloppy_Axe_Dificil = "Floppy: Advanced Axe Combat",
+    
+    DisplayName_SkillFloppy_Fitness_Facil = "Floppy: Basic Fitness",
+    DisplayName_SkillFloppy_Fitness_Moderado = "Floppy: Intermediate Fitness",
+    DisplayName_SkillFloppy_Fitness_Dificil = "Floppy: Advanced Fitness",
+    
+    DisplayName_SkillFloppy_Doctor_Facil = "Floppy: Basic Medicine",
+    DisplayName_SkillFloppy_Doctor_Moderado = "Floppy: Intermediate Medicine",
+    DisplayName_SkillFloppy_Doctor_Dificil = "Floppy: Advanced Medicine",
+    
+    DisplayName_SkillFloppy_Survivalist_Facil = "Floppy: Basic Survival",
+    DisplayName_SkillFloppy_Survivalist_Moderado = "Floppy: Intermediate Survival",
+    DisplayName_SkillFloppy_Survivalist_Dificil = "Floppy: Advanced Survival",
+    
+    -- LEGACY drives for backwards compatibility
+    DisplayName_USB_Woodwork_Easy = "USB: Basic Woodworking (Legacy)",
+    DisplayName_USB_Woodwork_Moderate = "USB: Intermediate Woodworking (Legacy)", 
+    DisplayName_USB_Woodwork_Advanced = "USB: Advanced Woodworking (Legacy)",
     
     DisplayName_USB_Electricity_Easy = "USB: Basic Electronics",
     DisplayName_USB_Electricity_Moderate = "USB: Intermediate Electronics",
@@ -161,10 +245,92 @@ ContextMenu_EN = {
 }
 
 Tooltip_EN = {
-    -- Skill-specific drive tooltips with difficulty
-    Tooltip_USB_Woodwork_Easy = "Contains basic woodworking techniques. Low risk, moderate XP gain.",
-    Tooltip_USB_Woodwork_Moderate = "Contains intermediate woodworking knowledge. Medium risk, good XP gain.",
-    Tooltip_USB_Woodwork_Advanced = "Contains advanced woodworking mastery. High risk, excellent XP gain.",
+    -- NEW RARITY SYSTEM: Skill-specific drive tooltips with difficulty (Fácil/Moderado/Difícil)
+    Tooltip_USB_Woodwork_Facil = "Contains basic woodworking techniques. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Woodwork_Moderado = "Contains intermediate woodworking knowledge. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Woodwork_Dificil = "Contains advanced woodworking mastery. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Electricity_Facil = "Contains basic electrical knowledge. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Electricity_Moderado = "Contains intermediate electrical circuits. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Electricity_Dificil = "Contains advanced electrical engineering. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Farming_Facil = "Contains basic farming techniques. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Farming_Moderado = "Contains intermediate agricultural methods. Medium risk, good XP gain. Some skill required.", 
+    Tooltip_USB_Farming_Dificil = "Contains advanced agricultural science. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Aiming_Facil = "Contains basic marksmanship training. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Aiming_Moderado = "Contains intermediate shooting techniques. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Aiming_Dificil = "Contains advanced tactical shooting. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Cooking_Facil = "Contains basic cooking recipes. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Cooking_Moderado = "Contains intermediate culinary techniques. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Cooking_Dificil = "Contains advanced gastronomy secrets. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Sneak_Facil = "Contains basic stealth techniques. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Sneak_Moderado = "Contains intermediate infiltration methods. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Sneak_Dificil = "Contains advanced covert operations. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Axe_Facil = "Contains basic axe combat techniques. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Axe_Moderado = "Contains intermediate axe mastery. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Axe_Dificil = "Contains advanced lumberjack combat. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Fitness_Facil = "Contains basic fitness routines. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Fitness_Moderado = "Contains intermediate training regimens. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Fitness_Dificil = "Contains advanced athletic conditioning. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Doctor_Facil = "Contains basic medical knowledge. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Doctor_Moderado = "Contains intermediate medical procedures. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Doctor_Dificil = "Contains advanced surgical techniques. High risk, excellent XP gain. Expert level content.",
+    
+    Tooltip_USB_Survivalist_Facil = "Contains basic survival techniques. Low risk, moderate XP gain. Safe for beginners.",
+    Tooltip_USB_Survivalist_Moderado = "Contains intermediate wilderness skills. Medium risk, good XP gain. Some skill required.",
+    Tooltip_USB_Survivalist_Dificil = "Contains advanced survival mastery. High risk, excellent XP gain. Expert level content.",
+    
+    -- Floppy Drive Tooltips
+    Tooltip_Floppy_Woodwork_Facil = "Contains basic woodworking techniques on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Woodwork_Moderado = "Contains intermediate woodworking knowledge on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Woodwork_Dificil = "Contains advanced woodworking mastery on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Electricity_Facil = "Contains basic electrical knowledge on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Electricity_Moderado = "Contains intermediate electrical circuits on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Electricity_Dificil = "Contains advanced electrical engineering on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Farming_Facil = "Contains basic farming techniques on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Farming_Moderado = "Contains intermediate agricultural methods on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Farming_Dificil = "Contains advanced agricultural science on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Aiming_Facil = "Contains basic marksmanship training on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Aiming_Moderado = "Contains intermediate shooting techniques on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Aiming_Dificil = "Contains advanced tactical shooting on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Cooking_Facil = "Contains basic cooking recipes on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Cooking_Moderado = "Contains intermediate culinary techniques on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Cooking_Dificil = "Contains advanced gastronomy secrets on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Sneak_Facil = "Contains basic stealth techniques on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Sneak_Moderado = "Contains intermediate infiltration methods on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Sneak_Dificil = "Contains advanced covert operations on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Axe_Facil = "Contains basic axe combat techniques on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Axe_Moderado = "Contains intermediate axe mastery on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Axe_Dificil = "Contains advanced lumberjack combat on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Fitness_Facil = "Contains basic fitness routines on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Fitness_Moderado = "Contains intermediate training regimens on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Fitness_Dificil = "Contains advanced athletic conditioning on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Doctor_Facil = "Contains basic medical knowledge on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Doctor_Moderado = "Contains intermediate medical procedures on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Doctor_Dificil = "Contains advanced surgical techniques on floppy disk. High risk, excellent XP gain.",
+    
+    Tooltip_Floppy_Survivalist_Facil = "Contains basic survival techniques on floppy disk. Low risk, moderate XP gain.",
+    Tooltip_Floppy_Survivalist_Moderado = "Contains intermediate wilderness skills on floppy disk. Medium risk, good XP gain.",
+    Tooltip_Floppy_Survivalist_Dificil = "Contains advanced survival mastery on floppy disk. High risk, excellent XP gain.",
+    
+    -- LEGACY tooltips for backwards compatibility
+    Tooltip_USB_Woodwork_Easy = "Contains basic woodworking techniques (Legacy). Low risk, moderate XP gain.",
+    Tooltip_USB_Woodwork_Moderate = "Contains intermediate woodworking knowledge (Legacy). Medium risk, good XP gain.",
+    Tooltip_USB_Woodwork_Advanced = "Contains advanced woodworking mastery (Legacy). High risk, excellent XP gain.",
     
     Tooltip_USB_Electricity_Easy = "Contains basic electrical knowledge. Low risk, moderate XP gain.",
     Tooltip_USB_Electricity_Moderate = "Contains intermediate electrical circuits. Medium risk, good XP gain.",

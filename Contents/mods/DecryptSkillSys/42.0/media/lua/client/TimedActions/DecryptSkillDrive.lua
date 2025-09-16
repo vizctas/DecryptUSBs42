@@ -282,7 +282,9 @@ function DecryptSkillDrive:perform()
             end
         end
 
-        if LaptopSystem and LaptopSystem.damageLaptop then
+        -- Only damage laptop if drive is preserved (not consumed)
+        -- When USB is consumed successfully, laptop should not take damage
+        if preservedDrive and LaptopSystem and LaptopSystem.damageLaptop then
             LaptopSystem.damageLaptop(laptopItem, laptopDamageSuccess)
         end
 
