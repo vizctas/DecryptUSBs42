@@ -1,7 +1,181 @@
+Items_ES = {
+    -- Unidades USB por Habilidad y Dificultad
+    DisplayName_USB_Woodwork_Easy = "USB: Carpintería Básica",
+    DisplayName_USB_Woodwork_Moderate = "USB: Carpintería Intermedia", 
+    DisplayName_USB_Woodwork_Advanced = "USB: Carpintería Avanzada",
+    
+    DisplayName_USB_Electricity_Easy = "USB: Electrónica Básica",
+    DisplayName_USB_Electricity_Moderate = "USB: Electrónica Intermedia",
+    DisplayName_USB_Electricity_Advanced = "USB: Electrónica Avanzada",
+    
+    DisplayName_USB_Farming_Easy = "USB: Agricultura Básica",
+    DisplayName_USB_Farming_Moderate = "USB: Agricultura Intermedia", 
+    DisplayName_USB_Farming_Advanced = "USB: Agricultura Avanzada",
+    
+    DisplayName_USB_Aiming_Easy = "USB: Puntería Básica",
+    DisplayName_USB_Aiming_Moderate = "USB: Puntería Intermedia",
+    DisplayName_USB_Aiming_Advanced = "USB: Puntería Avanzada",
+    
+    DisplayName_USB_Cooking_Easy = "USB: Cocina Básica",
+    DisplayName_USB_Cooking_Moderate = "USB: Cocina Intermedia",
+    DisplayName_USB_Cooking_Advanced = "USB: Cocina Avanzada",
+    
+    DisplayName_USB_Sneak_Easy = "USB: Sigilo Básico",
+    DisplayName_USB_Sneak_Moderate = "USB: Sigilo Intermedio", 
+    DisplayName_USB_Sneak_Advanced = "USB: Sigilo Avanzado",
+    
+    DisplayName_USB_Axe_Easy = "USB: Combate con Hacha Básico",
+    DisplayName_USB_Axe_Moderate = "USB: Combate con Hacha Intermedio",
+    DisplayName_USB_Axe_Advanced = "USB: Combate con Hacha Avanzado",
+    
+    DisplayName_USB_Fitness_Easy = "USB: Fitness Básico",
+    DisplayName_USB_Fitness_Moderate = "USB: Fitness Intermedio",
+    DisplayName_USB_Fitness_Advanced = "USB: Fitness Avanzado",
+    
+    DisplayName_USB_Doctor_Easy = "USB: Medicina Básica",
+    DisplayName_USB_Doctor_Moderate = "USB: Medicina Intermedia",
+    DisplayName_USB_Doctor_Advanced = "USB: Medicina Avanzada",
+    
+    DisplayName_USB_Survivalist_Easy = "USB: Supervivencia Básica",
+    DisplayName_USB_Survivalist_Moderate = "USB: Supervivencia Intermedia",
+    DisplayName_USB_Survivalist_Advanced = "USB: Supervivencia Avanzada",
+    
+    -- Disquetes por Habilidad y Dificultad
+    DisplayName_Floppy_Woodwork_Easy = "Disquete: Carpintería Básica",
+    DisplayName_Floppy_Woodwork_Moderate = "Disquete: Carpintería Intermedia",
+    DisplayName_Floppy_Woodwork_Advanced = "Disquete: Carpintería Avanzada",
+    
+    DisplayName_Floppy_Electricity_Easy = "Disquete: Electrónica Básica",
+    DisplayName_Floppy_Electricity_Moderate = "Disquete: Electrónica Intermedia",
+    DisplayName_Floppy_Electricity_Advanced = "Disquete: Electrónica Avanzada",
+    
+    DisplayName_Floppy_Farming_Easy = "Disquete: Agricultura Básica",
+    DisplayName_Floppy_Farming_Moderate = "Disquete: Agricultura Intermedia",
+    DisplayName_Floppy_Farming_Advanced = "Disquete: Agricultura Avanzada",
+    
+    DisplayName_Floppy_Aiming_Easy = "Disquete: Puntería Básica",
+    DisplayName_Floppy_Aiming_Moderate = "Disquete: Puntería Intermedia",
+    DisplayName_Floppy_Aiming_Advanced = "Disquete: Puntería Avanzada",
+    
+    DisplayName_Floppy_Cooking_Easy = "Disquete: Cocina Básica",
+    DisplayName_Floppy_Cooking_Moderate = "Disquete: Cocina Intermedia",
+    DisplayName_Floppy_Cooking_Advanced = "Disquete: Cocina Avanzada",
+    
+    DisplayName_Floppy_Sneak_Easy = "Disquete: Sigilo Básico",
+    DisplayName_Floppy_Sneak_Moderate = "Disquete: Sigilo Intermedio",
+    DisplayName_Floppy_Sneak_Advanced = "Disquete: Sigilo Avanzado",
+    
+    DisplayName_Floppy_Axe_Easy = "Disquete: Combate con Hacha Básico",
+    DisplayName_Floppy_Axe_Moderate = "Disquete: Combate con Hacha Intermedio",
+    DisplayName_Floppy_Axe_Advanced = "Disquete: Combate con Hacha Avanzado",
+    
+    DisplayName_Floppy_Fitness_Easy = "Disquete: Fitness Básico",
+    DisplayName_Floppy_Fitness_Moderate = "Disquete: Fitness Intermedio",
+    DisplayName_Floppy_Fitness_Advanced = "Disquete: Fitness Avanzado",
+    
+    DisplayName_Floppy_Doctor_Easy = "Disquete: Medicina Básica",
+    DisplayName_Floppy_Doctor_Moderate = "Disquete: Medicina Intermedia",
+    DisplayName_Floppy_Doctor_Advanced = "Disquete: Medicina Avanzada",
+    
+    DisplayName_Floppy_Survivalist_Easy = "Disquete: Supervivencia Básica",
+    DisplayName_Floppy_Survivalist_Moderate = "Disquete: Supervivencia Intermedia",
+    DisplayName_Floppy_Survivalist_Advanced = "Disquete: Supervivencia Avanzada",
+    
+    -- Unidades legacy para compatibilidad
+    DisplayName_USB_Closed = "Unidad USB (Legacy)",
+    DisplayName_FloppyDrive = "Disquete (Legacy)",
+    
+    -- Nombres de Laptops
+    DisplayName_Laptop90sClosed = "Laptop de los 90's (Cerrada)",
+    DisplayName_Laptop90sOpened = "Laptop de los 90's (Abierta)",
+    DisplayName_AsusZephLaptopClosed = "Laptop Asus (Cerrada)",
+    DisplayName_AsusZephLaptopOpened = "Laptop Asus (Abierta)",
+    DisplayName_PBIBM_LP90Closed = "Laptop IBM (Cerrada)",
+    DisplayName_PBIBM_LP90Opened = "Laptop IBM (Abierta)",
+    
+    -- Nombres de Tokens Elite (sin cambios)
+    DisplayName_EliteDrive_Strength = "Mejora Elite: Fuerza",
+    DisplayName_EliteDrive_Endurance = "Mejora Elite: Resistencia",
+    DisplayName_EliteDrive_Capacity = "Mejora Elite: Capacidad de Carga",
+    DisplayName_EliteDrive_Speed = "Mejora Elite: Velocidad de Movimiento",
+    DisplayName_EliteDrive_Luck = "Mejora Elite: Fortuna",
+}
+
+ContextMenu_ES = {
+    -- Opciones del menú contextual para unidades
+    ContextMenu_UseUSB = "Descifrar Unidad USB",
+    ContextMenu_UseFloppy = "Descifrar Disquete", 
+    ContextMenu_UseElite = "Aplicar Mejora Elite",
+    ContextMenu_UseLegacyUSB = "Descifrar USB (Legacy)",
+    ContextMenu_UseLegacyFloppy = "Descifrar Disquete (Legacy)",
+    
+    -- Opciones del menú contextual para laptops
+    ContextMenu_OpenLaptop = "Abrir Laptop",
+    ContextMenu_CloseLaptop = "Cerrar Laptop",
+}
+
+Tooltip_ES = {
+    -- Tooltips para unidades USB específicas por habilidad con dificultad
+    Tooltip_USB_Woodwork_Easy = "Contiene técnicas básicas de carpintería. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Woodwork_Moderate = "Contiene conocimiento intermedio de carpintería. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Woodwork_Advanced = "Contiene maestría avanzada en carpintería. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Electricity_Easy = "Contiene conocimiento básico de electricidad. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Electricity_Moderate = "Contiene circuitos eléctricos intermedios. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Electricity_Advanced = "Contiene ingeniería eléctrica avanzada. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Farming_Easy = "Contiene técnicas básicas de agricultura. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Farming_Moderate = "Contiene métodos agrícolas intermedios. Riesgo medio, buena ganancia de XP.", 
+    Tooltip_USB_Farming_Advanced = "Contiene ciencia agrícola avanzada. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Aiming_Easy = "Contiene entrenamiento básico de puntería. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Aiming_Moderate = "Contiene técnicas de tiro intermedias. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Aiming_Advanced = "Contiene tiro táctico avanzado. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Cooking_Easy = "Contiene recetas básicas de cocina. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Cooking_Moderate = "Contiene técnicas culinarias intermedias. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Cooking_Advanced = "Contiene secretos gastronómicos avanzados. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Sneak_Easy = "Contiene técnicas básicas de sigilo. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Sneak_Moderate = "Contiene métodos de infiltración intermedios. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Sneak_Advanced = "Contiene operaciones encubiertas avanzadas. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Axe_Easy = "Contiene técnicas básicas de combate con hacha. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Axe_Moderate = "Contiene maestría intermedia del hacha. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Axe_Advanced = "Contiene combate avanzado de leñador. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Fitness_Easy = "Contiene rutinas básicas de fitness. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Fitness_Moderate = "Contiene regímenes de entrenamiento intermedios. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Fitness_Advanced = "Contiene acondicionamiento atlético avanzado. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Doctor_Easy = "Contiene conocimiento médico básico. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Doctor_Moderate = "Contiene procedimientos médicos intermedios. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Doctor_Advanced = "Contiene técnicas quirúrgicas avanzadas. Alto riesgo, excelente ganancia de XP.",
+    
+    Tooltip_USB_Survivalist_Easy = "Contiene técnicas básicas de supervivencia. Bajo riesgo, ganancia moderada de XP.",
+    Tooltip_USB_Survivalist_Moderate = "Contiene habilidades intermedias de vida silvestre. Riesgo medio, buena ganancia de XP.",
+    Tooltip_USB_Survivalist_Advanced = "Contiene maestría avanzada de supervivencia. Alto riesgo, excelente ganancia de XP.",
+    
+    -- Tooltips para unidades elite (actualizados)
+    Tooltip_EliteDrive_Strength = "Aumenta permanentemente la fuerza. Se puede usar una vez por personaje por tipo de estadística.",
+    Tooltip_EliteDrive_Endurance = "Aumenta permanentemente la resistencia. Se puede usar una vez por personaje por tipo de estadística.",
+    Tooltip_EliteDrive_Capacity = "Aumenta permanentemente la capacidad de carga. Se puede usar una vez por personaje por tipo de estadística.",
+    Tooltip_EliteDrive_Speed = "Aumenta permanentemente la velocidad de movimiento. Se puede usar una vez por personaje por tipo de estadística.",
+    Tooltip_EliteDrive_Luck = "Aumenta permanentemente el factor de suerte. Se puede usar una vez por personaje por tipo de estadística.",
+    
+    -- Tooltips para laptops (sin requisitos de energía)
+    Tooltip_Laptop90sClosed = "Una laptop vintage de los 90's. Puede descifrar unidades y ejecutar antivirus.",
+    Tooltip_AsusZephLaptopClosed = "Una laptop gaming Asus moderna. Descifrado rápido y antivirus avanzado.",
+    Tooltip_PBIBM_LP90Closed = "Una vieja laptop de negocios IBM. Confiable pero lenta.",
+}
+
+-- Mantener los mensajes de juego originales para compatibilidad
 GVDrive_ES = 
 {
     GVDrive_Ctx_Decrypt_Drive = "Desencriptar unidad",
     GVDrive_Ctx_Check_Floppy = "Revisar disco",
+    GVDrive_Ctx_Decrypt_Skill_USB = "Descifrar USBs Especializados",
+    GVDrive_Ctx_Decrypt_Skill_Floppy = "Descifrar Disquetes Especializados",
     
     GVDrive_Msg_UsbTooOldLaptop = "¿Eh? Esta laptop es demasiado vieja para una unidad USB...",
     GVDrive_Msg_NeedsFloppyLaptop = "Necesito una laptop con unidad de disquete...",
@@ -45,4 +219,31 @@ GVDrive_ES =
     GVDrive_Msg_Elite_Found = "Encontré algo inusual... esta unidad se ve diferente.",
     GVDrive_Msg_Elite_Token_Created = "¡Protocolo de mejora élite creado! Esto podría cambiarlo todo.",
     GVDrive_Msg_Enhancement_Applied = "¡Mejora élite aplicada! Te sientes más fuerte, rápido y capaz.",
+    
+    -- Sistema de Laptops
+    GVDrive_Error_Invalid = "Laptop o parámetros inválidos.",
+    GVDrive_Error_Laptop_Broken = "Esta laptop está completamente rota e inutilizable.",
+    -- GVDrive_Error_No_Power = "¡Sin electricidad! Necesito energía para usar esta laptop.", -- DESHABILITADO: Energía no requerida
+    
+    GVDrive_Laptop_Broken = "Laptop Rota (Inutilizable)",
+    GVDrive_Laptop_Critical = "Laptop (Estado Crítico)",
+    GVDrive_Laptop_Damaged = "Laptop (Muy Dañada)",
+    GVDrive_Laptop_Worn = "Laptop (Desgastada)",
+    
+    GVDrive_Laptop_Broken_Tooltip = "Esta laptop está completamente rota y no se puede usar hasta repararla con software antivirus.",
+    GVDrive_Laptop_Critical_Tooltip = "Esta laptop está en estado crítico y puede romperse pronto. Considera usar software antivirus.",
+    GVDrive_Laptop_Damaged_Tooltip = "Esta laptop está muy dañada pero aún funcional. El software antivirus podría ayudar a restaurarla.",
+    GVDrive_Laptop_Worn_Tooltip = "Esta laptop muestra signos de desgaste pero es mayormente funcional.",
+    
+    -- Sistema de Malware
+    GVDrive_Msg_USB_Malware = "¡ADVERTENCIA: Malware detectado! ¡Laptop infectada!",
+    GVDrive_Msg_USB_Malware_Worse = "¡El malware se está extendiendo! ¡Laptop severamente dañada!",
+    GVDrive_Msg_Floppy_Malware = "¡ADVERTENCIA: Malware detectado! ¡Laptop infectada!",
+    GVDrive_Msg_Floppy_Malware_Worse = "¡El malware se está extendiendo! ¡Laptop severamente dañada!",
+    
+    -- Sistema de Antivirus
+    GVDrive_Msg_Antivirus_Success = "¡Malware eliminado! Laptop parcialmente restaurada.",
+    GVDrive_Msg_Antivirus_Advanced_Success = "¡Eliminación avanzada de malware completa! Laptop significativamente restaurada.",
+    GVDrive_Msg_Antivirus_Premium_Success = "¡Eliminación premium de malware completa! ¡Laptop completamente restaurada!",
+    GVDrive_Msg_Antivirus_NoMalware = "No se detectó malware. Condición de laptop mejorada.",
 }

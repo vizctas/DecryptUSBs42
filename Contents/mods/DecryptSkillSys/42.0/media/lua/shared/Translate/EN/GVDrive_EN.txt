@@ -2,6 +2,8 @@ GVDrive_EN =
 {
     GVDrive_Ctx_Decrypt_Drive = "Decrypt drive",
     GVDrive_Ctx_Check_Floppy = "Check Floppy Disk",
+    GVDrive_Ctx_Decrypt_Skill_USB = "Decrypt Skill USB Drives",
+    GVDrive_Ctx_Decrypt_Skill_Floppy = "Decrypt Skill Floppy Disks",
     
     GVDrive_Msg_UsbTooOldLaptop = "Eh? This laptop is too old for a USB drive...",
     GVDrive_Msg_NeedsFloppyLaptop = "I must find a laptop with a floppy drive...",
@@ -38,11 +40,210 @@ GVDrive_EN =
 
     GVDrive_Msg_Survivalist_Success = "Got it! Survival can be summed up in three words: never give up. Keep trying. There might be more information to decrypt.",
     GVDrive_Msg_Survivalist_Consume = "Got it! Survival can be summed up in three words: never give up. Keep trying. I may find more info to decrypt from another drive.",
+    
+    GVDrive_Msg_No_Drives = "No drives found in inventory!",
+    GVDrive_Msg_Drive_Corrupted = "Drive corrupted during decryption!",
 
-    GVDrive_Msg_USB_Opened_OK = "This one seems to work",
+    Items_EN = {
+    -- USB Drives by Skill and Difficulty
+    DisplayName_USB_Woodwork_Easy = "USB: Basic Woodworking",
+    DisplayName_USB_Woodwork_Moderate = "USB: Intermediate Woodworking", 
+    DisplayName_USB_Woodwork_Advanced = "USB: Advanced Woodworking",
+    
+    DisplayName_USB_Electricity_Easy = "USB: Basic Electronics",
+    DisplayName_USB_Electricity_Moderate = "USB: Intermediate Electronics",
+    DisplayName_USB_Electricity_Advanced = "USB: Advanced Electronics",
+    
+    DisplayName_USB_Farming_Easy = "USB: Basic Farming",
+    DisplayName_USB_Farming_Moderate = "USB: Intermediate Farming", 
+    DisplayName_USB_Farming_Advanced = "USB: Advanced Farming",
+    
+    DisplayName_USB_Aiming_Easy = "USB: Basic Marksmanship",
+    DisplayName_USB_Aiming_Moderate = "USB: Intermediate Marksmanship",
+    DisplayName_USB_Aiming_Advanced = "USB: Advanced Marksmanship",
+    
+    DisplayName_USB_Cooking_Easy = "USB: Basic Cooking",
+    DisplayName_USB_Cooking_Moderate = "USB: Intermediate Cooking",
+    DisplayName_USB_Cooking_Advanced = "USB: Advanced Cooking",
+    
+    DisplayName_USB_Sneak_Easy = "USB: Basic Stealth",
+    DisplayName_USB_Sneak_Moderate = "USB: Intermediate Stealth", 
+    DisplayName_USB_Sneak_Advanced = "USB: Advanced Stealth",
+    
+    DisplayName_USB_Axe_Easy = "USB: Basic Axe Combat",
+    DisplayName_USB_Axe_Moderate = "USB: Intermediate Axe Combat",
+    DisplayName_USB_Axe_Advanced = "USB: Advanced Axe Combat",
+    
+    DisplayName_USB_Fitness_Easy = "USB: Basic Fitness",
+    DisplayName_USB_Fitness_Moderate = "USB: Intermediate Fitness",
+    DisplayName_USB_Fitness_Advanced = "USB: Advanced Fitness",
+    
+    DisplayName_USB_Doctor_Easy = "USB: Basic Medicine",
+    DisplayName_USB_Doctor_Moderate = "USB: Intermediate Medicine",
+    DisplayName_USB_Doctor_Advanced = "USB: Advanced Medicine",
+    
+    DisplayName_USB_Survivalist_Easy = "USB: Basic Survival",
+    DisplayName_USB_Survivalist_Moderate = "USB: Intermediate Survival",
+    DisplayName_USB_Survivalist_Advanced = "USB: Advanced Survival",
+    
+    -- Floppy Drives by Skill and Difficulty
+    DisplayName_Floppy_Woodwork_Easy = "Floppy: Basic Woodworking",
+    DisplayName_Floppy_Woodwork_Moderate = "Floppy: Intermediate Woodworking",
+    DisplayName_Floppy_Woodwork_Advanced = "Floppy: Advanced Woodworking",
+    
+    DisplayName_Floppy_Electricity_Easy = "Floppy: Basic Electronics",
+    DisplayName_Floppy_Electricity_Moderate = "Floppy: Intermediate Electronics",
+    DisplayName_Floppy_Electricity_Advanced = "Floppy: Advanced Electronics",
+    
+    DisplayName_Floppy_Farming_Easy = "Floppy: Basic Farming",
+    DisplayName_Floppy_Farming_Moderate = "Floppy: Intermediate Farming",
+    DisplayName_Floppy_Farming_Advanced = "Floppy: Advanced Farming",
+    
+    DisplayName_Floppy_Aiming_Easy = "Floppy: Basic Marksmanship",
+    DisplayName_Floppy_Aiming_Moderate = "Floppy: Intermediate Marksmanship",
+    DisplayName_Floppy_Aiming_Advanced = "Floppy: Advanced Marksmanship",
+    
+    DisplayName_Floppy_Cooking_Easy = "Floppy: Basic Cooking",
+    DisplayName_Floppy_Cooking_Moderate = "Floppy: Intermediate Cooking",
+    DisplayName_Floppy_Cooking_Advanced = "Floppy: Advanced Cooking",
+    
+    DisplayName_Floppy_Sneak_Easy = "Floppy: Basic Stealth",
+    DisplayName_Floppy_Sneak_Moderate = "Floppy: Intermediate Stealth",
+    DisplayName_Floppy_Sneak_Advanced = "Floppy: Advanced Stealth",
+    
+    DisplayName_Floppy_Axe_Easy = "Floppy: Basic Axe Combat",
+    DisplayName_Floppy_Axe_Moderate = "Floppy: Intermediate Axe Combat",
+    DisplayName_Floppy_Axe_Advanced = "Floppy: Advanced Axe Combat",
+    
+    DisplayName_Floppy_Fitness_Easy = "Floppy: Basic Fitness",
+    DisplayName_Floppy_Fitness_Moderate = "Floppy: Intermediate Fitness",
+    DisplayName_Floppy_Fitness_Advanced = "Floppy: Advanced Fitness",
+    
+    DisplayName_Floppy_Doctor_Easy = "Floppy: Basic Medicine",
+    DisplayName_Floppy_Doctor_Moderate = "Floppy: Intermediate Medicine",
+    DisplayName_Floppy_Doctor_Advanced = "Floppy: Advanced Medicine",
+    
+    DisplayName_Floppy_Survivalist_Easy = "Floppy: Basic Survival",
+    DisplayName_Floppy_Survivalist_Moderate = "Floppy: Intermediate Survival",
+    DisplayName_Floppy_Survivalist_Advanced = "Floppy: Advanced Survival",
+    
+    -- Legacy drives for backwards compatibility
+    DisplayName_USB_Closed = "USB Drive (Legacy)",
+    DisplayName_FloppyDrive = "Floppy Disk (Legacy)",
+    
+    -- Laptop Display Names
+    DisplayName_Laptop90sClosed = "90's Laptop (Closed)",
+    DisplayName_Laptop90sOpened = "90's Laptop (Opened)",
+    DisplayName_AsusZephLaptopClosed = "Asus Laptop (Closed)",
+    DisplayName_AsusZephLaptopOpened = "Asus Laptop (Opened)",
+    DisplayName_PBIBM_LP90Closed = "IBM Laptop (Closed)",
+    DisplayName_PBIBM_LP90Opened = "IBM Laptop (Opened)",
+    
+    -- Elite Token Names (unchanged)
+    DisplayName_EliteDrive_Strength = "Elite Enhancement: Strength",
+    DisplayName_EliteDrive_Endurance = "Elite Enhancement: Endurance",
+    DisplayName_EliteDrive_Capacity = "Elite Enhancement: Carrying Capacity",
+    DisplayName_EliteDrive_Speed = "Elite Enhancement: Movement Speed",
+    DisplayName_EliteDrive_Luck = "Elite Enhancement: Fortune",
+}
+
+ContextMenu_EN = {
+    -- Drive context menu options
+    ContextMenu_UseUSB = "Decrypt USB Drive",
+    ContextMenu_UseFloppy = "Decrypt Floppy Disk", 
+    ContextMenu_UseElite = "Apply Elite Enhancement",
+    ContextMenu_UseLegacyUSB = "Decrypt USB (Legacy)",
+    ContextMenu_UseLegacyFloppy = "Decrypt Floppy (Legacy)",
+    
+    -- Laptop context menu options
+    ContextMenu_OpenLaptop = "Open Laptop",
+    ContextMenu_CloseLaptop = "Close Laptop",
+}
+
+Tooltip_EN = {
+    -- Skill-specific drive tooltips with difficulty
+    Tooltip_USB_Woodwork_Easy = "Contains basic woodworking techniques. Low risk, moderate XP gain.",
+    Tooltip_USB_Woodwork_Moderate = "Contains intermediate woodworking knowledge. Medium risk, good XP gain.",
+    Tooltip_USB_Woodwork_Advanced = "Contains advanced woodworking mastery. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Electricity_Easy = "Contains basic electrical knowledge. Low risk, moderate XP gain.",
+    Tooltip_USB_Electricity_Moderate = "Contains intermediate electrical circuits. Medium risk, good XP gain.",
+    Tooltip_USB_Electricity_Advanced = "Contains advanced electrical engineering. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Farming_Easy = "Contains basic farming techniques. Low risk, moderate XP gain.",
+    Tooltip_USB_Farming_Moderate = "Contains intermediate agricultural methods. Medium risk, good XP gain.", 
+    Tooltip_USB_Farming_Advanced = "Contains advanced agricultural science. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Aiming_Easy = "Contains basic marksmanship training. Low risk, moderate XP gain.",
+    Tooltip_USB_Aiming_Moderate = "Contains intermediate shooting techniques. Medium risk, good XP gain.",
+    Tooltip_USB_Aiming_Advanced = "Contains advanced tactical shooting. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Cooking_Easy = "Contains basic cooking recipes. Low risk, moderate XP gain.",
+    Tooltip_USB_Cooking_Moderate = "Contains intermediate culinary techniques. Medium risk, good XP gain.",
+    Tooltip_USB_Cooking_Advanced = "Contains advanced gastronomy secrets. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Sneak_Easy = "Contains basic stealth techniques. Low risk, moderate XP gain.",
+    Tooltip_USB_Sneak_Moderate = "Contains intermediate infiltration methods. Medium risk, good XP gain.",
+    Tooltip_USB_Sneak_Advanced = "Contains advanced covert operations. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Axe_Easy = "Contains basic axe combat techniques. Low risk, moderate XP gain.",
+    Tooltip_USB_Axe_Moderate = "Contains intermediate axe mastery. Medium risk, good XP gain.",
+    Tooltip_USB_Axe_Advanced = "Contains advanced lumberjack combat. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Fitness_Easy = "Contains basic fitness routines. Low risk, moderate XP gain.",
+    Tooltip_USB_Fitness_Moderate = "Contains intermediate training regimens. Medium risk, good XP gain.",
+    Tooltip_USB_Fitness_Advanced = "Contains advanced athletic conditioning. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Doctor_Easy = "Contains basic medical knowledge. Low risk, moderate XP gain.",
+    Tooltip_USB_Doctor_Moderate = "Contains intermediate medical procedures. Medium risk, good XP gain.",
+    Tooltip_USB_Doctor_Advanced = "Contains advanced surgical techniques. High risk, excellent XP gain.",
+    
+    Tooltip_USB_Survivalist_Easy = "Contains basic survival techniques. Low risk, moderate XP gain.",
+    Tooltip_USB_Survivalist_Moderate = "Contains intermediate wilderness skills. Medium risk, good XP gain.",
+    Tooltip_USB_Survivalist_Advanced = "Contains advanced survival mastery. High risk, excellent XP gain.",
+    
+    -- Elite drive tooltips (updated)
+    Tooltip_EliteDrive_Strength = "Permanently increases strength. Can be used once per character per stat type.",
+    Tooltip_EliteDrive_Endurance = "Permanently increases endurance. Can be used once per character per stat type.",
+    Tooltip_EliteDrive_Capacity = "Permanently increases carrying capacity. Can be used once per character per stat type.",
+    Tooltip_EliteDrive_Speed = "Permanently increases movement speed. Can be used once per character per stat type.",
+    Tooltip_EliteDrive_Luck = "Permanently increases luck factor. Can be used once per character per stat type.",
+    
+    -- Laptop tooltips (no power requirements)
+    Tooltip_Laptop90sClosed = "A vintage 90's laptop. Can decrypt drives and run antivirus.",
+    Tooltip_AsusZephLaptopClosed = "A modern Asus gaming laptop. Fast decryption and advanced antivirus.",
+    Tooltip_PBIBM_LP90Closed = "An old IBM business laptop. Reliable but slow.",
+},
     
     -- Elite Drive System
     GVDrive_Msg_Elite_Found = "Found something unusual... this drive looks different.",
     GVDrive_Msg_Elite_Token_Created = "Elite enhancement protocol created! This could change everything.",
     GVDrive_Msg_Enhancement_Applied = "Elite enhancement applied! You feel stronger, faster, and more capable.",
+    
+    -- Laptop System
+    GVDrive_Error_Invalid = "Invalid laptop or parameters.",
+    GVDrive_Error_Laptop_Broken = "This laptop is completely broken and unusable.",
+    -- GVDrive_Error_No_Power = "No electricity! I need power to use this laptop.", -- DISABLED: Power not required
+    
+    GVDrive_Laptop_Broken = "Broken Laptop (Unusable)",
+    GVDrive_Laptop_Critical = "Laptop (Critical Condition)",
+    GVDrive_Laptop_Damaged = "Laptop (Heavily Damaged)",
+    GVDrive_Laptop_Worn = "Laptop (Worn)",
+    
+    GVDrive_Laptop_Broken_Tooltip = "This laptop is completely broken and cannot be used until repaired with antivirus software.",
+    GVDrive_Laptop_Critical_Tooltip = "This laptop is in critical condition and may break soon. Consider using antivirus software.",
+    GVDrive_Laptop_Damaged_Tooltip = "This laptop is heavily damaged but still functional. Antivirus software could help restore it.",
+    GVDrive_Laptop_Worn_Tooltip = "This laptop shows signs of wear but is mostly functional.",
+    
+    -- Malware System
+    GVDrive_Msg_USB_Malware = "WARNING: Malware detected! Laptop infected!",
+    GVDrive_Msg_USB_Malware_Worse = "Malware is spreading! Laptop severely damaged!",
+    GVDrive_Msg_Floppy_Malware = "WARNING: Malware detected! Laptop infected!",
+    GVDrive_Msg_Floppy_Malware_Worse = "Malware is spreading! Laptop severely damaged!",
+    
+    -- Antivirus System
+    GVDrive_Msg_Antivirus_Success = "Malware cleaned! Laptop partially restored.",
+    GVDrive_Msg_Antivirus_Advanced_Success = "Advanced malware removal complete! Laptop significantly restored.",
+    GVDrive_Msg_Antivirus_Premium_Success = "Premium malware removal complete! Laptop fully restored!",
+    GVDrive_Msg_Antivirus_NoMalware = "No malware detected. Laptop condition improved.",
 }

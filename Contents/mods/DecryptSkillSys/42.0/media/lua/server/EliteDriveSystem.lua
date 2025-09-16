@@ -11,38 +11,103 @@ function getPlayerEnhancements(player)
     local data = player:getModData()
     if not data.GVDrive_Enhancements then
         data.GVDrive_Enhancements = {
+            -- Track which specific bonuses have been used
+            CapacityTokenUsed = false,
+            SpeedTokenUsed = false,
+            StrengthTokenUsed = false,
+            EnduranceTokenUsed = false,
+            LuckTokenUsed = false,
+            -- Cumulative bonuses
             CapacityBonus = 0,
             SpeedBonus = 0,
             StrengthBonus = 0,
             EnduranceBonus = 0,
             LuckBonus = 0,
-            TokensUsed = 0
+            TotalTokensUsed = 0
         }
     end
     return data.GVDrive_Enhancements
 end
 
--- Apply permanent enhancement to player
-function applyPermanentEnhancement(player)
+-- Check if player can use enhancement token (must choose which stat to enhance)
+function canUseEnhancementToken(player)
+    local enhancements = getPlayerEnhancements(player)
+    -- Can use token if not all stats have been enhanced
+    return not (enhancements.CapacityTokenUsed and 
+                enhancements.SpeedTokenUsed and 
+                enhancements.StrengthTokenUsed and 
+                enhancements.EnduranceTokenUsed and 
+                enhancements.LuckTokenUsed)
+end
+
+-- Apply specific permanent enhancement to player
+function applySpecificEnhancement(player, enhancementType)
     local enhancements = getPlayerEnhancements(player)
     
-    -- Increase bonuses
-    enhancements.CapacityBonus = enhancements.CapacityBonus + 5
-    enhancements.SpeedBonus = enhancements.SpeedBonus + 0.1
-    enhancements.StrengthBonus = enhancements.StrengthBonus + 1
-    enhancements.EnduranceBonus = enhancements.EnduranceBonus + 1
-    enhancements.LuckBonus = enhancements.LuckBonus + 1
-    enhancements.TokensUsed = enhancements.TokensUsed + 1
+    -- Check if this specific enhancement has already been used
+    local tokenKey = enhancementType .. "TokenUsed"
+    if enhancements[tokenKey] then
+        player:Say(getText("GVDrive_Msg_Enhancement_Already_Used") or "You have already used an enhancement for " .. enhancementType .. "!")
+        return false
+    end
     
-    -- Apply capacity bonus immediately
-    local maxWeight = player:getMaxWeight()
-    player:setMaxWeight(maxWeight + 5)
+    -- Mark this enhancement as used
+    enhancements[tokenKey] = true
+    enhancements.TotalTokensUsed = enhancements.TotalTokensUsed + 1
     
-    -- Show message
-    player:Say(getText("GVDrive_Msg_Enhancement_Applied") or "Elite enhancement applied! You feel stronger and more capable.")
+    -- Apply specific bonuses
+    if enhancementType == "Capacity" then
+        enhancements.CapacityBonus = enhancements.CapacityBonus + 5
+        local maxWeight = player:getMaxWeight()
+        player:setMaxWeight(maxWeight + 5)
+        player:Say(getText("GVDrive_Msg_Enhancement_Capacity") or "Elite enhancement applied! +5 Carry Weight!")
+        
+    elseif enhancementType == "Speed" then
+        enhancements.SpeedBonus = enhancements.SpeedBonus + 0.1
+        player:Say(getText("GVDrive_Msg_Enhancement_Speed") or "Elite enhancement applied! +10% Movement Speed!")
+        
+    elseif enhancementType == "Strength" then
+        enhancements.StrengthBonus = enhancements.StrengthBonus + 1
+        player:Say(getText("GVDrive_Msg_Enhancement_Strength") or "Elite enhancement applied! Enhanced combat abilities!")
+        
+    elseif enhancementType == "Endurance" then
+        enhancements.EnduranceBonus = enhancements.EnduranceBonus + 1
+        player:Say(getText("GVDrive_Msg_Enhancement_Endurance") or "Elite enhancement applied! Enhanced endurance!")
+        
+    elseif enhancementType == "Luck" then
+        enhancements.LuckBonus = enhancements.LuckBonus + 1
+        player:Say(getText("GVDrive_Msg_Enhancement_Luck") or "Elite enhancement applied! Enhanced luck!")
+    end
     
-    -- Apply other bonuses (will be handled by events)
+    -- Apply runtime bonuses
     Events.OnPlayerUpdate.Add(applyRuntimeBonuses)
+    
+    return true
+end
+
+-- Apply permanent enhancement to player (legacy function - now asks for choice)
+function applyPermanentEnhancement(player)
+    -- This now creates a context menu for choosing enhancement type
+    if not canUseEnhancementToken(player) then
+        player:Say(getText("GVDrive_Msg_Enhancement_Max_Used") or "You have already used elite enhancements for all available stats!")
+        return
+    end
+    
+    -- In a real implementation, this would show a context menu
+    -- For now, we'll apply a random available enhancement
+    local enhancements = getPlayerEnhancements(player)
+    local availableEnhancements = {}
+    
+    if not enhancements.CapacityTokenUsed then table.insert(availableEnhancements, "Capacity") end
+    if not enhancements.SpeedTokenUsed then table.insert(availableEnhancements, "Speed") end
+    if not enhancements.StrengthTokenUsed then table.insert(availableEnhancements, "Strength") end
+    if not enhancements.EnduranceTokenUsed then table.insert(availableEnhancements, "Endurance") end
+    if not enhancements.LuckTokenUsed then table.insert(availableEnhancements, "Luck") end
+    
+    if #availableEnhancements > 0 then
+        local randomChoice = availableEnhancements[ZombRand(1, #availableEnhancements + 1)]
+        applySpecificEnhancement(player, randomChoice)
+    end
 end
 
 -- Apply runtime bonuses during gameplay

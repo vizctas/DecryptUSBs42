@@ -57,4 +57,17 @@ Sandbox_ES =
     
     Sandbox_GVDrive_Floppy_Max_Exp = "Exp Maxima Disquete (Clasico)",
     Sandbox_GVDrive_Floppy_Max_Exp_tooltip = "Puntos maximos de experiencia de disquete (solo cuando Sistema Inteligente esta APAGADO).",
+    
+    // ============ SISTEMA DE LAPTOPS ============
+    Sandbox_GVDrive_Laptop_Initial_Health = "Vida Inicial de Laptops",
+    Sandbox_GVDrive_Laptop_Initial_Health_tooltip = "Vida/durabilidad inicial de nuevas laptops. Cuando la vida llega a 0, la laptop se vuelve inutilizable.",
+    
+    Sandbox_GVDrive_Malware_Chance = "Probabilidad de Malware",
+    Sandbox_GVDrive_Malware_Chance_tooltip = "Porcentaje de probabilidad de infectarse con malware cuando falla el descifrado. El malware dana las laptops con el tiempo.",
+    
+    Sandbox_GVDrive_Malware_Damage = "Dano de Malware por Uso",
+    Sandbox_GVDrive_Malware_Damage_tooltip = "Cuanto dano de vida causa el malware cada vez que se usa una laptop infectada.",
+    
+    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Tasa de Aparicion de Antivirus",
+    Sandbox_GVDrive_Antivirus_Spawn_Rate_tooltip = "Porcentaje de la tasa normal de aparicion de discos antivirus. Son objetos extremadamente raros que pueden limpiar malware y restaurar vida de laptops.",
 }

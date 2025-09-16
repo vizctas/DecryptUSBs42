@@ -1,60 +1,12 @@
-Sandbox_EN = 
-{
-	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
-	
-	// ============ ZOMBIE DROP RATES ============
-    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
-    Sandbox_GVDrive_USB_ZombieDrop_tooltip = "Percentage chance that zombies drop USB drives when killed. 0% = never drop, 100% = always drop.",
-    
-    Sandbox_GVDrive_Floppy_ZombieDrop = "Floppy Disk Drop Rate (Zombies)",
-    Sandbox_GVDrive_Floppy_ZombieDrop_tooltip = "Percentage chance that zombies drop floppy disks when killed. 0% = never drop, 100% = always drop.",
-    
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)",
-    Sandbox_GVDrive_Laptop_ZombieDrop_tooltip = "Percentage chance that zombies drop laptops when killed. 0% = never drop, 100% = always drop.",
-    
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop_tooltip = "Percentage chance that zombies drop elite drives when killed. These are extremely rare! 5% is already very high.",
-    
-    // ============ WORLD LOOT SPAWN RATES ============
-    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World Loot)",
-    Sandbox_GVDrive_USB_WorldLoot_tooltip = "Percentage of normal spawn rate for USB drives in world loot (desks, computers, etc.). 100% = normal rate, 0% = never spawn.",
-    
-    Sandbox_GVDrive_Floppy_WorldLoot = "Floppy Disk Spawn Rate (World Loot)",
-    Sandbox_GVDrive_Floppy_WorldLoot_tooltip = "Percentage of normal spawn rate for floppy disks in world loot (desks, computers, etc.). 100% = normal rate, 0% = never spawn.",
-    
-    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World Loot)",
-    Sandbox_GVDrive_Laptop_WorldLoot_tooltip = "Percentage of normal spawn rate for laptops in world loot (offices, schools, etc.). 100% = normal rate, 0% = never spawn.",
-    
-    // ============ DECRYPT SUCCESS RATES ============
-    Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate",
-    Sandbox_GVDrive_USB_Decrypt_Success_tooltip = "Percentage chance to successfully decrypt a USB drive. Higher = easier to decrypt.",
-    
-    Sandbox_GVDrive_Floppy_Decrypt_Success = "Floppy Decrypt Success Rate",
-    Sandbox_GVDrive_Floppy_Decrypt_Success_tooltip = "Percentage chance to successfully decrypt a floppy disk. Higher = easier to decrypt.",
-    
-    Sandbox_GVDrive_Drive_Preserve = "Drive Preservation Rate",
-    Sandbox_GVDrive_Drive_Preserve_tooltip = "Percentage chance that a drive/disk is NOT destroyed after decrypting. Higher = drives last longer.",
-    
-    // ============ EXPERIENCE SYSTEM ============
-    Sandbox_GVDrive_Use_Scalable_Exp = "Use Smart Experience System",
-    Sandbox_GVDrive_Use_Scalable_Exp_tooltip = "When ON: Experience scales with your level (harder at higher levels). When OFF: Uses fixed random ranges.",
-    
-    Sandbox_GVDrive_Scalable_Base_Exp = "Base Experience Amount",
-    Sandbox_GVDrive_Scalable_Base_Exp_tooltip = "Base experience points awarded when using smart system. Higher levels will get more than this amount.",
-    
-    Sandbox_GVDrive_Scalable_Level_Multiplier = "Level Difficulty Multiplier",
-    Sandbox_GVDrive_Scalable_Level_Multiplier_tooltip = "How much harder it gets at higher levels. 1.0 = same difficulty, 2.0 = much harder at high levels.",
-    
-    // ============ LEGACY EXPERIENCE (when scalable is OFF) ============
-    Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience (Legacy)",
-    Sandbox_GVDrive_USB_Min_Exp_tooltip = "Minimum experience points from USB (only when Smart Experience is OFF).",
-    
-    Sandbox_GVDrive_USB_Max_Exp = "USB Max Experience (Legacy)",
-    Sandbox_GVDrive_USB_Max_Exp_tooltip = "Maximum experience points from USB (only when Smart Experience is OFF).",
-    
-    Sandbox_GVDrive_Floppy_Min_Exp = "Floppy Min Experience (Legacy)",
-    Sandbox_GVDrive_Floppy_Min_Exp_tooltip = "Minimum experience points from floppy (only when Smart Experience is OFF).",
-    
-    Sandbox_GVDrive_Floppy_Max_Exp = "Floppy Max Experience (Legacy)",
-    Sandbox_GVDrive_Floppy_Max_Exp_tooltip = "Maximum experience points from floppy (only when Smart Experience is OFF).",
+﻿Sandbox_EN = {
+-- Page title
+Drive_Decrypt = "Decrypt Drive Settings",
+
+-- Options translations (must match sandbox-options.txt exactly)
+GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
+GVDrive_Floppy_ZombieDrop = "Floppy Disk Drop Rate (Zombies)",
+GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate",
+GVDrive_Floppy_Decrypt_Success = "Floppy Decrypt Success Rate",
+GVDrive_USB_Min_Exp = "USB Min Experience",
+GVDrive_USB_Max_Exp = "USB Max Experience",
 }

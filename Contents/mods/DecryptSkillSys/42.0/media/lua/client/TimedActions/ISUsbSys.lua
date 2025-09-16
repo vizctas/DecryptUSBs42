@@ -1,5 +1,6 @@
 require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
+require("shared/LaptopSystem")
 
 DecryptDrive = ISBaseTimedAction:derive("DecryptDrive")
 
@@ -53,11 +54,29 @@ end
         end
 
         if diceroll >= probabilityToGain then
-            local randomPerk = GVDrive_Utils.getRandomPerk()
-            local perkName = GVDrive_Utils.getPerkName(randomPerk)
-            local experienceGain = GVDrive_Utils.calculateScalableExperience(self.character, randomPerk, true)
+            -- Use GVDrive_Utils directly (ClientInit.lua guarantees it's required early)
+            local driveInfo = nil
+            if self.item and self.item.getItem and GVDrive_Utils and GVDrive_Utils.getDriveInfo then
+                local ok, info = pcall(GVDrive_Utils.getDriveInfo, self.item:getItem())
+                if ok then driveInfo = info end
+            end
 
-            self.character:getXp():AddXP(randomPerk, experienceGain)
+            local perk = nil
+            if GVDrive_Utils and GVDrive_Utils.getDrivePerk then
+                perk = GVDrive_Utils.getDrivePerk(driveInfo or self.item)
+            else
+                perk = GVDrive_Utils.getPerkFromDrive(driveInfo)
+            end
+
+            local perkName = (GVDrive_Utils and GVDrive_Utils.getPerkName and GVDrive_Utils.getPerkName(perk)) or "Unknown"
+            local experienceGain = GVDrive_Utils and GVDrive_Utils.calculateDriveExperience and GVDrive_Utils.calculateDriveExperience(self.character, driveInfo) or 50
+
+            if perk and self.character and self.character.getXp then
+                self.character:getXp():AddXP(perk, experienceGain)
+            end
+
+            -- Success: normal laptop wear
+            LaptopSystem.damageLaptop(self.item, 1)
 
             local consumeRoll = ZombRand(13) + 1
             if consumeRoll >= 10 then
@@ -70,7 +89,23 @@ end
                 inventoryItem:AddItem("GValley.USBOpened_Used", 1)
             end
         else
-            self.character:Say(getText("GVDrive_Msg_USB_Corrupted") or "Drive corrupted!")
+            -- Failure: Check for malware
+            local malwareChance = (SandboxVars.GVDrive.Malware_Chance or 15) / 100
+            local gotMalware = ZombRand(100) / 100 < malwareChance
+            
+            if gotMalware then
+                local isNewInfection = LaptopSystem.applyMalware(self.item)
+                if isNewInfection then
+                    self.character:Say(getText("GVDrive_Msg_USB_Malware") or "WARNING: Malware detected! Laptop infected!")
+                else
+                    self.character:Say(getText("GVDrive_Msg_USB_Malware_Worse") or "Malware is spreading! Laptop severely damaged!")
+                end
+            else
+                -- Normal failure: just laptop wear
+                LaptopSystem.damageLaptop(self.item, 2)
+                self.character:Say(getText("GVDrive_Msg_USB_Corrupted") or "Drive corrupted!")
+            end
+            
             -- USB is corrupted, give damaged version
             inventoryItem:AddItem("GValley.USBOpened_Damaged")
         end

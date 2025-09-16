@@ -1,0 +1,50 @@
+Sandbox_EN = 
+{
+	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
+	
+	// Simple translations for sandbox options
+    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
+    Sandbox_GVDrive_Floppy_ZombieDrop = "Floppy Drop Rate (Zombies)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies)",
+    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World)",
+    Sandbox_GVDrive_Floppy_WorldLoot = "Floppy Spawn Rate (World)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World)",
+    Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate",
+    Sandbox_GVDrive_Floppy_Decrypt_Success = "Floppy Decrypt Success Rate",
+    Sandbox_GVDrive_Drive_Preserve = "Drive Preservation Rate",
+    Sandbox_GVDrive_Use_Scalable_Exp = "Use Smart Experience System",
+    Sandbox_GVDrive_Scalable_Base_Exp = "Base Experience Amount",
+    Sandbox_GVDrive_Scalable_Level_Multiplier = "Level Difficulty Multiplier",
+    Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience",
+    Sandbox_GVDrive_USB_Max_Exp = "USB Max Experience",
+    Sandbox_GVDrive_Floppy_Min_Exp = "Floppy Min Experience",
+    Sandbox_GVDrive_Floppy_Max_Exp = "Floppy Max Experience",
+    Sandbox_GVDrive_Laptop_Initial_Health = "Laptop Initial Health",
+    Sandbox_GVDrive_Malware_Chance = "Malware Infection Chance",
+    Sandbox_GVDrive_Malware_Damage = "Malware Damage Per Use",
+    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Spawn Rate",
+}
+
+// Now add the simple GVDrive translations that the sandbox file expects
+Sandbox_EN.GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)"
+Sandbox_EN.GVDrive_Floppy_ZombieDrop = "Floppy Drop Rate (Zombies)"
+Sandbox_EN.GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)"
+Sandbox_EN.GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies)"
+Sandbox_EN.GVDrive_USB_WorldLoot = "USB Spawn Rate (World)"
+Sandbox_EN.GVDrive_Floppy_WorldLoot = "Floppy Spawn Rate (World)"
+Sandbox_EN.GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World)"
+Sandbox_EN.GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate"
+Sandbox_EN.GVDrive_Floppy_Decrypt_Success = "Floppy Decrypt Success Rate"
+Sandbox_EN.GVDrive_Drive_Preserve = "Drive Preservation Rate"
+Sandbox_EN.GVDrive_Use_Scalable_Exp = "Use Smart Experience System"
+Sandbox_EN.GVDrive_Scalable_Base_Exp = "Base Experience Amount"
+Sandbox_EN.GVDrive_Scalable_Level_Multiplier = "Level Difficulty Multiplier"
+Sandbox_EN.GVDrive_USB_Min_Exp = "USB Min Experience"
+Sandbox_EN.GVDrive_USB_Max_Exp = "USB Max Experience"
+Sandbox_EN.GVDrive_Floppy_Min_Exp = "Floppy Min Experience"
+Sandbox_EN.GVDrive_Floppy_Max_Exp = "Floppy Max Experience"
+Sandbox_EN.GVDrive_Laptop_Initial_Health = "Laptop Initial Health"
+Sandbox_EN.GVDrive_Malware_Chance = "Malware Infection Chance"
+Sandbox_EN.GVDrive_Malware_Damage = "Malware Damage Per Use"
+Sandbox_EN.GVDrive_Antivirus_Spawn_Rate = "Antivirus Spawn Rate"

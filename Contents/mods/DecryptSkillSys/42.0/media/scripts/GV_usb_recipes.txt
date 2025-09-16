@@ -193,4 +193,62 @@ module Base
             item 1 Base.ElectronicsScrap,
         }
     }
+
+    // ============ ANTIVIRUS RECIPES ============
+    craftRecipe GValley.UseAntivirusBasic
+    {
+        timedAction = MakingElectrical,
+        time = 100,
+        Tags = InHandCraft,
+        category = Electrical,
+        OnCreate = OnUse_AntivirusBasic,
+
+        inputs
+        {
+            item 1 [GValley.AntivirusDisk_Basic] mode:destroy,
+            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
+        }
+        outputs
+        {
+            // Laptop condition will be updated via OnCreate
+        }
+    }
+
+    craftRecipe GValley.UseAntivirusAdvanced
+    {
+        timedAction = MakingElectrical,
+        time = 150,
+        Tags = InHandCraft,
+        category = Electrical,
+        OnCreate = OnUse_AntivirusAdvanced,
+
+        inputs
+        {
+            item 1 [GValley.AntivirusDisk_Advanced] mode:destroy,
+            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
+        }
+        outputs
+        {
+            // Laptop condition will be updated via OnCreate
+        }
+    }
+
+    craftRecipe GValley.UseAntivirusPremium
+    {
+        timedAction = MakingElectrical,
+        time = 200,
+        Tags = InHandCraft,
+        category = Electrical,
+        OnCreate = OnUse_AntivirusPremium,
+
+        inputs
+        {
+            item 1 [GValley.AntivirusDisk_Premium] mode:destroy,
+            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
+        }
+        outputs
+        {
+            // Laptop condition will be updated via OnCreate
+        }
+    }
 }

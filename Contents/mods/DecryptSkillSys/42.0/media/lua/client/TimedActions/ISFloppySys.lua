@@ -1,5 +1,6 @@
 require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
+require("shared/LaptopSystem")
 
 DecryptFloppyDisk = ISBaseTimedAction:derive("DecryptFloppyDisk")
 
@@ -24,8 +25,8 @@ end
 
 function DecryptFloppyDisk:stop()
     ISBaseTimedAction.stop(self)
-    if self.item and self.item:getItem() then
-        self.item:getItem():setJobDelta(0.0)
+    if self.item then
+        self.item:setJobDelta(0.0)
     end
     if self.sound and self.character and self.character:getEmitter() then
         self.character:getEmitter():stopSound(self.sound)
@@ -55,11 +56,29 @@ function DecryptFloppyDisk:perform()
     end
 
     if diceroll >= probabilityToGain then
-        local randomPerk = GVDrive_Utils.getRandomPerk()
-        local perkName = GVDrive_Utils.getPerkName(randomPerk)
-        local experienceGain = GVDrive_Utils.calculateScalableExperience(self.character, randomPerk, false)
+        -- Use GVDrive_Utils directly (ClientInit.lua ensures it's loaded)
+        local driveInfo = nil
+        if self.item and self.item.getItem and GVDrive_Utils and GVDrive_Utils.getDriveInfo then
+            local ok, info = pcall(GVDrive_Utils.getDriveInfo, self.item:getItem())
+            if ok then driveInfo = info end
+        end
 
-        self.character:getXp():AddXP(randomPerk, experienceGain)
+        local perk = nil
+        if GVDrive_Utils and GVDrive_Utils.getDrivePerk then
+            perk = GVDrive_Utils.getDrivePerk(driveInfo or self.item)
+        else
+            perk = GVDrive_Utils.getPerkFromDrive(driveInfo)
+        end
+
+        local perkName = (GVDrive_Utils and GVDrive_Utils.getPerkName and GVDrive_Utils.getPerkName(perk)) or "Unknown"
+        local experienceGain = GVDrive_Utils and GVDrive_Utils.calculateDriveExperience and GVDrive_Utils.calculateDriveExperience(self.character, driveInfo) or 20
+
+        if perk and self.character and self.character.getXp then
+            self.character:getXp():AddXP(perk, experienceGain)
+        end
+
+        -- Success: normal laptop wear
+        LaptopSystem.damageLaptop(self.item, 1)
 
         local consumeRoll = ZombRand(13) + 1
         if consumeRoll >= 10 then
@@ -72,6 +91,22 @@ function DecryptFloppyDisk:perform()
             inventoryItem:AddItem("GValley.FloppyDrive_Used", 1)
         end
     else
+        -- Failure: Check for malware
+        local malwareChance = (SandboxVars.GVDrive.Malware_Chance or 15) / 100
+        local gotMalware = ZombRand(100) / 100 < malwareChance
+        
+        if gotMalware then
+            local isNewInfection = LaptopSystem.applyMalware(self.item)
+            if isNewInfection then
+                self.character:Say(getText("GVDrive_Msg_Floppy_Malware") or "WARNING: Malware detected! Laptop infected!")
+            else
+                self.character:Say(getText("GVDrive_Msg_Floppy_Malware_Worse") or "Malware is spreading! Laptop severely damaged!")
+            end
+        else
+            -- Normal failure: just laptop wear
+            LaptopSystem.damageLaptop(self.item, 2)
+            self.character:Say(getText("GVDrive_Msg_Disk_Corrupted") or "Drive corrupted!")
+        end
         self.character:Say(getText("GVDrive_Msg_Disk_Corrupted") or "Disk corrupted!")
         -- Floppy is corrupted, give damaged version
         inventoryItem:AddItem("GValley.FloppyDrive_Damaged")
@@ -83,77 +118,6 @@ function DecryptFloppyDisk:perform()
     end
     
     ISBaseTimedAction.perform(self)
-end
-    function DecryptFloppyDisk:perform()
-        forceDropHeavyItems(self.character)
-        local inventoryItem = self.character:getInventory()
-        local ISFloppyAvaible = inventoryItem:getItemCount("GValley.FloppyDrive") -- ensure fully-qualified type
-        if ISFloppyAvaible < 1 then
-            --self.character:Say("Need a floppy first")
-            return
-        end
-
-        local MaxRolls = 16
-        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Floppy_Decrypt_Success_Chance / 100)
-        local diceroll = ZombRand(1.0, MaxRolls)
-
-        if diceroll >= probabilityToGain then
-            local maxExpGain = SandboxVars.GVDrive.Floppy_Max_Experience
-            local minExpGain = SandboxVars.GVDrive.Floppy_Min_Experience
-            local randomLvl = ZombRand(minExpGain, maxExpGain) + 1
-
-            local perkTable = {
-                Perks.Woodwork,
-                Perks.Electricity,
-                Perks.Farming,
-                Perks.Aiming,
-                Perks.Cooking,
-                Perks.Sneak,
-                Perks.Axe,
-                Perks.Fitness,
-                Perks.Doctor,
-                Perks.Survivalist,
-            }
-            local randomPerkIndex = ZombRand(1, #perkTable + 1)
-            local randomPerk = perkTable[randomPerkIndex]
-
-            local perkNameMap = {
-                [Perks.Woodwork] = "Woodwork",
-                [Perks.Electricity] = "Electricity",
-                [Perks.Farming] = "Farming",
-                [Perks.Aiming] = "Aiming",
-                [Perks.Cooking] = "Cooking",
-                [Perks.Sneak] = "Sneak",
-                [Perks.Axe] = "Axe",
-                [Perks.Fitness] = "Fitness",
-                [Perks.Doctor] = "Doctor",
-                [Perks.Survivalist] = "Survivalist",
-            }
-            local perkName = perkNameMap[randomPerk] or "Woodwork"
-
-            self.character:getXp():AddXP(randomPerk, randomLvl)
-
-            local consumeRoll = ZombRand(13) + 1
-            if consumeRoll >= 10 then
-                self.character:Say(getText("GVDrive_Msg_"..perkName.."_Success"))
-            else
-                self.character:Say(getText("GVDrive_Msg_"..perkName.."_Consume"))
-                inventoryItem:Remove("GValley.FloppyDrive")
-                inventoryItem:AddItem("GValley.FloppyDrive_Used", 1)
-            end
-        else
-            self.character:Say(getText("GVDrive_Msg_Disk_Corrupted"))
-            inventoryItem:Remove("GValley.FloppyDrive")
-            inventoryItem:AddItem("GValley.FloppyDrive_Damaged")
-        end
-
-        if self.sound and self.character and self.character:getEmitter() then
-            self.character:getEmitter():stopSound(self.sound)
-            self.sound = nil
-        end
-        
-        ISBaseTimedAction.perform(self)
-    end
 
 function DecryptFloppyDisk:new (character, item, time)
     local o = {}

@@ -179,6 +179,27 @@ local function enableWorldLoot()
         addToSuburbsByContainer({"electronics", "computer", "office", "counter", "shelf"}, lp, laptopWeightProc)
     end
 
+    -- ============ ANTIVIRUS DISTRIBUTIONS (VERY RARE) ============
+    local antivirusBasicWeight = 0.001 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
+    local antivirusAdvancedWeight = 0.0005 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
+    local antivirusPremiumWeight = 0.0001 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
+
+    -- Antivirus items
+    local itemAntivirusBasic = "GValley.AntivirusDisk_Basic"
+    local itemAntivirusAdvanced = "GValley.AntivirusDisk_Advanced"
+    local itemAntivirusPremium = "GValley.AntivirusDisk_Premium"
+
+    -- Only in specific high-tech locations (servers, computer stores, electronics shops)
+    local techPatterns = {"server", "electronics", "computer", "tech", "radio"}
+    addToProceduralByPattern(techPatterns, itemAntivirusBasic, antivirusBasicWeight)
+    addToProceduralByPattern(techPatterns, itemAntivirusAdvanced, antivirusAdvancedWeight)
+    addToProceduralByPattern(techPatterns, itemAntivirusPremium, antivirusPremiumWeight)
+
+    -- Very rarely in office safes or high-security locations
+    local securePatterns = {"safe", "security", "police", "military"}
+    addToProceduralByPattern(securePatterns, itemAntivirusAdvanced, antivirusAdvancedWeight * 2)
+    addToProceduralByPattern(securePatterns, itemAntivirusPremium, antivirusPremiumWeight * 3)
+
     print("[DecryptSkillSys] World loot injected.")
 end
 
@@ -189,32 +210,40 @@ Events.OnGameStart.Add(function()
     end
 end)
 
--- Zombie Drop Function
+-- Zombie Drop Function (SIMPLIFIED TO AVOID CRASHES)
 function GVDrive_OnZombieDead(zombie)
-	if not zombie or not SandboxVars.GVDrive then return end
+	if not zombie then return end
+	
+	-- Get sandbox vars safely
+	local sandboxVars = SandboxVars and SandboxVars.GVDrive
+	if not sandboxVars then return end
 	
 	local inventory = zombie:getInventory()
 	if not inventory then return end
 	
-	-- Get drop chances from sandbox variables (convert to 0-1 range)
-	local usbDropChance = (SandboxVars.GVDrive.USB_ZombieDrop_Chance or 0.8) / 100
-	local floppyDropChance = (SandboxVars.GVDrive.Floppy_ZombieDrop_Chance or 1.0) / 100
-	
-	-- Very low chance for laptops (configurable via sandbox)
-	local laptopDropChance = ((SandboxVars.GVDrive.Laptop_ZombieDrop_Chance or 0.5) / 100)
+	-- Get drop chances from sandbox variables (convert to 0-100 range)
+	local usbDropChance = sandboxVars.USB_ZombieDrop_Chance or 0.8
+	local floppyDropChance = sandboxVars.Floppy_ZombieDrop_Chance or 1.0
+	local laptopDropChance = sandboxVars.Laptop_ZombieDrop_Chance or 0.5
 	
 	-- Roll for USB drive drop
-	if ZombRand(100) / 100 < usbDropChance then
-		inventory:AddItem("GValley.USB_Closed")
+	if ZombRand(100) < usbDropChance then
+		local usbDrive = getRandomSkillDrive("USB")
+		if usbDrive then
+			inventory:AddItem(usbDrive)
+		end
 	end
 	
 	-- Roll for Floppy drive drop
-	if ZombRand(100) / 100 < floppyDropChance then
-		inventory:AddItem("GValley.FloppyDrive")
+	if ZombRand(100) < floppyDropChance then
+		local floppyDrive = getRandomSkillDrive("Floppy")
+		if floppyDrive then
+			inventory:AddItem(floppyDrive)
+		end
 	end
 	
 	-- Roll for laptop drop (very rare)
-	if ZombRand(10000) / 10000 < laptopDropChance then
+	if ZombRand(1000) < laptopDropChance then
 		local laptops = {
 			"GValley.AsusZephLaptopClosed",
 			"GValley.Laptop90sClosed", 
@@ -225,8 +254,58 @@ function GVDrive_OnZombieDead(zombie)
 	end
 end
 
--- Register the zombie death event
-Events.OnZombieDead.Add(GVDrive_OnZombieDead)
+-- Get random skill drive based on rarity distribution (SAFE VERSION)
+function getRandomSkillDrive(driveType)
+	local rarityRoll = ZombRand(100)
+	local skillRoll = ZombRand(100)
+	
+	if rarityRoll < 1 then
+		-- Elite drives (1% chance)
+		local eliteTypes = {
+			"GValley.EliteDrive_Strength",
+			"GValley.EliteDrive_Endurance", 
+			"GValley.EliteDrive_Capacity",
+			"GValley.EliteDrive_Speed",
+			"GValley.EliteDrive_Luck"
+		}
+		return eliteTypes[ZombRand(#eliteTypes) + 1]
+	elseif rarityRoll < 25 then
+		-- Skill-specific drives (24% chance)
+		local skills = {"Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak", "Axe", "Fitness", "Doctor", "Survivalist"}
+		local selectedSkill = skills[ZombRand(#skills) + 1]
+		
+		if driveType == "USB" then
+			-- 70% common, 30% rare for USB
+			if skillRoll < 70 then
+				return "GValley.SkillDrive_" .. selectedSkill .. "_Common"
+			else
+				return "GValley.SkillDrive_" .. selectedSkill .. "_Rare"
+			end
+		elseif driveType == "Floppy" then
+			-- Floppies are always common
+			return "GValley.SkillFloppy_" .. selectedSkill .. "_Common"
+		else
+			return "GValley.SkillDrive_" .. selectedSkill .. "_Common" -- fallback
+		end
+	else
+		-- Legacy drives (75% chance)
+		if driveType == "USB" then
+			return "GValley.USB_Closed"
+		elseif driveType == "Floppy" then
+			return "GValley.FloppyDrive"
+		else
+			return "GValley.USB_Closed" -- fallback
+		end
+	end
+end
+
+-- Register the zombie death event safely
+if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
+	Events.OnZombieDead.Add(GVDrive_OnZombieDead)
+	print("[DecryptSkillSys] Zombie death event registered successfully")
+else
+	print("[DecryptSkillSys] WARNING: Could not register zombie death event")
+end
 
 
 

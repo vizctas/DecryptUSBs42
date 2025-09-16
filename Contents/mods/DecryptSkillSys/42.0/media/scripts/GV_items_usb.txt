@@ -145,5 +145,39 @@ module GValley
 		Icon            = USBTapa,
 		WorldStaticModel = USB_Tapa,
 		Tooltip = Tooltip_TUSB,
-	}	
+	}
+
+	// ============ ANTIVIRUS DISKS ============
+	item AntivirusDisk_Basic
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Basic Antivirus Disk,
+		Icon            = floppy,
+		WorldStaticModel = Floppy,
+		Tooltip			= Tooltip_Antivirus_Basic,
+	}
+
+	item AntivirusDisk_Advanced
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Advanced Antivirus Disk,
+		Icon            = floppy_d,
+		WorldStaticModel = Floppy,
+		Tooltip			= Tooltip_Antivirus_Advanced,
+	}
+
+	item AntivirusDisk_Premium
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Premium Antivirus Disk,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Premium,
+	}
 }
