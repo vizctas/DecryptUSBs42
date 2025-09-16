@@ -498,8 +498,8 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 						healthColor = "<RGB:1.0,0.4,0.4>"
 					end
 					
-					local healthOption = context:addOptionOnTop(string.format("%s %s %s: %d%%", healthIcon, healthLabel, healthColor, healthPercent))
-					healthOption.notAvailable = true
+					-- local healthOption = context:addOptionOnTop(string.format("%s %s %s: %d%%", healthIcon, healthLabel, healthColor, healthPercent))
+					-- healthOption.notAvailable = true
 					
 					-- Simplified line of sight check for PZ42 compatibility  
 					local hasLineOfSight = true

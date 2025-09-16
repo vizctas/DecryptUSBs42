@@ -104,17 +104,8 @@ function LaptopSystem.setLaptopHealth(item, health)
     end
 
     if item.setTooltip and getText then
-        if clamped <= 0 then
-            item:setTooltip(getText("GVDrive_Laptop_Broken_Tooltip"))
-        elseif clamped <= 25 then
-            item:setTooltip(getText("GVDrive_Laptop_Critical_Tooltip"))
-        elseif clamped <= 50 then
-            item:setTooltip(getText("GVDrive_Laptop_Damaged_Tooltip"))
-        elseif clamped <= 75 then
-            item:setTooltip(getText("GVDrive_Laptop_Worn_Tooltip"))
-        else
-            item:setTooltip(getText("GVDrive_Laptop_Healthy_Tooltip"))
-        end
+        local healthStr = getText("GVDrive_Laptop_Health_Label") or "Health"
+        item:setTooltip(healthStr .. ": " .. clamped .. "%")
     end
 end
 
