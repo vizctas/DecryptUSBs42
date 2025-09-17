@@ -322,6 +322,59 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 							local tooOldText = getTranslatedMessage("GVDrive_Ctx_LaptopTooOldUSB", "Laptop too old for USB drives")
 							context:addOption(tooOldText, playerObj, function() end).notAvailable = true
 						end
+
+						-- Add antivirus options if player has antivirus disks
+						local antivirusOptions = {
+							{type = "AntivirusDisk_Basic", key = "DisplayName_AntivirusDisk_Basic", fallback = "Basic Antivirus", health = 25},
+							{type = "AntivirusDisk_Advanced", key = "DisplayName_AntivirusDisk_Advanced", fallback = "Advanced Antivirus", health = 50},
+							{type = "AntivirusDisk_Premium", key = "DisplayName_AntivirusDisk_Premium", fallback = "Premium Antivirus", health = 75}
+						}
+						
+						for _, antivirusData in ipairs(antivirusOptions) do
+							local fullType = "GValley." .. antivirusData.type
+							local count = inv:getItemCount(fullType)
+							if count > 0 then
+								-- Get translated name
+								local translatedName = getText(antivirusData.key)
+								if not translatedName or translatedName == antivirusData.key then
+									translatedName = antivirusData.fallback
+								end
+								
+								local menuText = string.format("Use %s (x%d)", translatedName, count)
+								print("[DecryptSkillSys] Adding antivirus menu option: " .. menuText)
+								context:addOptionOnTop(menuText, playerObj, function(player, worldObj, antivirusType, healthRestore)
+									-- Use antivirus on laptop
+									local laptop = worldObj:getItem()
+									if laptop and LaptopSystem then
+										-- Remove one antivirus disk
+										player:getInventory():RemoveOneOf("GValley." .. antivirusType)
+										
+										-- Clean malware and restore health
+										local hadMalware = LaptopSystem.hasMalware(laptop)
+										if hadMalware then
+											LaptopSystem.cleanMalware(laptop, healthRestore)
+											local msgKey = ""
+											if antivirusType == "AntivirusDisk_Premium" then
+												msgKey = "GVDrive_Msg_Antivirus_Premium_Success"
+											elseif antivirusType == "AntivirusDisk_Advanced" then
+												msgKey = "GVDrive_Msg_Antivirus_Advanced_Success"
+											else
+												msgKey = "GVDrive_Msg_Antivirus_Success"
+											end
+											local message = getText(msgKey) or "Malware cleaned! Laptop restored."
+											player:Say(message)
+										else
+											-- No malware, just restore health
+											local currentHealth = LaptopSystem.getLaptopHealth(laptop)
+											local newHealth = currentHealth + healthRestore
+											LaptopSystem.setLaptopHealth(laptop, newHealth)
+											local message = getText("GVDrive_Msg_Antivirus_NoMalware") or "No malware detected. Laptop condition improved."
+											player:Say(message)
+										end
+									end
+								end, worldObject, antivirusData.type, antivirusData.health)
+							end
+						end
 					end
 					
 					print("[DecryptSkillSys] ==> Context menu options added successfully")
