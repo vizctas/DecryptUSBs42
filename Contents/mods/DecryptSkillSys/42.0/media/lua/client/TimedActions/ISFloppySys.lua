@@ -2,6 +2,10 @@ require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
 require("shared/LaptopSystem")
 
+local function getSandboxGV()
+    return (SandboxVars and SandboxVars.GVDrive) or nil
+end
+
 DecryptFloppyDisk = ISBaseTimedAction:derive("DecryptFloppyDisk")
 
 function DecryptFloppyDisk:isValid()
@@ -43,11 +47,12 @@ function DecryptFloppyDisk:perform()
     end
 
     local MaxRolls = 16
-    local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.Floppy_Decrypt_Success_Chance / 100)
+    local sandboxGV = getSandboxGV()
+    local probabilityToGain = MaxRolls * (((sandboxGV and sandboxGV.Floppy_Decrypt_Success_Chance) or 100) / 100)
     local diceroll = ZombRand(1.0, MaxRolls)
 
     -- Check if drive should be preserved (chance to NOT destroy it)
-    local preserveChance = (SandboxVars.GVDrive.Drive_Preserve_Chance or 30) / 100
+    local preserveChance = ((sandboxGV and sandboxGV.Drive_Preserve_Chance) or 30) / 100
     local shouldPreserve = ZombRand(100) / 100 < preserveChance
     
     -- Always consume one floppy unless it's preserved
@@ -92,7 +97,7 @@ function DecryptFloppyDisk:perform()
         end
     else
         -- Failure: Check for malware
-        local malwareChance = (SandboxVars.GVDrive.Malware_Chance or 15) / 100
+        local malwareChance = ((sandboxGV and sandboxGV.Malware_Chance) or 15) / 100
         local gotMalware = ZombRand(100) / 100 < malwareChance
         
         if gotMalware then

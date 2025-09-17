@@ -1,0 +1,9 @@
+-- Context menu overrides (EN)
+ContextMenu_EN = ContextMenu_EN or {}
+ContextMenu_EN.GVDrive_Ctx_LaptopLife_Short = "Laptop Condition: %d%%"
+ContextMenu_EN.GVDrive_Ctx_LaptopLife = "Laptop Condition: %d%% (%s)"
+ContextMenu_EN.GVDrive_Ctx_NoSkillDrives = "No skill drives found"
+ContextMenu_EN.GVDrive_Ctx_LaptopTooOldUSB = "Laptop too old for USB drives"
+ContextMenu_EN.GVDrive_Ctx_LaptopNeedsFloppy = "Need laptop with floppy drive"
+ContextMenu_EN.GVDrive_Ctx_Decrypt_USB = "Decrypt %s (x%d)"
+ContextMenu_EN.GVDrive_Ctx_Decrypt_Floppy = "Decrypt %s (x%d)"

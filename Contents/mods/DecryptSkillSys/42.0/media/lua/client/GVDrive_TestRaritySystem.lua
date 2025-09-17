@@ -1,119 +1,116 @@
 -- DecryptSkillSys New Rarity System Test Script
--- This script tests if all new items can be spawned correctly
+-- Debug-only helper for validating item registrations
+
+local skills = {"Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak", "Axe", "Fitness", "Doctor", "Survivalist"}
+local rarities = {"Facil", "Moderado", "Dificil"}
+
+local function getRandomSkillDrive(kind)
+    local skill = skills[ZombRand(#skills) + 1]
+    local rarity = rarities[ZombRand(#rarities) + 1]
+    if kind == "Floppy" then
+        return "GValley.SkillFloppy_" .. skill .. "_" .. rarity
+    end
+    return "GValley.SkillDrive_" .. skill .. "_" .. rarity
+end
+
+local function addItem(inv, typeName)
+    local ok, result = pcall(inv.AddItem, inv, typeName)
+    if ok then
+        return result
+    end
+    return nil
+end
 
 local function testNewRaritySystem()
     print("[DecryptSkillSys] === TESTING NEW RARITY SYSTEM ===")
-    
+
     local player = getPlayer()
     if not player then
         print("[DecryptSkillSys] ERROR: No player found for testing")
         return
     end
-    
+
     local inv = player:getInventory()
     if not inv then
         print("[DecryptSkillSys] ERROR: No inventory found for testing")
         return
     end
-    
+
     print("[DecryptSkillSys] Starting new rarity system test...")
-    
-    -- Test all USB drives with new rarity system
-    local skills = {"Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak", "Axe", "Fitness", "Doctor", "Survivalist"}
-    local rarities = {"Facil", "Moderado", "Dificil"}
-    
-    local testResults = {
+
+    local results = {
         usbSuccess = 0,
         usbFailed = 0,
         floppySuccess = 0,
         floppyFailed = 0,
         failedItems = {}
     }
-    
-    -- Test USB drives
+
+    -- USB drives
     for _, skill in ipairs(skills) do
         for _, rarity in ipairs(rarities) do
-            local itemType = "GValley.SkillDrive_" .. skill .. "_" .. rarity
-            local item = inv:AddItem(itemType)
-            if item then
-                testResults.usbSuccess = testResults.usbSuccess + 1
-                print("[DecryptSkillSys] ✓ USB " .. skill .. " " .. rarity .. " - SUCCESS")
+            local typeName = "GValley.SkillDrive_" .. skill .. "_" .. rarity
+            if addItem(inv, typeName) then
+                results.usbSuccess = results.usbSuccess + 1
+                print(string.format("[DecryptSkillSys] USB %s %s - SUCCESS", skill, rarity))
             else
-                testResults.usbFailed = testResults.usbFailed + 1
-                table.insert(testResults.failedItems, itemType)
-                print("[DecryptSkillSys] ✗ USB " .. skill .. " " .. rarity .. " - FAILED")
+                results.usbFailed = results.usbFailed + 1
+                table.insert(results.failedItems, typeName)
+                print(string.format("[DecryptSkillSys] USB %s %s - FAILED", skill, rarity))
             end
         end
     end
-    
-    -- Test Floppy drives
+
+    -- Floppy drives
     for _, skill in ipairs(skills) do
         for _, rarity in ipairs(rarities) do
-            local itemType = "GValley.SkillFloppy_" .. skill .. "_" .. rarity
-            local item = inv:AddItem(itemType)
-            if item then
-                testResults.floppySuccess = testResults.floppySuccess + 1
-                print("[DecryptSkillSys] ✓ Floppy " .. skill .. " " .. rarity .. " - SUCCESS")
+            local typeName = "GValley.SkillFloppy_" .. skill .. "_" .. rarity
+            if addItem(inv, typeName) then
+                results.floppySuccess = results.floppySuccess + 1
+                print(string.format("[DecryptSkillSys] Floppy %s %s - SUCCESS", skill, rarity))
             else
-                testResults.floppyFailed = testResults.floppyFailed + 1
-                table.insert(testResults.failedItems, itemType)
-                print("[DecryptSkillSys] ✗ Floppy " .. skill .. " " .. rarity .. " - FAILED")
+                results.floppyFailed = results.floppyFailed + 1
+                table.insert(results.failedItems, typeName)
+                print(string.format("[DecryptSkillSys] Floppy %s %s - FAILED", skill, rarity))
             end
         end
     end
-    
-    -- Test distribution system
-    print("[DecryptSkillSys] Testing distribution system...")
-    for i = 1, 10 do
+
+    print("[DecryptSkillSys] Testing distribution helpers...")
+    for _ = 1, 10 do
         local usbDrive = getRandomSkillDrive("USB")
         local floppyDrive = getRandomSkillDrive("Floppy")
-        
-        if usbDrive then
-            print("[DecryptSkillSys] ✓ Random USB: " .. usbDrive)
-        else
-            print("[DecryptSkillSys] ✗ Random USB failed")
-        end
-        
-        if floppyDrive then
-            print("[DecryptSkillSys] ✓ Random Floppy: " .. floppyDrive)
-        else
-            print("[DecryptSkillSys] ✗ Random Floppy failed")
-        end
+        print("[DecryptSkillSys] Random USB: " .. tostring(usbDrive))
+        print("[DecryptSkillSys] Random Floppy: " .. tostring(floppyDrive))
     end
-    
-    -- Print test results
+
     print("[DecryptSkillSys] === TEST RESULTS ===")
-    print("[DecryptSkillSys] USB Drives - Success: " .. testResults.usbSuccess .. ", Failed: " .. testResults.usbFailed)
-    print("[DecryptSkillSys] Floppy Drives - Success: " .. testResults.floppySuccess .. ", Failed: " .. testResults.floppyFailed)
+    print(string.format("[DecryptSkillSys] USB Drives - Success: %d, Failed: %d", results.usbSuccess, results.usbFailed))
+    print(string.format("[DecryptSkillSys] Floppy Drives - Success: %d, Failed: %d", results.floppySuccess, results.floppyFailed))
     print("[DecryptSkillSys] Total Expected: 60 items (30 USB + 30 Floppy)")
-    print("[DecryptSkillSys] Total Success: " .. (testResults.usbSuccess + testResults.floppySuccess))
-    print("[DecryptSkillSys] Total Failed: " .. (testResults.usbFailed + testResults.floppyFailed))
-    
-    if #testResults.failedItems > 0 then
+    print(string.format("[DecryptSkillSys] Total Success: %d", results.usbSuccess + results.floppySuccess))
+    print(string.format("[DecryptSkillSys] Total Failed: %d", results.usbFailed + results.floppyFailed))
+
+    if #results.failedItems > 0 then
         print("[DecryptSkillSys] FAILED ITEMS:")
-        for _, item in ipairs(testResults.failedItems) do
-            print("[DecryptSkillSys] - " .. item)
+        for _, typeName in ipairs(results.failedItems) do
+            print("[DecryptSkillSys] - " .. typeName)
         end
     else
-        print("[DecryptSkillSys] ✓ ALL ITEMS CREATED SUCCESSFULLY!")
+        print("[DecryptSkillSys] ALL ITEMS CREATED SUCCESSFULLY!")
     end
-    
+
     print("[DecryptSkillSys] === END TEST ===")
 end
 
--- Register command for testing (only for testing purposes)
 if getDebug and getDebug() then
     Events.OnKeyPressed.Add(function(key)
-        -- Press F9 to run test
         if key == Keyboard.KEY_F9 then
             testNewRaritySystem()
         end
     end)
-end
 
--- Also test on game start in debug mode
-Events.OnGameStart.Add(function()
-    if getDebug and getDebug() then
-        print("[DecryptSkillSys] Debug mode detected. Press F9 to test new rarity system.")
-    end
-end)
+    Events.OnGameStart.Add(function()
+        print("[DecryptSkillSys] Debug mode detected. Press F9 to test the rarity system.")
+    end)
+end

@@ -2,6 +2,7 @@
 -- Handles special elite drives and permanent enhancements
 
 require "shared/GVDrive_Utils"
+require "shared/EliteDriveSystem"
 
 -- Elite drive drop chances (very rare)
 local ELITE_DROP_CHANCE = 0.15 -- 0.15% chance per zombie
@@ -61,11 +62,12 @@ function applySpecificEnhancement(player, enhancementType)
         local maxWeight = player:getMaxWeight()
         player:setMaxWeight(maxWeight + 5)
         player:Say(getText("GVDrive_Msg_Enhancement_Capacity") or "Elite enhancement applied! +5 Carry Weight!")
-        
+
     elseif enhancementType == "Speed" then
-        enhancements.SpeedBonus = enhancements.SpeedBonus + 0.1
+        enhancements.SpeedBonus = (enhancements.SpeedBonus or 0) + 0.1
+        enhancements.BaseMoveSpeed = enhancements.BaseMoveSpeed or player:getMoveSpeed()
         player:Say(getText("GVDrive_Msg_Enhancement_Speed") or "Elite enhancement applied! +10% Movement Speed!")
-        
+
     elseif enhancementType == "Strength" then
         enhancements.StrengthBonus = enhancements.StrengthBonus + 1
         player:Say(getText("GVDrive_Msg_Enhancement_Strength") or "Elite enhancement applied! Enhanced combat abilities!")
@@ -78,9 +80,6 @@ function applySpecificEnhancement(player, enhancementType)
         enhancements.LuckBonus = enhancements.LuckBonus + 1
         player:Say(getText("GVDrive_Msg_Enhancement_Luck") or "Elite enhancement applied! Enhanced luck!")
     end
-    
-    -- Apply runtime bonuses
-    Events.OnPlayerUpdate.Add(applyRuntimeBonuses)
     
     return true
 end
@@ -111,27 +110,45 @@ function applyPermanentEnhancement(player)
 end
 
 -- Apply runtime bonuses during gameplay
-function applyRuntimeBonuses(player)
-    local enhancements = getPlayerEnhancements(player)
-    
-    if enhancements.TokensUsed > 0 then
-        -- Speed bonus (very small but noticeable)
-        local currentSpeed = player:getMoveSpeed()
-        if currentSpeed > 0 then
-            player:setMoveSpeed(currentSpeed * (1 + enhancements.SpeedBonus))
-        end
-        
-        -- Strength and endurance bonuses are applied through trait modifications
-        -- This would require more complex implementation
+function EliteDriveSystem.applyRuntimeBonuses(player)
+    if not player then
+        return
     end
+
+    local enhancements = getPlayerEnhancements(player)
+    if not enhancements then
+        return
+    end
+
+    if (enhancements.TotalTokensUsed or 0) <= 0 then
+        return
+    end
+
+    local speedBonus = enhancements.SpeedBonus or 0
+    if speedBonus > 0 and player.getMoveSpeed and player.setMoveSpeed then
+        local base = enhancements.BaseMoveSpeed
+        if not base or base <= 0 then
+            base = player:getMoveSpeed()
+            enhancements.BaseMoveSpeed = base
+        end
+        if base and base > 0 then
+            local target = base * (1 + speedBonus)
+            player:setMoveSpeed(target)
+        end
+    end
+
+    -- Strength and endurance bonuses are reserved for future implementation
 end
 
 -- Handle elite drive drops from zombies
 function onZombieDeath(zombie)
-    if not zombie or zombie:isPlayer() then return end
+    if not zombie then return end
+    
+    -- Check if it's actually a zombie (not a player)
+    if instanceof(zombie, "IsoPlayer") then return end
     
     -- Get elite drop chance from sandbox (convert to 0-1 range)
-    local eliteDropChance = ((SandboxVars.GVDrive and SandboxVars.GVDrive.EliteDrive_ZombieDrop_Chance) or 0.15)
+    local eliteDropChance = ((SandboxVars and SandboxVars.GVDrive and SandboxVars.GVDrive.EliteDrive_ZombieDrop_Chance) or 0.15)
     
     -- Check for elite drive drop
     local chance = ZombRand(1, 10000) / 100.0
@@ -174,3 +191,9 @@ end
 
 -- Register events
 Events.OnZombieDead.Add(onZombieDeath)
+
+if Events and Events.OnPlayerUpdate and Events.OnPlayerUpdate.Add then
+    Events.OnPlayerUpdate.Add(function(player)
+        EliteDriveSystem.applyRuntimeBonuses(player)
+    end)
+end

@@ -2,12 +2,27 @@ require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
 require("shared/LaptopSystem")
 
+local function getSandboxGV()
+    return (SandboxVars and SandboxVars.GVDrive) or nil
+end
+
 DecryptDrive = ISBaseTimedAction:derive("DecryptDrive")
 
 function DecryptDrive:isValid()
-    return self.character and not self.character:isDead()
-end  
-        
+    if not (self.character and not self.character:isDead()) then
+        return false
+    end
+
+    if self.item then
+        local health = LaptopSystem.getLaptopHealth(self.item)
+        if health <= 0 then
+            return false
+        end
+    end
+
+    return true
+end
+
     function DecryptDrive:update()
         if self.item and self.item:getItem() then
             self.item:getItem():setJobDelta(self:getJobDelta())
@@ -40,12 +55,20 @@ end
             return
         end
 
+        local laptopHealth = LaptopSystem.getLaptopHealth(self.item)
+        if laptopHealth <= 0 then
+            self.character:Say(getText("GVDrive_Msg_Laptop_Broken") or "This laptop doesn't work... I should find a way to repair it.")
+            return
+        end
+
         local MaxRolls = 15
-        local probabilityToGain = MaxRolls * (SandboxVars.GVDrive.USB_Decrypt_Success_Chance / 100)
+        local sandboxGV = getSandboxGV()
+        local successChance = (sandboxGV and sandboxGV.USB_Decrypt_Success_Chance) or 100
+        local probabilityToGain = MaxRolls * (successChance / 100)
         local diceroll = ZombRand(1.0, MaxRolls)
 
         -- Check if drive should be preserved (chance to NOT destroy it)
-        local preserveChance = (SandboxVars.GVDrive.Drive_Preserve_Chance or 30) / 100
+        local preserveChance = ((sandboxGV and sandboxGV.Drive_Preserve_Chance) or 30) / 100
         local shouldPreserve = ZombRand(100) / 100 < preserveChance
         
         -- Always consume one USB unless it's preserved
@@ -88,11 +111,11 @@ end
                 -- USB is fully consumed, give used version
                 inventoryItem:AddItem("GValley.USBOpened_Used", 1)
             end
-        else
+        elseif diceroll > probabilityToGain then
             -- Failure: Check for malware
-            local malwareChance = (SandboxVars.GVDrive.Malware_Chance or 15) / 100
+            local malwareChance = ((sandboxGV and sandboxGV.Malware_Chance) or 15) / 100
             local gotMalware = ZombRand(100) / 100 < malwareChance
-            
+
             if gotMalware then
                 local isNewInfection = LaptopSystem.applyMalware(self.item)
                 if isNewInfection then

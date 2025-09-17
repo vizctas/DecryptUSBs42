@@ -27,6 +27,7 @@ local BATTERY_CONFIG = {
     bottomOffset = 15,
     updateThreshold = 1.0,
     fadeDuration = 3000, -- 3 segundos para desaparecer
+    displayDurationMs = 10000, -- Duración visible del widget (ms)
     searchRadius = 3 -- Radio de búsqueda de laptops
 }
 
@@ -83,12 +84,19 @@ function showLaptopBatteryWidget(laptop)
         return
     end
     
-    local duration = 5000 -- 5 segundos fijo
+    local duration = BATTERY_CONFIG.displayDurationMs or 10000
     
     print("[LaptopBatteryWidget] Showing widget for " .. (duration/1000) .. " seconds")
     
+    -- Normalizar el parámetro: aceptar InventoryItem o WorldObject con :getItem()
+    local item = laptop
+    if item and item.getItem then
+        local ok, res = pcall(function() return item:getItem() end)
+        if ok and res then item = res end
+    end
+
     -- Configurar datos de la laptop
-    if laptop then
+    if item then
         print("[LaptopBatteryWidget] Processing laptop object...")
         
         local itemType = "Unknown"
@@ -97,26 +105,26 @@ function showLaptopBatteryWidget(laptop)
         
         -- Get item type safely
         pcall(function()
-            itemType = laptop:getFullType() or "Unknown"
+            itemType = item:getFullType() or "Unknown"
         end)
         
         -- Get display name safely
         pcall(function()
-            displayName = laptop:getDisplayName() or "Laptop"
+            displayName = item:getDisplayName() or "Laptop"
         end)
         
         -- Try to get health safely
         if LaptopSystem and LaptopSystem.getLaptopHealth then
             pcall(function()
-                local result = LaptopSystem.getLaptopHealth(laptop)
+                local result = LaptopSystem.getLaptopHealth(item)
                 if result then
                     health = result
                 end
             end)
         else
             pcall(function()
-                if laptop.getCondition then
-                    local result = laptop:getCondition()
+                if item.getCondition then
+                    local result = item:getCondition()
                     if result then
                         health = result
                     end
@@ -133,7 +141,7 @@ function showLaptopBatteryWidget(laptop)
         end
         
         laptopBatteryWidget.currentLaptop = {
-            item = laptop,
+            item = item,
             type = itemType,
             name = laptopName,
             health = health
@@ -141,6 +149,26 @@ function showLaptopBatteryWidget(laptop)
         laptopBatteryWidget.currentBattery = health
         
         print("[LaptopBatteryWidget] Widget configured with laptop: " .. laptopName .. " (" .. health .. "%)")
+
+        -- Decir estado por el personaje (incluye porcentaje)
+        local player = getSpecificPlayer and getSpecificPlayer(0) or (getPlayer and getPlayer() or nil)
+        if player then
+            local pct = math.floor(tonumber(health) or 0)
+            local statusText = ""
+            if pct > 75 then
+                statusText = getText and (getText("IGUI_Status_Excellent") or "Excelente") or "Excelente"
+            elseif pct > 50 then
+                statusText = getText and (getText("IGUI_Status_Good") or "Bueno") or "Bueno"
+            elseif pct > 25 then
+                statusText = getText and (getText("IGUI_Status_Warning") or "Advertencia") or "Advertencia"
+            elseif pct > 10 then
+                statusText = getText and (getText("IGUI_Status_Critical") or "Crítico") or "Crítico"
+            else
+                statusText = getText and (getText("IGUI_Status_Failing") or "Fallando") or "Fallando"
+            end
+            local msg = string.format("%s - Batería: %d%% (%s)", tostring(laptopName), pct, statusText)
+            pcall(function() player:Say(msg) end)
+        end
     else
         -- Laptop de prueba
         laptopBatteryWidget.currentLaptop = {
@@ -173,6 +201,17 @@ function showLaptopBatteryWidget(laptop)
     end
     
     Events.OnTick.Add(hideFunction)
+end
+
+-- API sencilla para configurar la duración del widget desde otros módulos
+function setLaptopBatteryWidgetDuration(ms)
+    local v = tonumber(ms)
+    if not v or v < 0 then return end
+    BATTERY_CONFIG.displayDurationMs = v
+end
+
+function getLaptopBatteryWidgetDuration()
+    return BATTERY_CONFIG.displayDurationMs or 10000
 end
 
 -- Definir las fases de batería (basado en Survival HUD)

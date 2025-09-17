@@ -80,6 +80,18 @@ local function resolvePerk(perkValue, skillName, utils)
     return nil
 end
 
+-- Function to get translated message with fallback
+local function getTranslatedMessage(key, fallback)
+    if not key then return fallback or "Unknown message" end
+    
+    local translated = getText(key)
+    if translated and translated ~= key then
+        return translated
+    end
+    
+    return fallback or "Unknown message"
+end
+
 DecryptSkillDrive = ISBaseTimedAction:derive("DecryptSkillDrive")
 
 local globalEnv = _G or (type(getfenv) == "function" and getfenv(0)) or nil
@@ -91,8 +103,21 @@ function DecryptSkillDrive:isValid()
     local hasCharacter = self.character ~= nil and (not self.character:isDead())
     local hasDrive = self.drive ~= nil
     local hasLaptop = self.laptop ~= nil
-    local valid = hasCharacter and hasDrive and hasLaptop
-    print("[DecryptSkillDrive] isValid called - character:", tostring(self.character), "drive:", tostring(self.drive), "laptop:", tostring(self.laptop), "result:", tostring(valid))
+    
+    -- Check laptop health
+    local laptopUsable = false
+    if hasLaptop and self.laptop.getItem then
+        local laptopItem = self.laptop:getItem()
+        if laptopItem and LaptopSystem and LaptopSystem.getLaptopHealth then
+            local health = LaptopSystem.getLaptopHealth(laptopItem)
+            laptopUsable = health and health > 0
+        else
+            laptopUsable = true -- fallback if no health system
+        end
+    end
+    
+    local valid = hasCharacter and hasDrive and hasLaptop and laptopUsable
+    print("[DecryptSkillDrive] isValid called - character:", tostring(self.character), "drive:", tostring(self.drive), "laptop:", tostring(self.laptop), "laptopUsable:", tostring(laptopUsable), "result:", tostring(valid))
     return valid
 end  
         
@@ -101,6 +126,21 @@ function DecryptSkillDrive:update()
         local laptopItem = self.laptop:getItem()
         if laptopItem then
             laptopItem:setJobDelta(self:getJobDelta())
+            
+            -- Check if laptop is still usable during the action
+            if LaptopSystem and LaptopSystem.getLaptopHealth then
+                local health = LaptopSystem.getLaptopHealth(laptopItem)
+                if health and health <= 0 then
+                    print("[DecryptSkillDrive] Laptop reached 0% health, cancelling action")
+                    -- Stop the action and show message
+                    if self.character then
+                        local brokenText = getTranslatedMessage("GVDrive_Error_Laptop_Broken", "This laptop is completely broken and unusable.")
+                        self.character:Say(brokenText)
+                    end
+                    self:forceStop()
+                    return
+                end
+            end
         end
     end
 end
@@ -289,12 +329,16 @@ function DecryptSkillDrive:perform()
         end
 
         if preservedDrive then
-            local preservedText = getText("GVDrive_Msg_"..skillName.."_Preserved") or ("Drive survived the decryption. "..skillName.." data remains available.")
+            -- Use generic preserved message since specific ones may not exist
+            local preservedText = getTranslatedMessage("GVDrive_Msg_Drive_Preserved", "Drive survived the decryption. " .. skillName .. " data remains available.")
             self.character:Say(preservedText)
         else
             local consumeRoll = ZombRand(13) + 1
             if consumeRoll >= 10 then
-                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Success") or ("Got it! Some "..skillName.." skills. Should keep trying to decrypt..."))
+                -- Success message - use existing translations or fallback
+                local successKey = "GVDrive_Msg_" .. skillName .. "_Success"
+                local successText = getTranslatedMessage(successKey, "Got it! Some " .. skillName .. " skills. Should keep trying to decrypt...")
+                self.character:Say(successText)
                 if inventory and inventory.AddItem then
                     if driveInfo.isUSB then
                         inventory:AddItem("GValley.USBOpened_Used", 1)
@@ -303,7 +347,10 @@ function DecryptSkillDrive:perform()
                     end
                 end
             else
-                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Consume") or ("Got it! Some "..skillName.." skills. Drive is consumed."))
+                -- Consume message - use existing translations or fallback
+                local consumeKey = "GVDrive_Msg_" .. skillName .. "_Consume"
+                local consumeText = getTranslatedMessage(consumeKey, "Got it! Some " .. skillName .. " skills. Drive is consumed.")
+                self.character:Say(consumeText)
                 if inventory and inventory.AddItem then
                     if driveInfo.isUSB then
                         inventory:AddItem("GValley.USBOpened_Used", 1)
@@ -330,15 +377,20 @@ function DecryptSkillDrive:perform()
         if gotMalware and LaptopSystem and LaptopSystem.applyMalware then
             local isNewInfection = LaptopSystem.applyMalware(laptopItem)
             if isNewInfection then
-                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Malware") or "WARNING: Malware detected! Laptop infected!")
+                -- New malware infection - use generic message
+                local malwareText = getTranslatedMessage("GVDrive_Msg_USB_Malware", "WARNING: Malware detected! Laptop infected!")
+                self.character:Say(malwareText)
             else
-                self.character:Say(getText("GVDrive_Msg_"..skillName.."_Malware_Worse") or "Malware is spreading! Laptop severely damaged!")
+                -- Existing malware getting worse - use generic message
+                local malwareWorseText = getTranslatedMessage("GVDrive_Msg_USB_Malware_Worse", "Malware is spreading! Laptop severely damaged!")
+                self.character:Say(malwareWorseText)
             end
         else
             if LaptopSystem and LaptopSystem.damageLaptop then
                 LaptopSystem.damageLaptop(laptopItem, laptopDamageFailure)
             end
-            self.character:Say(getText("GVDrive_Msg_Drive_Corrupted") or "Drive corrupted!")
+            local corruptedText = getTranslatedMessage("GVDrive_Msg_Drive_Corrupted", "Drive corrupted!")
+            self.character:Say(corruptedText)
         end
 
         if inventory and inventory.AddItem then

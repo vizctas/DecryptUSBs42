@@ -56,19 +56,37 @@ function LaptopSystem.hasElectricity(player)
 end
 
 -- Get laptop health/durability from item
+local function getSandboxGV()
+    return (SandboxVars and SandboxVars.GVDrive) or nil
+end
+
+local function normalizeItem(item)
+    if item and item.getItem then
+        local ok, inner = pcall(item.getItem, item)
+        if ok and inner then
+            return inner
+        end
+    end
+    return item
+end
+
 function LaptopSystem.getLaptopHealth(item)
+    item = normalizeItem(item)
     if not item then return 0 end
     local modData = item:getModData()
     if not modData then return 0 end -- Safety check for nil modData
     if not modData.laptopHealth then
         -- Initialize laptop health (100 = perfect, 0 = broken)
-        modData.laptopHealth = SandboxVars.GVDrive.Laptop_Initial_Health or 100
+        local sandboxGV = getSandboxGV()
+        local initial = (sandboxGV and sandboxGV.Laptop_Initial_Health) or 100
+        modData.laptopHealth = tonumber(initial) or 100
     end
     return modData.laptopHealth
 end
 
 -- Set laptop health
 function LaptopSystem.setLaptopHealth(item, health)
+    item = normalizeItem(item)
     if not item then return end
     local modData = item:getModData()
     if not modData then return end -- Safety check for nil modData
@@ -90,16 +108,32 @@ function LaptopSystem.setLaptopHealth(item, health)
     end
 
     if item.setName and getText then
+        local nameKey = ""
         if clamped <= 0 then
-            item:setName(getText("GVDrive_Laptop_Broken"))
+            nameKey = "GVDrive_Laptop_Broken"
         elseif clamped <= 25 then
-            item:setName(getText("GVDrive_Laptop_Critical"))
+            nameKey = "GVDrive_Laptop_Critical"
         elseif clamped <= 50 then
-            item:setName(getText("GVDrive_Laptop_Damaged"))
+            nameKey = "GVDrive_Laptop_Damaged"
         elseif clamped <= 75 then
-            item:setName(getText("GVDrive_Laptop_Worn"))
+            nameKey = "GVDrive_Laptop_Worn"
         else
-            item:setName(getText("GVDrive_Laptop_Healthy"))
+            nameKey = "GVDrive_Laptop_Healthy"
+        end
+        
+        local translatedName = getText(nameKey)
+        if translatedName and translatedName ~= nameKey then
+            item:setName(translatedName)
+        else
+            -- Fallback to English names
+            local fallbackNames = {
+                GVDrive_Laptop_Broken = "Broken Laptop (Unusable)",
+                GVDrive_Laptop_Critical = "Laptop (Critical Condition)",
+                GVDrive_Laptop_Damaged = "Laptop (Heavily Damaged)",
+                GVDrive_Laptop_Worn = "Laptop (Worn)",
+                GVDrive_Laptop_Healthy = "Laptop (Good Condition)"
+            }
+            item:setName(fallbackNames[nameKey] or "Laptop")
         end
     end
 
@@ -111,6 +145,7 @@ end
 
 -- Damage laptop (normal use)
 function LaptopSystem.damageLaptop(item, damage)
+    item = normalizeItem(item)
     if not item then return end
     local currentHealth = LaptopSystem.getLaptopHealth(item)
     local newHealth = currentHealth - (damage or 1)
@@ -120,6 +155,7 @@ end
 
 -- Check if laptop can be used (health only, power requirement disabled)
 function LaptopSystem.canUseLaptop(player, laptop)
+    laptop = normalizeItem(laptop)
     if not player or not laptop then return false, "GVDrive_Error_Invalid" end
     
     -- Check laptop health
@@ -138,6 +174,7 @@ end
 
 -- Apply malware to laptop
 function LaptopSystem.applyMalware(item)
+    item = normalizeItem(item)
     if not item then return end
     
     local modData = item:getModData()
@@ -147,14 +184,17 @@ function LaptopSystem.applyMalware(item)
         modData.malwareLevel = 1
         
         -- Malware causes extra damage over time
-        local malwareDamage = SandboxVars.GVDrive.Malware_Damage_Per_Use or 5
+        local sandboxGV = getSandboxGV()
+        local malwareDamage = (sandboxGV and sandboxGV.Malware_Damage_Per_Use) or 5
         LaptopSystem.damageLaptop(item, malwareDamage)
         
         return true -- New malware infection
     else
         -- Existing malware gets worse
         modData.malwareLevel = (modData.malwareLevel or 1) + 1
-        local malwareDamage = (SandboxVars.GVDrive.Malware_Damage_Per_Use or 5) * modData.malwareLevel
+        local sandboxGV = getSandboxGV()
+        local baseDamage = (sandboxGV and sandboxGV.Malware_Damage_Per_Use) or 5
+        local malwareDamage = baseDamage * (modData.malwareLevel or 1)
         LaptopSystem.damageLaptop(item, malwareDamage)
         
         return false -- Existing malware worsened
@@ -163,6 +203,7 @@ end
 
 -- Check if laptop has malware
 function LaptopSystem.hasMalware(item)
+    item = normalizeItem(item)
     if not item then return false end
     local modData = item:getModData()
     if not modData then return false end -- Safety check for nil modData
@@ -171,6 +212,7 @@ end
 
 -- Get malware level
 function LaptopSystem.getMalwareLevel(item)
+    item = normalizeItem(item)
     if not item then return 0 end
     local modData = item:getModData()
     if not modData then return 0 end -- Safety check for nil modData
@@ -179,6 +221,7 @@ end
 
 -- Clean malware with antivirus
 function LaptopSystem.cleanMalware(item, antivirusStrength)
+    item = normalizeItem(item)
     if not item then return false end
     
     local modData = item:getModData()

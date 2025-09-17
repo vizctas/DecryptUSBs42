@@ -123,9 +123,9 @@ local function enableWorldLoot()
 
     -- Base weights; procedural values are relative within each list
     -- Apply sandbox multipliers (percentage intensity per item type)
-    local usbMul    = ((SandboxVars.GVDrive and SandboxVars.GVDrive.USB_WorldLoot_Chance) or 100) / 100
-    local diskMul   = ((SandboxVars.GVDrive and SandboxVars.GVDrive.Floppy_WorldLoot_Chance) or 100) / 100
-    local laptopMul = ((SandboxVars.GVDrive and SandboxVars.GVDrive.Laptop_WorldLoot_Chance) or 100) / 100
+    local usbMul    = ((gv.USB_WorldLoot_Chance or 100)) / 100
+    local diskMul   = ((gv.Floppy_WorldLoot_Chance or 100)) / 100
+    local laptopMul = ((gv.Laptop_WorldLoot_Chance or 100)) / 100
 
     local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
     local floppyWeightProc  = 0.06 * diskMul  -- slightly rarer
@@ -180,9 +180,10 @@ local function enableWorldLoot()
     end
 
     -- ============ ANTIVIRUS DISTRIBUTIONS (VERY RARE) ============
-    local antivirusBasicWeight = 0.001 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
-    local antivirusAdvancedWeight = 0.0005 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
-    local antivirusPremiumWeight = 0.0001 * ((SandboxVars.GVDrive and SandboxVars.GVDrive.Antivirus_Spawn_Rate) or 100) / 100
+    local antivirusRate = (gv.Antivirus_Spawn_Rate or 100) / 100
+    local antivirusBasicWeight = 0.001 * antivirusRate
+    local antivirusAdvancedWeight = 0.0005 * antivirusRate
+    local antivirusPremiumWeight = 0.0001 * antivirusRate
 
     -- Antivirus items
     local itemAntivirusBasic = "GValley.AntivirusDisk_Basic"
