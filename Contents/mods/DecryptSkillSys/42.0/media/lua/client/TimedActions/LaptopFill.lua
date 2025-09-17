@@ -6,6 +6,9 @@ require "client/TimedActions/DecryptSkillDrive"
 require "shared/LaptopSystem"
 require "shared/GVDrive_Utils"
 
+-- Forward declaration
+local showLaptopStatus
+
 LaptopList = {
     "GValley.AsusZephLaptopOpened",
 	"GValley.Laptop90sOpened",
@@ -392,6 +395,64 @@ local function DecryptSpecificSkillDrive(playerObj, worldObject, LaptopModel, dr
     end
 end
 
+-- ==============================================================================
+-- LAPTOP STATUS WINDOW FUNCTIONALITY (simplified approach)
+-- ==============================================================================
+
+-- Function to show laptop status (USES THE WIDGET)
+function showLaptopStatus(laptop, player)
+    print("[DecryptSkillSys] showLaptopStatus called - showing widget")
+    
+    if not laptop then
+        print("[DecryptSkillSys] ERROR: No laptop provided")
+        return
+    end
+    
+    if not player then
+        print("[DecryptSkillSys] ERROR: No player provided")
+        return
+    end
+    
+    -- Show the battery widget for 5 seconds
+    if showLaptopBatteryWidget then
+        showLaptopBatteryWidget(laptop) -- Pasar solo la laptop
+    else
+        print("[DecryptSkillSys] ERROR: showLaptopBatteryWidget function not available")
+        
+        -- Fallback: mostrar mensaje en chat
+        local health = LaptopSystem.getLaptopHealth(laptop) or 100
+        local itemType = laptop:getFullType()
+        
+        local laptopNames = {
+            ["GValley.AsusZephLaptopOpened"] = "Asus Zephyrus (Open)",
+            ["GValley.AsusZephLaptopClosed"] = "Asus Zephyrus (Closed)",
+            ["GValley.Laptop90sClosed"] = "Toshiba Satellite (Closed)", 
+            ["GValley.Laptop90sOpened"] = "Toshiba Satellite (Open)",
+            ["GValley.IBM_LP90Opened"] = "IBM Palm Top (Open)",
+            ["GValley.PBIBM_LP90Closed"] = "IBM Palm Top (Closed)"
+        }
+        
+        local laptopName = laptopNames[itemType] or laptop:getDisplayName()
+        
+        local statusText = ""
+        if health > 75 then
+            statusText = "Excellent condition"
+        elseif health > 50 then
+            statusText = "Good condition"
+        elseif health > 25 then
+            statusText = "Showing wear"
+        elseif health > 10 then
+            statusText = "Critical condition"
+        else
+            statusText = "Nearly broken"
+        end
+        
+        local message = string.format("%s - Battery: %d%% (%s)", laptopName, health, statusText)
+        player:Say(message)
+        print("[DecryptSkillSys] Fallback: " .. message)
+    end
+end
+
 function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 	print("[DecryptSkillSys] Context menu function called for player " .. tostring(player))
 	local playerObj = getSpecificPlayer(player)
@@ -431,16 +492,16 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 		for k, v in pairs(squares) do
 			squares2[k] = v
 		end
-        local radius = 1
-        for _, square in ipairs(squares2) do
-            if ISWorldObjectContextMenu and ISWorldObjectContextMenu.getSquaresInRadius then
-                ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), square:getZ(), radius, doneSquare, squares)
-            else
-                GVDrive_getSquaresInRadius(square:getX(), square:getY(), square:getZ(), radius, doneSquare, squares)
-            end
-        end
-        GVDrive_getWorldObjectsOnSquares(squares, worldObjects)
-    end
+		local radius = 1
+		for _, square in ipairs(squares2) do
+			if ISWorldObjectContextMenu and ISWorldObjectContextMenu.getSquaresInRadius then
+				ISWorldObjectContextMenu.getSquaresInRadius(square:getX(), square:getY(), square:getZ(), radius, doneSquare, squares)
+			else
+				GVDrive_getSquaresInRadius(square:getX(), square:getY(), square:getZ(), radius, doneSquare, squares)
+			end
+		end
+		GVDrive_getWorldObjectsOnSquares(squares, worldObjects)
+	end
 	
 	if #worldObjects == 0 then return false end
 	
@@ -580,6 +641,10 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 						end
 						
 						-- Legacy options removed - only use new skill-specific decrypt options
+						
+						-- Add laptop status check option
+						print("[DecryptSkillSys] Adding laptop status option")
+						context:addOptionOnTop("Check Laptop Status", playerObj, showLaptopStatus, item, playerObj)
 					end
 				end
 			end
@@ -603,3 +668,5 @@ else
         print("[DecryptSkillSys] CRITICAL: Failed to load GVDrive_Utils")
     end
 end
+
+print("[DecryptSkillSys] Laptop Status Window system loaded")
