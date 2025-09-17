@@ -69,6 +69,16 @@ GVDrive_ES = {
     GVDrive_Msg_Enhancement_Luck = "Mejora elite aplicada! Suerte mejorada.",
     GVDrive_Msg_Enhancement_Max_Used = "Ya usaste todas las mejoras disponibles!",
 
+    -- Diálogo / menú de mejoras élite
+    GVDrive_Ctx_Use_Elite_Token = "Usar Protocolo de Mejora Élite",
+    GVDrive_Ctx_Use_Elite_Capacity = "Aumentar Capacidad de Carga",
+    GVDrive_Ctx_Use_Elite_Speed = "Aumentar Velocidad de Movimiento",
+    GVDrive_Ctx_Use_Elite_Strength = "Aumentar Fuerza",
+    GVDrive_Ctx_Use_Elite_Endurance = "Aumentar Resistencia",
+    GVDrive_Ctx_Use_Elite_Luck = "Aumentar Suerte",
+    GVDrive_Ctx_Use_Elite_Choose = "Elige una mejora élite para aplicar",
+    GVDrive_Msg_Enhancement_Failed = "No se puede aplicar la mejora ahora mismo.",
+
     DisplayName_SkillDrive_Woodwork_Facil = "USB: Carpinteria basico",
     DisplayName_SkillDrive_Woodwork_Moderado = "USB: Carpinteria intermedio",
     DisplayName_SkillDrive_Woodwork_Dificil = "USB: Carpinteria avanzado",

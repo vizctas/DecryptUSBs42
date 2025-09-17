@@ -2,3 +2,15 @@
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+#Ignore VSCode files
+.vscode/
+
+#Ignore VSCode files
+.ai/
+
+#Ignore compiled files
+*.class
+
+#Ignore temporary files
+*.tmp    

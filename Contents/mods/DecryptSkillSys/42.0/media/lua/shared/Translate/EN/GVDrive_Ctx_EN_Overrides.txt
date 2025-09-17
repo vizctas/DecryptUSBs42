@@ -7,3 +7,13 @@ ContextMenu_EN.GVDrive_Ctx_LaptopTooOldUSB = "Laptop too old for USB drives"
 ContextMenu_EN.GVDrive_Ctx_LaptopNeedsFloppy = "Need laptop with floppy drive"
 ContextMenu_EN.GVDrive_Ctx_Decrypt_USB = "Decrypt %s (x%d)"
 ContextMenu_EN.GVDrive_Ctx_Decrypt_Floppy = "Decrypt %s (x%d)"
+
+-- Elite enhancement dialog
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Token = "Use Elite Enhancement Protocol"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Capacity = "Increase Carry Capacity"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Speed = "Increase Movement Speed"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Strength = "Increase Strength"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Endurance = "Increase Endurance"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Luck = "Increase Luck"
+ContextMenu_EN.GVDrive_Ctx_Use_Elite_Choose = "Choose an elite enhancement to apply"
+ContextMenu_EN.GVDrive_Msg_Enhancement_Failed = "Cannot apply enhancement right now."

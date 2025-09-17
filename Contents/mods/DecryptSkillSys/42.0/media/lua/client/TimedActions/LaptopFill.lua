@@ -28,6 +28,7 @@ local function ensureDecryptSkillDrive()
 
     local moduleNames = {
         "client/TimedActions/DecryptSkillDrive",
+        -- End of file (deduplicated)
         "TimedActions/DecryptSkillDrive"
     }
 
@@ -220,7 +221,7 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 					
 				if distance <= maxDistance and not menuAdded then
 					print("[DecryptSkillSys] ==> Player is close enough to laptop")
-					menuAdded = true						-- Add laptop health info
+					menuAdded = true					-- Add laptop health info
 						local healthValue = 50 -- Default value
 						if LaptopSystem and LaptopSystem.getLaptopHealth then
 							local ok, res = pcall(LaptopSystem.getLaptopHealth, item)
@@ -381,6 +382,69 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 					break -- Exit loop after adding menu for first valid laptop
 				else
 					print("[DecryptSkillSys] ==> Player too far from laptop (distance: " .. distance .. ")")
+				end
+
+				-- Add Elite Enhancement Token usage if present
+				local eliteCount = inv and inv.getItemCount and inv:getItemCount("GValley.EliteEnhancement_Token") or 0
+				if eliteCount and eliteCount > 0 then
+					print("[DecryptSkillSys] ==> Elite token(s) found: " .. tostring(eliteCount))
+					-- Helper: try to show modal dialog if available, otherwise fallback to submenu
+					local function showEliteEnhancementDialog(playerObj, enhancementsList)
+						-- Try modal dialog via ISModalDialog (pcall to avoid errors on builds without it)
+						local ok, res = pcall(function()
+							if ISModalDialog and ISModalDialog.new then
+								-- Many PZ builds provide ISModalDialog:new(x,y,w,h,text,target,callback)
+								-- We'll try a generic call; if it fails it will be caught and we fallback
+								local dlg = ISModalDialog:new(200, 200, 300, 200, getTranslatedMessage("GVDrive_Ctx_Use_Elite_Token", "Choose enhancement"), playerObj, function() end)
+								-- If dialog supports adding options, try to populate it
+								if dlg.addOption then
+									for _, en in ipairs(enhancementsList) do
+										dlg:addOption(en)
+									end
+								end
+								if dlg.show then dlg:show() end
+								return true
+							end
+						end)
+						if ok and res then return true end
+						-- Fallback: create submenu like before
+						local subMenu = context:getNew(context)
+						local label = getTranslatedMessage("GVDrive_Ctx_Use_Elite_Token", "Use Elite Enhancement Protocol")
+						local parent = context:addOption(label, playerObj, nil)
+						context:addSubMenu(parent, subMenu)
+						for _, en in ipairs(enhancementsList) do
+							local display = en
+							local optLabel = getTranslatedMessage("GVDrive_Ctx_Use_Elite_" .. en, display)
+							subMenu:addOption(optLabel, playerObj, function(player)
+								print("[DecryptSkillSys] Player requested elite enhancement: " .. en)
+								local playerIndex = player and player.getPlayerNum and player:getPlayerNum()
+								local payload = { enhancement = en, playerIndex = playerIndex }
+								-- Try preferred API: sendClientCommand (client -> server)
+								local sent = false
+								if sendClientCommand then
+									pcall(function() sendClientCommand("DecryptSkillSys", "ApplyEliteEnhancement", payload) end)
+									sent = true
+								elseif sendServerCommand then
+									pcall(function() sendServerCommand("DecryptSkillSys", "ApplyEliteEnhancement", payload) end)
+									sent = true
+								end
+								if not sent then
+									-- Fallback to legacy callbacks
+									if OnUseEliteEnhancement then
+										pcall(function() OnUseEliteEnhancement({}, nil, getSpecificPlayer(player)) end)
+									elseif EliteDriveSystem and EliteDriveSystem.applySpecificEnhancement then
+										pcall(function() EliteDriveSystem.applySpecificEnhancement(getSpecificPlayer(player), en) end)
+									else
+										player:Say(getTranslatedMessage("GVDrive_Msg_Enhancement_Failed", "Cannot apply enhancement right now."))
+									end
+								end
+							end)
+						end
+						return false
+					end
+
+					local enhancementsList = {"Capacity","Speed","Strength","Endurance","Luck"}
+					showEliteEnhancementDialog(playerObj, enhancementsList)
 				end
 				end
 			end

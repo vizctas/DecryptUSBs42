@@ -76,6 +76,16 @@ GVDrive_EN = {
     GVDrive_Msg_Enhancement_Luck = "Elite enhancement applied! Enhanced luck!",
     GVDrive_Msg_Enhancement_Max_Used = "You have already used elite enhancements for all available stats!",
 
+    -- Elite enhancement dialog / menu
+    GVDrive_Ctx_Use_Elite_Token = "Use Elite Enhancement Protocol",
+    GVDrive_Ctx_Use_Elite_Capacity = "Increase Carry Capacity",
+    GVDrive_Ctx_Use_Elite_Speed = "Increase Movement Speed",
+    GVDrive_Ctx_Use_Elite_Strength = "Increase Strength",
+    GVDrive_Ctx_Use_Elite_Endurance = "Increase Endurance",
+    GVDrive_Ctx_Use_Elite_Luck = "Increase Luck",
+    GVDrive_Ctx_Use_Elite_Choose = "Choose an elite enhancement to apply",
+    GVDrive_Msg_Enhancement_Failed = "Cannot apply enhancement right now.",
+
     -- Skill drive display names (USB)
     DisplayName_SkillDrive_Woodwork_Facil = "USB: Basic Woodworking",
     DisplayName_SkillDrive_Woodwork_Moderado = "USB: Intermediate Woodworking",

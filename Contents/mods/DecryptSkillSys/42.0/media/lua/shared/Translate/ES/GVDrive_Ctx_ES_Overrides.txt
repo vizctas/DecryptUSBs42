@@ -7,3 +7,13 @@ ContextMenu_ES.GVDrive_Ctx_LaptopTooOldUSB = "Laptop demasiado antigua para unid
 ContextMenu_ES.GVDrive_Ctx_LaptopNeedsFloppy = "Necesitas una laptop con disquetera"
 ContextMenu_ES.GVDrive_Ctx_Decrypt_USB = "Descifrar %s (x%d)"
 ContextMenu_ES.GVDrive_Ctx_Decrypt_Floppy = "Descifrar %s (x%d)"
+
+-- Diálogo de mejora élite
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Token = "Usar Protocolo de Mejora Élite"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Capacity = "Aumentar Capacidad de Carga"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Speed = "Aumentar Velocidad de Movimiento"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Strength = "Aumentar Fuerza"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Endurance = "Aumentar Resistencia"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Luck = "Aumentar Suerte"
+ContextMenu_ES.GVDrive_Ctx_Use_Elite_Choose = "Elige una mejora élite para aplicar"
+ContextMenu_ES.GVDrive_Msg_Enhancement_Failed = "No se puede aplicar la mejora ahora mismo."
