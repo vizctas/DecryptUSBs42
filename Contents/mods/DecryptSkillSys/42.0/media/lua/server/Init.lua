@@ -35,13 +35,17 @@ local function onStarted()
             print("[DecryptSkillSys] Successfully loaded sandbox settings")
         else
             print("[DecryptSkillSys] WARNING: Using fallback sandbox settings")
-            -- Initialize minimal fallback settings
+            -- Initialize minimal fallback settings with correct values
             SandboxVars = SandboxVars or {}
             SandboxVars.GVDrive = {
-                USB_ZombieDrop_Chance = 1.5,
-                Laptop_ZombieDrop_Chance = 0.3,
-                EliteDrive_ZombieDrop_Chance = 0.08,
-                EnableWorldLoot = true
+                USB_ZombieDrop_Chance = 5.0,
+                Laptop_ZombieDrop_Chance = 1.0,
+                EliteDrive_ZombieDrop_Chance = 0.167,
+                Antivirus_ZombieDrop_Chance = 0.45,
+                EnableWorldLoot = true,
+                USB_Decrypt_Success_Chance = 33,
+                Drive_Preserve_Chance = 30,
+                Malware_Chance = 15
             }
         end
         

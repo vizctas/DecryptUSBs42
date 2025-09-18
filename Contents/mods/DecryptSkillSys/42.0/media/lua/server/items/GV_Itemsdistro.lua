@@ -270,18 +270,33 @@ end)
 -- Zombie Drop Function - Ajustado para vision balanceada del mod
 function GVDrive_OnZombieDead(zombie)
 	-- Improved initialization with better error checking
-	if not zombie or not isServer() then 
-		print("[DecryptSkillSys] Zombie drop skipped - invalid zombie or client side")
+	if not zombie then 
+		print("[DecryptSkillSys] Zombie drop skipped - zombie is nil")
 		return 
 	end
 	
-	-- Get sandbox vars with fallback defaults
+	if not isServer() then 
+		print("[DecryptSkillSys] Zombie drop skipped - client side execution")
+		return 
+	end
+	
+	-- Debug logging for every zombie death
+	print("[DecryptSkillSys] Processing zombie death for drops...")
+	
+	-- Get sandbox vars with fallback defaults (increased for testing)
 	local sandboxVars = (SandboxVars and SandboxVars.GVDrive) or {
-		USB_ZombieDrop_Chance = 1.5,
-		Laptop_ZombieDrop_Chance = 0.3,
-		EliteDrive_ZombieDrop_Chance = 0.08,
-		Antivirus_ZombieDrop_Chance = 0.3
+		USB_ZombieDrop_Chance = 5.0,
+		Laptop_ZombieDrop_Chance = 1.0,
+		EliteDrive_ZombieDrop_Chance = 0.167,
+		Antivirus_ZombieDrop_Chance = 0.45
 	}
+	
+	-- Debug sandbox values
+	print(string.format("[DecryptSkillSys] Sandbox values - USB: %.2f%%, Laptop: %.2f%%, Elite: %.3f%%, Antivirus: %.2f%%", 
+		sandboxVars.USB_ZombieDrop_Chance or 5.0, 
+		sandboxVars.Laptop_ZombieDrop_Chance or 1.0,
+		sandboxVars.EliteDrive_ZombieDrop_Chance or 0.167,
+		sandboxVars.Antivirus_ZombieDrop_Chance or 0.45))
 	
 	local inventory = zombie and zombie:getInventory()
 	if not inventory then return end
@@ -294,35 +309,56 @@ function GVDrive_OnZombieDead(zombie)
 	
 	-- Roll for USB drive drop (now with debug logging)
 	local usbRoll = ZombRand(10000)
-	if usbRoll < (usbDropChance * 100) then
+	local usbThreshold = usbDropChance * 100
+	print(string.format("[DecryptSkillSys] USB roll: %d vs threshold: %.1f", usbRoll, usbThreshold))
+	
+	if usbRoll < usbThreshold then
 		local usbDrive = getRandomSkillDrive("USB")
 		if usbDrive then
 			inventory:AddItem(usbDrive)
-			print(string.format("[DecryptSkillSys] Dropped USB drive (roll %d < %d)", usbRoll, usbDropChance*100))
+			print(string.format("[DecryptSkillSys] ✅ DROPPED USB drive: %s (roll %d < %.1f)", usbDrive, usbRoll, usbThreshold))
+		else
+			print("[DecryptSkillSys] ❌ Failed to generate USB drive")
 		end
+	else
+		print(string.format("[DecryptSkillSys] No USB drop (roll %d >= %.1f)", usbRoll, usbThreshold))
 	end
 	
 	-- Roll for Laptop drop
 	local laptopRoll = ZombRand(10000)
-	if laptopRoll < (laptopDropChance * 100) then
+	local laptopThreshold = laptopDropChance * 100
+	print(string.format("[DecryptSkillSys] Laptop roll: %d vs threshold: %.1f", laptopRoll, laptopThreshold))
+	
+	if laptopRoll < laptopThreshold then
 		local laptops = {"GValley.AsusZephLaptopClosed", "GValley.Laptop90sClosed", "GValley.PBIBM_LP90Closed"}
 		local selectedLaptop = laptops[ZombRand(#laptops) + 1]
 		inventory:AddItem(selectedLaptop)
-		print(string.format("[DecryptSkillSys] Dropped laptop (roll %d < %d)", laptopRoll, laptopDropChance*100))
+		print(string.format("[DecryptSkillSys] ✅ DROPPED laptop: %s (roll %d < %.1f)", selectedLaptop, laptopRoll, laptopThreshold))
+	else
+		print(string.format("[DecryptSkillSys] No laptop drop (roll %d >= %.1f)", laptopRoll, laptopThreshold))
 	end
 	
 	-- Roll for Elite Drive drop
 	local eliteRoll = ZombRand(10000)
-	if eliteRoll < (eliteDropChance * 100) then
+	local eliteThreshold = eliteDropChance * 100
+	print(string.format("[DecryptSkillSys] Elite roll: %d vs threshold: %.3f", eliteRoll, eliteThreshold))
+	
+	if eliteRoll < eliteThreshold then
 		local eliteTypes = {"Strength", "Endurance", "Capacity", "Speed", "Luck"}
 		local selectedType = eliteTypes[ZombRand(#eliteTypes) + 1]
-		inventory:AddItem("GValley.EliteDrive_" .. selectedType)
-		print(string.format("[DecryptSkillSys] Dropped elite drive (roll %d < %d)", eliteRoll, eliteDropChance*100))
+		local eliteItem = "GValley.EliteDrive_" .. selectedType
+		inventory:AddItem(eliteItem)
+		print(string.format("[DecryptSkillSys] ✅ DROPPED ELITE drive: %s (roll %d < %.3f)", eliteItem, eliteRoll, eliteThreshold))
+	else
+		print(string.format("[DecryptSkillSys] No elite drop (roll %d >= %.3f)", eliteRoll, eliteThreshold))
 	end
 	
 	-- Roll for Antivirus drop
 	local avRoll = ZombRand(10000)
-	if avRoll < (antivirusDropChance * 100) then
+	local avThreshold = antivirusDropChance * 100
+	print(string.format("[DecryptSkillSys] Antivirus roll: %d vs threshold: %.2f", avRoll, avThreshold))
+	
+	if avRoll < avThreshold then
 		local antivirusTypes = {
 			{item = "GValley.Antivirus_Norton", weight = 40},
 			{item = "GValley.Antivirus_Kaspersky", weight = 30},
@@ -338,11 +374,15 @@ function GVDrive_OnZombieDead(zombie)
 			currentWeight = currentWeight + av.weight
 			if roll < currentWeight then
 				inventory:AddItem(av.item)
-				print(string.format("[DecryptSkillSys] Dropped antivirus %s (roll %d < %d)", av.item, avRoll, antivirusDropChance*100))
+				print(string.format("[DecryptSkillSys] ✅ DROPPED antivirus: %s (roll %d < %.2f)", av.item, avRoll, avThreshold))
 				break
 			end
 		end
+	else
+		print(string.format("[DecryptSkillSys] No antivirus drop (roll %d >= %.2f)", avRoll, avThreshold))
 	end
+	
+	print("[DecryptSkillSys] Zombie death processing completed")
 end
 
 -- Get random skill drive based on NEW rarity distribution (Fácil/Moderado/Difícil)
@@ -436,10 +476,49 @@ function getRandomSkillDrive(driveType)
 	end
 end
 
--- Register the zombie death event safely
-if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
-	Events.OnZombieDead.Add(GVDrive_OnZombieDead)
-	print("[DecryptSkillSys] Zombie death event registered successfully")
-else
-	print("[DecryptSkillSys] WARNING: Could not register zombie death event")
+-- Register the zombie death event safely with proper error handling
+local function registerZombieDeathEvent()
+    if not Events then
+        print("[DecryptSkillSys] ERROR: Events system not available")
+        return false
+    end
+    
+    if not Events.OnZombieDead then
+        print("[DecryptSkillSys] ERROR: OnZombieDead event not available")
+        return false
+    end
+    
+    if not Events.OnZombieDead.Add then
+        print("[DecryptSkillSys] ERROR: OnZombieDead.Add method not available")
+        return false
+    end
+    
+    -- Remove any existing registration to avoid duplicates
+    Events.OnZombieDead.Remove(GVDrive_OnZombieDead)
+    
+    -- Register the event
+    Events.OnZombieDead.Add(GVDrive_OnZombieDead)
+    print("[DecryptSkillSys] Zombie death event registered successfully")
+    return true
+end
+
+-- Register immediately
+if not registerZombieDeathEvent() then
+    -- Fallback: try to register on server start
+    local function delayedRegister()
+        print("[DecryptSkillSys] Attempting delayed zombie death event registration...")
+        if registerZombieDeathEvent() then
+            print("[DecryptSkillSys] Delayed registration successful")
+        else
+            print("[DecryptSkillSys] CRITICAL ERROR: Could not register zombie death event")
+        end
+    end
+    
+    if Events and Events.OnServerStarted and Events.OnServerStarted.Add then
+        Events.OnServerStarted.Add(delayedRegister)
+    end
+    
+    if Events and Events.OnGameStart and Events.OnGameStart.Add then
+        Events.OnGameStart.Add(delayedRegister)
+    end
 end
