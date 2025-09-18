@@ -2,20 +2,18 @@ Sandbox_EN = {
     -- Page title
     Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
 
-    -- Loot & drop
+    -- Loot & drop (updated for new balance)
     Sandbox_GVDrive_EnableWorldLoot = "Enable World Loot",
-    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
-    Sandbox_GVDrive_Floppy_ZombieDrop = "Floppy Disk Drop Rate (Zombies)",
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies)",
+    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies %)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies %)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies %)",
     Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World)",
-    Sandbox_GVDrive_Floppy_WorldLoot = "Floppy Spawn Rate (World)",
     Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World)",
     Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Disk Spawn Rate",
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies %)",
 
-    -- Base decrypt settings
+    -- Base decrypt settings (no more floppy support)
     Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate",
-    Sandbox_GVDrive_Floppy_Decrypt_Success = "Floppy Decrypt Success Rate",
     Sandbox_GVDrive_Drive_Preserve = "Drive Preservation Chance",
     Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience",
     Sandbox_GVDrive_USB_Max_Exp = "USB Max Experience",
@@ -35,17 +33,28 @@ Sandbox_EN = {
     Sandbox_GVDrive_Normal_XP_Bonus = "Normal Drives: XP Bonus (%)",
     Sandbox_GVDrive_Normal_Loot_Chance = "Normal Drives: Loot Weight (%)",
 
-    Sandbox_GVDrive_Common_Success_Bonus = "Common Drives: Success Bonus (%)",
-    Sandbox_GVDrive_Common_Malware_Chance = "Common Drives: Malware Chance (%)",
-    Sandbox_GVDrive_Common_Laptop_Damage_Min = "Common Drives: Laptop Damage Min",
-    Sandbox_GVDrive_Common_Laptop_Damage_Max = "Common Drives: Laptop Damage Max",
-    Sandbox_GVDrive_Common_XP_Bonus = "Common Drives: XP Bonus (%)",
-    Sandbox_GVDrive_Common_Loot_Chance = "Common Drives: Loot Weight (%)",
+    -- Spanish canonical rarities (Facil = middle, Dificil = hard)
+    Sandbox_GVDrive_Facil_Success_Bonus = "Facil Drives: Success Bonus (%)",
+    Sandbox_GVDrive_Facil_Malware_Chance = "Facil Drives: Malware Chance (%)",
+    Sandbox_GVDrive_Facil_Laptop_Damage_Min = "Facil Drives: Laptop Damage Min",
+    Sandbox_GVDrive_Facil_Laptop_Damage_Max = "Facil Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Facil_XP_Bonus = "Facil Drives: XP Bonus (%)",
+    Sandbox_GVDrive_Facil_Loot_Chance = "Facil Drives: Loot Weight (%)",
 
-    Sandbox_GVDrive_Advanced_Success_Bonus = "Advanced Drives: Success Bonus (%)",
-    Sandbox_GVDrive_Advanced_Malware_Chance = "Advanced Drives: Malware Chance (%)",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Advanced Drives: Laptop Damage Min",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Advanced Drives: Laptop Damage Max",
-    Sandbox_GVDrive_Advanced_XP_Bonus = "Advanced Drives: XP Bonus (%)",
-    Sandbox_GVDrive_Advanced_Loot_Chance = "Advanced Drives: Loot Weight (%)",
+    Sandbox_GVDrive_Dificil_Success_Bonus = "Dificil Drives: Success Bonus (%)",
+    Sandbox_GVDrive_Dificil_Malware_Chance = "Dificil Drives: Malware Chance (%)",
+    Sandbox_GVDrive_Dificil_Laptop_Damage_Min = "Dificil Drives: Laptop Damage Min",
+    Sandbox_GVDrive_Dificil_Laptop_Damage_Max = "Dificil Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Dificil_XP_Bonus = "Dificil Drives: XP Bonus (%)",
+    Sandbox_GVDrive_Dificil_Loot_Chance = "Dificil Drives: Loot Weight (%)",
+
+    -- New laptop health options
+    Sandbox_GVDrive_Laptop_Random_Health_Min = "Laptop Random Health Min (%)",
+    Sandbox_GVDrive_Laptop_Random_Health_Max = "Laptop Random Health Max (%)",
+
+    -- Antivirus drop rates
+    Sandbox_GVDrive_Antivirus_Norton_Drop_Rate = "Norton Antivirus Drop Rate",
+    Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Kaspersky Antivirus Drop Rate", 
+    Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "McAfee Antivirus Drop Rate",
+    Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "MalwareBytes Antivirus Drop Rate",
 }

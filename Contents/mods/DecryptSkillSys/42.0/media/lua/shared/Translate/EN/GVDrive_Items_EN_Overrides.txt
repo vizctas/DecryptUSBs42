@@ -41,3 +41,28 @@ Items_EN.DisplayName_SkillDrive_Survivalist_Facil = "USB: Basic Survival"
 Items_EN.DisplayName_SkillDrive_Survivalist_Moderado = "USB: Intermediate Survival"
 Items_EN.DisplayName_SkillDrive_Survivalist_Dificil = "USB: Advanced Survival"
 
+-- Antivirus items
+Items_EN.DisplayName_Antivirus_Norton = "Norton Security Disk (5% Recovery)"
+Items_EN.DisplayName_Antivirus_Kaspersky = "Kaspersky Rescue Disk (8% Recovery)"
+Items_EN.DisplayName_Antivirus_McAfee = "McAfee Stinger USB (10% Recovery)"
+Items_EN.DisplayName_Antivirus_MalwareBytes = "Malwarebytes Premium USB (12% Recovery)"
+
+-- Antivirus disk compatibility names
+Items_EN.DisplayName_AntivirusDisk_Basic = "Antivirus Disk (Basic)"
+Items_EN.DisplayName_AntivirusDisk_Advanced = "Antivirus Disk (Advanced)"
+Items_EN.DisplayName_AntivirusDisk_Premium = "Antivirus Disk (Premium)"
+
+-- Elite Drives and laptops
+Items_EN.DisplayName_EliteDrive_Strength = "Elite Military USB - Combat Strength"
+Items_EN.DisplayName_EliteDrive_Endurance = "Elite Military USB - Endurance"
+Items_EN.DisplayName_EliteDrive_Capacity = "Elite Military USB - Tactical Load"
+Items_EN.DisplayName_EliteDrive_Speed = "Elite Military USB - Agility"
+Items_EN.DisplayName_EliteDrive_Luck = "Elite Military USB - Luck Algorithms"
+
+Items_EN.DisplayName_Laptop90sClosed = "90's Laptop (Closed)"
+Items_EN.DisplayName_Laptop90sOpened = "90's Laptop (Opened)"
+Items_EN.DisplayName_AsusZephLaptopClosed = "Asus Laptop (Closed)"
+Items_EN.DisplayName_AsusZephLaptopOpened = "Asus Laptop (Opened)"
+Items_EN.DisplayName_PBIBM_LP90Closed = "IBM Laptop (Closed)"
+Items_EN.DisplayName_PBIBM_LP90Opened = "IBM Laptop (Opened)"
+

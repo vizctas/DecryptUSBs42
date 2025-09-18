@@ -119,21 +119,18 @@ local function enableWorldLoot()
         print("[DecryptSkillSys] World loot enabled (fallback: option missing in save)")
     end
 
-    print("[DecryptSkillSys] Enabling world loot for USBs, floppies, and laptops…")
+    print("[DecryptSkillSys] Enabling world loot for USBs and laptops (no more floppies)…")
 
     -- Base weights; procedural values are relative within each list
     -- Apply sandbox multipliers (percentage intensity per item type)
     local usbMul    = ((gv.USB_WorldLoot_Chance or 100)) / 100
-    local diskMul   = ((gv.Floppy_WorldLoot_Chance or 100)) / 100
     local laptopMul = ((gv.Laptop_WorldLoot_Chance or 100)) / 100
 
-    local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
-    local floppyWeightProc  = 0.06 * diskMul  -- slightly rarer
-    local laptopWeightProc  = 0.01 * laptopMul-- rare in stores/office-related
+	local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
+	local laptopWeightProc  = 0.01 * laptopMul-- rare in stores/office-related
 
-    local usbWeightVehicle    = 0.5  * usbMul
-    local floppyWeightVehicle = 0.25 * diskMul
-    local laptopWeightVehicle = 0.05 * laptopMul
+	local usbWeightVehicle    = 0.5  * usbMul
+	local laptopWeightVehicle = 0.05 * laptopMul
 
     -- Patterns to target relevant procedural lists/containers
     local elecPatterns  = {"electronic", "computer", "tech", "server"}
@@ -142,21 +139,30 @@ local function enableWorldLoot()
     local schoolLib     = {"school", "library", "class"}
     local homePatterns  = {"bedroom", "sidetable", "living", "garage"}
 
-    -- Items
-    local itemUSB       = "GValley.USB_Closed"
-    local itemFloppy    = "GValley.FloppyDrive"
-    local laptopsClosed = {"GValley.AsusZephLaptopClosed", "GValley.Laptop90sClosed", "GValley.PBIBM_LP90Closed"}
+    -- Items (no more floppy support)
+	local itemUSB       = "GValley.USB_Closed"
+	local laptopsClosed = {"GValley.AsusZephLaptopClosed", "GValley.Laptop90sClosed", "GValley.PBIBM_LP90Closed"}
+    
+    -- Antivirus items with their drop rates
+    local antiviruses = {
+        {item = "GValley.Antivirus_Norton", rate = (gv.Antivirus_Norton_Drop_Rate or 0.8) / 10},
+        {item = "GValley.Antivirus_Kaspersky", rate = (gv.Antivirus_Kaspersky_Drop_Rate or 0.71) / 10},
+        {item = "GValley.Antivirus_McAfee", rate = (gv.Antivirus_McAfee_Drop_Rate or 0.5) / 10},
+        {item = "GValley.Antivirus_MalwareBytes", rate = (gv.Antivirus_MalwareBytes_Drop_Rate or 0.09) / 10},
+    }
 
-    -- Procedural distributions
+    -- Procedural distributions (USBs only)
     addToProceduralByPattern(elecPatterns,   itemUSB,    usbWeightProc)
     addToProceduralByPattern(officePatterns, itemUSB,    usbWeightProc)
     addToProceduralByPattern(shelfCrate,     itemUSB,    usbWeightProc)
     addToProceduralByPattern(schoolLib,      itemUSB,    usbWeightProc)
     addToProceduralByPattern(homePatterns,   itemUSB,    usbWeightProc)
-
-    addToProceduralByPattern(elecPatterns,   itemFloppy, floppyWeightProc)
-    addToProceduralByPattern(officePatterns, itemFloppy, floppyWeightProc)
-    addToProceduralByPattern(schoolLib,      itemFloppy, floppyWeightProc)
+    
+    -- Add antivirus items
+    for _, av in ipairs(antiviruses) do
+        addToProceduralByPattern(elecPatterns,   av.item, av.rate)
+        addToProceduralByPattern(officePatterns, av.item, av.rate)
+    end
 
     for _, lp in ipairs(laptopsClosed) do
         addToProceduralByPattern(elecPatterns,   lp, laptopWeightProc)
@@ -165,16 +171,14 @@ local function enableWorldLoot()
     end
 
     -- Vehicles (glovebox, seats, trunk)
-    addToVehicleCommon(itemUSB,    usbWeightVehicle)
-    addToVehicleCommon(itemFloppy, floppyWeightVehicle)
+	addToVehicleCommon(itemUSB,    usbWeightVehicle)
     for _, lp in ipairs(laptopsClosed) do
         addToVehicleCommon(lp, laptopWeightVehicle)
     end
 
     -- SuburbsDistributions (broad container names across rooms)
     local contPatternsCommon = {"desk", "counter", "shelf", "crate", "locker", "metal", "office"}
-    addToSuburbsByContainer(contPatternsCommon, itemUSB,   usbWeightProc)
-    addToSuburbsByContainer(contPatternsCommon, itemFloppy,floppyWeightProc)
+	addToSuburbsByContainer(contPatternsCommon, itemUSB,   usbWeightProc)
     for _, lp in ipairs(laptopsClosed) do
         addToSuburbsByContainer({"electronics", "computer", "office", "counter", "shelf"}, lp, laptopWeightProc)
     end
@@ -211,7 +215,7 @@ Events.OnGameStart.Add(function()
     end
 end)
 
--- Zombie Drop Function (SIMPLIFIED TO AVOID CRASHES)
+-- Zombie Drop Function - Ajustado para vision balanceada del mod
 function GVDrive_OnZombieDead(zombie)
 	if not zombie then return end
 	
@@ -223,23 +227,52 @@ function GVDrive_OnZombieDead(zombie)
 	if not inventory then return end
 	
 	-- Get drop chances from sandbox variables (convert to 0-100 range)
-	local usbDropChance = sandboxVars.USB_ZombieDrop_Chance or 0.8
-	local floppyDropChance = sandboxVars.Floppy_ZombieDrop_Chance or 1.0
-	local laptopDropChance = sandboxVars.Laptop_ZombieDrop_Chance or 0.5
+	local usbDropChance = sandboxVars.USB_ZombieDrop_Chance or 1.2
+	local laptopDropChance = sandboxVars.Laptop_ZombieDrop_Chance or 0.2
+	local eliteDropChance = sandboxVars.EliteDrive_ZombieDrop_Chance or 0.05
+	local antivirusDropChance = sandboxVars.Antivirus_ZombieDrop_Chance or 0.3
 	
 	-- Roll for USB drive drop
-	if ZombRand(100) < usbDropChance then
+	if ZombRand(10000) < (usbDropChance * 100) then
 		local usbDrive = getRandomSkillDrive("USB")
 		if usbDrive then
 			inventory:AddItem(usbDrive)
 		end
 	end
 	
-	-- Roll for Floppy drive drop
-	if ZombRand(100) < floppyDropChance then
-		local floppyDrive = getRandomSkillDrive("Floppy")
-		if floppyDrive then
-			inventory:AddItem(floppyDrive)
+	-- Roll for Laptop drop (muy raro pero posible)
+	if ZombRand(10000) < (laptopDropChance * 100) then
+		local laptops = {"GValley.AsusZephLaptopClosed", "GValley.Laptop90sClosed", "GValley.PBIBM_LP90Closed"}
+		local selectedLaptop = laptops[ZombRand(#laptops) + 1]
+		inventory:AddItem(selectedLaptop)
+	end
+	
+	-- Roll for Elite Drive drop (extremadamente raro)
+	if ZombRand(10000) < (eliteDropChance * 100) then
+		local eliteTypes = {"Strength", "Endurance", "Capacity", "Speed", "Luck"}
+		local selectedType = eliteTypes[ZombRand(#eliteTypes) + 1]
+		inventory:AddItem("GValley.EliteDrive_" .. selectedType)
+	end
+	
+	-- Roll for Antivirus drop (raro pero necesario para balance)
+	if ZombRand(10000) < (antivirusDropChance * 100) then
+		local antivirusTypes = {
+			{item = "GValley.Antivirus_Norton", weight = 40},        -- Más común
+			{item = "GValley.Antivirus_Kaspersky", weight = 30},     -- Común
+			{item = "GValley.Antivirus_McAfee", weight = 20},        -- Menos común
+			{item = "GValley.Antivirus_MalwareBytes", weight = 10},  -- Más raro
+		}
+		
+		local totalWeight = 100
+		local roll = ZombRand(totalWeight)
+		local currentWeight = 0
+		
+		for _, av in ipairs(antivirusTypes) do
+			currentWeight = currentWeight + av.weight
+			if roll < currentWeight then
+				inventory:AddItem(av.item)
+				break
+			end
 		end
 	end
 	
@@ -323,28 +356,16 @@ function getRandomSkillDrive(driveType)
 		return skills[ZombRand(#skills) + 1]
 	end
 
-	-- NEW RARITY DISTRIBUTION: Difícil -> Moderado -> Fácil
-	if roll < scaledDificil and (isUSB or isFloppy) then
+	-- NUEVA DISTRIBUCIÓN (español): Dificil -> Moderado -> Facil
+	if roll < scaledDificil and isUSB then
 		local selectedSkill = randomSkill()
-		if driveType == "USB" then
-			return "GValley.SkillDrive_" .. selectedSkill .. "_Dificil"
-		else
-			return "GValley.SkillFloppy_" .. selectedSkill .. "_Dificil"
-		end
-	elseif roll < (scaledDificil + scaledModerado) then
+		return "GValley.SkillDrive_" .. selectedSkill .. "_Dificil"
+	elseif roll < (scaledDificil + scaledModerado) and isUSB then
 		local selectedSkill = randomSkill()
-		if driveType == "USB" then
-			return "GValley.SkillDrive_" .. selectedSkill .. "_Moderado"
-		else
-			return "GValley.SkillFloppy_" .. selectedSkill .. "_Moderado"
-		end
+		return "GValley.SkillDrive_" .. selectedSkill .. "_Moderado"
 	else
 		local selectedSkill = randomSkill()
-		if driveType == "USB" then
-			return "GValley.SkillDrive_" .. selectedSkill .. "_Facil"
-		else
-			return "GValley.SkillFloppy_" .. selectedSkill .. "_Facil"
-		end
+		return "GValley.SkillDrive_" .. selectedSkill .. "_Facil"
 	end
 end
 

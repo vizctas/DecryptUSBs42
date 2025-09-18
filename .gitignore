@@ -14,3 +14,9 @@
 
 #Ignore temporary files
 *.tmp    
+
+#Ignore log files
+*.log
+
+# Ignore test scripts
+.test_scripts/

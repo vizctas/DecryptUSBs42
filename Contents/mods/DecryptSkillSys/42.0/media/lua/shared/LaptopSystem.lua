@@ -76,10 +76,14 @@ function LaptopSystem.getLaptopHealth(item)
     local modData = item:getModData()
     if not modData then return 0 end -- Safety check for nil modData
     if not modData.laptopHealth then
-        -- Initialize laptop health (100 = perfect, 0 = broken)
+        -- Initialize laptop health with random value based on sandbox settings
         local sandboxGV = getSandboxGV()
-        local initial = (sandboxGV and sandboxGV.Laptop_Initial_Health) or 100
-        modData.laptopHealth = tonumber(initial) or 100
+        local minHealth = (sandboxGV and sandboxGV.Laptop_Random_Health_Min) or 30
+        local maxHealth = (sandboxGV and sandboxGV.Laptop_Random_Health_Max) or 85
+        
+        -- Use ZombRand for random health between min and max
+        local randomHealth = ZombRand(minHealth, maxHealth + 1)
+        modData.laptopHealth = randomHealth
     end
     return modData.laptopHealth
 end
@@ -219,8 +223,8 @@ function LaptopSystem.getMalwareLevel(item)
     return modData.malwareLevel or 0
 end
 
--- Clean malware with antivirus
-function LaptopSystem.cleanMalware(item, antivirusStrength)
+-- Clean malware with specific antivirus items (reduced recovery rates)
+function LaptopSystem.cleanMalwareWithAntivirus(item, antivirusType)
     item = normalizeItem(item)
     if not item then return false end
     
@@ -232,12 +236,67 @@ function LaptopSystem.cleanMalware(item, antivirusStrength)
     modData.hasMalware = false
     modData.malwareLevel = 0
     
-    -- Restore some health based on antivirus strength
+    -- Restore health based on antivirus type (reduced rates)
     local currentHealth = LaptopSystem.getLaptopHealth(item)
-    local healAmount = antivirusStrength or 25
+    local healAmount = 5 -- Default Norton
+    
+    if antivirusType == "Norton" then
+        healAmount = 5
+    elseif antivirusType == "Kaspersky" then
+        healAmount = 8
+    elseif antivirusType == "McAfee" then
+        healAmount = 10
+    elseif antivirusType == "MalwareBytes" then
+        healAmount = 12
+    end
+    
     local newHealth = currentHealth + healAmount
     LaptopSystem.setLaptopHealth(item, newHealth)
     
+    return true
+end
+
+-- Backwards-compatible wrapper used by server/client calls in the mod.
+-- Accepts either a numeric heal amount or a compatibility antivirus identifier.
+function LaptopSystem.cleanMalware(item, healOrType)
+    item = normalizeItem(item)
+    if not item then return false end
+    local modData = item:getModData()
+    if not modData then return false end
+    if not modData.hasMalware then
+        -- If there was no malware, still allow small heal if numeric was passed
+        if type(healOrType) == 'number' and healOrType > 0 then
+            local current = LaptopSystem.getLaptopHealth(item)
+            LaptopSystem.setLaptopHealth(item, current + healOrType)
+            return false
+        end
+        return false
+    end
+
+    -- Determine heal amount
+    local healAmount = 0
+    if type(healOrType) == 'number' then
+        healAmount = healOrType
+    elseif type(healOrType) == 'string' then
+        -- Map known compatibility identifiers to heal amounts
+        local map = {
+            AntivirusDisk_Basic = 25,
+            AntivirusDisk_Advanced = 50,
+            AntivirusDisk_Premium = 75,
+            Norton = 5,
+            Kaspersky = 8,
+            McAfee = 10,
+            MalwareBytes = 12,
+        }
+        healAmount = map[healOrType] or 0
+    end
+
+    -- Remove malware and reset level
+    modData.hasMalware = false
+    modData.malwareLevel = 0
+
+    local currentHealth = LaptopSystem.getLaptopHealth(item)
+    LaptopSystem.setLaptopHealth(item, currentHealth + healAmount)
     return true
 end
 

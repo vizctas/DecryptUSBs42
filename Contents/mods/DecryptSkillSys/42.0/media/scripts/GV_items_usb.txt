@@ -63,38 +63,7 @@ module GValley
 		WorldStaticModel = PBIBM_LP90Closed,
 		Tooltip = Tooltip_IBMPlm,
 	}
-		item FloppyDrive
-	{
-		DisplayCategory	= GValley,
-		Weight          = 0.1,
-		Type            = Normal,
-		DisplayName     = Floppy 1.24 MB,
-		Icon            = floppy,
-		WorldStaticModel = FloppyDisk,
-		Tooltip = Tooltip_USB,
-	}	
-
-		item FloppyDrive_Used
-	{
-		DisplayCategory	= 	GValley,
-		Weight          = 	0.1,
-		Type            = 	Normal,
-		DisplayName     = 	Floppy 1.24MB (Useless),
-		Icon            = 	floppy,
-		WorldStaticModel = 	FloppyDisk,
-		Tooltip			 = 	Tooltip_USB,
-	}	
-
-		item FloppyDrive_Damaged
-	{
-		DisplayCategory	= 	GValley,
-		Weight          = 	0.1,
-		Type            = 	Normal,
-		DisplayName     = 	Floppy 1.24MB (Broken),
-		Icon            = 	floppy_d,
-		WorldStaticModel = 	FloppyDisk,
-		Tooltip			 = 	Tooltip_USB,
-	}	
+	
 		item USBOpened
 	{
 		DisplayCategory	= GValley,
@@ -147,16 +116,61 @@ module GValley
 		Tooltip = Tooltip_TUSB,
 	}
 
-	// ============ ANTIVIRUS DISKS ============
+	// ============ ANTIVIRUS ITEMS ============
+	item Antivirus_Norton
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Norton Security Disk (5% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Norton,
+	}
+
+	item Antivirus_Kaspersky
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Kaspersky Rescue Disk (8% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Kaspersky,
+	}
+
+	item Antivirus_McAfee
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = McAfee Stinger USB (10% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_McAfee,
+	}
+
+	item Antivirus_MalwareBytes
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Malwarebytes Premium USB (12% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_MalwareBytes,
+	}
+
+	// Compatibility aliases: recipes reference these IDs (AntivirusDisk_Basic/Advanced/Premium)
 	item AntivirusDisk_Basic
 	{
 		DisplayCategory	= GValley,
 		Weight          = 0.1,
 		Type            = Normal,
-		DisplayName     = Basic Antivirus Disk,
-		Icon            = floppy,
-		WorldStaticModel = Floppy,
-		Tooltip			= Tooltip_Antivirus_Basic,
+		DisplayName     = Antivirus Disk (Basic),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Basic,
 	}
 
 	item AntivirusDisk_Advanced
@@ -164,10 +178,10 @@ module GValley
 		DisplayCategory	= GValley,
 		Weight          = 0.1,
 		Type            = Normal,
-		DisplayName     = Advanced Antivirus Disk,
-		Icon            = floppy_d,
-		WorldStaticModel = Floppy,
-		Tooltip			= Tooltip_Antivirus_Advanced,
+		DisplayName     = Antivirus Disk (Advanced),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Advanced,
 	}
 
 	item AntivirusDisk_Premium
@@ -175,9 +189,9 @@ module GValley
 		DisplayCategory	= GValley,
 		Weight          = 0.1,
 		Type            = Normal,
-		DisplayName     = Premium Antivirus Disk,
+		DisplayName     = Antivirus Disk (Premium),
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
-		Tooltip			= Tooltip_Antivirus_Premium,
+		Tooltip		= Tooltip_Antivirus_Premium,
 	}
 }

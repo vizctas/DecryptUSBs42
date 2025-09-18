@@ -115,7 +115,7 @@ module Base
 
         inputs
         {
-            item 1 [GValley.FloppyDrive_Used] mode:destroy,
+            item 1 [GValley.USBOpened_Used;GValley.USBOpened_Damaged] mode:destroy,
             item 1 tags[Screwdriver] mode:keep,
         }
         outputs
@@ -133,7 +133,7 @@ module Base
 
         inputs
         {
-            item 1 [GValley.FloppyDrive_Damaged] mode:destroy,
+            item 1 [GValley.USBOpened_Damaged;GValley.USBOpened_Used] mode:destroy,
             item 1 tags[Screwdriver] mode:keep,
         }
         outputs

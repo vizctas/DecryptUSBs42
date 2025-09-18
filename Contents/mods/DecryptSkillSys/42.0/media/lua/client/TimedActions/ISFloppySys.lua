@@ -89,11 +89,13 @@ function DecryptFloppyDisk:perform()
         if consumeRoll >= 10 then
             self.character:Say(getText("GVDrive_Msg_"..perkName.."_Success") or "Got it! Some "..perkName.." skills. Should keep trying to decrypt...")
             -- Floppy is preserved, give it back as used
-            inventoryItem:AddItem("GValley.FloppyDrive_Used", 1)
+            -- Floppy items removed in v42; add USB used variant instead for compatibility
+            inventoryItem:AddItem("GValley.USBOpened_Used", 1)
         else
             self.character:Say(getText("GVDrive_Msg_"..perkName.."_Consume") or "Got it! Some "..perkName.." skills. Floppy is consumed.")
             -- Floppy is fully consumed, give used version
-            inventoryItem:AddItem("GValley.FloppyDrive_Used", 1)
+            -- Floppy items removed in v42; add USB used variant instead for compatibility
+            inventoryItem:AddItem("GValley.USBOpened_Used", 1)
         end
     else
         -- Failure: Check for malware
@@ -114,7 +116,8 @@ function DecryptFloppyDisk:perform()
         end
         self.character:Say(getText("GVDrive_Msg_Disk_Corrupted") or "Disk corrupted!")
         -- Floppy is corrupted, give damaged version
-        inventoryItem:AddItem("GValley.FloppyDrive_Damaged")
+    -- Floppy items removed in v42; add USB damaged variant instead for compatibility
+    inventoryItem:AddItem("GValley.USBOpened_Damaged")
     end
 
     if self.sound and self.character and self.character:getEmitter() then

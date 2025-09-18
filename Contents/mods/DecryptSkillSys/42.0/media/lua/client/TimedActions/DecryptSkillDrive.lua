@@ -46,8 +46,9 @@ local function fallbackDriveInfo(item)
     if short == "USBOpened" or short == "USBOpened_Damaged" or short == "USBOpened_Used" then
         return { skill = "LegacyUSB", skillName = "LegacyUSB", rarity = "Normal", difficulty = "Normal", isUSB = true }
     end
+    -- Treat legacy floppy items as USB equivalents to avoid creating floppy items (v42 USB-only)
     if short == "FloppyDrive" or short == "FloppyDrive_Damaged" or short == "FloppyDrive_Used" then
-        return { skill = "LegacyFloppy", skillName = "LegacyFloppy", rarity = "Normal", difficulty = "Normal", isUSB = false }
+        return { skill = "LegacyFloppy", skillName = "LegacyFloppy", rarity = "Normal", difficulty = "Normal", isUSB = true }
     end
     return nil
 end
@@ -340,11 +341,8 @@ function DecryptSkillDrive:perform()
                 local successText = getTranslatedMessage(successKey, "Got it! Some " .. skillName .. " skills. Should keep trying to decrypt...")
                 self.character:Say(successText)
                 if inventory and inventory.AddItem then
-                    if driveInfo.isUSB then
+                        -- Always add USB used variant (floppy types mapped to USB for v42)
                         inventory:AddItem("GValley.USBOpened_Used", 1)
-                    else
-                        inventory:AddItem("GValley.FloppyDrive_Used", 1)
-                    end
                 end
             else
                 -- Consume message - use existing translations or fallback
@@ -352,11 +350,8 @@ function DecryptSkillDrive:perform()
                 local consumeText = getTranslatedMessage(consumeKey, "Got it! Some " .. skillName .. " skills. Drive is consumed.")
                 self.character:Say(consumeText)
                 if inventory and inventory.AddItem then
-                    if driveInfo.isUSB then
+                        -- Always add USB used variant (floppy types mapped to USB for v42)
                         inventory:AddItem("GValley.USBOpened_Used", 1)
-                    else
-                        inventory:AddItem("GValley.FloppyDrive_Used", 1)
-                    end
                 end
             end
         end
@@ -394,11 +389,8 @@ function DecryptSkillDrive:perform()
         end
 
         if inventory and inventory.AddItem then
-            if driveInfo.isUSB then
-                inventory:AddItem("GValley.USBOpened_Damaged")
-            else
-                inventory:AddItem("GValley.FloppyDrive_Damaged")
-            end
+            -- Always add USB damaged variant (floppy types mapped to USB for v42)
+            inventory:AddItem("GValley.USBOpened_Damaged")
         end
     end
 

@@ -1,8 +1,7 @@
--- GVDrive Utility Functions
--- Shared helpers for drive info, sandbox integration, and balancing
 
 GVDrive_Utils = {}
 
+-- Use Spanish canonical rarity keys: Facil, Moderado, Dificil
 local rarityDefaults = {
     Normal = {
         successBonus = 2.0,
@@ -12,7 +11,7 @@ local rarityDefaults = {
         xpBonus = 0.0,
         lootChance = 5.0,
     },
-    Common = {
+    Facil = {
         successBonus = 4.5,
         malwareChance = 7.0,
         laptopDamageMin = 5,
@@ -20,7 +19,7 @@ local rarityDefaults = {
         xpBonus = 0.0,
         lootChance = 2.0,
     },
-    Advanced = {
+    Dificil = {
         successBonus = 6.5,
         malwareChance = 12.0,
         laptopDamageMin = 15,
@@ -57,14 +56,25 @@ local function getSandboxNumber(name, default)
 end
 
 local function getRarityKeyFromInfo(info)
+    -- Canonical Spanish rarity handling: Facil / Moderado / Dificil
     if not info then return "Normal" end
     if info.isSkillSpecific then
         local rarity = tostring(info.rarity or "")
-        if rarity:lower() == "rare" or rarity:lower() == "advanced" then
-            return "Advanced"
-        else
-            return "Common"
+        local r = rarity:lower()
+
+        -- Spanish explicit matches
+        if r == "dificil" or r == "difícil" or r:find("dif") then
+            return "Dificil"
         end
+        if r == "moderado" or r:find("mod") then
+            -- We treat Moderado as the middle tier mapping to Facil-like defaults
+            return "Facil"
+        end
+        if r == "facil" or r == "fácil" or r:find("fac") then
+            return "Facil"
+        end
+
+        return "Normal"
     end
     return "Normal"
 end
@@ -97,21 +107,25 @@ function GVDrive_Utils.getRaritySettings(info)
     }
 end
 
-local function buildDriveInfo(skill, rarity, isUSB, isFloppy)
+local function buildDriveInfo(skill, rarity, isUSB)
     local perk = GVDrive_Utils.getSkillPerk(skill)
     local info = {
         skill = perk,
         skillName = skill,
         rarity = rarity,
         isUSB = isUSB,
-        isFloppy = isFloppy,
+        isFloppy = false, -- No longer supporting floppies
         isLegacy = false,
         isSkillSpecific = true,
     }
 
-    if rarity == "Rare" or rarity == "Advanced" then
+    -- Map incoming rarity strings (from item suffixes) into difficulty
+    local lower = tostring(rarity or ""):lower()
+    if lower == "dificil" or lower == "difícil" or lower:find("dif") then
         info.difficulty = "Hard"
-    elseif rarity == "Common" then
+    elseif lower == "moderado" or lower == "moder" then
+        info.difficulty = "Medium"
+    elseif lower == "facil" or lower == "fácil" or lower:find("fac") then
         info.difficulty = "Medium"
     else
         info.difficulty = "Easy"
@@ -135,31 +149,18 @@ function GVDrive_Utils.getDriveInfo(item)
         if #parts >= 3 then
             local skill = parts[2]
             local rarity = parts[3]
-            local info = buildDriveInfo(skill, rarity, true, false)
-            info.rarityKey = GVDrive_Utils.getRarityKey(info)
-            return info
-        end
-    elseif string.find(itemType, "SkillFloppy_") then
-        local parts = {}
-        for part in string.gmatch(itemType, "([^_]+)") do
-            table.insert(parts, part)
-        end
-        if #parts >= 3 then
-            local skill = parts[2]
-            local rarity = parts[3]
-            local info = buildDriveInfo(skill, rarity, false, true)
-            info.difficulty = "Easy"
+            local info = buildDriveInfo(skill, rarity, true)
             info.rarityKey = GVDrive_Utils.getRarityKey(info)
             return info
         end
     end
 
-    -- Legacy drives fallback
+    -- Legacy drives fallback (no more floppy support)
     local info = {
         skill = nil,
         difficulty = "Easy",
         isUSB = (itemType == "USB_Closed" or itemType == "USBOpened" or itemType == "USBOpened_Damaged"),
-        isFloppy = (itemType == "FloppyDrive" or itemType == "FloppyDrive_Damaged"),
+        isFloppy = false, -- No longer supporting floppies
         isLegacy = true,
         isSkillSpecific = false,
         rarity = "Normal",
@@ -183,7 +184,8 @@ function GVDrive_Utils.calculateDriveExperience(character, driveInfo)
 
     if driveInfo.isSkillSpecific then
         if driveInfo.isUSB then
-            if (driveInfo.rarity or ""):lower() == "rare" or (driveInfo.rarity or ""):lower() == "advanced" then
+            local r = tostring(driveInfo.rarity or ""):lower()
+            if r == "dificil" or r == "difícil" or r:find("dif") then
                 baseMin = 100
                 baseMax = 300
             else
@@ -207,8 +209,9 @@ function GVDrive_Utils.calculateDriveExperience(character, driveInfo)
             baseMin = getSandboxNumber("USB_Min_Experience", 35)
             baseMax = getSandboxNumber("USB_Max_Experience", 245)
         else
-            baseMin = getSandboxNumber("Floppy_Min_Experience", 25)
-            baseMax = getSandboxNumber("Floppy_Max_Experience", 195)
+            -- No more floppy support - default to USB settings
+            baseMin = getSandboxNumber("USB_Min_Experience", 35)
+            baseMax = getSandboxNumber("USB_Max_Experience", 245)
         end
     end
 
@@ -284,9 +287,11 @@ end
 function GVDrive_Utils.getDifficultyForRarity(rarity)
     local value = tostring(rarity or "")
     local lower = value:lower()
-    if lower == "rare" or lower == "advanced" then
+    if lower == "dificil" or lower == "difícil" or lower:find("dif") then
         return "Hard"
-    elseif lower == "common" then
+    elseif lower == "moderado" or lower == "moder" then
+        return "Medium"
+    elseif lower == "facil" or lower == "fácil" or lower:find("fac") then
         return "Medium"
     else
         return "Easy"
@@ -299,7 +304,8 @@ function GVDrive_Utils.getSuccessChance(driveInfo)
 
     local base
     if driveInfo.isSkillSpecific then
-        if (driveInfo.rarity or ""):lower() == "rare" or (driveInfo.rarity or ""):lower() == "advanced" then
+        local r = tostring(driveInfo.rarity or ""):lower()
+        if r == "dificil" or r == "difícil" or r:find("dif") then
             base = 58.5
         else
             base = 50.5
@@ -308,7 +314,8 @@ function GVDrive_Utils.getSuccessChance(driveInfo)
         if driveInfo.isUSB then
             base = getSandboxNumber("USB_Decrypt_Success_Chance", 33)
         else
-            base = getSandboxNumber("Floppy_Decrypt_Success_Chance", 30)
+            -- No more floppy support - default to USB settings
+            base = getSandboxNumber("USB_Decrypt_Success_Chance", 33)
         end
     end
 
