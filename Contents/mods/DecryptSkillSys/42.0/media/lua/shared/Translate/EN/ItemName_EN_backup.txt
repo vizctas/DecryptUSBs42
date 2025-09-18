@@ -1,17 +1,20 @@
--- Overrides for item display names (EN) to ensure clean, readable names
-Items_EN = Items_EN or {}
+-- Item display names (EN) for DecryptSkillSys mod
+ItemName_EN = {
 
-Items_EN.DisplayName_SkillDrive_Woodwork_Facil = "USB: Basic Woodworking"
-Items_EN.DisplayName_SkillDrive_Woodwork_Moderado = "USB: Intermediate Woodworking"
-Items_EN.DisplayName_SkillDrive_Woodwork_Dificil = "USB: Advanced Woodworking"
+-- Skill USB Drives - Woodworking
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Facil = "USB: Basic Woodworking",
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Moderado = "USB: Intermediate Woodworking",
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Dificil = "USB: Advanced Woodworking",
 
-Items_EN.DisplayName_SkillDrive_Electricity_Facil = "USB: Basic Electronics"
-Items_EN.DisplayName_SkillDrive_Electricity_Moderado = "USB: Intermediate Electronics"
-Items_EN.DisplayName_SkillDrive_Electricity_Dificil = "USB: Advanced Electronics"
+-- Skill USB Drives - Electronics
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Facil = "USB: Basic Electronics",
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Moderado = "USB: Intermediate Electronics",
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Dificil = "USB: Advanced Electronics",
 
-Items_EN.DisplayName_SkillDrive_Farming_Facil = "USB: Basic Farming"
-Items_EN.DisplayName_SkillDrive_Farming_Moderado = "USB: Intermediate Farming"
-Items_EN.DisplayName_SkillDrive_Farming_Dificil = "USB: Advanced Farming"
+-- Skill USB Drives - Farming
+ItemName_DecryptSkillSys.SkillDrive_Farming_Facil = "USB: Basic Farming",
+ItemName_DecryptSkillSys.SkillDrive_Farming_Moderado = "USB: Intermediate Farming",
+ItemName_DecryptSkillSys.SkillDrive_Farming_Dificil = "USB: Advanced Farming",
 
 Items_EN.DisplayName_SkillDrive_Aiming_Facil = "USB: Basic Marksmanship"
 Items_EN.DisplayName_SkillDrive_Aiming_Moderado = "USB: Intermediate Marksmanship"

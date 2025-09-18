@@ -1,658 +1,169 @@
 VERSION = 1,
 
-option GVDrive.option GVDrive.EliteDrive_ZombieDrop_Chance
+option GVDrive.EnableWorldLoot
 {
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0.05,
-    page = Drive_Decrypt,
-    translation = GVDrive_EliteDrive_ZombieDrop,
-}
-
-// Elite Drive Bonus Configuration
-option GVDrive.Elite_Strength_Bonus
-{
-    type = integer,
-    min = 1,
-    max = 5,
-    default = 1,
-    page = Drive_Decrypt,
-    translation = GVDrive_Elite_Strength,
-}
-
-option GVDrive.Elite_Endurance_Bonus
-{
-    type = integer,
-    min = 1,
-    max = 5,
-    default = 1,
-    page = Drive_Decrypt,
-    translation = GVDrive_Elite_Endurance,
-}
-
-option GVDrive.Elite_Capacity_Bonus
-{
-    type = integer,
-    min = 1,
-    max = 20,
-    default = 4,
-    page = Drive_Decrypt,
-    translation = GVDrive_Elite_Capacity,
-}
-
-option GVDrive.Elite_Speed_Bonus
-{
-    type = integer,
-    min = 1,
-    max = 3,
-    default = 1,
-    page = Drive_Decrypt,
-    translation = GVDrive_Elite_Speed,
-}
-
-option GVDrive.Elite_Luck_Bonus
-{
-    type = integer,
-    min = 1,
-    max = 5,
-    default = 2,
-    page = Drive_Decrypt,
-    translation = GVDrive_Elite_Luck,
-}ldLoot
-{
-    type = boolean,
-    default = true,
-    page = Drive_Decrypt,
-    translation = GVDrive_EnableWorldLoot,
-}
-
-option GVDrive.USB_ZombieDrop_Chance
-{
-    type = double,
-    min = 0,
-    max = 10,
-    default = 0.4,
-    page = Drive_Decrypt,
-    translation = GVDrive_USB_ZombieDrop,
-}
-
-
-option GVDrive.Laptop_ZombieDrop_Chance
-{
-    type = double,
-    min = 0,
-    max = 5,
-    default = 0.125,
-    page = Drive_Decrypt,
-    translation = GVDrive_Laptop_ZombieDrop,
-}
-
-option GVDrive.EliteDrive_ZombieDrop_Chance
-{
-    type = double,
-    min = 0,
-    max = 1,
-    default = 0.05,
-    page = Drive_Decrypt,
-    translation = GVDrive_EliteDrive_ZombieDrop,
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_EnableWorldLoot,
 }
 
 option GVDrive.USB_WorldLoot_Chance
 {
-    type = double,
-    min = 0,
-    max = 100,
-    default = 100,
-    page = Drive_Decrypt,
-    translation = GVDrive_USB_WorldLoot,
+    type = integer, min = 0, max = 100, default = 100,
+    page = Drive_Decrypt, translation = GVDrive_USB_WorldLoot,
 }
-
-
 
 option GVDrive.Laptop_WorldLoot_Chance
 {
-    type = double,
-    min = 0,
-    max = 100,
-    default = 100,
-    page = Drive_Decrypt,
-    translation = GVDrive_Laptop_WorldLoot,
-}
-
-option GVDrive.Antivirus_Spawn_Rate
-{
-    type = integer,
-    min = 0,
-    max = 500,
-    default = 100,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_Spawn_Rate,
-}
-
-option GVDrive.USB_Decrypt_Success_Chance
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 33,
-    page = Drive_Decrypt,
-    translation = GVDrive_USB_Decrypt_Success,
-}
-
-
-
-option GVDrive.Drive_Preserve_Chance
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 30,
-    page = Drive_Decrypt,
-    translation = GVDrive_Drive_Preserve,
-}
-
-option GVDrive.USB_Min_Experience
-{
-    type = double,
-    min = 1,
-    max = 500,
-    default = 35,
-    page = Drive_Decrypt,
-    translation = GVDrive_USB_Min_Exp,
-}
-
-option GVDrive.USB_Max_Experience
-{
-    type = double,
-    min = 1,
-    max = 1000,
-    default = 245,
-    page = Drive_Decrypt,
-    translation = GVDrive_USB_Max_Exp,
-}
-
-
-
-option GVDrive.Laptop_Initial_Health
-{
-    type = integer,
-    min = 10,
-    max = 200,
-    default = 75,
-    page = Drive_Decrypt,
-    translation = GVDrive_Laptop_Initial_Health,
-}
-
-option GVDrive.Laptop_Random_Health_Min
-{
-    type = integer,
-    min = 10,
-    max = 100,
-    default = 30,
-    page = Drive_Decrypt,
-    translation = GVDrive_Laptop_Random_Health_Min,
-}
-
-option GVDrive.Laptop_Random_Health_Max
-{
-    type = integer,
-    min = 10,
-    max = 100,
-    default = 85,
-    page = Drive_Decrypt,
-    translation = GVDrive_Laptop_Random_Health_Max,
-}
-
-option GVDrive.Malware_Chance
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 15,
-    page = Drive_Decrypt,
-    translation = GVDrive_Malware_Chance,
-}
-
-option GVDrive.Malware_Damage_Per_Use
-{
-    type = integer,
-    min = 1,
-    max = 50,
-    default = 5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Malware_Damage,
-}
-
-option GVDrive.Normal_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 2.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Success_Bonus,
-}
-
-option GVDrive.Normal_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 5.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Malware_Chance,
-}
-
-option GVDrive.Normal_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 3,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Laptop_Damage_Min,
-}
-
-option GVDrive.Normal_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Laptop_Damage_Max,
-}
-
-option GVDrive.Normal_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_XP_Bonus,
-}
-
-option GVDrive.Normal_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 5.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Loot_Chance,
-}
-
--- Spanish aliases for legacy 'Normal' rarity -> 'Facil'
-option GVDrive.Facil_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 2.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Success_Bonus,
-}
-
-option GVDrive.Facil_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 5.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Malware_Chance,
-}
-
-option GVDrive.Facil_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 3,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Laptop_Damage_Min,
-}
-
-option GVDrive.Facil_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Laptop_Damage_Max,
-}
-
-option GVDrive.Facil_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_XP_Bonus,
-}
-
-option GVDrive.Facil_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 5.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Normal_Loot_Chance,
-}
-
-option GVDrive.Common_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 4.5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Success_Bonus,
-}
-
-option GVDrive.Common_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 7.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Malware_Chance,
-}
-
-option GVDrive.Common_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Laptop_Damage_Min,
-}
-
-option GVDrive.Common_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 10,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Laptop_Damage_Max,
-}
-
-option GVDrive.Common_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_XP_Bonus,
-}
-
-option GVDrive.Common_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 2.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Loot_Chance,
-}
-
--- Spanish aliases for legacy 'Common' rarity -> 'Moderado'
-option GVDrive.Moderado_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 4.5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Success_Bonus,
-}
-
-option GVDrive.Moderado_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 7.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Malware_Chance,
-}
-
-option GVDrive.Moderado_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Laptop_Damage_Min,
-}
-
-option GVDrive.Moderado_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 10,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Laptop_Damage_Max,
-}
-
-option GVDrive.Moderado_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_XP_Bonus,
-}
-
-option GVDrive.Moderado_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 2.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Common_Loot_Chance,
-}
-
-option GVDrive.Advanced_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 6.5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Success_Bonus,
-}
-
-option GVDrive.Advanced_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 12.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Malware_Chance,
-}
-
-option GVDrive.Advanced_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 15,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Laptop_Damage_Min,
-}
-
-option GVDrive.Advanced_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 20,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Laptop_Damage_Max,
-}
-
-option GVDrive.Advanced_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_XP_Bonus,
-}
-
-option GVDrive.Advanced_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 10.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Loot_Chance,
-}
-
--- Spanish aliases for legacy 'Advanced' rarity -> 'Dificil'
-option GVDrive.Dificil_Success_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 6.5,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Success_Bonus,
-}
-
-option GVDrive.Dificil_Malware_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 12.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Malware_Chance,
-}
-
-option GVDrive.Dificil_Laptop_Damage_Min
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 15,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Laptop_Damage_Min,
-}
-
-option GVDrive.Dificil_Laptop_Damage_Max
-{
-    type = integer,
-    min = 0,
-    max = 100,
-    default = 20,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Laptop_Damage_Max,
-}
-
-option GVDrive.Dificil_XP_Bonus
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_XP_Bonus,
-}
-
-option GVDrive.Dificil_Loot_Chance
-{
-    type = double,
-    min = 0,
-    max = 100,
-    default = 10.0,
-    page = Drive_Decrypt,
-    translation = GVDrive_Advanced_Loot_Chance,
-}
-
-option GVDrive.Antivirus_Norton_Drop_Rate
-{
-    type = double,
-    min = 0,
-    max = 10,
-    default = 0.4,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_Norton_Drop_Rate,
-}
-
-option GVDrive.Antivirus_Kaspersky_Drop_Rate
-{
-    type = double,
-    min = 0,
-    max = 10,
-    default = 0.3,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_Kaspersky_Drop_Rate,
-}
-
-option GVDrive.Antivirus_McAfee_Drop_Rate
-{
-    type = double,
-    min = 0,
-    max = 10,
-    default = 0.2,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_McAfee_Drop_Rate,
-}
-
-option GVDrive.Antivirus_MalwareBytes_Drop_Rate
-{
-    type = double,
-    min = 0,
-    max = 10,
-    default = 0.05,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_MalwareBytes_Drop_Rate,
-}
-
-option GVDrive.Antivirus_ZombieDrop_Chance
-{
-    type = double,
-    min = 0,
-    max = 2,
-    default = 0.167,
-    page = Drive_Decrypt,
-    translation = GVDrive_Antivirus_ZombieDrop_Chance,
+    type = integer, min = 0, max = 100, default = 100,
+    page = Drive_Decrypt, translation = GVDrive_Laptop_WorldLoot,
 }
 
 option GVDrive.EliteDrive_WorldLoot_Chance
 {
-    type = double,
-    min = 0,
-    max = 100,
-    default = 10,
-    page = Drive_Decrypt,
-    translation = GVDrive_EliteDrive_WorldLoot_Chance,
+    type = integer, min = 0, max = 10, default = 1,
+    page = Drive_Decrypt, translation = GVDrive_EliteDrive_WorldLoot_Chance,
 }
 
 option GVDrive.SkillUSB_WorldLoot_Chance
 {
-    type = double,
-    min = 0,
-    max = 100,
-    default = 20,
-    page = Drive_Decrypt,
-    translation = GVDrive_SkillUSB_WorldLoot_Chance,
+    type = integer, min = 0, max = 10, default = 2,
+    page = Drive_Decrypt, translation = GVDrive_SkillUSB_WorldLoot_Chance,
+}
+
+option GVDrive.Antivirus_Spawn_Rate
+{
+    type = integer, min = 0, max = 100, default = 100,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_Spawn_Rate,
+}
+
+option GVDrive.USB_ZombieDrop_Chance
+{
+    type = double, min = 0, max = 10, default = 5.0,
+    page = Drive_Decrypt, translation = GVDrive_USB_ZombieDrop,
+}
+
+option GVDrive.Laptop_ZombieDrop_Chance
+{
+    type = double, min = 0, max = 5, default = 1.0,
+    page = Drive_Decrypt, translation = GVDrive_Laptop_ZombieDrop,
+}
+
+option GVDrive.EliteDrive_ZombieDrop_Chance
+{
+    type = double, min = 0, max = 1, default = 0.167,
+    page = Drive_Decrypt, translation = GVDrive_EliteDrive_ZombieDrop,
+}
+
+option GVDrive.Antivirus_ZombieDrop_Chance
+{
+    type = double, min = 0, max = 5, default = 0.45,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_ZombieDrop_Chance,
+}
+
+option GVDrive.USB_Decrypt_Success_Chance
+{
+    type = integer, min = 0, max = 100, default = 33,
+    page = Drive_Decrypt, translation = GVDrive_USB_Decrypt_Success,
+}
+
+option GVDrive.Drive_Preserve_Chance
+{
+    type = integer, min = 0, max = 100, default = 30,
+    page = Drive_Decrypt, translation = GVDrive_Drive_Preserve,
+}
+
+option GVDrive.Malware_Chance
+{
+    type = integer, min = 0, max = 100, default = 15,
+    page = Drive_Decrypt, translation = GVDrive_Malware_Chance,
+}
+
+option GVDrive.Malware_Damage_Per_Use
+{
+    type = integer, min = 1, max = 10, default = 5,
+    page = Drive_Decrypt, translation = GVDrive_Malware_Damage,
+}
+
+option GVDrive.USB_Min_Experience
+{
+    type = integer, min = 1, max = 100, default = 35,
+    page = Drive_Decrypt, translation = GVDrive_USB_Min_Exp,
+}
+
+option GVDrive.USB_Max_Experience
+{
+    type = integer, min = 50, max = 500, default = 245,
+    page = Drive_Decrypt, translation = GVDrive_USB_Max_Exp,
+}
+
+option GVDrive.Laptop_Initial_Health
+{
+    type = integer, min = 10, max = 100, default = 75,
+    page = Drive_Decrypt, translation = GVDrive_Laptop_Initial_Health,
+}
+
+option GVDrive.Laptop_Random_Health_Min
+{
+    type = integer, min = 10, max = 100, default = 30,
+    page = Drive_Decrypt, translation = GVDrive_Laptop_Random_Health_Min,
+}
+
+option GVDrive.Laptop_Random_Health_Max
+{
+    type = integer, min = 10, max = 100, default = 85,
+    page = Drive_Decrypt, translation = GVDrive_Laptop_Random_Health_Max,
+}
+
+option GVDrive.Elite_Strength_Bonus
+{
+    type = integer, min = 1, max = 5, default = 1,
+    page = Drive_Decrypt, translation = GVDrive_Elite_Strength,
+}
+
+option GVDrive.Elite_Endurance_Bonus
+{
+    type = integer, min = 1, max = 5, default = 1,
+    page = Drive_Decrypt, translation = GVDrive_Elite_Endurance,
+}
+
+option GVDrive.Elite_Capacity_Bonus
+{
+    type = integer, min = 1, max = 10, default = 4,
+    page = Drive_Decrypt, translation = GVDrive_Elite_Capacity,
+}
+
+option GVDrive.Elite_Speed_Bonus
+{
+    type = integer, min = 1, max = 5, default = 1,
+    page = Drive_Decrypt, translation = GVDrive_Elite_Speed,
+}
+
+option GVDrive.Elite_Luck_Bonus
+{
+    type = integer, min = 1, max = 5, default = 2,
+    page = Drive_Decrypt, translation = GVDrive_Elite_Luck,
+}
+
+option GVDrive.Antivirus_Norton_Drop_Rate
+{
+    type = double, min = 0, max = 5, default = 0.4,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_Norton_Drop_Rate,
+}
+
+option GVDrive.Antivirus_Kaspersky_Drop_Rate
+{
+    type = double, min = 0, max = 5, default = 0.3,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_Kaspersky_Drop_Rate,
+}
+
+option GVDrive.Antivirus_McAfee_Drop_Rate
+{
+    type = double, min = 0, max = 5, default = 0.2,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_McAfee_Drop_Rate,
+}
+
+option GVDrive.Antivirus_MalwareBytes_Drop_Rate
+{
+    type = double, min = 0, max = 5, default = 0.05,
+    page = Drive_Decrypt, translation = GVDrive_Antivirus_MalwareBytes_Drop_Rate,
 }

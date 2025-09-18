@@ -1,9 +1,0 @@
-Sandbox_EN = 
-{
-	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
-	
-	Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies)",
-	Sandbox_GVDrive_Floppy_ZombieDrop = "Floppy Disk Drop Rate (Zombies)",
-	Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate",
-	Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience",
-}
