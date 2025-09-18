@@ -476,6 +476,10 @@ function getRandomSkillDrive(driveType)
 	end
 end
 
+-- ARCHIVO DESHABILITADO - USAR GV_ZombieLoot_CORRECTO.lua EN SU LUGAR
+-- El problema era que usábamos OnZombieDead en lugar de OnCreateLivingCharacter
+
+--[[ CÓDIGO DESHABILITADO
 -- Register the zombie death event safely with proper error handling
 local function registerZombieDeathEvent()
     if not Events then
@@ -522,3 +526,4 @@ if not registerZombieDeathEvent() then
         Events.OnGameStart.Add(delayedRegister)
     end
 end
+--]] -- FIN CÓDIGO DESHABILITADO
