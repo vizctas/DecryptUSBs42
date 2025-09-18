@@ -126,11 +126,11 @@ local function enableWorldLoot()
     local usbMul    = ((gv.USB_WorldLoot_Chance or 100)) / 100
     local laptopMul = ((gv.Laptop_WorldLoot_Chance or 100)) / 100
 
-	local usbWeightProc     = 0.10 * usbMul   -- common-ish small chance in relevant lists
-	local laptopWeightProc  = 0.01 * laptopMul-- rare in stores/office-related
+	local usbWeightProc     = 0.01 * usbMul   -- muy raro en world loot
+	local laptopWeightProc  = 0.001 * laptopMul-- ultra raro en stores/office
 
-	local usbWeightVehicle    = 0.5  * usbMul
-	local laptopWeightVehicle = 0.05 * laptopMul
+	local usbWeightVehicle    = 0.05  * usbMul  -- reducido de 0.5
+	local laptopWeightVehicle = 0.005 * laptopMul-- reducido de 0.05
 
     -- Patterns to target relevant procedural lists/containers
     local elecPatterns  = {"electronic", "computer", "tech", "server"}
@@ -185,9 +185,9 @@ local function enableWorldLoot()
 
     -- ============ ANTIVIRUS DISTRIBUTIONS (VERY RARE) ============
     local antivirusRate = (gv.Antivirus_Spawn_Rate or 100) / 100
-    local antivirusBasicWeight = 0.001 * antivirusRate
-    local antivirusAdvancedWeight = 0.0005 * antivirusRate
-    local antivirusPremiumWeight = 0.0001 * antivirusRate
+    local antivirusBasicWeight = 0.0001 * antivirusRate     -- reducido 10x
+    local antivirusAdvancedWeight = 0.00005 * antivirusRate -- reducido 10x
+    local antivirusPremiumWeight = 0.00001 * antivirusRate  -- reducido 10x
 
     -- Antivirus items
     local itemAntivirusBasic = "GValley.AntivirusDisk_Basic"
@@ -205,7 +205,59 @@ local function enableWorldLoot()
     addToProceduralByPattern(securePatterns, itemAntivirusAdvanced, antivirusAdvancedWeight * 2)
     addToProceduralByPattern(securePatterns, itemAntivirusPremium, antivirusPremiumWeight * 3)
 
-    print("[DecryptSkillSys] World loot injected.")
+    -- ============ ELITE DRIVES WORLD LOOT (ULTRA RARE) ============
+    local eliteRate = (gv.EliteDrive_WorldLoot_Chance or 100) / 100
+    local eliteWeight = 0.000001 * eliteRate  -- Ultra rare: 0.0001% (reducido 10x)
+    
+    local eliteItems = {
+        "GValley.EliteDrive_Strength",
+        "GValley.EliteDrive_Endurance",
+        "GValley.EliteDrive_Capacity",
+        "GValley.EliteDrive_Speed",
+        "GValley.EliteDrive_Luck"
+    }
+    
+    -- Only in ultra-secure military/special locations
+    local militaryPatterns = {"military", "army", "bunker", "vault", "classified"}
+    for _, elite in ipairs(eliteItems) do
+        addToProceduralByPattern(militaryPatterns, elite, eliteWeight)
+        addToProceduralByPattern(securePatterns, elite, eliteWeight * 0.5)
+    end
+
+    -- ============ SKILL USB WORLD LOOT ============
+    -- Add random skill USBs to world (much rarer than generic USB_Closed)
+    local skillUSBRate = (gv.SkillUSB_WorldLoot_Chance or 100) / 100
+    local skillUSBWeight = 0.0001 * skillUSBRate  -- Ultra rare: 0.01% (reducido 10x)
+    
+    -- Skills available for world spawn
+    local worldSkills = {
+        "Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak",
+        "Axe", "Fitness", "Doctor", "Survivalist", "Mechanics", "Tailoring",
+        "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt", "LongBlunt",
+        "Spear", "Trapping", "Fishing", "Sprinting", "Strength", "Nimble", "Lightfoot"
+    }
+    
+    -- Add skill USBs to specific relevant locations
+    for _, skill in ipairs(worldSkills) do
+        local facilItem = "GValley.SkillDrive_" .. skill .. "_Facil"
+        local moderadoItem = "GValley.SkillDrive_" .. skill .. "_Moderado"
+        local dificilItem = "GValley.SkillDrive_" .. skill .. "_Dificil"
+        
+        -- Facil: Common in relevant locations
+        addToProceduralByPattern(elecPatterns, facilItem, skillUSBWeight * 3)
+        addToProceduralByPattern(officePatterns, facilItem, skillUSBWeight * 2)
+        addToProceduralByPattern(schoolLib, facilItem, skillUSBWeight * 2)
+        
+        -- Moderado: Less common  
+        addToProceduralByPattern(elecPatterns, moderadoItem, skillUSBWeight * 2)
+        addToProceduralByPattern(officePatterns, moderadoItem, skillUSBWeight)
+        
+        -- Dificil: Very rare, only in high-tech locations
+        addToProceduralByPattern(techPatterns, dificilItem, skillUSBWeight * 0.5)
+        addToProceduralByPattern(securePatterns, dificilItem, skillUSBWeight * 0.3)
+    end
+
+    print("[DecryptSkillSys] World loot injected: USBs, Laptops, Antivirus, Elite Drives, Skill USBs.")
 end
 
 -- Attempt to enable world loot on load
@@ -275,20 +327,7 @@ function GVDrive_OnZombieDead(zombie)
 			end
 		end
 	end
-	
-	-- Roll for laptop drop (very rare)
-	if ZombRand(1000) < laptopDropChance then
-		local laptops = {
-			"GValley.AsusZephLaptopClosed",
-			"GValley.Laptop90sClosed", 
-			"GValley.PBIBM_LP90Closed"
-		}
-		local randomLaptop = laptops[ZombRand(#laptops) + 1]
-		inventory:AddItem(randomLaptop)
-	end
-end
-
--- Get random skill drive based on NEW rarity distribution (Fácil/Moderado/Difícil)
+end-- Get random skill drive based on NEW rarity distribution (Fácil/Moderado/Difícil)
 function getRandomSkillDrive(driveType)
 	-- Check for elite drives first (still 1% chance)
 	if ZombRand(100) < 1 then
@@ -351,7 +390,17 @@ function getRandomSkillDrive(driveType)
 	end
 
 	local roll = ZombRand(totalScaled)
-	local skills = {"Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak", "Axe", "Fitness", "Doctor", "Survivalist"}
+	-- LISTA COMPLETA DE SKILLS DE PROJECT ZOMBOID CON USBS DISPONIBLES
+	local skills = {
+		-- Combat Skills (con USBs definidas)
+		"Axe", "LongBlade", "SmallBlade", "LongBlunt", "SmallBlunt", "Spear", "Maintenance", "Aiming",
+		-- Crafting Skills (con USBs definidas)
+		"Woodwork", "Cooking", "Farming", "Doctor", "Electricity", "Mechanics", "Tailoring",
+		-- Survivalist Skills (con USBs definidas)  
+		"Fishing", "Trapping", "Survivalist",
+		-- Fitness Skills (con USBs definidas)
+		"Fitness", "Strength", "Sprinting", "Lightfoot", "Nimble", "Sneak"
+	}
 	local function randomSkill()
 		return skills[ZombRand(#skills) + 1]
 	end

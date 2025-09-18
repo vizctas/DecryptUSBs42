@@ -375,5 +375,523 @@ module GValley
 		Tags			= SkillDrive;Survivalist;Dificil,
 	}
 
+	// ============ MECHANICS DRIVES ============
+	item SkillDrive_Mechanics_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AutoTech - Mecanica - Facil,
+		Icon            = usb_mechanics,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Facil,
+		Tags			= SkillDrive;Mechanics;Facil,
+	}
+
+	item SkillDrive_Mechanics_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AutoTech - Mecanica - Moderado,
+		Icon            = usb_mechanics,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Moderado,
+		Tags			= SkillDrive;Mechanics;Moderado,
+	}
+
+	item SkillDrive_Mechanics_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AutoTech - Mecanica - Dificil,
+		Icon            = usb_mechanics,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Dificil,
+		Tags			= SkillDrive;Mechanics;Dificil,
+	}
+
+	// ============ TAILORING DRIVES ============
+	item SkillDrive_Tailoring_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Costura - Facil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Facil,
+		Tags			= SkillDrive;Tailoring;Facil,
+	}
+
+	item SkillDrive_Tailoring_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Costura - Moderado,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Moderado,
+		Tags			= SkillDrive;Tailoring;Moderado,
+	}
+
+	item SkillDrive_Tailoring_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Costura - Dificil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Dificil,
+		Tags			= SkillDrive;Tailoring;Dificil,
+	}
+
+	// ============ MAINTENANCE DRIVES ============
+	item SkillDrive_Maintenance_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mantenimiento - Facil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Facil,
+		Tags			= SkillDrive;Maintenance;Facil,
+	}
+
+	item SkillDrive_Maintenance_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mantenimiento - Moderado,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Moderado,
+		Tags			= SkillDrive;Maintenance;Moderado,
+	}
+
+	item SkillDrive_Maintenance_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mantenimiento - Dificil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Dificil,
+		Tags			= SkillDrive;Maintenance;Dificil,
+	}
+
+	// ============ SMALL BLADE DRIVES ============
+	item SkillDrive_SmallBlade_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Cuchillo - Facil,
+		Icon            = usb_smallblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Facil,
+		Tags			= SkillDrive;SmallBlade;Facil,
+	}
+
+	item SkillDrive_SmallBlade_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Cuchillo - Moderado,
+		Icon            = usb_smallblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Moderado,
+		Tags			= SkillDrive;SmallBlade;Moderado,
+	}
+
+	item SkillDrive_SmallBlade_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Cuchillo - Dificil,
+		Icon            = usb_smallblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Dificil,
+		Tags			= SkillDrive;SmallBlade;Dificil,
+	}
+
+	// ============ LONG BLADE DRIVES ============
+	item SkillDrive_LongBlade_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SwordMaster - Espada - Facil,
+		Icon            = usb_longblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Facil,
+		Tags			= SkillDrive;LongBlade;Facil,
+	}
+
+	item SkillDrive_LongBlade_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SwordMaster - Espada - Moderado,
+		Icon            = usb_longblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Moderado,
+		Tags			= SkillDrive;LongBlade;Moderado,
+	}
+
+	item SkillDrive_LongBlade_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SwordMaster - Espada - Dificil,
+		Icon            = usb_longblade,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Dificil,
+		Tags			= SkillDrive;LongBlade;Dificil,
+	}
+
+	// ============ SMALL BLUNT DRIVES ============
+	item SkillDrive_SmallBlunt_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Facil,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Facil,
+		Tags			= SkillDrive;SmallBlunt;Facil,
+	}
+
+	item SkillDrive_SmallBlunt_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Moderado,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Moderado,
+		Tags			= SkillDrive;SmallBlunt;Moderado,
+	}
+
+	item SkillDrive_SmallBlunt_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Dificil,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Dificil,
+		Tags			= SkillDrive;SmallBlunt;Dificil,
+	}
+
+	// ============ LONG BLUNT DRIVES ============
+	item SkillDrive_LongBlunt_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Facil,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Facil,
+		Tags			= SkillDrive;LongBlunt;Facil,
+	}
+
+	item SkillDrive_LongBlunt_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Moderado,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Moderado,
+		Tags			= SkillDrive;LongBlunt;Moderado,
+	}
+
+	item SkillDrive_LongBlunt_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Dificil,
+		Icon            = usb_blunt,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Dificil,
+		Tags			= SkillDrive;LongBlunt;Dificil,
+	}
+
+	// ============ SPEAR DRIVES ============
+	item SkillDrive_Spear_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Facil,
+		Icon            = usb_spear,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Facil,
+		Tags			= SkillDrive;Spear;Facil,
+	}
+
+	item SkillDrive_Spear_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Moderado,
+		Icon            = usb_spear,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Moderado,
+		Tags			= SkillDrive;Spear;Moderado,
+	}
+
+	item SkillDrive_Spear_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Dificil,
+		Icon            = usb_spear,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Dificil,
+		Tags			= SkillDrive;Spear;Dificil,
+	}
+
+	// ============ TRAPPING DRIVES ============
+	item SkillDrive_Trapping_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Facil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Facil,
+		Tags			= SkillDrive;Trapping;Facil,
+	}
+
+	item SkillDrive_Trapping_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Moderado,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Moderado,
+		Tags			= SkillDrive;Trapping;Moderado,
+	}
+
+	item SkillDrive_Trapping_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Dificil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Dificil,
+		Tags			= SkillDrive;Trapping;Dificil,
+	}
+
+	// ============ FISHING DRIVES ============
+	item SkillDrive_Fishing_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Facil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Facil,
+		Tags			= SkillDrive;Fishing;Facil,
+	}
+
+	item SkillDrive_Fishing_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Moderado,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Moderado,
+		Tags			= SkillDrive;Fishing;Moderado,
+	}
+
+	item SkillDrive_Fishing_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Dificil,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Dificil,
+		Tags			= SkillDrive;Fishing;Dificil,
+	}
+
+	// ============ SPRINTING DRIVES ============
+	item SkillDrive_Sprinting_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Facil,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Facil,
+		Tags			= SkillDrive;Sprinting;Facil,
+	}
+
+	item SkillDrive_Sprinting_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Moderado,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Moderado,
+		Tags			= SkillDrive;Sprinting;Moderado,
+	}
+
+	item SkillDrive_Sprinting_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Dificil,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Dificil,
+		Tags			= SkillDrive;Sprinting;Dificil,
+	}
+
+	// ============ STRENGTH DRIVES ============
+	item SkillDrive_Strength_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Facil,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Facil,
+		Tags			= SkillDrive;Strength;Facil,
+	}
+
+	item SkillDrive_Strength_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Moderado,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Moderado,
+		Tags			= SkillDrive;Strength;Moderado,
+	}
+
+	item SkillDrive_Strength_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Dificil,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Dificil,
+		Tags			= SkillDrive;Strength;Dificil,
+	}
+
+	// ============ NIMBLE DRIVES ============
+	item SkillDrive_Nimble_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Facil,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Facil,
+		Tags			= SkillDrive;Nimble;Facil,
+	}
+
+	item SkillDrive_Nimble_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Moderado,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Moderado,
+		Tags			= SkillDrive;Nimble;Moderado,
+	}
+
+	item SkillDrive_Nimble_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Dificil,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Dificil,
+		Tags			= SkillDrive;Nimble;Dificil,
+	}
+
+	// ============ LIGHTFOOT DRIVES ============
+	item SkillDrive_Lightfoot_Facil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Facil,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Facil,
+		Tags			= SkillDrive;Lightfoot;Facil,
+	}
+
+	item SkillDrive_Lightfoot_Moderado
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Moderado,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Moderado,
+		Tags			= SkillDrive;Lightfoot;Moderado,
+	}
+
+	item SkillDrive_Lightfoot_Dificil
+	{
+		DisplayCategory	= GValley,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Dificil,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Dificil,
+		Tags			= SkillDrive;Lightfoot;Dificil,
+	}
+
 }
 

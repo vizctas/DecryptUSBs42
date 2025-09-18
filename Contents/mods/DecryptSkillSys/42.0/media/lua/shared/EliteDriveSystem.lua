@@ -23,32 +23,64 @@ function EliteDriveSystem.useEliteDrive(player, driveType)
         return false
     end
     
+    -- Get sandbox values for configurable bonuses
+    local sandboxVars = SandboxVars and SandboxVars.GVDrive or {}
+    
     local applied = false
     local message = ""
     
     if driveType == "Strength" then
-        -- Increase combat effectiveness
-        player:getTraits():add("Brawler") -- Add brawler trait if not present
-        message = "¡Mejora Elite aplicada! +Eficacia en combate cuerpo a cuerpo!"
+        -- Configurable strength bonus (default 1)
+        local bonus = sandboxVars.Elite_Strength_Bonus or 1
+        for i = 1, bonus do
+            if not player:HasTrait("Strong") then
+                player:getTraits():add("Strong")
+                break
+            elseif not player:HasTrait("Stout") then
+                player:getTraits():add("Stout")
+                break
+            end
+        end
+        message = "¡Mejora Elite aplicada! +" .. bonus .. " Fuerza física!"
         applied = true
         
     elseif driveType == "Endurance" then
-        -- Increase endurance and stamina
-        player:getStats():setEndurance(player:getStats():getEndurance() + 1)
-        message = "¡Mejora Elite aplicada! +1 Resistencia!"
+        -- Configurable endurance bonus (default 1)
+        local bonus = sandboxVars.Elite_Endurance_Bonus or 1
+        player:getStats():setEndurance(player:getStats():getEndurance() + bonus)
+        message = "¡Mejora Elite aplicada! +" .. bonus .. " Resistencia!"
         applied = true
         
     elseif driveType == "Capacity" then
-        -- Increase carry weight by 8kg
-        player:setMaxWeight(player:getMaxWeight() + 8)
-        message = "¡Mejora Elite aplicada! +8kg Capacidad de carga!"
+        -- Configurable capacity bonus (default 4kg, reduced from 8kg)
+        local bonus = sandboxVars.Elite_Capacity_Bonus or 4
+        player:setMaxWeight(player:getMaxWeight() + bonus)
+        message = "¡Mejora Elite aplicada! +" .. bonus .. "kg Capacidad de carga!"
         applied = true
         
     elseif driveType == "Speed" then
-        -- Add speed demon trait for movement bonus
-        if not player:HasTrait("SpeedDemon") then
-            player:getTraits():add("SpeedDemon")
+        -- Configurable speed bonus (default 1)
+        local bonus = sandboxVars.Elite_Speed_Bonus or 1
+        if bonus >= 1 and not player:HasTrait("Fast") then
+            player:getTraits():add("Fast")
         end
+        if bonus >= 2 and not player:HasTrait("Runner") then
+            player:getTraits():add("Runner")
+        end
+        message = "¡Mejora Elite aplicada! +" .. bonus .. " Velocidad de movimiento!"
+        applied = true
+        
+    elseif driveType == "Luck" then
+        -- Configurable luck bonus (default 2)
+        local bonus = sandboxVars.Elite_Luck_Bonus or 2
+        if bonus >= 1 and not player:HasTrait("Lucky") then
+            player:getTraits():add("Lucky")
+        end
+        if bonus >= 2 and not player:HasTrait("Resilient") then
+            player:getTraits():add("Resilient")
+        end
+        message = "¡Mejora Elite aplicada! +" .. bonus .. " Suerte y resistencia!"
+        applied = true
         message = "¡Mejora Elite aplicada! +Velocidad de movimiento!"
         applied = true
         
