@@ -8,22 +8,22 @@ module GValley
 	// ============ WOODWORK DRIVES ============
 	item SkillDrive_Woodwork_Facil
 	{
-		DisplayCategory	= GValley,
-		Weight          = 0.1,
-		Type            = Normal,
-	DisplayName     = USB CarpinterIA - Carpinteria - Facil,
-		Icon            = USBOpened,
-		WorldStaticModel = USB_Opened,
-		Tooltip		= Tooltip_USB_Woodwork_Facil,
-		Tags			= SkillDrive;Woodwork;Facil,
+		DisplayCategory		= Electronics,
+		Weight          	= 0.1,
+		Type            	= Normal,
+		DisplayName     	= USB CarpinterIA - Carpinteria - Easy,
+		Icon            	= USBOpened,
+		WorldStaticModel	= USB_Opened,
+		Tooltip				= Tooltip_USB_Woodwork_Facil,
+		Tags				= SkillDrive;Woodwork;Facil,
 	}
 
 	item SkillDrive_Woodwork_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB CarpinterIA - Carpinteria - Moderado,
+	DisplayName     = USB CarpinterIA - Carpinteria - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Woodwork_Moderado,
@@ -32,10 +32,10 @@ module GValley
 
 	item SkillDrive_Woodwork_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB CarpinterIA - Carpinteria - Dificil,
+	DisplayName     = USB CarpinterIA - Carpinteria - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Woodwork_Dificil,
@@ -45,10 +45,10 @@ module GValley
 	// ============ ELECTRICITY DRIVES ============
 	item SkillDrive_Electricity_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ElectroTech - Electronica - Facil,
+		DisplayName     = USB ElectroTech - Electricity - Easy,
 		Icon            = usb_electricity,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Electricity_Facil,
@@ -57,10 +57,10 @@ module GValley
 
 	item SkillDrive_Electricity_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ElectroTech - Electronica - Moderado,
+	DisplayName     = USB ElectroTech - Electricity - Moderate,
 		Icon            = usb_electricity,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Electricity_Moderado,
@@ -69,10 +69,10 @@ module GValley
 
 	item SkillDrive_Electricity_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ElectroTech - Electronica - Dificil,
+		DisplayName     = USB ElectroTech - Electricity - Expert,
 		Icon            = usb_electricity,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Electricity_Dificil,
@@ -82,10 +82,10 @@ module GValley
 	// ============ FARMING DRIVES ============
 	item SkillDrive_Farming_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgroData - Agricultura - Facil,
+	DisplayName     = USB AgroData - Agricultura - Easy,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Farming_Facil,
@@ -94,10 +94,10 @@ module GValley
 
 	item SkillDrive_Farming_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgroData - Agricultura - Moderado,
+	DisplayName     = USB AgroData - Agricultura - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Farming_Moderado,
@@ -106,10 +106,10 @@ module GValley
 
 	item SkillDrive_Farming_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgroData - Agricultura - Dificil,
+		DisplayName     = USB AgroData - Agricultura - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Farming_Dificil,
@@ -119,10 +119,10 @@ module GValley
 	// ============ AIMING DRIVES ============
 	item SkillDrive_Aiming_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TactiShot - Punteria - Facil,
+	DisplayName     = USB TactiShot - Punteria - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Aiming_Facil,
@@ -131,10 +131,10 @@ module GValley
 
 	item SkillDrive_Aiming_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TactiShot - Punteria - Moderado,
+		DisplayName     = USB TactiShot - Punteria - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Aiming_Moderado,
@@ -143,10 +143,10 @@ module GValley
 
 	item SkillDrive_Aiming_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TactiShot - Punteria - Dificil,
+		DisplayName     = USB TactiShot - Punteria - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Aiming_Dificil,
@@ -156,10 +156,10 @@ module GValley
 	// ============ COOKING DRIVES ============
 	item SkillDrive_Cooking_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ChefMaster - Cocina - Facil,
+		DisplayName     = USB ChefMaster - Cocina - Easy,
 		Icon            = usb_cooking,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Cooking_Facil,
@@ -168,10 +168,10 @@ module GValley
 
 	item SkillDrive_Cooking_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ChefMaster - Cocina - Moderado,
+	DisplayName     = USB ChefMaster - Cocina - Moderate,
 		Icon            = usb_cooking,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Cooking_Moderado,
@@ -180,10 +180,10 @@ module GValley
 
 	item SkillDrive_Cooking_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ChefMaster - Cocina - Dificil,
+	DisplayName     = USB ChefMaster - Cocina - Expert,
 		Icon            = usb_cooking,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Cooking_Dificil,
@@ -193,10 +193,10 @@ module GValley
 	// ============ SNEAK DRIVES ============
 	item SkillDrive_Sneak_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ShadowOps - Sigilo - Facil,
+	DisplayName     = USB ShadowOps - Sigilo - Easy,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sneak_Facil,
@@ -205,10 +205,10 @@ module GValley
 
 	item SkillDrive_Sneak_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ShadowOps - Sigilo - Moderado,
+	DisplayName     = USB ShadowOps - Sigilo - Moderate,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sneak_Moderado,
@@ -217,10 +217,10 @@ module GValley
 
 	item SkillDrive_Sneak_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ShadowOps - Sigilo - Dificil,
+	DisplayName     = USB ShadowOps - Sigilo - Expert,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sneak_Dificil,
@@ -230,10 +230,10 @@ module GValley
 	// ============ AXE DRIVES ============
 	item SkillDrive_Axe_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AxeMaster - Hacha - Facil,
+	DisplayName     = USB AxeMaster - Hacha - Easy,
 		Icon            = usb_axes,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Axe_Facil,
@@ -242,10 +242,10 @@ module GValley
 
 	item SkillDrive_Axe_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AxeMaster - Hacha - Moderado,
+	DisplayName     = USB AxeMaster - Hacha - Moderate,
 		Icon            = usb_axes,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Axe_Moderado,
@@ -254,10 +254,10 @@ module GValley
 
 	item SkillDrive_Axe_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AxeMaster - Hacha - Dificil,
+	DisplayName     = USB AxeMaster - Hacha - Expert,
 		Icon            = usb_axes,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Axe_Dificil,
@@ -267,10 +267,10 @@ module GValley
 	// ============ FITNESS DRIVES ============
 	item SkillDrive_Fitness_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FitnessPro - Fitness - Facil,
+	DisplayName     = USB FitnessPro - Fitness - Easy,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fitness_Facil,
@@ -279,10 +279,10 @@ module GValley
 
 	item SkillDrive_Fitness_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FitnessPro - Fitness - Moderado,
+	DisplayName     = USB FitnessPro - Fitness - Moderate,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fitness_Moderado,
@@ -291,10 +291,10 @@ module GValley
 
 	item SkillDrive_Fitness_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FitnessPro - Fitness - Dificil,
+	DisplayName     = USB FitnessPro - Fitness - Expert,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fitness_Dificil,
@@ -304,10 +304,10 @@ module GValley
 	// ============ DOCTOR DRIVES ============
 	item SkillDrive_Doctor_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB MediCore - Medicina - Facil,
+	DisplayName     = USB MediCore - Medicina - Easy,
 		Icon            = usb_medic,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Doctor_Facil,
@@ -316,10 +316,10 @@ module GValley
 
 	item SkillDrive_Doctor_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB MediCore - Medicina - Moderado,
+	DisplayName     = USB MediCore - Medicina - Moderate,
 		Icon            = usb_medic,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Doctor_Moderado,
@@ -328,10 +328,10 @@ module GValley
 
 	item SkillDrive_Doctor_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB MediCore - Medicina - Dificil,
+	DisplayName     = USB MediCore - Medicina - Expert,
 		Icon            = usb_medic,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Doctor_Dificil,
@@ -341,10 +341,10 @@ module GValley
 	// ============ SURVIVALIST DRIVES ============
 	item SkillDrive_Survivalist_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SurvivalTech - Supervivencia - Facil,
+	DisplayName     = USB SurvivalTech - Supervivencia - Easy,
 		Icon            = usb_survivalist,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Survivalist_Facil,
@@ -353,10 +353,10 @@ module GValley
 
 	item SkillDrive_Survivalist_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SurvivalTech - Supervivencia - Moderado,
+	DisplayName     = USB SurvivalTech - Supervivencia - Moderate,
 		Icon            = usb_survivalist,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Survivalist_Moderado,
@@ -365,10 +365,10 @@ module GValley
 
 	item SkillDrive_Survivalist_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SurvivalTech - Supervivencia - Dificil,
+	DisplayName     = USB SurvivalTech - Supervivencia - Expert,
 		Icon            = usb_survivalist,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Survivalist_Dificil,
@@ -378,10 +378,10 @@ module GValley
 	// ============ MECHANICS DRIVES ============
 	item SkillDrive_Mechanics_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AutoTech - Mecanica - Facil,
+	DisplayName     = USB AutoTech - Mecanica - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Mechanics_Facil,
@@ -390,10 +390,10 @@ module GValley
 
 	item SkillDrive_Mechanics_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AutoTech - Mecanica - Moderado,
+	DisplayName     = USB AutoTech - Mecanica - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Mechanics_Moderado,
@@ -402,10 +402,10 @@ module GValley
 
 	item SkillDrive_Mechanics_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AutoTech - Mecanica - Dificil,
+	DisplayName     = USB AutoTech - Mecanica - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Mechanics_Dificil,
@@ -415,10 +415,10 @@ module GValley
 	// ============ TAILORING DRIVES ============
 	item SkillDrive_Tailoring_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FashionPro - Costura - Facil,
+	DisplayName     = USB FashionPro - Costura - Easy,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Tailoring_Facil,
@@ -427,10 +427,10 @@ module GValley
 
 	item SkillDrive_Tailoring_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FashionPro - Costura - Moderado,
+	DisplayName     = USB FashionPro - Costura - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Tailoring_Moderado,
@@ -439,10 +439,10 @@ module GValley
 
 	item SkillDrive_Tailoring_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FashionPro - Costura - Dificil,
+	DisplayName     = USB FashionPro - Costura - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Tailoring_Dificil,
@@ -452,10 +452,10 @@ module GValley
 	// ============ MAINTENANCE DRIVES ============
 	item SkillDrive_Maintenance_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ToolMaster - Mantenimiento - Facil,
+	DisplayName     = USB ToolMaster - Mantenimiento - Easy,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Maintenance_Facil,
@@ -464,10 +464,10 @@ module GValley
 
 	item SkillDrive_Maintenance_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ToolMaster - Mantenimiento - Moderado,
+	DisplayName     = USB ToolMaster - Mantenimiento - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Maintenance_Moderado,
@@ -476,10 +476,10 @@ module GValley
 
 	item SkillDrive_Maintenance_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ToolMaster - Mantenimiento - Dificil,
+	DisplayName     = USB ToolMaster - Mantenimiento - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Maintenance_Dificil,
@@ -489,10 +489,10 @@ module GValley
 	// ============ SMALL BLADE DRIVES ============
 	item SkillDrive_SmallBlade_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB BladeTech - Cuchillo - Facil,
+	DisplayName     = USB BladeTech - Cuchillo - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlade_Facil,
@@ -501,10 +501,10 @@ module GValley
 
 	item SkillDrive_SmallBlade_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB BladeTech - Cuchillo - Moderado,
+	DisplayName     = USB BladeTech - Cuchillo - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlade_Moderado,
@@ -513,10 +513,10 @@ module GValley
 
 	item SkillDrive_SmallBlade_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB BladeTech - Cuchillo - Dificil,
+	DisplayName     = USB BladeTech - Cuchillo - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlade_Dificil,
@@ -526,10 +526,10 @@ module GValley
 	// ============ LONG BLADE DRIVES ============
 	item SkillDrive_LongBlade_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SwordMaster - Espada - Facil,
+	DisplayName     = USB SwordMaster - Espada - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlade_Facil,
@@ -538,10 +538,10 @@ module GValley
 
 	item SkillDrive_LongBlade_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SwordMaster - Espada - Moderado,
+	DisplayName     = USB SwordMaster - Espada - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlade_Moderado,
@@ -550,10 +550,10 @@ module GValley
 
 	item SkillDrive_LongBlade_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SwordMaster - Espada - Dificil,
+	DisplayName     = USB SwordMaster - Espada - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlade_Dificil,
@@ -563,10 +563,10 @@ module GValley
 	// ============ SMALL BLUNT DRIVES ============
 	item SkillDrive_SmallBlunt_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ClubTech - Porra - Facil,
+	DisplayName     = USB ClubTech - Porra - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlunt_Facil,
@@ -575,10 +575,10 @@ module GValley
 
 	item SkillDrive_SmallBlunt_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ClubTech - Porra - Moderado,
+	DisplayName     = USB ClubTech - Porra - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlunt_Moderado,
@@ -587,10 +587,10 @@ module GValley
 
 	item SkillDrive_SmallBlunt_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB ClubTech - Porra - Dificil,
+	DisplayName     = USB ClubTech - Porra - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_SmallBlunt_Dificil,
@@ -600,10 +600,10 @@ module GValley
 	// ============ LONG BLUNT DRIVES ============
 	item SkillDrive_LongBlunt_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB HammerTech - Martillo - Facil,
+	DisplayName     = USB HammerTech - Martillo - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlunt_Facil,
@@ -612,10 +612,10 @@ module GValley
 
 	item SkillDrive_LongBlunt_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB HammerTech - Martillo - Moderado,
+	DisplayName     = USB HammerTech - Martillo - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlunt_Moderado,
@@ -624,10 +624,10 @@ module GValley
 
 	item SkillDrive_LongBlunt_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB HammerTech - Martillo - Dificil,
+	DisplayName     = USB HammerTech - Martillo - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_LongBlunt_Dificil,
@@ -637,10 +637,10 @@ module GValley
 	// ============ SPEAR DRIVES ============
 	item SkillDrive_Spear_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SpearTech - Lanza - Facil,
+	DisplayName     = USB SpearTech - Lanza - Easy,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Spear_Facil,
@@ -649,10 +649,10 @@ module GValley
 
 	item SkillDrive_Spear_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SpearTech - Lanza - Moderado,
+	DisplayName     = USB SpearTech - Lanza - Moderate,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Spear_Moderado,
@@ -661,10 +661,10 @@ module GValley
 
 	item SkillDrive_Spear_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SpearTech - Lanza - Dificil,
+	DisplayName     = USB SpearTech - Lanza - Expert,
 		Icon            = usb_combat,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Spear_Dificil,
@@ -674,10 +674,10 @@ module GValley
 	// ============ TRAPPING DRIVES ============
 	item SkillDrive_Trapping_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TrapMaster - Trampas - Facil,
+	DisplayName     = USB TrapMaster - Trampas - Easy,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Trapping_Facil,
@@ -686,10 +686,10 @@ module GValley
 
 	item SkillDrive_Trapping_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TrapMaster - Trampas - Moderado,
+	DisplayName     = USB TrapMaster - Trampas - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Trapping_Moderado,
@@ -698,10 +698,10 @@ module GValley
 
 	item SkillDrive_Trapping_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB TrapMaster - Trampas - Dificil,
+	DisplayName     = USB TrapMaster - Trampas - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Trapping_Dificil,
@@ -711,10 +711,10 @@ module GValley
 	// ============ FISHING DRIVES ============
 	item SkillDrive_Fishing_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FishPro - Pesca - Facil,
+	DisplayName     = USB FishPro - Pesca - Easy,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fishing_Facil,
@@ -723,10 +723,10 @@ module GValley
 
 	item SkillDrive_Fishing_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FishPro - Pesca - Moderado,
+	DisplayName     = USB FishPro - Pesca - Moderate,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fishing_Moderado,
@@ -735,10 +735,10 @@ module GValley
 
 	item SkillDrive_Fishing_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB FishPro - Pesca - Dificil,
+	DisplayName     = USB FishPro - Pesca - Expert,
 		Icon            = USBOpened,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Fishing_Dificil,
@@ -748,10 +748,10 @@ module GValley
 	// ============ SPRINTING DRIVES ============
 	item SkillDrive_Sprinting_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SprintMax - Velocidad - Facil,
+	DisplayName     = USB SprintMax - Velocidad - Easy,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sprinting_Facil,
@@ -760,10 +760,10 @@ module GValley
 
 	item SkillDrive_Sprinting_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SprintMax - Velocidad - Moderado,
+	DisplayName     = USB SprintMax - Velocidad - Moderate,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sprinting_Moderado,
@@ -772,10 +772,10 @@ module GValley
 
 	item SkillDrive_Sprinting_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB SprintMax - Velocidad - Dificil,
+	DisplayName     = USB SprintMax - Velocidad - Expert,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Sprinting_Dificil,
@@ -785,10 +785,10 @@ module GValley
 	// ============ STRENGTH DRIVES ============
 	item SkillDrive_Strength_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB PowerLift - Fuerza - Facil,
+	DisplayName     = USB PowerLift - Fuerza - Easy,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Strength_Facil,
@@ -797,10 +797,10 @@ module GValley
 
 	item SkillDrive_Strength_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB PowerLift - Fuerza - Moderado,
+	DisplayName     = USB PowerLift - Fuerza - Moderate,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Strength_Moderado,
@@ -809,10 +809,10 @@ module GValley
 
 	item SkillDrive_Strength_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB PowerLift - Fuerza - Dificil,
+	DisplayName     = USB PowerLift - Fuerza - Expert,
 		Icon            = usb_fitness,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Strength_Dificil,
@@ -822,10 +822,10 @@ module GValley
 	// ============ NIMBLE DRIVES ============
 	item SkillDrive_Nimble_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgilityMax - Agilidad - Facil,
+	DisplayName     = USB AgilityMax - Agilidad - Easy,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Nimble_Facil,
@@ -834,10 +834,10 @@ module GValley
 
 	item SkillDrive_Nimble_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgilityMax - Agilidad - Moderado,
+	DisplayName     = USB AgilityMax - Agilidad - Moderate,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Nimble_Moderado,
@@ -846,10 +846,10 @@ module GValley
 
 	item SkillDrive_Nimble_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB AgilityMax - Agilidad - Dificil,
+	DisplayName     = USB AgilityMax - Agilidad - Expert,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Nimble_Dificil,
@@ -859,10 +859,10 @@ module GValley
 	// ============ LIGHTFOOT DRIVES ============
 	item SkillDrive_Lightfoot_Facil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB StealthStep - Paso Ligero - Facil,
+	DisplayName     = USB StealthStep - Paso Ligero - Easy,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Lightfoot_Facil,
@@ -871,10 +871,10 @@ module GValley
 
 	item SkillDrive_Lightfoot_Moderado
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB StealthStep - Paso Ligero - Moderado,
+	DisplayName     = USB StealthStep - Paso Ligero - Moderate,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Lightfoot_Moderado,
@@ -883,10 +883,10 @@ module GValley
 
 	item SkillDrive_Lightfoot_Dificil
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
-	DisplayName     = USB StealthStep - Paso Ligero - Dificil,
+	DisplayName     = USB StealthStep - Paso Ligero - Expert,
 		Icon            = usb_lightfoot,
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_USB_Lightfoot_Dificil,
