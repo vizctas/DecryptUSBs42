@@ -1,7 +1,7 @@
 -- Context menu overrides (ES)
 ContextMenu_ES = ContextMenu_ES or {}
-ContextMenu_ES.GVDrive_Ctx_LaptopLife_Short = "Vida Util Laptop: %d%%"
-ContextMenu_ES.GVDrive_Ctx_LaptopLife = "Vida Util Laptop: %d%% (%s)"
+ContextMenu_ES.GVDrive_Ctx_LaptopLife_Short = "Estado Laptop: %d%%"
+ContextMenu_ES.GVDrive_Ctx_LaptopLife = "Estado Laptop: %d%% (%s)"
 ContextMenu_ES.GVDrive_Ctx_NoSkillDrives = "Sin unidades de habilidad disponibles"
 ContextMenu_ES.GVDrive_Ctx_LaptopTooOldUSB = "Laptop demasiado antigua para unidades USB"
 ContextMenu_ES.GVDrive_Ctx_LaptopNeedsFloppy = "Necesitas una laptop con disquetera"

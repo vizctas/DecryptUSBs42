@@ -1,136 +1,205 @@
-# Project Zomboid Mod: Decrypt USBs 42 - AI Development Guide
+---
+applyTo: '**'
+---
+Proporciona contexto del proyecto y pautas de codificación que la IA debe seguir al **generar código LUA**, **responder preguntas** o **revisar cambios**.
 
-## Project Overview
-This is a Project Zomboid mod that adds encrypted USB drives containing skill-based tutorials. Players find USBs from zombies, decrypt them using laptops, and gain skill experience. The mod is being ported from version 41 to version 42 with USB-only focus (floppy drives removed).
+# Instrucciones del Codebase de Project Zomboid — Guía para IA
 
-## Architecture & Key Components
+**Ubicación del CODEBASE:** `C:\Users\joshg\repos\pzomboid_mod_study\docs`
 
-### Core Systems
-- **USB Drive System**: Skill-specific encrypted USB drives with difficulty levels (Facil/Moderado/Dificil)
-- **Laptop System**: Health-based laptop mechanics for decryption (no power requirement)
-- **Antivirus System**: Real antivirus brands with specific recovery rates (5%-12%)
-- **Elite Drive System**: Rare military protocol USBs for character enhancements
-- **Rarity System**: Three difficulty tiers with different success rates and experience bonuses
+La IA debe **consultar primero el CODEBASE**. El **CODEBASE es la fuente de verdad**. Si el CODEBASE **no** contiene la respuesta, la IA puede usar conocimiento externo **citando la fuente** y proponiendo **cómo** incorporar la información al CODEBASE (PR/issue/ADR).
 
-### File Structure
-```
-Contents/mods/DecryptSkillSys/42.0/media/
-├── lua/
-│   ├── client/          # UI, context menus, client-side actions
-│   ├── server/          # Item distribution, server logic
-│   └── shared/          # Cross-environment utilities, translations
-├── scripts/             # Item definitions (.txt files)
-└── sandbox-options.txt  # Configurable game parameters
-```
+---
 
-## Critical Development Patterns
+## 📤 Formato de las respuestas de la IA (salidas)
+- **Idioma:** siempre **español**.
+- **Estilo:** **resumido, claro y conciso**; evitar verborrea.
+- **Estructura:** usar **títulos** y **subtítulos**; listas cuando ayuden.
+- **Emojis:** usar con moderación para mejorar legibilidad (p. ej., ✅, 📌, ⚠️, 🧪, 🧠).
+- **Citaciones:**
+  - Si la respuesta proviene del **CODEBASE**, indicar **ruta de archivo** y, si aplica, sección/líneas.
+  - Si proviene de **fuentes externas**, enlazar **documentación oficial** o repos reputados.
+- **Prioridad de contenido:** 1) CODEBASE → 2) Docs oficiales del proyecto → 3) Otras fuentes confiables.
+- **Ejemplos de código:** breves, compilables, con comentarios **solo si aportan claridad**.
 
-### 1. Item Naming Convention
-USBs follow strict format: `{Brand Name} - {Skill} - {Difficulty}`
-```lua
-DisplayName = "USB CarpinterIA - Carpinteria - Facil"
-```
+---
 
-### 2. Multi-Environment Code Structure
-- **shared/GVDrive_Utils.lua**: Cross-environment utility functions
-- **shared/LaptopSystem.lua**: Laptop health/power management
-- Client and server directories for environment-specific logic
+## 🧭 Principios rectores
+1. **Fuente de la verdad:** el CODEBASE manda. No inventar APIs ni comportamientos.
+2. **Trazabilidad:** cada decisión importante debe dejar rastro (PR, issue, ADR, Changelog).
+3. **Iteración segura:** cambios pequeños, atómicos, con pruebas y reversibilidad.
+4. **Consistencia:** mismas convenciones en todo el repositorio (nombres, estilo, estructura).
+5. **Documentar al cambiar:** “si cambias el comportamiento, cambias la documentación”.
 
-### 3. Translation System
-Both English and Spanish translations in `shared/Translate/`:
-- Files use table structures: `GVDrive_EN = { key = "value" }`
-- Keys follow pattern: `GVDrive_[Category]_[Item]_[Variant]`
+---
 
-### 4. Sandbox Integration
-All configurable values use `SandboxVars.GVDrive.*` pattern for user customization
+- **Ramas:**
+  - `main` o `release/*`: estable/protegida.
+  - `feature/<tema>`: nuevas funciones.
+  - `fix/<issue>`: correcciones.
+  - `chore/docs/build`: tareas de soporte.
+- **Commits:** **Conventional Commits** (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `build:`, `chore:`).
+- **PRs:** pequeños, con descripción clara y checklist (ver sección de revisiones).
 
-## Development Workflows
+---
 
-### Adding New USB Items
-1. Define in `scripts/GV_skilldrives_*.txt` with proper naming
-2. Add translations in both EN/ES files
-3. Update `GVDrive_Utils.lua` if new skill types
-4. Add to item distribution in `server/items/GV_Itemsdistro.lua`
+## 📚 Documentación (ampliada)
+**Tipos de documentación:**
+- **Javadoc**: API pública siempre documentada y generable.
+- **README.md por módulo**: propósito, instalación, uso, ejemplos, limitaciones.
+- **ADR (Architecture Decision Record)**: `/docs/adr/ADR-YYYYMMDD-titulo.md` (si aplica).
+- **How-To / Recetas**: `/docs/howto/...` (pasos concretos por tarea).
+- **Ejemplos ejecutables**: `/docs/examples/` (snippets mínimos).
+- **Diagramas**: `/docs/diagrams/` (mermaid/PlantUML).
 
-### Modifying Success Rates
-Edit `sandbox-options.txt` and corresponding logic in `GVDrive_Utils.getRaritySettings()`
+**Reglas:**
+- La **doc se actualiza junto con el cambio** (misma PR o PR encadenada).
+- Enlazar entre README ↔ Javadoc ↔ ejemplos ↔ ADR.
+- Si no puedes completar doc, crear **issue** de **deuda de documentación** con checklist y due date.
+- Mantener **índice** en `docs/README.md` para navegación.
 
-### Testing
-Use `Scripts/tests/` directory with Lua 5.1.5:
-```bash
-lua Scripts/tests/context_menu_test.lua
-```
+**Plantillas rápidas:**
+- `README.md`:
+  ```md
+  # Nombre del módulo
+  **Propósito** | **Cómo usar** | **Ejemplos** | **Limitaciones** | **Changelog local**
+  ```
+- `ADR`:
+  ```md
+  # ADR: Título
+  **Fecha** | **Estado** | **Contexto** | **Decisión** | **Consecuencias** | **Alternativas**
+  ```
 
-## Project-Specific Conventions
+---
 
-### Error Handling
-Always use `pcall()` for API calls that might fail:
-```lua
-local ok, result = pcall(function() return item:getModData() end)
-if ok and result then -- use result end
-```
+## �🔍 Revisiones punto a punto (file-by-file)
+**Severidad de comentarios:**
+- `[BLOQUEANTE]` rompe compilación/contrato/seguridad/compatibilidad.
+- `[MAYOR]` diseño/arquitectura/rendimiento cuestionable.
+- `[MENOR]` legibilidad/estilo.
+- `[NIT]` sugerencia opcional.
 
-### Item Type Detection
-Use string pattern matching for item classification:
-```lua
-if string.find(itemType, "SkillDrive_") then
-    -- Handle skill-specific USB
-end
-```
+**Cada PR debe incluir:**
+- **Contexto** (problema/objetivo) y alcance.
+- **Diseño** (decisiones clave; link a ADR si aplica).
+- **Impacto** (API, compatibilidad, mods afectados).
+- **Plan de pruebas** (qué y cómo se probó; casos borde; datos).
+- **Docs actualizadas** (README/ADR/how-to).
+- **Riesgos y mitigación**.
+- **Changelog** actualizado.
+- **Métricas** (si aplica: latencia, memoria, cobertura).
 
-### Rarity System Integration
-Three-tier system affects all mechanics:
-- **Normal/Facil**: Lower risk, lower reward
-- **Common/Moderado**: Balanced risk/reward
-- **Advanced/Dificil**: Higher risk, higher reward
+**Checklist de revisión:**
+- [ ] Compila y pasa CI (lint, tests, análisis estático).
+- [ ] Nombres y estructura claros; sin código muerto.
+- [ ] Manejo de errores y logs adecuados.
+- [ ] Tests suficientes, deterministas y aislados.
+- [ ] Documentación y Changelog al día.
+- [ ] Sin fugas de secretos ni licencias problemáticas.
 
-## Integration Points
+---
 
-### Project Zomboid API
-- Item system through `InventoryItem` objects
-- Context menus via `ISContextMenu`
-- Timed actions using `ISBaseTimedAction`
-- World object interactions for laptop placement
+## 🧹 Código limpio & 🧪 pruebas **aisladas del src**
+**Principios de clean code:**
+- Nombres expresivos; funciones/Clases pequeñas; **DRY** y **KISS**.
+- Evitar acoplamiento; favorecer composición sobre herencia.
+- Eliminar código comentado y TODOs eternos (abrir issues si es necesario).
+- Sin side-effects inesperados; limitar alcance de variables.
 
-### Mod-Specific Dependencies
-- Requires specific laptop items: AsusZephLaptop, Laptop90s, IBM_LP90
-- Uses custom world static models for visual representation
-- Integrates with game's skill system (`Perks.*`)
 
-## Critical Notes
+**Automatización de calidad:**
+- Build falla si: formateo/lint incorrecto, reglas estáticas rotas o cobertura por debajo de umbral.
+- Sonar/PMD/SpotBugs sin **code smells** nuevos ni deuda técnica neta positiva.
 
-- **No Floppy Support**: All floppy-related code has been removed in this version
-- **USB-Only Focus**: All drive mechanics now use USB items exclusively  
-- **Reduced Antivirus Recovery**: New rates are 5%, 8%, 10%, 12% (down from previous 25%+ values)
-- **Random Laptop Health**: Laptops spawn with random health (30-85%) instead of fixed 100%
-- **Balanced Drop Rates**: Zombie drops are carefully balanced - USB: 1.2%, Laptop: 0.2%, Elite: 0.05%, Antivirus: 0.3%
-- **Simplified Elite System**: Each Elite USB gives immediate benefits when used, no combining required
-- **Bilingual Support**: Maintain both English and Spanish translations
-- **Sandbox First**: All mechanics should be configurable via sandbox options
+---
 
-## Elite Drive System (Simplified)
+## 📌 CODEBASE como **fuente de verdad**
+- **Orden de consulta:** CODEBASE → docs oficiales → externas.
+- **Canonicalización de funciones (mods):**
+  - Si varios mods implementan **la misma función** con **nombres distintos**, documentar **una API canónica** y listar **aliases/sinónimos**.
+  - Mantener un **repositorio/índice de funciones extraídas** para trazabilidad (quién, dónde, por qué).
+  - En documentación final, **presentar una sola función** representativa con nombre consistente y explicación detallada.
+- **Gaps del CODEBASE (LUA):**
+  - Si algo **no existe**, declararlo explícitamente y proponer **plan de incorporación** (issue/PR/ADR) o alternativa segura.
 
-The Elite system has been completely redesigned for clarity and balance:
-- **Direct Benefits**: Each Elite USB gives immediate permanent benefits when used
-- **No Combining**: No need to collect all 5 drives - each works independently  
-- **One-Time Use**: Each enhancement type can only be used once per player
-- **Clear Benefits**: Strength (+combat), Endurance (+1 stat), Capacity (+8kg), Speed (+movement), Luck (+trait)
-- **Extremely Rare**: Only 0.05% drop chance from zombies to maintain balance
+---
 
-## Mod Vision & Balance Philosophy
+## 🗒️ Changelog continuo
+- Seguir **Keep a Changelog** + **SemVer**.
+- `CHANGELOG.md` **global** y, si aplica, **por módulo**.
+- Categorías: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`.
+- **Regla:** **todo PR** que cambie comportamiento **debe** actualizar el Changelog con fecha, versión y links a issues/PRs.
+- Ejemplo:
+  ```md
+  ## [1.4.0] - 2025-09-19
+  ### Added
+  - API canónica `Inventory.addItem(...)` (aliases: `AddItem`, `PutItem`) [#123]
+  ### Changed
+  - Refactor de carga de scripts; -15% latencia [#127]
+  ### Fixed
+  - NPE en `LootTableResolver` con config nula [#130]
+  ```
 
-This mod follows a specific balance philosophy:
-- **Risk vs Reward**: Higher difficulty USBs give better rewards but more risk
-- **Time Efficiency**: Helps players with limited time progress faster through skilled zombie killing
-- **No Game Breaking**: Maintains Project Zomboid's challenging survival balance
-- **Encourages Combat**: Players must kill many zombies to find USBs, promoting active gameplay
-- **Laptop Maintenance**: Antivirus items are essential but rare, creating resource management
+---
 
-## Common Pitfalls
+## 🧠 Investigación y propuestas creativas
+**Dentro del CODEBASE:**
+- Detectar **patrones repetidos**, deuda técnica, APIs divergentes, hotpaths.
+- Funciones
+- Estructura de los mods. 
+- Resolucion de errores.
+- Documentación y ejemplos.
+- Proponer **refactors incrementales** con impacto estimado (latencia, memoria, mantenibilidad).
+- Sugerir **convergencia** de funciones equivalentes entre mods.
 
-1. **ModData Safety**: Always check `item:getModData()` exists before accessing
-2. **Translation Fallbacks**: Provide fallbacks when `getText()` returns the key unchanged
-3. **Rarity Consistency**: Ensure all three systems (Normal/Common/Advanced) are updated together
-4. **Item Normalization**: Use helper functions to handle both direct items and world object wrappers
+**Fuera del CODEBASE (LUA):**
+- Revisar **docs oficiales**, foros y repos reputados; **citar**.
+- Traer ideas **aplicables**: rendimiento, seguridad, DX (developer experience), compatibilidad.
+- Preparar **RFC/ADR** cuando implique cambios de arquitectura.
+- **No copiar** código con licencias incompatibles; priorizar referencias y reimplementación propia.
 
-This mod emphasizes configurability, bilingual support, and a balanced risk/reward progression system centered around USB-based skill acquisition.
+**Prototipado seguro:**
+- Experimentos tras `feature flags` y detrás de interfaces estables.
+- Medir antes/después; abandonar si no aporta beneficio claro.
+
+---
+
+## 🛡️ Seguridad (mínimos exigibles)
+- Validar entradas (tipos/rangos); evitar inyección/XXE/deserialización insegura (específico de LUA).
+- Evitar uso peligroso de `reflection`; restringir clasecargadores.
+- Gestionar secretos por variables de entorno o vault; **nunca** en repos.
+- Revisar licencias de dependencias; actualizar CVEs con rapidez.
+- Registrar eventos de seguridad relevantes (sin datos personales).
+
+---
+
+## 🚀 Rendimiento y escalabilidad
+- Evitar asignaciones innecesarias; preferir estructuras adecuadas.
+- Complejidad razonable; evitar N^2 en colecciones grandes.
+- Cachés con políticas de expiración claras; medir **hit rate**.
+- Concurrencia controlada; no bloquear en operaciones IO.
+- Microbenchmarks (JMH) y perfiles en cambios críticos.
+
+---
+
+## 🧩 Especificidades de Project Zomboid (mods LUA)
+- **Ámbitos:** `server`, `client`, `shared`; documentar claramente en la API canónica.
+- **Orden de carga de scripts:** documentar **qué se carga primero/último** y **tipos de llamados/eventos**.
+- **Eventos/Hooking:** especificar contractos y orden; evitar side-effects globales.
+- **UI desde cero:** guías y ejemplos mínimos en `/docs/examples/ui/`.
+- **Items/recetas/scripts/loot:** plantillas y convenciones; colorización y reglas de nombres.
+- **Compatibilidad:** evitar romper mods existentes; ofrecer rutas de migración.
+
+---
+
+## ✅ Checklist final para la IA (antes de entregar)
+- [ ] Consulté **CODEBASE** y cito rutas/archivos relevantes.
+- [ ] Solución **pequeña y atómica**, con **tests** y **docs**.
+- [ ] Código **limpio**, **formateado** y sin **code smells**.
+- [ ] **Changelog** y, si aplica, **ADR/README** actualizados.
+- [ ] Riesgos identificados y plan de **mitigación/rollback**.
+- [ ] Si usé info externa, quedó **citada** y propuse cómo integrarla al CODEBASE.
+
+---
+
+> **Contexto:** Estas son **instrucciones para una IA que codifica por mí** y debe producir salidas **claras, concisas y bien citadas** en español, priorizando siempre el **CODEBASE LUA** como **fuente de verdad**.

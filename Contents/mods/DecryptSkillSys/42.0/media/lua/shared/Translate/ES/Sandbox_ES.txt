@@ -5,18 +5,18 @@ Sandbox_ES = {
     -- Ajustes Generales
     Sandbox_GVDrive_EnableWorldLoot = "Activar Botín en el Mundo",
 
-    -- Tasas de Aparición en el Mundo
-    Sandbox_GVDrive_USB_WorldLoot = "Tasa de Aparición de USB (Mundo %)",
-    Sandbox_GVDrive_Laptop_WorldLoot = "Tasa de Aparición de Laptops (Mundo %)",
-    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Tasa de Aparición de Unidades Élite (Mundo %)",
-    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Tasa de Aparición de USB de Habilidad (Mundo %)",
-    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Tasa de Aparición de Discos Antivirus (Mundo %)",
+    -- Tasas de Aparición en el Mundo (escala 0.0 - 5.0 donde 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_WorldLoot = "Tasa de Aparición de USB (Mundo, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Tasa de Aparición de Laptops (Mundo, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Tasa de Aparición de Unidades Élite (Mundo, 0.0-5.0)",
+    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Tasa de Aparición de USB de Habilidad (Mundo, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Tasa de Aparición de Discos Antivirus (Mundo, 0.0-5.0)",
 
-    -- Tasas de Caída de Zombis
-    Sandbox_GVDrive_USB_ZombieDrop = "Tasa de Caída de USB (Zombis %)",
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Tasa de Caída de Laptops (Zombis %)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Tasa de Caída de Unidades Élite (Zombis %)",
-    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Tasa de Caída de Antivirus (Zombis %)",
+    -- Tasas de Caída de Zombis (escala 0.0 - 5.0 donde 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_ZombieDrop = "Tasa de Caída de USB (Zombis, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Tasa de Caída de Laptops (Zombis, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Tasa de Caída de Unidades Élite (Zombis, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Tasa de Caída de Antivirus (Zombis, 0.0-5.0)",
 
     -- Mecánicas de Desencriptado
     Sandbox_GVDrive_USB_Decrypt_Success = "Tasa de Éxito de Desencriptado de USB (%)",

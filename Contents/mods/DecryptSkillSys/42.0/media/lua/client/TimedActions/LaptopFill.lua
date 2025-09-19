@@ -11,7 +11,14 @@ require "shared/LaptopSystem"
 require "shared/GVDrive_Utils"
 require "shared/EliteDriveSystem"
 
-print("[DecryptSkillSys] LaptopFill.lua starting to load...")
+pcall(require, "shared/GVDrive_Config")
+local function debugPrint(...)
+    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillSys][DEBUG]", ...)
+    end
+end
+
+debugPrint("LaptopFill.lua starting to load...")
 
 -- Function to get random fun messages for USB decryption by skill type
 local function getRandomUSBMessage(skillName, rarity)
@@ -543,7 +550,7 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
     if not playerObj then return end
     
     -- Simplified laptop detection
-    print("[DecryptSkillSys] Context menu checking " .. #worldobjects .. " objects")
+    debugPrint("Context menu checking " .. #worldobjects .. " objects")
 
     -- Check each world object for laptops
     for _, worldObject in ipairs(worldobjects) do
@@ -558,8 +565,8 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
         local itemType = item:getFullType()
         
         -- Enhanced laptop detection for all laptop types
-        if string.find(itemType, "Laptop") or string.find(itemType, "AsusZeph") or string.find(itemType, "IBM_LP90") or string.find(itemType, "PBIBM_LP90") then
-            print("[DecryptSkillSys] Found laptop: " .. itemType)
+            if string.find(itemType, "Laptop") or string.find(itemType, "AsusZeph") or string.find(itemType, "IBM_LP90") or string.find(itemType, "PBIBM_LP90") then
+            debugPrint("Found laptop: " .. itemType)
             
             -- Add laptop health status at top with battery icon
             -- Get and display real laptop health
@@ -917,7 +924,7 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                 end
             end
             
-                print("[DecryptSkillSys] Simple menu added successfully")
+                debugPrint("Simple menu added successfully")
                 break -- Only add menu once per laptop found
             end
         end
@@ -926,8 +933,8 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
 end
 
 -- Register the context menu event
-print("[DecryptSkillSys] ==> Registering context menu event...")
+debugPrint("==> Registering context menu event...")
 Events.OnFillWorldObjectContextMenu.Add(LaptopOnFillWorldObjectContextMenu)
-print("[DecryptSkillSys] ==> Context menu event registered successfully")
+debugPrint("==> Context menu event registered successfully")
 
-print("[DecryptSkillSys] LaptopFill.lua loaded successfully")
+debugPrint("LaptopFill.lua loaded successfully")

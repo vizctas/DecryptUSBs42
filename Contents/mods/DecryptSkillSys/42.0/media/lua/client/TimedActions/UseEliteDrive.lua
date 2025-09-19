@@ -19,7 +19,7 @@ function UseEliteDrive:start()
     -- Mirror DecryptSkillDrive: set action anim and play USB sound
     pcall(function() self:setActionAnim('Loot') end)
     pcall(function() self:setAnimVariable('LootPosition', 'Medium') end)
-    if self.character and self.character:getEmitter then
+    if self.character and self.character.getEmitter then
         pcall(function()
             if self.character:getEmitter() then
                 self.sound = self.character:getEmitter():playSound('USBSys')
@@ -30,7 +30,7 @@ end
 
 function UseEliteDrive:stop()
     ISBaseTimedAction.stop(self)
-    if self.sound and self.character and self.character:getEmitter then
+    if self.sound and self.character and self.character.getEmitter then
         pcall(function()
             if self.character:getEmitter() then
                 self.character:getEmitter():stopSound(self.sound)
@@ -42,7 +42,7 @@ end
 
 function UseEliteDrive:update()
     -- Face the laptop/world object if possible
-    if self.worldObj and self.worldObj.getX and self.character and self.character:faceThisObject then
+    if self.worldObj and self.worldObj.getX and self.character and self.character.faceThisObject then
         pcall(function() self.character:faceThisObject(self.worldObj) end)
     end
 end
@@ -80,7 +80,7 @@ function UseEliteDrive:perform()
         end
     end
 
-    if self.sound and self.character and self.character:getEmitter then
+    if self.sound and self.character and self.character.getEmitter then
         pcall(function()
             if self.character:getEmitter() then
                 self.character:getEmitter():stopSound(self.sound)
@@ -91,4 +91,11 @@ function UseEliteDrive:perform()
     ISBaseTimedAction.perform(self)
 end
 
-print('[DecryptSkillSys] UseEliteDrive timed action loaded')
+pcall(require, "shared/GVDrive_Config")
+local function debugPrint(...)
+    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillSys][DEBUG]", ...)
+    end
+end
+
+debugPrint('UseEliteDrive timed action loaded')

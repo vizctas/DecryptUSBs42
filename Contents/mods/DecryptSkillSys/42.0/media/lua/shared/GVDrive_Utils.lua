@@ -107,6 +107,54 @@ function GVDrive_Utils.getRaritySettings(info)
     }
 end
 
+-- Public numeric sandbox reader (safe wrapper)
+function GVDrive_Utils.getSandboxNumber(name, default)
+    -- Some sandbox numbers will be stored in the new 0.0..5.0 scale
+    -- We normalize them back into engine-expected ranges where necessary.
+    local v = getSandboxNumber(name, default)
+    -- Conversion table: keys that use the 0..5 scale and should be mapped to base percent or numeric
+    local scale5_keys = {
+        USB_WorldLoot_Chance = true,
+        Laptop_WorldLoot_Chance = true,
+        EliteDrive_WorldLoot_Chance = true,
+        SkillUSB_WorldLoot_Chance = true,
+        USB_ZombieDrop_Chance = true,
+        Laptop_ZombieDrop_Chance = true,
+        EliteDrive_ZombieDrop_Chance = true,
+        Antivirus_ZombieDrop_Chance = true,
+        Antivirus_Norton_Drop_Rate = true,
+        Antivirus_Kaspersky_Drop_Rate = true,
+        Antivirus_McAfee_Drop_Rate = true,
+        Antivirus_MalwareBytes_Drop_Rate = true,
+        Antivirus_Spawn_Rate = true,
+    }
+
+    if scale5_keys[name] and type(v) == 'number' then
+        -- Map 0..5 range to 0..100 percentage scale for engine logic
+        local mapped = (v / 5.0) * 100.0
+        if mapped < 0 then mapped = 0 end
+        if mapped > 100 then mapped = 100 end
+        return mapped
+    end
+    return v
+end
+
+-- Public boolean sandbox reader (safe wrapper)
+function GVDrive_Utils.getSandboxBool(name, default)
+    local sandbox = getSandbox()
+    if not sandbox then return default end
+    local v = sandbox[name]
+    if v == nil then return default end
+    if type(v) == 'boolean' then return v end
+    if type(v) == 'number' then return v ~= 0 end
+    if type(v) == 'string' then
+        local lower = v:lower()
+        if lower == 'true' or lower == 'yes' or lower == '1' then return true end
+        return false
+    end
+    return default
+end
+
 local function buildDriveInfo(skill, rarity, isUSB)
     local perk = GVDrive_Utils.getSkillPerk(skill)
     local info = {
@@ -249,19 +297,60 @@ function GVDrive_Utils.getDrivePerk(drive)
 end
 
 function GVDrive_Utils.getSkillPerk(skillName)
+    if not skillName then return nil end
+
+    -- Try engine-provided resolver first if available (safer across versions)
+    if Perks and Perks.FromString then
+        local ok, perk = pcall(Perks.FromString, skillName)
+        if ok and perk then return perk end
+        -- Also try with common casing variants
+        ok, perk = pcall(Perks.FromString, skillName:lower())
+        if ok and perk then return perk end
+    end
+
+    -- Explicit mapping for known skill tags used in scripts. If a Perks constant
+    -- is unavailable in a particular engine version, the table entry will be
+    -- nil and caller should handle it gracefully.
     local skillMap = {
-        ["Woodwork"] = Perks.Woodwork,
-        ["Electricity"] = Perks.Electricity,
-        ["Farming"] = Perks.Farming,
-        ["Aiming"] = Perks.Aiming,
-        ["Cooking"] = Perks.Cooking,
-        ["Sneak"] = Perks.Sneak,
-        ["Axe"] = Perks.Axe,
-        ["Fitness"] = Perks.Fitness,
-        ["Doctor"] = Perks.Doctor,
-        ["Survivalist"] = Perks.Survivalist,
+        ["Woodwork"] = Perks and Perks.Woodwork,
+        ["Electricity"] = Perks and Perks.Electricity,
+        ["Farming"] = Perks and Perks.Farming,
+        ["Aiming"] = Perks and Perks.Aiming,
+        ["Cooking"] = Perks and Perks.Cooking,
+        ["Sneak"] = Perks and Perks.Sneak,
+        ["Axe"] = Perks and Perks.Axe,
+        ["Fitness"] = Perks and Perks.Fitness,
+        ["Doctor"] = Perks and Perks.Doctor,
+        ["Survivalist"] = Perks and Perks.Survivalist,
+        ["Mechanics"] = Perks and Perks.Mechanics,
+        ["Tailoring"] = Perks and Perks.Tailoring,
+        ["Maintenance"] = Perks and Perks.Maintenance,
+        ["SmallBlade"] = Perks and Perks.SmallBlade,
+        ["LongBlade"] = Perks and Perks.LongBlade,
+        ["SmallBlunt"] = Perks and Perks.SmallBlunt,
+        ["LongBlunt"] = Perks and Perks.LongBlunt,
+        ["Spear"] = Perks and Perks.Spear,
+        ["Trapping"] = Perks and Perks.Trapping,
+        ["Fishing"] = Perks and Perks.Fishing,
+        ["Sprinting"] = Perks and Perks.Sprinting,
+        ["Strength"] = Perks and Perks.Strength,
+        ["Nimble"] = Perks and Perks.Nimble,
+        ["Lightfoot"] = Perks and Perks.Lightfoot,
     }
-    return skillMap[skillName]
+
+    -- Direct lookup (case-sensitive first, then try capitalized/lower)
+    if skillMap[skillName] then return skillMap[skillName] end
+    local cap = tostring(skillName):gsub("^%l", string.upper)
+    if skillMap[cap] then return skillMap[cap] end
+
+    -- Last resort: if Perks.FromString didn't work earlier, try again with
+    -- the capitalized form inside pcall to avoid throwing errors.
+    if Perks and Perks.FromString then
+        local ok, perk = pcall(Perks.FromString, cap)
+        if ok and perk then return perk end
+    end
+
+    return nil
 end
 
 function GVDrive_Utils.getPerkFromName(skillName)
@@ -269,19 +358,50 @@ function GVDrive_Utils.getPerkFromName(skillName)
 end
 
 function GVDrive_Utils.getPerkName(perk)
+    if not perk then return "Unknown" end
+
+    -- If a string was passed in, assume it's already the name
+    if type(perk) == 'string' then return perk end
+
+    -- Build reverse map with broad coverage; missing Perks constants will
+    -- simply be nil and ignored.
     local perkNames = {
-        [Perks.Woodwork] = "Woodwork",
-        [Perks.Electricity] = "Electricity",
-        [Perks.Farming] = "Farming",
-        [Perks.Aiming] = "Aiming",
-        [Perks.Cooking] = "Cooking",
-        [Perks.Sneak] = "Sneak",
-        [Perks.Axe] = "Axe",
-        [Perks.Fitness] = "Fitness",
-        [Perks.Doctor] = "Doctor",
-        [Perks.Survivalist] = "Survivalist",
+        [Perks and Perks.Woodwork] = "Woodwork",
+        [Perks and Perks.Electricity] = "Electricity",
+        [Perks and Perks.Farming] = "Farming",
+        [Perks and Perks.Aiming] = "Aiming",
+        [Perks and Perks.Cooking] = "Cooking",
+        [Perks and Perks.Sneak] = "Sneak",
+        [Perks and Perks.Axe] = "Axe",
+        [Perks and Perks.Fitness] = "Fitness",
+        [Perks and Perks.Doctor] = "Doctor",
+        [Perks and Perks.Survivalist] = "Survivalist",
+        [Perks and Perks.Mechanics] = "Mechanics",
+        [Perks and Perks.Tailoring] = "Tailoring",
+        [Perks and Perks.Maintenance] = "Maintenance",
+        [Perks and Perks.SmallBlade] = "SmallBlade",
+        [Perks and Perks.LongBlade] = "LongBlade",
+        [Perks and Perks.SmallBlunt] = "SmallBlunt",
+        [Perks and Perks.LongBlunt] = "LongBlunt",
+        [Perks and Perks.Spear] = "Spear",
+        [Perks and Perks.Trapping] = "Trapping",
+        [Perks and Perks.Fishing] = "Fishing",
+        [Perks and Perks.Sprinting] = "Sprinting",
+        [Perks and Perks.Strength] = "Strength",
+        [Perks and Perks.Nimble] = "Nimble",
+        [Perks and Perks.Lightfoot] = "Lightfoot",
     }
-    return perkNames[perk] or "Unknown"
+
+    if perkNames[perk] then return perkNames[perk] end
+
+    -- If Perks exposes a debugger-friendly tostring or FromString inversion,
+    -- attempt to use it without throwing.
+    if Perks and Perks.getPerk then
+        local ok, name = pcall(function() return Perks.getPerk(perk) end)
+        if ok and name then return tostring(name) end
+    end
+
+    return "Unknown"
 end
 
 function GVDrive_Utils.getDifficultyForRarity(rarity)
@@ -352,8 +472,89 @@ function GVDrive_Utils.getLootChance(driveInfo)
     return clamp(settings.lootChance or 0, 0, 100)
 end
 
+-- Expose metadata for known sandbox keys to help UI/tooltips show ranges
+function GVDrive_Utils.getSandboxKeyMeta(name)
+    -- Default unknown meta: full percent range
+    local defaultMeta = { min = 0.0, max = 100.0, def = 0.0, scale = "percent" }
+
+    local scale5 = {
+        USB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
+        Laptop_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
+        EliteDrive_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.1, scale = "0-5" },
+        SkillUSB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
+        USB_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
+        Laptop_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.125, scale = "0-5" },
+        EliteDrive_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.05, scale = "0-5" },
+        Antivirus_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.167, scale = "0-5" },
+        Antivirus_Norton_Drop_Rate = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
+        Antivirus_Kaspersky_Drop_Rate = { min = 0.0, max = 5.0, def = 0.3, scale = "0-5" },
+        Antivirus_McAfee_Drop_Rate = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
+        Antivirus_MalwareBytes_Drop_Rate = { min = 0.0, max = 5.0, def = 0.05, scale = "0-5" },
+        Antivirus_Spawn_Rate = { min = 0.0, max = 5.0, def = 2.0, scale = "0-5" },
+    }
+
+    if name and scale5[name] then
+        return scale5[name]
+    end
+
+    -- Numeric keys that are direct percentages or counts
+    local percentKeys = {
+        USB_Min_Experience = { min = 1, max = 1000, def = 35, scale = "number" },
+        USB_Max_Experience = { min = 1, max = 5000, def = 245, scale = "number" },
+        USB_Decrypt_Success_Chance = { min = 0, max = 100, def = 33, scale = "percent" },
+        Malware_Chance = { min = 0, max = 100, def = 15, scale = "percent" },
+    }
+
+    if name and percentKeys[name] then
+        return percentKeys[name]
+    end
+
+    return defaultMeta
+end
+
 function GVDrive_Utils.calculateDamageRisk(driveInfo)
     return GVDrive_Utils.getMalwareChance(driveInfo)
 end
 
-print("[DecryptSkillSys] GVDrive_Utils.lua loaded with rarity-aware settings")
+-- Gate non-error prints behind a central debug flag
+pcall(require, "shared/GVDrive_Config")
+local DEBUG = (GVDrive_Config and GVDrive_Config.getDebug) and GVDrive_Config.getDebug() or false
+local function debugPrint(...)
+    if not DEBUG then return end
+    print("[DecryptSkillSys][DEBUG]", ...)
+end
+
+debugPrint("GVDrive_Utils.lua loaded with rarity-aware settings")
+
+-- Normalized percent helper
+function GVDrive_Utils.getSandboxPercent(name, default)
+    default = default or 0
+    local sandbox = (SandboxVars and SandboxVars.GVDrive) or nil
+    if not sandbox then return default end
+    local raw = sandbox[name]
+    if raw == nil then return default end
+    local n = tonumber(raw)
+    if not n then return default end
+    -- Accept decimal fractions (0 < n < 1) as fractional percent (e.g. 0.4 -> 0.4)
+    -- Accept values 1..100 as direct percent
+    if n < 0 then return 0 end
+    -- If the key is one that uses the 0..5 normalized scale, convert to percent
+    local scale5_keys = {
+        USB_WorldLoot_Chance = true,
+        Laptop_WorldLoot_Chance = true,
+        EliteDrive_WorldLoot_Chance = true,
+        SkillUSB_WorldLoot_Chance = true,
+        USB_ZombieDrop_Chance = true,
+        Laptop_ZombieDrop_Chance = true,
+        EliteDrive_ZombieDrop_Chance = true,
+        Antivirus_ZombieDrop_Chance = true,
+        Antivirus_Spawn_Rate = true,
+    }
+    if scale5_keys[name] then
+        -- raw is expected in 0..5, map to 0..100
+        if n > 5 then n = 5 end
+        return (n / 5.0) * 100.0
+    end
+    if n > 100 then return 100 end
+    return n
+end

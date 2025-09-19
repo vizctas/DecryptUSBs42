@@ -3,9 +3,21 @@
 
 require "shared/GVDrive_Utils"
 require "shared/EliteDriveSystem"
+pcall(require, "shared/GVDrive_Config")
 
 -- Ensure table exists (shared file provides a simplified table)
 EliteDriveSystem = EliteDriveSystem or {}
+
+local DEBUG = true  -- Force enable for testing
+if GVDrive_Config and GVDrive_Config.getDebug then
+    DEBUG = GVDrive_Config.getDebug()
+end
+local function debugPrint(...)
+    print("[DecryptSkillSys][DEBUG]", ...)
+end
+local function testPrint(...)
+    print("[DecryptSkillSys][ELITE]", ...)
+end
 
 -- Elite drive drop chances (very rare)
 local ELITE_DROP_CHANCE = 0.15 -- 0.15% chance per zombie
@@ -170,17 +182,47 @@ end
 
 -- Handle elite drive drops from zombies
 function onZombieDeath(zombie)
-    if not zombie then return end
+    testPrint("onZombieDeath called with zombie:", tostring(zombie))
+    if not zombie then 
+        testPrint("Elite: zombie is nil, returning")
+        return 
+    end
     
     -- Check if it's actually a zombie (not a player)
-    if instanceof(zombie, "IsoPlayer") then return end
+    if instanceof(zombie, "IsoPlayer") then 
+        testPrint("Elite: zombie is IsoPlayer, returning")
+        return 
+    end
     
     -- Get elite drop chance from sandbox (convert to 0-1 range)
-    local eliteDropChance = ((SandboxVars and SandboxVars.GVDrive and SandboxVars.GVDrive.EliteDrive_ZombieDrop_Chance) or 0.15)
-    
-    -- Check for elite drive drop
-    local chance = ZombRand(1, 10000) / 100.0
-    if chance <= eliteDropChance then
+    local eliteDropChance = ELITE_DROP_CHANCE
+    testPrint("Getting elite drop chance from sandbox...")
+    if GVDrive_Utils and GVDrive_Utils.getSandboxPercent then
+        local pct = GVDrive_Utils.getSandboxPercent("EliteDrive_ZombieDrop_Chance", 1.0)  -- 0.05 * 100 / 5 = 1%
+        testPrint("getSandboxPercent returned:", tostring(pct))
+        -- getSandboxPercent now returns 0..100 scale always
+        eliteDropChance = pct / 100.0
+        testPrint("Final eliteDropChance:", tostring(eliteDropChance))
+    else
+        local raw = ELITE_DROP_CHANCE
+        if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+            raw = GVDrive_Utils.getSandboxNumber('EliteDrive_ZombieDrop_Chance', ELITE_DROP_CHANCE)
+        else
+            local gv = (SandboxVars and SandboxVars.GVDrive) or {}
+            raw = gv.EliteDrive_ZombieDrop_Chance or ELITE_DROP_CHANCE
+        end
+        if type(raw) == 'number' and raw > 1 then
+            eliteDropChance = raw / 100.0
+        else
+            eliteDropChance = raw
+        end
+    end
+
+    -- Check for elite drive drop using high-resolution roll
+    local chance = ZombRand(0, 10000) / 100.0
+    local threshold = eliteDropChance * 100.0
+    testPrint(string.format("Elite drive roll: %.2f vs threshold: %.4f (eliteDropChance=%s) - %s", chance, threshold, tostring(eliteDropChance), chance < threshold and "SUCCESS" or "FAILED"))
+    if chance < threshold then
         local driveTypes = {
             "GValley.EliteDrive_Strength",
             "GValley.EliteDrive_Endurance", 
@@ -190,7 +232,8 @@ function onZombieDeath(zombie)
         }
         
         local randomDrive = driveTypes[ZombRand(1, #driveTypes + 1)]
-        zombie:getCurrentSquare():AddWorldInventoryItem(randomDrive, 0, 0, 0)
+    zombie:getCurrentSquare():AddWorldInventoryItem(randomDrive, 0, 0, 0)
+    print("[DecryptSkillSys] Spawned elite drive:", randomDrive)
         
         -- Rare message for nearby players
         local players = getOnlinePlayers()
@@ -217,8 +260,21 @@ function OnUseEliteEnhancement(items, result, player)
     applyPermanentEnhancement(player)
 end
 
--- Register events
-Events.OnZombieDead.Add(onZombieDeath)
+-- Register events (server-only for persistent world spawns)
+do
+    local canRegister = false
+    pcall(function()
+        canRegister = isServer() or not isClient()
+    end)
+    if canRegister then
+        if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
+            Events.OnZombieDead.Add(onZombieDeath)
+            print("[DecryptSkillSys] EliteDriveSystem registered OnZombieDead handler (server/SP)")
+        end
+    else
+        debugPrint("Skipping EliteDriveSystem OnZombieDead registration: not server or SP")
+    end
+end
 
 if Events and Events.OnPlayerUpdate and Events.OnPlayerUpdate.Add then
     Events.OnPlayerUpdate.Add(function(player)

@@ -3,6 +3,14 @@
 
 require "ISUI/ISPanel"
 
+-- Debug gating
+pcall(require, "shared/GVDrive_Config")
+local DEBUG = (GVDrive_Config and GVDrive_Config.getDebug) and GVDrive_Config.getDebug() or false
+local function debugPrint(...)
+    if not DEBUG then return end
+    print("[LaptopBatteryWidget]", ...)
+end
+
 -- Intentar cargar LaptopSystem si está disponible
 local LaptopSystem = nil
 pcall(function()
@@ -36,30 +44,30 @@ local laptopBatteryWidget = nil
 
 -- Función para crear el widget (definida antes de usarla)
 local function createLaptopBatteryWidget()
-    print("[LaptopBatteryWidget] createLaptopBatteryWidget called")
+    debugPrint("createLaptopBatteryWidget called")
     
     -- Remove existing widget safely
     if laptopBatteryWidget then
-        print("[LaptopBatteryWidget] Removing existing widget")
+    debugPrint("Removing existing widget")
         local ok, err = pcall(function()
             laptopBatteryWidget:removeFromUIManager()
         end)
         if not ok then
-            print("[LaptopBatteryWidget] Error removing existing widget: " .. tostring(err))
-        end
+                print("[LaptopBatteryWidget] Error removing existing widget: " .. tostring(err))
+            end
         laptopBatteryWidget = nil
     end
 
     -- Create new widget safely
     local createOk, createErr = pcall(function()
-        print("[LaptopBatteryWidget] Creating laptop battery widget...")
+    debugPrint("Creating laptop battery widget...")
         laptopBatteryWidget = LaptopBatteryWidget:new(0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize)
         
         if laptopBatteryWidget then
-            print("[LaptopBatteryWidget] Widget object created, initializing...")
+            debugPrint("Widget object created, initializing...")
             laptopBatteryWidget:initialise()
             laptopBatteryWidget:addToUIManager()
-            print("[LaptopBatteryWidget] Laptop battery widget created and added to UI manager successfully")
+            debugPrint("Laptop battery widget created and added to UI manager successfully")
         else
             print("[LaptopBatteryWidget] ERROR: Failed to create widget object")
         end
@@ -72,10 +80,10 @@ end
 
 -- Función para mostrar el widget manualmente
 function showLaptopBatteryWidget(laptop)
-    print("[LaptopBatteryWidget] showLaptopBatteryWidget called")
+    debugPrint("showLaptopBatteryWidget called")
     
     if not laptopBatteryWidget then
-        print("[LaptopBatteryWidget] Widget not initialized, creating...")
+        debugPrint("Widget not initialized, creating...")
         createLaptopBatteryWidget()
     end
     
@@ -86,7 +94,7 @@ function showLaptopBatteryWidget(laptop)
     
     local duration = BATTERY_CONFIG.displayDurationMs or 10000
     
-    print("[LaptopBatteryWidget] Showing widget for " .. (duration/1000) .. " seconds")
+    debugPrint("Showing widget for " .. (duration/1000) .. " seconds")
     
     -- Normalizar el parámetro: aceptar InventoryItem o WorldObject con :getItem()
     local item = laptop
@@ -97,7 +105,7 @@ function showLaptopBatteryWidget(laptop)
 
     -- Configurar datos de la laptop
     if item then
-        print("[LaptopBatteryWidget] Processing laptop object...")
+    debugPrint("Processing laptop object...")
         
         local itemType = "Unknown"
         local health = 75 -- default value
@@ -132,7 +140,7 @@ function showLaptopBatteryWidget(laptop)
             end)
         end
         
-        print("[LaptopBatteryWidget] Laptop processed: type=" .. tostring(itemType) .. ", health=" .. tostring(health))
+    debugPrint("Laptop processed: type=" .. tostring(itemType) .. ", health=" .. tostring(health))
         
         -- Get laptop name safely
         local laptopName = displayName
@@ -148,7 +156,7 @@ function showLaptopBatteryWidget(laptop)
         }
         laptopBatteryWidget.currentBattery = health
         
-        print("[LaptopBatteryWidget] Widget configured with laptop: " .. laptopName .. " (" .. health .. "%)")
+    debugPrint("Widget configured with laptop: " .. laptopName .. " (" .. health .. "%)")
 
         -- Decir estado por el personaje (incluye porcentaje)
         local player = getSpecificPlayer and getSpecificPlayer(0) or (getPlayer and getPlayer() or nil)
@@ -191,7 +199,7 @@ function showLaptopBatteryWidget(laptop)
         local currentTime = getTimestampMs()
         if currentTime >= hideTime then
             if laptopBatteryWidget then
-                print("[LaptopBatteryWidget] Hiding widget after timeout")
+                debugPrint("Hiding widget after timeout")
                 laptopBatteryWidget.isVisible = false
                 laptopBatteryWidget:setVisible(false)
                 laptopBatteryWidget.currentLaptop = nil
@@ -245,7 +253,7 @@ function LaptopBatteryWidget:new(x, y, width, height)
 end
 
 function LaptopBatteryWidget:initialise()
-    print("[LaptopBatteryWidget] Initializing widget...")
+    debugPrint("Initializing widget...")
     
     local ok, err = pcall(function()
         ISPanel.initialise(self)
@@ -274,11 +282,11 @@ function LaptopBatteryWidget:initialise()
         print("[LaptopBatteryWidget] Error preloading textures: " .. tostring(texErr))
     end
     
-    print("[LaptopBatteryWidget] Widget initialization completed")
+    debugPrint("Widget initialization completed")
 end
 
 function LaptopBatteryWidget:preloadTextures()
-    print("[LaptopBatteryWidget] Preloading battery textures...")
+    debugPrint("Preloading battery textures...")
     
     -- Cargar fondos de batería (primero intentamos locales, luego fallback al Survival HUD)
     for i = 0, 4 do
@@ -289,15 +297,15 @@ function LaptopBatteryWidget:preloadTextures()
         self.textureCache[bgKey] = getTexture(localBgPath)
         
         if self.textureCache[bgKey] then
-            print("[LaptopBatteryWidget] Loaded local background: " .. localBgPath)
+            debugPrint("Loaded local background: " .. localBgPath)
         else
             -- Fallback al Survival HUD
             local fallbackBgPath = "media/textures/ui/needs/fatigue/background-" .. i .. ".png"
             self.textureCache[bgKey] = getTexture(fallbackBgPath)
             if self.textureCache[bgKey] then
-                print("[LaptopBatteryWidget] Loaded fallback background: " .. fallbackBgPath)
+                debugPrint("Loaded fallback background: " .. fallbackBgPath)
             else
-                print("[LaptopBatteryWidget] Failed to load background for phase: " .. i)
+                debugPrint("Failed to load background for phase: " .. i)
             end
         end
     end
@@ -312,20 +320,20 @@ function LaptopBatteryWidget:preloadTextures()
         self.textureCache[textureKey] = getTexture(localTexturePath)
         
         if self.textureCache[textureKey] then
-            print("[LaptopBatteryWidget] Loaded local battery icon: " .. localTexturePath)
+            debugPrint("Loaded local battery icon: " .. localTexturePath)
         else
             -- Fallback al Survival HUD si no existe local
             local fallbackTexturePath = "media/textures/ui/needs/fatigue/" .. value .. ".png"
             self.textureCache[textureKey] = getTexture(fallbackTexturePath)
             if self.textureCache[textureKey] then
-                print("[LaptopBatteryWidget] Loaded fallback battery icon: " .. fallbackTexturePath)
+                debugPrint("Loaded fallback battery icon: " .. fallbackTexturePath)
             else
-                print("[LaptopBatteryWidget] Failed to load battery icon: " .. value)
+                debugPrint("Failed to load battery icon: " .. value)
             end
         end
     end
     
-    print("[LaptopBatteryWidget] Texture preloading completed")
+    debugPrint("Texture preloading completed")
 end
 
 function LaptopBatteryWidget:updatePosition()
@@ -336,15 +344,15 @@ function LaptopBatteryWidget:updatePosition()
     local x = screenWidth - BATTERY_CONFIG.iconSize - 50  -- Más cerca del borde
     local y = screenHeight - BATTERY_CONFIG.iconSize - 50 -- Más cerca del borde
 
-    print("[LaptopBatteryWidget] Setting widget position to: " .. x .. "," .. y)
-    print("[LaptopBatteryWidget] Screen size: " .. screenWidth .. "x" .. screenHeight)
+    debugPrint("Setting widget position to: " .. x .. "," .. y)
+    debugPrint("Screen size: " .. screenWidth .. "x" .. screenHeight)
 
     self:setX(x)
     self:setY(y)
     self:setWidth(BATTERY_CONFIG.iconSize)
     self:setHeight(BATTERY_CONFIG.iconSize)
     
-    print("[LaptopBatteryWidget] Widget bounds: " .. self:getX() .. "," .. self:getY() .. " " .. self:getWidth() .. "x" .. self:getHeight())
+    debugPrint("Widget bounds: " .. self:getX() .. "," .. self:getY() .. " " .. self:getWidth() .. "x" .. self:getHeight())
 end
 
 function LaptopBatteryWidget:getPhaseData(value)
@@ -394,17 +402,17 @@ end
 function LaptopBatteryWidget:findNearbyLaptop()
     local player = getSpecificPlayer(0)
     if not player then 
-        print("[LaptopBatteryWidget] No player found")
+        debugPrint("No player found")
         return nil 
     end
 
     local playerSquare = player:getCurrentSquare()
     if not playerSquare then 
-        print("[LaptopBatteryWidget] No player square found")
+        debugPrint("No player square found")
         return nil 
     end
 
-    print("[LaptopBatteryWidget] Searching for laptops near player at " .. playerSquare:getX() .. "," .. playerSquare:getY())
+    debugPrint("Searching for laptops near player at " .. playerSquare:getX() .. "," .. playerSquare:getY())
 
     -- Buscar laptops en un radio específico
     for x = -BATTERY_CONFIG.searchRadius, BATTERY_CONFIG.searchRadius do
@@ -419,16 +427,16 @@ function LaptopBatteryWidget:findNearbyLaptop()
                 -- Buscar objetos del mundo
                 local worldObjects = square:getWorldObjects()
                 if worldObjects and worldObjects:size() > 0 then
-                    print("[LaptopBatteryWidget] Found " .. worldObjects:size() .. " world objects at " .. (playerSquare:getX() + x) .. "," .. (playerSquare:getY() + y))
+                    debugPrint("Found " .. worldObjects:size() .. " world objects at " .. (playerSquare:getX() + x) .. "," .. (playerSquare:getY() + y))
                     for i = 0, worldObjects:size() - 1 do
                         local worldObj = worldObjects:get(i)
                         if worldObj and worldObj:getItem() then
                             local item = worldObj:getItem()
                             local itemType = item:getFullType()
-                            print("[LaptopBatteryWidget] Found world item: " .. itemType)
+                            debugPrint("Found world item: " .. itemType)
 
                             if LAPTOP_TYPES[itemType] then
-                                print("[LaptopBatteryWidget] LAPTOP FOUND! Type: " .. itemType)
+                                debugPrint("LAPTOP FOUND! Type: " .. itemType)
                                 return {
                                     item = item,
                                     type = itemType,
@@ -443,7 +451,7 @@ function LaptopBatteryWidget:findNearbyLaptop()
                 -- También buscar en objetos regulares
                 local objects = square:getObjects()
                 if objects and objects:size() > 0 then
-                    print("[LaptopBatteryWidget] Found " .. objects:size() .. " regular objects at " .. (playerSquare:getX() + x) .. "," .. (playerSquare:getY() + y))
+                    debugPrint("Found " .. objects:size() .. " regular objects at " .. (playerSquare:getX() + x) .. "," .. (playerSquare:getY() + y))
                     for i = 0, objects:size() - 1 do
                         local obj = objects:get(i)
                         if obj then
@@ -457,10 +465,10 @@ function LaptopBatteryWidget:findNearbyLaptop()
                             
                             if item and item:getFullType() then
                                 local itemType = item:getFullType()
-                                print("[LaptopBatteryWidget] Found regular object item: " .. itemType)
+                                debugPrint("Found regular object item: " .. itemType)
                                 
                                 if LAPTOP_TYPES[itemType] then
-                                    print("[LaptopBatteryWidget] LAPTOP FOUND in regular objects! Type: " .. itemType)
+                                    debugPrint("LAPTOP FOUND in regular objects! Type: " .. itemType)
                                     return {
                                         item = item,
                                         type = itemType,
@@ -476,7 +484,7 @@ function LaptopBatteryWidget:findNearbyLaptop()
         end
     end
 
-    print("[LaptopBatteryWidget] No laptops found nearby")
+    debugPrint("No laptops found nearby")
     return nil
 end
 
@@ -588,11 +596,11 @@ function LaptopBatteryWidget:render()
     end
 
     if not self.currentLaptop or not self.currentBattery or self.currentBattery < 0 then
-        print("[LaptopBatteryWidget] No laptop data to render")
+        debugPrint("No laptop data to render")
         return
     end
 
-    print("[LaptopBatteryWidget] Rendering battery widget with " .. self.currentBattery .. "% battery")
+    debugPrint("Rendering battery widget with " .. self.currentBattery .. "% battery")
 
     -- Dibujar el widget de batería de forma segura
     local renderOk, renderErr = pcall(function()
@@ -603,9 +611,9 @@ function LaptopBatteryWidget:render()
         
         if bgTexture then
             self:drawTextureScaled(bgTexture, 0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize, 1, 1, 1, 1)
-            print("[LaptopBatteryWidget] Drew background texture: " .. bgKey)
+                debugPrint("Drew background texture: " .. bgKey)
         else
-            print("[LaptopBatteryWidget] Missing background texture: " .. bgKey .. ", using fallback")
+            debugPrint("Missing background texture: " .. bgKey .. ", using fallback")
             -- Fallback: dibujar un rectángulo con color según el estado
             local r, g, b = 0.3, 0.3, 0.3 -- gris por defecto
             if self.currentBattery > 60 then
@@ -625,9 +633,9 @@ function LaptopBatteryWidget:render()
             local stateTexture = self.textureCache["battery_" .. newTextureValue]
             if stateTexture then
                 self:drawTextureScaled(stateTexture, 0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize, 1, 1, 1, 1)
-                print("[LaptopBatteryWidget] Drew battery texture: battery_" .. newTextureValue)
+                debugPrint("Drew battery texture: battery_" .. newTextureValue)
             else
-                print("[LaptopBatteryWidget] Missing battery texture: battery_" .. newTextureValue .. ", using text fallback")
+                debugPrint("Missing battery texture: battery_" .. newTextureValue .. ", using text fallback")
                 -- Fallback: mostrar porcentaje como texto grande
                 self:drawText(self.currentBattery .. "%", 8, 20, 1, 1, 1, 1, UIFont.Large)
             end
@@ -643,7 +651,7 @@ function LaptopBatteryWidget:render()
     end)
     
     if not renderOk then
-        print("[LaptopBatteryWidget] Error rendering widget: " .. tostring(renderErr))
+    print("[LaptopBatteryWidget] Error rendering widget: " .. tostring(renderErr))
         -- Fallback rendering - just draw a simple indicator
         self:drawRect(0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize, 0.8, 0.2, 0.2, 0.2)
         if self.currentBattery then
@@ -695,4 +703,4 @@ Events.OnCreatePlayer.Add(createLaptopBatteryWidget)
 Events.OnPlayerDeath.Add(onPlayerDeath)
 Events.OnResolutionChange.Add(onResolutionChange)
 
-print("[DecryptSkillSys] LaptopBatteryWidget.lua loaded successfully")
+debugPrint("LaptopBatteryWidget.lua loaded successfully")

@@ -71,4 +71,11 @@ end
 -- 3. Si no funciona, prueba con testMode = 2, 3, o 4
 -- 4. El método 4 usa caracteres Unicode como fallback
 
-print("[DecryptSkillSys] Icon test helper loaded")
+pcall(require, "shared/GVDrive_Config")
+local function debugPrint(...)
+    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillSys][DEBUG]", ...)
+    end
+end
+
+debugPrint("Icon test helper loaded")

@@ -1,4 +1,14 @@
 require("shared/LaptopSystem")
+pcall(require, "shared/GVDrive_Config")
+
+local DEBUG = false
+if GVDrive_Config and GVDrive_Config.getDebug then
+    DEBUG = GVDrive_Config.getDebug()
+end
+local function debugPrint(...)
+    if not DEBUG then return end
+    print("[DecryptSkillSys][DEBUG]", ...)
+end
 
 function OnOpen_USB(items, result, player)
     local ply = player or getPlayer()
@@ -21,7 +31,7 @@ function OnOpen_USB(items, result, player)
     if HaloTextHelper and HaloTextHelper.addTextWithArrow then
         HaloTextHelper.addTextWithArrow(ply, getText("GVDrive_Msg_USB_Opened_OK"), true, HaloTextHelper.getColorGreen())
     else
-        print("[DecryptSkillSys] USB opened result granted: " .. tostring(selectedItem))
+        debugPrint("USB opened result granted:", tostring(selectedItem))
     end
 end
 

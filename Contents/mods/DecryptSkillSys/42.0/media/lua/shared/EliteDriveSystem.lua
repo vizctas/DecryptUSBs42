@@ -1,10 +1,14 @@
--- Elite Drive System (SIMPLIFIED - DIRECT BENEFITS)
--- Each elite USB gives immediate permanent benefits when used
--- No need to combine - each USB works independently
 
 EliteDriveSystem = {}
 
--- Apply elite enhancement to player based on drive type
+pcall(require, "shared/GVDrive_Config")
+local DEBUG = (GVDrive_Config and GVDrive_Config.getDebug) and GVDrive_Config.getDebug() or false
+local function debugPrint(...)
+    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillSys][DEBUG]", ...)
+    end
+end
+
 function EliteDriveSystem.useEliteDrive(player, driveType)
     if not player then return false end
     
@@ -23,15 +27,17 @@ function EliteDriveSystem.useEliteDrive(player, driveType)
         return false
     end
     
-    -- Get sandbox values for configurable bonuses
-    local sandboxVars = SandboxVars and SandboxVars.GVDrive or {}
+        -- Get sandbox values for configurable bonuses via safe helper
+        local sandboxVars = {}
+        local getNum = GVDrive_Utils and GVDrive_Utils.getSandboxNumber
     
     local applied = false
     local message = ""
     
     if driveType == "Strength" then
         -- Configurable strength bonus (default 1)
-        local bonus = sandboxVars.Elite_Strength_Bonus or 1
+            local bonus = 1
+            if getNum then bonus = getNum('Elite_Strength_Bonus', 1) end
         for i = 1, bonus do
             if not player:HasTrait("Strong") then
                 player:getTraits():add("Strong")
@@ -46,21 +52,24 @@ function EliteDriveSystem.useEliteDrive(player, driveType)
         
     elseif driveType == "Endurance" then
         -- Configurable endurance bonus (default 1)
-        local bonus = sandboxVars.Elite_Endurance_Bonus or 1
+            local bonus = 1
+            if getNum then bonus = getNum('Elite_Endurance_Bonus', 1) end
         player:getStats():setEndurance(player:getStats():getEndurance() + bonus)
         message = "¡Mejora Elite aplicada! +" .. bonus .. " Resistencia!"
         applied = true
         
     elseif driveType == "Capacity" then
         -- Configurable capacity bonus (default 4kg, reduced from 8kg)
-        local bonus = sandboxVars.Elite_Capacity_Bonus or 4
+            local bonus = 4
+            if getNum then bonus = getNum('Elite_Capacity_Bonus', 4) end
         player:setMaxWeight(player:getMaxWeight() + bonus)
         message = "¡Mejora Elite aplicada! +" .. bonus .. "kg Capacidad de carga!"
         applied = true
         
     elseif driveType == "Speed" then
         -- Configurable speed bonus (default 1)
-        local bonus = sandboxVars.Elite_Speed_Bonus or 1
+            local bonus = 1
+            if getNum then bonus = getNum('Elite_Speed_Bonus', 1) end
         if bonus >= 1 and not player:HasTrait("Fast") then
             player:getTraits():add("Fast")
         end
@@ -72,7 +81,8 @@ function EliteDriveSystem.useEliteDrive(player, driveType)
         
     elseif driveType == "Luck" then
         -- Configurable luck bonus (default 2)
-        local bonus = sandboxVars.Elite_Luck_Bonus or 2
+            local bonus = 2
+            if getNum then bonus = getNum('Elite_Luck_Bonus', 2) end
         if bonus >= 1 and not player:HasTrait("Lucky") then
             player:getTraits():add("Lucky")
         end
@@ -103,14 +113,12 @@ function EliteDriveSystem.useEliteDrive(player, driveType)
     return false
 end
 
--- Check what elite enhancements player has used
 function EliteDriveSystem.getUsedEnhancements(player)
     if not player then return {} end
     local modData = player:getModData()
     return modData.eliteEnhancements or {}
 end
 
--- Check if specific enhancement was used
 function EliteDriveSystem.hasUsedEnhancement(player, driveType)
     if not player then return false end
     local modData = player:getModData()
@@ -119,4 +127,4 @@ function EliteDriveSystem.hasUsedEnhancement(player, driveType)
     return modData.eliteEnhancements[driveType] or 0
 end
 
-print("[DecryptSkillSys] EliteDriveSystem loaded (simplified direct benefits)")
+debugPrint("EliteDriveSystem loaded (simplified direct benefits)")

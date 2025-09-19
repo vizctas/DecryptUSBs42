@@ -60,6 +60,10 @@ local function getSandboxGV()
     return (SandboxVars and SandboxVars.GVDrive) or nil
 end
 
+local getNum = GVDrive_Utils and GVDrive_Utils.getSandboxNumber
+local getPct = GVDrive_Utils and GVDrive_Utils.getSandboxPercent
+local getBool = GVDrive_Utils and GVDrive_Utils.getSandboxBool
+
 local function normalizeItem(item)
     if item and item.getItem then
         local ok, inner = pcall(item.getItem, item)
@@ -77,9 +81,8 @@ function LaptopSystem.getLaptopHealth(item)
     if not modData then return 0 end -- Safety check for nil modData
     if not modData.laptopHealth then
         -- Initialize laptop health with random value based on sandbox settings
-        local sandboxGV = getSandboxGV()
-        local minHealth = (sandboxGV and sandboxGV.Laptop_Random_Health_Min) or 30
-        local maxHealth = (sandboxGV and sandboxGV.Laptop_Random_Health_Max) or 85
+    local minHealth = (getNum and getNum('Laptop_Random_Health_Min', 30)) or 30
+    local maxHealth = (getNum and getNum('Laptop_Random_Health_Max', 85)) or 85
         
         -- Use ZombRand for random health between min and max
         local randomHealth = ZombRand(minHealth, maxHealth + 1)
@@ -188,8 +191,7 @@ function LaptopSystem.applyMalware(item)
         modData.malwareLevel = 1
         
         -- Malware causes extra damage over time
-        local sandboxGV = getSandboxGV()
-        local malwareDamage = (sandboxGV and sandboxGV.Malware_Damage_Per_Use) or 5
+    local malwareDamage = (getNum and getNum('Malware_Damage_Per_Use', 5)) or 5
         LaptopSystem.damageLaptop(item, malwareDamage)
         
         return true -- New malware infection

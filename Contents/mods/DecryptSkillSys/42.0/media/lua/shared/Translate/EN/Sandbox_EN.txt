@@ -5,18 +5,18 @@ Sandbox_EN = {
     -- General Settings
     Sandbox_GVDrive_EnableWorldLoot = "Enable World Loot",
 
-    -- World Loot Spawn Rates
-    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World %)",
-    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World %)",
-    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Elite Drive Spawn Rate (World %)",
-    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Skill USB Spawn Rate (World %)",
-    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Disk Spawn Rate (World %)",
+    -- World Loot Spawn Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Elite Drive Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Skill USB Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Disk Spawn Rate (World, 0.0-5.0)",
 
-    -- Zombie Drop Rates
-    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies %)",
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies %)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies %)",
-    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies %)",
+    -- Zombie Drop Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies, 0.0-5.0)",
 
     -- Decryption Mechanics
     Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate (%)",

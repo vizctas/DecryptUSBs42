@@ -2,6 +2,13 @@ require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
 require("shared/LaptopSystem")
 
+pcall(require, "shared/GVDrive_Config")
+local function debugPrint(...)
+    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillDrive][DEBUG]", ...)
+    end
+end
+
 local function ensureGVDriveUtils()
     if GVDrive_Utils and type(GVDrive_Utils) == "table" then
         return GVDrive_Utils
@@ -118,7 +125,7 @@ function DecryptSkillDrive:isValid()
     end
     
     local valid = hasCharacter and hasDrive and hasLaptop and laptopUsable
-    print("[DecryptSkillDrive] isValid called - character:", tostring(self.character), "drive:", tostring(self.drive), "laptop:", tostring(self.laptop), "laptopUsable:", tostring(laptopUsable), "result:", tostring(valid))
+    debugPrint("isValid called - character:", tostring(self.character), "drive:", tostring(self.drive), "laptopUs:", tostring(laptopUsable), "result:", tostring(valid))
     return valid
 end  
         
@@ -132,7 +139,7 @@ function DecryptSkillDrive:update()
             if LaptopSystem and LaptopSystem.getLaptopHealth then
                 local health = LaptopSystem.getLaptopHealth(laptopItem)
                 if health and health <= 0 then
-                    print("[DecryptSkillDrive] Laptop reached 0% health, cancelling action")
+                    debugPrint("Laptop reached 0% health, cancelling action")
                     -- Stop the action and show message
                     if self.character then
                         local brokenText = getTranslatedMessage("GVDrive_Error_Laptop_Broken", "This laptop is completely broken and unusable.")
@@ -147,15 +154,13 @@ function DecryptSkillDrive:update()
 end
 
 function DecryptSkillDrive:start()
-    print("[DecryptSkillDrive] start() called")
+    debugPrint("start() called")
     self:setActionAnim("Loot")
     self:setAnimVariable("LootPosition", "Medium")
     if self.character and self.character:getEmitter() then
         self.sound = self.character:getEmitter():playSound("USBSys")
-        print("[DecryptSkillDrive] Sound started")
     end
     self:setOverrideHandModels(nil, nil)
-    print("[DecryptSkillDrive] start() completed")
 end
 
 function DecryptSkillDrive:stop()
@@ -173,7 +178,7 @@ function DecryptSkillDrive:stop()
 end
 
 function DecryptSkillDrive:perform()
-    print("[DecryptSkillDrive] perform() called")
+    debugPrint("perform() called")
     forceDropHeavyItems(self.character)
 
     if not self.character or not self.character.getInventory then
@@ -260,8 +265,11 @@ function DecryptSkillDrive:perform()
     local probabilityToGain = math.max(0, math.min(100, successChance))
     local diceroll = ZombRand(1, MaxRolls)
 
-    local sandboxDrive = SandboxVars and SandboxVars.GVDrive or nil
-    local preserveChance = ((sandboxDrive and sandboxDrive.Drive_Preserve_Chance) or 30) / 100
+    local preserveChancePercent = 30
+    if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+        preserveChancePercent = GVDrive_Utils.getSandboxNumber('Drive_Preserve_Chance', 30)
+    end
+    local preserveChance = math.max(0, math.min(100, preserveChancePercent)) / 100
     local shouldPreserve = ZombRand(100) / 100 < preserveChance
 
     local function removeDriveFromInventory()
@@ -280,7 +288,7 @@ function DecryptSkillDrive:perform()
             end
         end
         if not removed then
-            print("[DecryptSkillDrive] WARNING: failed to remove drive from inventory")
+            debugPrint("WARNING: failed to remove drive from inventory")
         end
         return removed
     end
@@ -313,7 +321,7 @@ function DecryptSkillDrive:perform()
         if not preservedDrive then
             removeDriveFromInventory()
         else
-            print("[DecryptSkillDrive] Drive preserved after success")
+            debugPrint("Drive preserved after success")
         end
 
         if perk and self.character and self.character.getXp then
@@ -358,7 +366,17 @@ function DecryptSkillDrive:perform()
     else
         removeDriveFromInventory()
 
-        local malwareChancePercent = (sandboxDrive and sandboxDrive.Malware_Chance) or 15
+        local malwareChancePercent = 15
+        if GVDrive_Utils and GVDrive_Utils.getMalwareChance then
+            local ok, malChance = pcall(GVDrive_Utils.getMalwareChance, GVDrive_Utils, driveInfo)
+            if ok and type(malChance) == 'number' then
+                malwareChancePercent = malChance
+            end
+        else
+            if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+                malwareChancePercent = GVDrive_Utils.getSandboxNumber('Malware_Chance', 15)
+            end
+        end
         if utils and utils.getMalwareChance then
             local ok, malChance = pcall(utils.getMalwareChance, driveInfo)
             if ok and type(malChance) == "number" then
@@ -412,7 +430,7 @@ function DecryptSkillDrive:new(character, laptop, drive, time)
     o.stopOnRun = true
     o.maxTime = time or 500
     o.loopedAction = false
-    print("[DecryptSkillDrive] Constructor called - character:", tostring(character), "laptop:", tostring(laptop), "drive:", tostring(drive))
+    debugPrint("Constructor called - character:", tostring(character), "laptop:", tostring(laptop), "drive:", tostring(drive))
     return o
 end
 

@@ -1,165 +1,41 @@
-# 🔧 CORRECCIONES REALIZADAS - DecryptUSBs42
+Correcciones realizadas - DecryptUSBs42
 
-## 📋 RESUMEN DE PROBLEMAS IDENTIFICADOS Y SOLUCIONADOS
+Fecha: 2025-09-19
 
-### 🚨 **PROBLEMA PRINCIPAL: EVENTOS NO SE REGISTRABAN CORRECTAMENTE**
+Resumen:
+- Normalización de logs: Se reemplazaron impresiones informativas (print(...)) por debugPrint(...) en los módulos del mod. Las impresiones de ERROR/EXCEPCIÓN se mantuvieron como prints para asegurar que los problemas críticos sigan visibles en producción.
+- Se centralizó la comprobación de debug usando `GVDrive_Config.getDebug()` para que la salida de debug solo aparezca cuando el mod está en modo debug.
+- Se eliminó código duplicado en `client/GVDrive_TestRaritySystem.lua` y ahora ese script solo emite salida cuando el modo debug está activo.
 
-**Problema Original:**
-- El evento `OnZombieDead` no se registraba de forma robusta
-- Falta de logging detallado para debugging
-- Manejo de errores insuficiente
+Archivos clave modificados:
+- `media/lua/client/GVDrive_TestRaritySystem.lua` — Eliminar duplicados y debug-gate.
+- Varias implementaciones server/shared/client: reemplazo de prints por debugPrint cuando corresponda (ver commits/changes).
 
-**Solución Implementada:**
-- ✅ Sistema de registro robusto con múltiples intentos
-- ✅ Logging detallado para cada muerte de zombie
-- ✅ Manejo de errores mejorado con fallbacks
-- ✅ Registro en múltiples eventos (OnServerStarted, OnGameStart)
+Motivación:
+- Reducir ruido de logs en producción.
+- Facilitar la depuración activando o desactivando la salida con una única configuración central.
 
----
+Pruebas realizadas:
+- Chequeo estático del proyecto (sin errores sintácticos reportados).
+- Prueba manual (modo debug) del script de rarities: la salida se muestra con debug activado.
 
-## 🔍 **ARCHIVOS MODIFICADOS**
+Siguientes pasos:
+- Ejecutar pruebas de humo en juego (arrancar singleplayer, activar debug y presionar F9 para correr el test de rarity system).
+- Documentar en detalle los cambios que afectan a SandboxVars si se requiere (archivo `SandboxVars_Analysis_and_Fix.md` ya contiene análisis previo).
 
-### 1. **GV_Itemsdistro.lua** - Correcciones Principales
+Contacto:
+- Autor de cambios: Automatizado por el asistente (ediciones realizadas en el branch `feature/minigame-implemation`).
 
-#### **Registro de Eventos Mejorado:**
-```lua
--- ANTES: Registro simple que podía fallar
-Events.OnZombieDead.Add(GVDrive_OnZombieDead)
+Cómo probar (smoke-test):
 
-// DESPUÉS: Sistema robusto con múltiples intentos
-local function registerZombieDeathEvent()
-    // Verificaciones exhaustivas
-    // Registro con fallbacks
-    // Logging detallado
-end
-```
+- Copia este mod en tu carpeta de mods (si aún no está instalado): coloca `DecryptSkillSys` en `Zomboid/mods`.
+- Arranca Project Zomboid en modo un jugador (singleplayer).
+- Habilita la opción debug del mod si no está habilitada: en consola del juego o via `GVDrive_Config` (según cómo esté expuesto), asegúrate que `GVDrive_Config.getDebug()` devuelva `true`.
+- Dentro del juego, presiona F9 para ejecutar el test de rarezas (esto ejecuta `GVDrive_TestRaritySystem.lua` y solo imprimirá si debug está activo).
+- Verifica en la consola del juego o logs que las salidas de debug aparecen y que no hay impresiones informativas fuera del modo debug.
+- Prueba encontrar USBs matando zombies o desde el loot (configura SandboxVars si quieres aumentar las tasas durante la prueba). Verifica que las tasas de dropeo corresponden a `sandbox-options.txt` y los valores normalizados en `GVDrive_Utils.getSandboxPercent`.
 
-#### **Logging Detallado Añadido:**
-```lua
--- Logging para cada muerte de zombie
-print("[DecryptSkillSys] Processing zombie death for drops...")
+Notas:
+- Los `print(...)` que quedan en el código corresponden a mensajes de ERROR o excepciones esperadas y deben permanecer visibles en producción.
+- Si quieres ver salida adicional, activa el debug global del mod; para producción, manténlo desactivado para evitar ruido.
 
--- Logging de probabilidades
-print(string.format("[DecryptSkillSys] USB roll: %d vs threshold: %.1f", usbRoll, usbThreshold))
-
--- Logging de resultados
-print(string.format("[DecryptSkillSys] ✅ DROPPED USB drive: %s", usbDrive))
-```
-
-#### **Valores de Sandbox Corregidos:**
-```lua
--- ANTES: Valores inconsistentes
-USB_ZombieDrop_Chance = 1.5,
-Laptop_ZombieDrop_Chance = 0.3,
-
-// DESPUÉS: Valores consistentes con sandbox-options.txt
-USB_ZombieDrop_Chance = 5.0,
-Laptop_ZombieDrop_Chance = 1.0,
-```
-
-### 2. **Init.lua** - Inicialización Mejorada
-
-#### **Configuraciones Fallback Actualizadas:**
-```lua
-// Valores fallback corregidos para coincidir con sandbox
-SandboxVars.GVDrive = {
-    USB_ZombieDrop_Chance = 5.0,        // Era 1.5
-    Laptop_ZombieDrop_Chance = 1.0,     // Era 0.3
-    EliteDrive_ZombieDrop_Chance = 0.167, // Era 0.08
-    Antivirus_ZombieDrop_Chance = 0.45,   // Nuevo
-}
-```
-
----
-
-## 🧪 **ARCHIVOS DE TESTING CREADOS**
-
-### 1. **GV_Debug_Test.lua** - Archivo de Pruebas
-- ✅ Verificación de sistema de eventos
-- ✅ Verificación de variables sandbox
-- ✅ Función de prueba para drops forzados
-- ✅ Logging detallado de todos los sistemas
-
-### 2. **sandbox-options-testing.txt** - Configuración de Pruebas
-- ✅ Probabilidades aumentadas para testing:
-  - USB: 25% (era 5%)
-  - Laptop: 10% (era 1%)
-  - Elite: 2% (era 0.167%)
-  - Antivirus: 5% (era 0.45%)
-
----
-
-## 📊 **ANÁLISIS DE PROBABILIDADES**
-
-### **Configuración Original (Problemática):**
-- USB: 5% = 500 de 10000 rolls
-- Laptop: 1% = 100 de 10000 rolls
-- Elite: 0.167% = 16.7 de 10000 rolls
-
-### **Con 100 Zombies Matados:**
-- **Probabilidad de NO obtener USB:** (0.95)^100 = 0.59% ≈ **99.4% de obtener al menos 1**
-- **Probabilidad de NO obtener Laptop:** (0.99)^100 = 36.6% ≈ **63.4% de obtener al menos 1**
-
-**Conclusión:** Con las probabilidades originales, deberías haber obtenido items. El problema era el registro de eventos.
-
----
-
-## 🎯 **INSTRUCCIONES PARA TESTING**
-
-### **Opción 1: Testing Rápido (Recomendado)**
-1. Reemplaza `sandbox-options.txt` con `sandbox-options-testing.txt`
-2. Reinicia el servidor/mundo
-3. Mata 5-10 zombies
-4. Deberías ver drops inmediatamente
-
-### **Opción 2: Testing con Configuración Original**
-1. Mantén configuración original
-2. Revisa console.txt para logs detallados
-3. Cada muerte de zombie ahora genera logs:
-   ```
-   [DecryptSkillSys] Processing zombie death for drops...
-   [DecryptSkillSys] USB roll: 1234 vs threshold: 500.0
-   [DecryptSkillSys] ✅ DROPPED USB drive: GValley.SkillDrive_Woodwork_Facil
-   ```
-
-### **Verificación de Funcionamiento:**
-1. **Logs Esperados en Console:**
-   ```
-   [DecryptSkillSys] Zombie death event registered successfully
-   [DecryptSkillSys] Processing zombie death for drops...
-   [DecryptSkillSys] Sandbox values - USB: 5.00%, Laptop: 1.00%...
-   ```
-
-2. **Si NO ves estos logs:**
-   - El evento no se está registrando
-   - Revisa que el mod esté cargado correctamente
-   - Verifica que estés en servidor (no cliente)
-
----
-
-## 🔧 **PRÓXIMOS PASOS**
-
-1. **Probar el mod actualizado** con las correcciones
-2. **Revisar logs** en console.txt para verificar funcionamiento
-3. **Ajustar probabilidades** según preferencia una vez confirmado que funciona
-4. **Remover archivos de testing** cuando ya no sean necesarios
-
----
-
-## 📝 **NOTAS TÉCNICAS**
-
-### **Patrones Aplicados de la Documentación:**
-- ✅ Registro robusto de eventos (Errores Comunes y Debugging)
-- ✅ Logging detallado para debugging
-- ✅ Manejo de errores con fallbacks
-- ✅ Verificación de sistemas antes de uso
-
-### **Compatibilidad:**
-- ✅ Compatible con Project Zomboid B42
-- ✅ Funciona en servidor y single-player
-- ✅ No afecta otros mods
-
----
-
-*Fecha de corrección: 2025-09-18*
-*Basado en documentación completa de patrones PZ B42*

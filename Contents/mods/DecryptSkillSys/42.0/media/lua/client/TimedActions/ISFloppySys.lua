@@ -2,9 +2,7 @@ require("TimedActions/ISBaseTimedAction")
 require("shared/GVDrive_Utils")
 require("shared/LaptopSystem")
 
-local function getSandboxGV()
-    return (SandboxVars and SandboxVars.GVDrive) or nil
-end
+-- Use GVDrive_Utils helpers for sandbox reads (no direct SandboxVars access)
 
 DecryptFloppyDisk = ISBaseTimedAction:derive("DecryptFloppyDisk")
 
@@ -47,13 +45,19 @@ function DecryptFloppyDisk:perform()
     end
 
     local MaxRolls = 16
-    local sandboxGV = getSandboxGV()
-    local probabilityToGain = MaxRolls * (((sandboxGV and sandboxGV.Floppy_Decrypt_Success_Chance) or 100) / 100)
+    local successChance = 100
+    if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+        successChance = GVDrive_Utils.getSandboxNumber('Floppy_Decrypt_Success_Chance', 100)
+    end
+    local probabilityToGain = MaxRolls * (math.max(0, math.min(100, successChance)) / 100)
     local diceroll = ZombRand(1.0, MaxRolls)
 
     -- Check if drive should be preserved (chance to NOT destroy it)
-    local preserveChance = ((sandboxGV and sandboxGV.Drive_Preserve_Chance) or 30) / 100
-    local shouldPreserve = ZombRand(100) / 100 < preserveChance
+    local preserveChancePercent = 30
+    if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+        preserveChancePercent = GVDrive_Utils.getSandboxNumber('Drive_Preserve_Chance', 30)
+    end
+    local shouldPreserve = ZombRand(100) / 100 < math.max(0, math.min(100, preserveChancePercent)) / 100
     
     -- Always consume one floppy unless it's preserved
     if not shouldPreserve then
@@ -99,8 +103,18 @@ function DecryptFloppyDisk:perform()
         end
     else
         -- Failure: Check for malware
-        local malwareChance = ((sandboxGV and sandboxGV.Malware_Chance) or 15) / 100
-        local gotMalware = ZombRand(100) / 100 < malwareChance
+        local malwareChancePercent = 15
+        if GVDrive_Utils and GVDrive_Utils.getMalwareChance then
+            local ok, malChance = pcall(GVDrive_Utils.getMalwareChance, GVDrive_Utils, driveInfo)
+            if ok and type(malChance) == 'number' then
+                malwareChancePercent = malChance
+            end
+        else
+            if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+                malwareChancePercent = GVDrive_Utils.getSandboxNumber('Malware_Chance', 15)
+            end
+        end
+        local gotMalware = ZombRand(100) / 100 < math.max(0, math.min(100, malwareChancePercent)) / 100
         
         if gotMalware then
             local isNewInfection = LaptopSystem.applyMalware(self.item)
