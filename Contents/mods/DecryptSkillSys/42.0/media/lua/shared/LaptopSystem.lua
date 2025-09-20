@@ -81,11 +81,25 @@ function LaptopSystem.getLaptopHealth(item)
     if not modData then return 0 end -- Safety check for nil modData
     if not modData.laptopHealth then
         -- Initialize laptop health with random value based on sandbox settings
-    local minHealth = (getNum and getNum('Laptop_Random_Health_Min', 30)) or 30
-    local maxHealth = (getNum and getNum('Laptop_Random_Health_Max', 85)) or 85
-        
-        -- Use ZombRand for random health between min and max
-        local randomHealth = ZombRand(minHealth, maxHealth + 1)
+        local rawMin = (getNum and getNum('Laptop_Random_Health_Min', 30)) or 30
+        local rawMax = (getNum and getNum('Laptop_Random_Health_Max', 85)) or 85
+
+        -- Coerce to numbers safely (getNum may return strings or nil)
+        local minHealth = tonumber(rawMin) or 30
+        local maxHealth = tonumber(rawMax) or 85
+
+        -- Ensure sane bounds
+        if maxHealth < minHealth then
+            local tmp = maxHealth
+            maxHealth = minHealth
+            minHealth = tmp
+        end
+
+        -- Use ZombRand for random health between min and max (inclusive)
+        local ok, randomHealth = pcall(function() return ZombRand(minHealth, maxHealth + 1) end)
+        if not ok or type(randomHealth) ~= 'number' then
+            randomHealth = math.floor((minHealth + maxHealth) / 2)
+        end
         modData.laptopHealth = randomHealth
     end
     return modData.laptopHealth
