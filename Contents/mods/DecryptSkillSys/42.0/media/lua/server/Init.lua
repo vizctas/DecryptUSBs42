@@ -1,19 +1,38 @@
 -- Basic server init logging for DecryptSkillSys
+-- SIMPLIFIED VERSION - uses new native PZ approach
 
-local DEBUG = true  -- Force enable for testing
+local DEBUG = true
 pcall(require, "shared/GVDrive_Config")
 if GVDrive_Config and GVDrive_Config.getDebug then
     DEBUG = GVDrive_Config.getDebug()
 end
 
-local function debugPrint(...)
-    print("[DecryptSkillSys][DEBUG]", ...)
-end
-local function testPrint(...)
-    print("[DecryptSkillSys][INIT]", ...)
+local ok_debug, GVDebug = pcall(require, "shared/GVDebug")
+if not ok_debug or not GVDebug then
+    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
 end
 
-local function logGVDriveSandbox(prefix)
+-- SIMPLIFIED INIT: Just load the simplified loader
+local function initMod()
+    GVDebug.debugPrint("🚀 Starting simplified mod initialization...")
+    -- The simplified loader (GVLoaderSimple) was removed to avoid recursive/erroneous requires.
+    -- Core systems will be loaded via explicit requires further down; this avoids noisy pcall failures.
+    GVDebug.debugPrint("ℹ️ GVLoaderSimple not present; using direct loading of core systems")
+    
+    GVDebug.debugPrint("🎯 Initialization complete - using native PZ systems")
+end
+
+-- Register simplified init
+if Events and Events.OnServerStarted then
+    Events.OnServerStarted.Add(initMod)
+elseif Events and Events.OnGameBoot then  
+    Events.OnGameBoot.Add(initMod)
+else
+    -- Fallback: run immediately
+    initMod()
+end
+
+GVDebug.debugPrint("Simplified Init.lua loaded")
     local maxAttempts = 10
     local attempt = 0
     local delaySeconds = 1
@@ -21,33 +40,33 @@ local function logGVDriveSandbox(prefix)
     while attempt < maxAttempts do
         local ok, gv = pcall(function() return SandboxVars and SandboxVars.GVDrive or nil end)
         if not ok then
-            debugPrint(string.format("SandboxVars not available yet (attempt %d/%d)", attempt+1, maxAttempts))
+            GVDebug.debugPrint(string.format("SandboxVars not available yet (attempt %d/%d)", attempt+1, maxAttempts))
             attempt = attempt + 1
             if attempt < maxAttempts then
                 coroutine.yield(delaySeconds * 1000) -- Wait before retrying
             end
         else
             if not gv then
-                debugPrint("GVDrive sandbox group is nil after ", attempt)
+                GVDebug.debugPrint("GVDrive sandbox group is nil after ", attempt)
             end
             return gv
         end
     end
     
-    print("[DecryptSkillSys] WARNING: Failed to load SandboxVars after "..maxAttempts.." attempts")
+    GVDebug.debugPrint("[WARNING] Failed to load SandboxVars after "..maxAttempts.." attempts")
     return nil
 end
 
 local function onStarted()
-    debugPrint("Server start detected; initializing sandbox settings...")
+    GVDebug.debugPrint("Server start detected; initializing sandbox settings...")
     
     -- Create coroutine to handle retries
     local co = coroutine.create(function()
         local gv = logGVDriveSandbox("GVDrive.")
             if gv then
-                debugPrint("Successfully loaded sandbox settings")
+                GVDebug.debugPrint("Successfully loaded sandbox settings")
             else
-                print("[DecryptSkillSys] WARNING: Using fallback sandbox settings")
+                GVDebug.debugPrint("[WARNING] Using fallback sandbox settings")
             -- Initialize minimal fallback settings with correct values
             SandboxVars = SandboxVars or {}
             SandboxVars.GVDrive = {
@@ -72,15 +91,17 @@ local function onStarted()
         }
 
         for _, entry in ipairs(keys) do
-            local ok, value = pcall(entry.fn)
-            debugPrint(string.format("%s%s=%s", prefix or "GVDrive.", entry.k, tostring(ok and value or "<error>")))
+        local ok, value = pcall(entry.fn)
+        GVDebug.debugPrint(string.format("%s%s=%s", prefix or "GVDrive.", entry.k, tostring(ok and value or "<error>")))
+    GVDebug.debugPrint("OnInitWorld fired")
+        GVDebug.debugPrint("Successfully loaded sandbox settings")
         end
     end)
     
     -- Start the coroutine
     local ok, err = coroutine.resume(co)
     if not ok then
-        print("[DecryptSkillSys] ERROR in sandbox initialization: "..tostring(err))
+        GVDebug.debugPrint("[ERROR] in sandbox initialization:", tostring(err))
     end
 end
 
@@ -112,7 +133,7 @@ local function clampSandboxVars()
         if v ~= nil then
             local n = tonumber(v) or entry.def
             if n < entry.min or n > entry.max then
-                print(string.format("[DecryptSkillSys] Clamping sandbox var %s: %s -> %s (allowed %s..%s)", key, tostring(v), tostring(entry.def), tostring(entry.min), tostring(entry.max)))
+                GVDebug.debugPrint(string.format("[WARN] Clamping sandbox var %s: %s -> %s (allowed %s..%s)", key, tostring(v), tostring(entry.def), tostring(entry.min), tostring(entry.max)))
                 gv[key] = entry.def
             end
         else
@@ -132,9 +153,9 @@ end
 if Events and Events.OnGameStart and Events.OnGameStart.Add then
     Events.OnGameStart.Add(onStarted)
 end
-if Events and Events.OnInitWorld and Events.OnInitWorld.Add then
+    if Events and Events.OnInitWorld and Events.OnInitWorld.Add then
     Events.OnInitWorld.Add(function()
-        print("[DecryptSkillSys] OnInitWorld fired")
+        GVDebug.debugPrint("OnInitWorld fired")
         logGVDriveSandbox("GVDrive.")
     end)
 end
@@ -144,7 +165,7 @@ pcall(require, "shared/GVDrive_Utils")
 pcall(require, "server/items/GV_Itemsdistro")
 pcall(require, "server/GV_ZombieLoot")
 
-print("[DecryptSkillSys] Init.lua loaded (server)")
+GVDebug.debugPrint("Init.lua loaded (server)")
 
 -- Debug: server-only test handler to confirm OnZombieDead fires
 do
@@ -155,7 +176,7 @@ do
     if canRegister then
         if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
             Events.OnZombieDead.Add(function(zombie)
-                print("[DecryptSkillSys] TEST: OnZombieDead fired for", tostring(zombie))
+                GVDebug.debugPrint("[TEST] OnZombieDead fired for", tostring(zombie))
             end)
         end
     end
