@@ -245,9 +245,9 @@ local function enableWorldLoot()
     -- Skill USB World Loot
     local skillUSBRate = 0.08
     if getPct then
-        skillUSBRate = (getPct("SkillUSB_WorldLoot_Chance", 8)) / 100.0
+        skillUSBRate = (getPct("SkillUSB_WorldLoot_Chance", 4)) / 100.0
     else
-        skillUSBRate = (gv.SkillUSB_WorldLoot_Chance or 8) / 100
+        skillUSBRate = (gv.SkillUSB_WorldLoot_Chance or 4) / 100
     end
     local skillUSBWeight = 0.0001 * skillUSBRate  -- Ultra rare: 0.01%
     

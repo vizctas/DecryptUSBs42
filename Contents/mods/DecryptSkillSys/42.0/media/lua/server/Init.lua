@@ -126,7 +126,7 @@ local function clampSandboxVars()
         {k = "USB_WorldLoot_Chance", min = 0.0, max = 5.0, def = 1.0},
         {k = "Laptop_WorldLoot_Chance", min = 0.0, max = 5.0, def = 1.0},
         {k = "EliteDrive_WorldLoot_Chance", min = 0.0, max = 5.0, def = 0.1},
-        {k = "SkillUSB_WorldLoot_Chance", min = 0.0, max = 5.0, def = 0.2},
+        {k = "SkillUSB_WorldLoot_Chance", min = 0.0, max = 5.0, def = 0.1},
         {k = "USB_ZombieDrop_Chance", min = 0.0, max = 5.0, def = 0.4},
         {k = "Laptop_ZombieDrop_Chance", min = 0.0, max = 5.0, def = 0.125},
         {k = "EliteDrive_ZombieDrop_Chance", min = 0.0, max = 5.0, def = 0.05},
