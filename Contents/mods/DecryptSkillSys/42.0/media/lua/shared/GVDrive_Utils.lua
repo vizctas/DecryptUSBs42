@@ -9,7 +9,7 @@ local rarityDefaults = {
         laptopDamageMin = 3,
         laptopDamageMax = 5,
         xpBonus = 0.0,
-        lootChance = 5.0,
+        lootChance = 1.5,
     },
     Facil = {
         successBonus = 4.5,
@@ -17,7 +17,7 @@ local rarityDefaults = {
         laptopDamageMin = 5,
         laptopDamageMax = 10,
         xpBonus = 0.0,
-        lootChance = 2.0,
+        lootChance = 0.8,
     },
     Dificil = {
         successBonus = 6.5,
@@ -25,7 +25,7 @@ local rarityDefaults = {
         laptopDamageMin = 15,
         laptopDamageMax = 20,
         xpBonus = 0.0,
-        lootChance = 10.0,
+        lootChance = 3.2,
     },
 }
 

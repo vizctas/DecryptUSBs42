@@ -14,7 +14,7 @@ end
 EliteDriveSystem = EliteDriveSystem or {}
 
 -- Elite drive drop chances (very rare)
-local ELITE_DROP_CHANCE = 0.15 -- 0.15% chance per zombie
+local ELITE_DROP_CHANCE = 0.05 -- 0.05% chance per zombie
 
 -- Track player enhancements in ModData
 function EliteDriveSystem.getPlayerEnhancements(player)

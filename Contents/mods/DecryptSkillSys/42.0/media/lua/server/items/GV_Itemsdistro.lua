@@ -218,11 +218,11 @@ local function enableWorldLoot()
     end
 
     -- Elite Drives World Loot (Ultra Rare)
-    local eliteRate = 0.10
+    local eliteRate = 0.02
     if getPct then
-        eliteRate = (getPct("EliteDrive_WorldLoot_Chance", 10)) / 100.0
+        eliteRate = (getPct("EliteDrive_WorldLoot_Chance", 2)) / 100.0
     else
-        eliteRate = (gv.EliteDrive_WorldLoot_Chance or 10) / 100
+        eliteRate = (gv.EliteDrive_WorldLoot_Chance or 2) / 100
     end
     local eliteWeight = 0.000001 * eliteRate  -- Ultra rare: 0.0001%
     
@@ -243,11 +243,11 @@ local function enableWorldLoot()
     end
 
     -- Skill USB World Loot
-    local skillUSBRate = 0.20
+    local skillUSBRate = 0.08
     if getPct then
-        skillUSBRate = (getPct("SkillUSB_WorldLoot_Chance", 20)) / 100.0
+        skillUSBRate = (getPct("SkillUSB_WorldLoot_Chance", 8)) / 100.0
     else
-        skillUSBRate = (gv.SkillUSB_WorldLoot_Chance or 20) / 100
+        skillUSBRate = (gv.SkillUSB_WorldLoot_Chance or 8) / 100
     end
     local skillUSBWeight = 0.0001 * skillUSBRate  -- Ultra rare: 0.01%
     
