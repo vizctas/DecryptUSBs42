@@ -97,6 +97,9 @@ end
 function GVDrive_Utils.getRaritySettings(info)
     local key = getRarityKeyFromInfo(info)
     local defaults = rarityDefaults[key] or rarityDefaults.Normal
+    if type(defaults) ~= "table" then
+        defaults = rarityDefaults.Normal or {}
+    end
     return {
         successBonus = getSandboxRarityValue(key, "_Success_Bonus", defaults.successBonus),
         malwareChance = getSandboxRarityValue(key, "_Malware_Chance", defaults.malwareChance),
@@ -198,7 +201,7 @@ function GVDrive_Utils.getDriveInfo(item)
             local skill = parts[2]
             local rarity = parts[3]
             local info = buildDriveInfo(skill, rarity, true)
-            info.rarityKey = GVDrive_Utils.getRarityKey(info)
+            info.rarityKey = getRarityKeyFromInfo(info)
             return info
         end
     end
@@ -213,7 +216,7 @@ function GVDrive_Utils.getDriveInfo(item)
         isSkillSpecific = false,
         rarity = "Normal",
     }
-    info.rarityKey = GVDrive_Utils.getRarityKey(info)
+    info.rarityKey = getRarityKeyFromInfo(info)
     return info
 end
 
@@ -517,14 +520,21 @@ function GVDrive_Utils.calculateDamageRisk(driveInfo)
 end
 
 -- Gate non-error prints behind a central debug flag
+-- Ensure config is loaded, but don't error if it's missing
 pcall(require, "shared/GVDrive_Config")
 local DEBUG = (GVDrive_Config and GVDrive_Config.getDebug) and GVDrive_Config.getDebug() or false
-local function debugPrint(...)
-    if not DEBUG then return end
-    print("[DecryptSkillSys][DEBUG]", ...)
+
+-- Defensive require for GVDebug: some load orders may not have it available.
+-- Use a quiet no-op fallback so calls to GVDebug.debugPrint never cause runtime errors.
+local _ok_dbg, _dbg_mod = pcall(require, "shared/GVDebug")
+local GVDebug = nil
+if _ok_dbg and type(_dbg_mod) == "table" and type(_dbg_mod.debugPrint) == "function" then
+    GVDebug = _dbg_mod
+else
+    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
 end
 
-debugPrint("GVDrive_Utils.lua loaded with rarity-aware settings")
+GVDebug.debugPrint("GVDrive_Utils.lua loaded with rarity-aware settings")
 
 -- Normalized percent helper
 function GVDrive_Utils.getSandboxPercent(name, default)

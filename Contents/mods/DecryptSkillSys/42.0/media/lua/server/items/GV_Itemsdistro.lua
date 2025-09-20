@@ -6,15 +6,16 @@ if GVDrive_Config and GVDrive_Config.getDebug then
     DEBUG = GVDrive_Config.getDebug()
 end
 
-local function debugPrint(...)
-    if not DEBUG then return end
-    print("[DecryptSkillSys][DEBUG]", ...)
+-- Defensive GVDebug require: some loader orders may not have it yet
+local ok_dbg, GVDebug = pcall(require, "shared/GVDebug")
+if not ok_dbg or not GVDebug then
+    GVDebug = { debugPrint = function(...) end }
 end
 
 local function try_require(path)
     local ok, err = pcall(require, path)
-    if not ok then
-        debugPrint("Optional require failed:", tostring(path))
+    if not ok and GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint("Optional require failed:", tostring(path))
     end
     return ok
 end
@@ -40,8 +41,7 @@ try_require("Items/Distribution_SideTableJunk")
 try_require("Items/Distribution_BagsAndContainers")
 try_require("Items/ItemPicker")
 
-debugPrint("GV_Itemsdistro.lua loaded")
-print("[DecryptSkillSys] GV_Itemsdistro.lua loaded")
+    GVDebug.debugPrint("GV_Itemsdistro.lua loaded")
 
 function safeInsertItems(distriName, item, weight)
 	if not distriName or not item or not weight then return end
@@ -52,7 +52,9 @@ function safeInsertItems(distriName, item, weight)
 
     if not proceduralDistrib and not vehicleDistrib then
         -- Avoid spamming, but give one hint of what's happening
-        debugPrint("Distribution '" .. tostring(distriName) .. "' not found in Procedural or Vehicle tables")
+        if GVDebug and GVDebug.debugPrint then
+            GVDebug.debugPrint("Distribution '" .. tostring(distriName) .. "' not found in Procedural or Vehicle tables")
+        end
     end
 
 	if proceduralDistrib and proceduralDistrib.items then
@@ -85,6 +87,9 @@ local function addToProceduralByPattern(patterns, item, weight)
         if t and stringContainsAny(name, patterns) then
             table.insert(t, item)
             table.insert(t, weight)
+            if GVDebug and GVDebug.debugPrint then
+                GVDebug.debugPrint("Injected into Procedural list:", name, "item=", item, "weight=", weight)
+            end
         end
     end
 end
@@ -95,6 +100,9 @@ local function addToVehicleCommon(item, weight)
         if list and list.items and stringContainsAny(name, {"glove", "glovebox", "trunk", "seat"}) then
             table.insert(list.items, item)
             table.insert(list.items, weight)
+            if GVDebug and GVDebug.debugPrint then
+                GVDebug.debugPrint("Injected into Vehicle list:", name, "item=", item, "weight=", weight)
+            end
         end
     end
 end
@@ -108,6 +116,9 @@ local function addToSuburbsByContainer(patterns, item, weight)
                 if t and stringContainsAny(containerName, patterns) then
                     table.insert(t, item)
                     table.insert(t, weight)
+                    if GVDebug and GVDebug.debugPrint then
+                        GVDebug.debugPrint("Injected into Suburbs container:", roomName, containerName, "item=", item, "weight=", weight)
+                    end
                 end
             end
         end
@@ -125,16 +136,16 @@ local function enableWorldLoot()
         enable = true
         enableFallback = true
     end
-    print("[DecryptSkillSys] enableWorldLoot running; EnableWorldLoot=", tostring(enable))
+    if GVDebug and GVDebug.debugPrint then GVDebug.debugPrint("enableWorldLoot running; EnableWorldLoot=", tostring(enable)) end
     if not enable then
-        debugPrint("World loot disabled by sandbox option")
+    GVDebug.debugPrint("World loot disabled by sandbox option")
         return
     end
-    if enableFallback then
-        debugPrint("World loot enabled (fallback: option missing in save)")
+    if enableFallback and GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint("World loot enabled (fallback: option missing in save)")
     end
 
-    debugPrint("Enabling world loot for USBs and laptops (no more floppies)…")
+    if GVDebug and GVDebug.debugPrint then GVDebug.debugPrint("Enabling world loot for USBs and laptops (no more floppies)…") end
 
     -- Base weights; procedural values are relative within each list
     -- Apply sandbox multipliers (percentage intensity per item type)
@@ -258,18 +269,21 @@ local function enableWorldLoot()
         addToProceduralByPattern(elecPatterns, facilItem, skillUSBWeight * 3)
         addToProceduralByPattern(officePatterns, facilItem, skillUSBWeight * 2)
         addToProceduralByPattern(schoolLib, facilItem, skillUSBWeight * 2)
+    GVDebug.debugPrint("Skill USB (Facil) planned injections for skill:", skill, facilItem)
         
         -- Moderado: Less common  
         addToProceduralByPattern(elecPatterns, moderadoItem, skillUSBWeight * 2)
         addToProceduralByPattern(officePatterns, moderadoItem, skillUSBWeight)
+    GVDebug.debugPrint("Skill USB (Moderado) planned injections for skill:", skill, moderadoItem)
         
         -- Dificil: Very rare, only in high-tech locations
         local techPatterns = {"server", "electronics", "computer", "tech", "radio"}
         addToProceduralByPattern(techPatterns, dificilItem, skillUSBWeight * 0.5)
         addToProceduralByPattern(securePatterns, dificilItem, skillUSBWeight * 0.3)
+    GVDebug.debugPrint("Skill USB (Dificil) planned injections for skill:", skill, dificilItem)
     end
 
-    debugPrint("World loot injected: USBs, Laptops, Elite Drives, Skill USBs.")
+    GVDebug.debugPrint("World loot injected: USBs, Laptops, Elite Drives, Skill USBs.")
 end
 
 -- Attempt to enable world loot on load

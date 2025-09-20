@@ -19,6 +19,7 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 
 ### Removed
 - Backups and dead-code files moved to `logs/deleted_backups/` for archive and review (non-destructive).
+- Removed client UI file `Contents/mods/DecryptSkillSys/42.0/media/lua/client/UI/LaptopBatteryWidget.lua` (feature retired; caused runtime errors). 
 
 ### Notes
 - All changes were applied on branch `feature/working_state_v1`.

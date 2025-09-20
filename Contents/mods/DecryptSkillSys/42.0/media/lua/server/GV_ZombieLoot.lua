@@ -5,17 +5,27 @@
 pcall(require, "shared/GVDrive_Utils")
 pcall(require, "shared/GVDrive_Config")
 
-local DEBUG = true  -- Force enable for testing
+local ok_debug, GVDebug = pcall(require, "shared/GVDebug")
+if not ok_debug or not GVDebug then
+    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
+end
+
+-- Local wrappers so existing unqualified `testPrint(...)` and `debugPrint(...)` calls
+-- resolve to the centralized `GVDebug` implementation (no-op if missing).
+local function debugPrint(...)
+    if GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint(...)
+    end
+end
+local function testPrint(...)
+    if GVDebug and GVDebug.testPrint then
+        GVDebug.testPrint(...)
+    end
+end
+
+local DEBUG = false
 if GVDrive_Config and GVDrive_Config.getDebug then
     DEBUG = GVDrive_Config.getDebug()
-end
-
-local function debugPrint(...)
-    print("[DecryptSkillSys][DEBUG]", ...)
-end
-
-local function testPrint(...)
-    print("[DecryptSkillSys][TEST]", ...)
 end
 
 local function safeNum(v, def)
@@ -49,7 +59,7 @@ local AVAILABLE_ITEMS = {
 }
 -- Modern item spawning function with comprehensive item support
 local function spawnCorrectItem(zombie, itemType)
-    testPrint("Attempting to spawn", itemType, "...")
+    GVDebug.testPrint("Attempting to spawn", itemType, "...")
     local itemToSpawn = nil
     
     if itemType == "USB" then
@@ -57,7 +67,8 @@ local function spawnCorrectItem(zombie, itemType)
         local skill = AVAILABLE_ITEMS.skills[ZombRand(#AVAILABLE_ITEMS.skills) + 1]
         local rarity = AVAILABLE_ITEMS.rarities[ZombRand(#AVAILABLE_ITEMS.rarities) + 1]
         itemToSpawn = string.format("GValley.SkillDrive_%s_%s", skill, rarity)
-        testPrint("Selected skill:", skill, "rarity:", rarity)
+        GVDebug.testPrint("Selected skill:", skill, "rarity:", rarity, "full item:", itemToSpawn)
+        GVDebug.testPrint("Available rarities:", table.concat(AVAILABLE_ITEMS.rarities, ", "))
         
     elseif itemType == "Laptop" then
         -- Spawn laptops from available laptop types
@@ -74,11 +85,11 @@ local function spawnCorrectItem(zombie, itemType)
     end
     
     if not itemToSpawn then
-        testPrint("❌ No item determined for type:", itemType)
+        GVDebug.testPrint("No item determined for type:", itemType)
         return
     end
     
-    testPrint("Selected item:", itemToSpawn)
+    GVDebug.testPrint("Selected item:", itemToSpawn)
     
     -- Try corpse inventory first, then ground
     local spawned = false
@@ -89,12 +100,13 @@ local function spawnCorrectItem(zombie, itemType)
                 inv:AddItem(itemToSpawn)
                 spawned = true
                 testPrint("✅ Successfully placed", itemToSpawn, "into zombie inventory")
+                GVDebug.testPrint("✅ Successfully placed", itemToSpawn, "into zombie inventory")
             end
         end
     end)
     
     if not ok then
-        testPrint("❌ Error in inventory placement:", tostring(err))
+                GVDebug.testPrint("Error in inventory placement:", tostring(err))
     end
     
     -- Fallback to ground
@@ -105,48 +117,54 @@ local function spawnCorrectItem(zombie, itemType)
                 sq:AddWorldInventoryItem(itemToSpawn, 0, 0, 0)
             end)
             if ok2 then
-                testPrint("✅ Successfully spawned", itemToSpawn, "on ground (fallback)")
+                GVDebug.testPrint("Successfully spawned", itemToSpawn, "on ground (fallback)")
             else
-                testPrint("❌ Error spawning on ground:", tostring(err2))
+                GVDebug.testPrint("Error spawning on ground:", tostring(err2))
             end
         else
             testPrint("❌ Cannot spawn item: no square and inventory placement failed")
+            GVDebug.testPrint("❌ Cannot spawn item: no square and inventory placement failed")
         end
     end
 end
 
 -- Main zombie death handler with comprehensive drop system
 local function onZombieDeadModern(zombie)
-    testPrint("onZombieDeadModern called with zombie:", tostring(zombie))
+    GVDebug.testPrint("ZOMBIE KILLED! Handler executing...")
     if not zombie then 
-        testPrint("onZombieDeadModern: zombie is nil, returning")
+        testPrint("❌ zombie is nil, returning")
+    GVDebug.testPrint("❌ zombie is nil, returning")
         return 
     end
     if instanceof(zombie, "IsoPlayer") then 
-        testPrint("onZombieDeadModern: zombie is IsoPlayer, returning")
+        testPrint("❌ zombie is IsoPlayer, returning")
+    GVDebug.testPrint("❌ zombie is IsoPlayer, returning")
         return 
     end
+    
+    GVDebug.testPrint("Valid zombie killed, checking drops...")
 
     -- Multiple drop attempts: USB/Laptop/Elite/Antivirus
     local dropAttempts = {
-        {type = "USB", chance_key = "USB_ZombieDrop_Chance", default = 8.0},
-        {type = "Laptop", chance_key = "Laptop_ZombieDrop_Chance", default = 2.5},
-        {type = "Elite", chance_key = "EliteDrive_ZombieDrop_Chance", default = 1.0},
-        {type = "Antivirus", chance_key = "Antivirus_ZombieDrop_Chance", default = 3.34}
+        {type = "USB", chance_key = "USB_ZombieDrop_Chance", default = 10.0},
+        {type = "Laptop", chance_key = "Laptop_ZombieDrop_Chance", default = 5.0},
+        {type = "Elite", chance_key = "EliteDrive_ZombieDrop_Chance", default = 2.0},
+        {type = "Antivirus", chance_key = "Antivirus_ZombieDrop_Chance", default = 8.0}
     }
 
     for _, attempt in ipairs(dropAttempts) do
         local chancePercent = attempt.default
-        testPrint("Getting sandbox value for", attempt.chance_key)
+        GVDebug.testPrint("Getting sandbox value for", attempt.chance_key)
         if GVDrive_Utils and GVDrive_Utils.getSandboxPercent then
             local raw = GVDrive_Utils.getSandboxPercent(attempt.chance_key, attempt.default)
             chancePercent = raw / 100.0
             testPrint("getSandboxPercent returned:", raw, "converted to:", chancePercent)
+            GVDebug.testPrint("getSandboxPercent returned:", raw, "converted to:", chancePercent)
         end
 
         local roll = ZombRand(0, 10000) / 100.0
         local threshold = chancePercent * 100.0
-        testPrint(string.format("%s drop roll: %.2f vs threshold: %.2f - %s", attempt.type, roll, threshold, roll < threshold and "SUCCESS" or "FAILED"))
+        GVDebug.testPrint(string.format("%s drop roll: %.2f vs threshold: %.2f - %s", attempt.type, roll, threshold, roll < threshold and "SUCCESS" or "FAILED"))
         
         if roll < threshold then
             spawnCorrectItem(zombie, attempt.type)
@@ -154,7 +172,7 @@ local function onZombieDeadModern(zombie)
     end
 end
 
-debugPrint("GV_ZombieLoot.lua modern handler defined")
+GVDebug.debugPrint("GV_ZombieLoot.lua modern handler defined")
 
 -- EXPANSION HELPER: Add new items here and they'll automatically be included in drops
 -- TO ADD A NEW SKILL: Add to AVAILABLE_ITEMS.skills array
@@ -174,25 +192,26 @@ local function getItemStats()
     return stats
 end
 
-testPrint("📊 ITEM CONFIGURATION LOADED:")
+GVDebug.testPrint("ITEM CONFIGURATION LOADED:")
 local stats = getItemStats()
-testPrint(string.format("   • %d Skills × %d Rarities = %d Skill Drives", #AVAILABLE_ITEMS.skills, #AVAILABLE_ITEMS.rarities, stats.totalSkillDrives))
-testPrint(string.format("   • %d Laptop Types", stats.totalLaptops))
-testPrint(string.format("   • %d Elite Drive Types", stats.totalEliteTypes))
-testPrint(string.format("   • %d Antivirus Types", stats.totalAntivirusTypes))
-testPrint(string.format("   💎 TOTAL AVAILABLE ITEMS: %d", stats.totalItems))
+GVDebug.testPrint(string.format("   • %d Skills × %d Rarities = %d Skill Drives", #AVAILABLE_ITEMS.skills, #AVAILABLE_ITEMS.rarities, stats.totalSkillDrives))
+GVDebug.testPrint(string.format("   • %d Laptop Types", stats.totalLaptops))
+GVDebug.testPrint(string.format("   • %d Elite Drive Types", stats.totalEliteTypes))
+GVDebug.testPrint(string.format("   • %d Antivirus Types", stats.totalAntivirusTypes))
+GVDebug.testPrint(string.format("   TOTAL AVAILABLE ITEMS: %d", stats.totalItems))
 
 -- Hook combined attempt: all modern items in one streamlined function
 local function onZombieDeadCombined(zombie)
-    testPrint("=== Combined zombie death handler called ===")
+    GVDebug.testPrint("Combined zombie death handler called")
     pcall(onZombieDeadModern, zombie)
-    testPrint("=== Combined handler complete ===")
+    GVDebug.testPrint("Combined handler complete")
 end
 
 -- FINAL VERIFICATION: Register on server or single-player with comprehensive logging
 local function registerZombieHandler()
     local registered = false
     testPrint("=== REGISTERING ZOMBIE HANDLER - FINAL VERIFICATION ===")
+    GVDebug.testPrint("=== REGISTERING ZOMBIE HANDLER - FINAL VERIFICATION ===")
     
     local canRegister = false
     local contextInfo = ""
@@ -206,26 +225,26 @@ local function registerZombieHandler()
             contextInfo = "CLIENT_ONLY"
         end
     end)
-    testPrint("Context check - canRegister:", canRegister, "contextInfo:", contextInfo)
+    GVDebug.testPrint("Context check - canRegister:", canRegister, "contextInfo:", contextInfo)
 
     if canRegister then
         if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
             Events.OnZombieDead.Add(onZombieDeadCombined)
             registered = true
-            testPrint("✅ SUCCESS: GV_ZombieLoot.lua registered combined OnZombieDead handler (" .. contextInfo .. ")")
-            testPrint("✅ VERIFICATION: Handler function exists:", type(onZombieDeadCombined))
+            GVDebug.testPrint("SUCCESS: GV_ZombieLoot.lua registered combined OnZombieDead handler (" .. contextInfo .. ")")
+            GVDebug.testPrint("VERIFICATION: Handler function exists:", type(onZombieDeadCombined))
             
             -- Test sandbox access immediately
             local testSandbox = (SandboxVars and SandboxVars.GVDrive) or {}
-            testPrint("✅ VERIFICATION: SandboxVars.GVDrive exists:", testSandbox ~= nil)
-            testPrint("✅ VERIFICATION: USB_ZombieDrop_Chance value:", testSandbox.USB_ZombieDrop_Chance or "NOT_SET")
+            GVDebug.testPrint("VERIFICATION: SandboxVars.GVDrive exists:", testSandbox ~= nil)
+            GVDebug.testPrint("VERIFICATION: USB_ZombieDrop_Chance value:", testSandbox.USB_ZombieDrop_Chance or "NOT_SET")
         else
-            testPrint("❌ FAILED: Events.OnZombieDead.Add not available")
+            GVDebug.debugPrint("FAILED: Events.OnZombieDead.Add not available")
         end
     else
-        testPrint("❌ SKIPPED: OnZombieDead registration - context:", contextInfo)
+        GVDebug.debugPrint("SKIPPED: OnZombieDead registration - context:", contextInfo)
     end
-    testPrint("=== REGISTRATION COMPLETE - registered:", registered, "===")
+    GVDebug.debugPrint("=== REGISTRATION COMPLETE - registered:", registered, "===")
     return registered
 end
 
@@ -233,7 +252,7 @@ registerZombieHandler()
 
 -- FINAL VERIFICATION: Test sandbox access and log all relevant values
 local function verifyConfiguration()
-    testPrint("=== FINAL CONFIGURATION VERIFICATION ===")
+    GVDebug.debugPrint("=== FINAL CONFIGURATION VERIFICATION ===")
     local gv = (SandboxVars and SandboxVars.GVDrive) or {}
     
     -- Test all drop-related sandbox keys
@@ -253,11 +272,11 @@ local function verifyConfiguration()
                 processedValue = string.format("%.2f%%", result)
             end
         end
-        testPrint(string.format("%-25s Raw: %-8s Processed: %s", key, tostring(rawValue), processedValue))
+    GVDebug.debugPrint(string.format("%-25s Raw: %-8s Processed: %s", key, tostring(rawValue), processedValue))
     end
     
     -- Test comprehensive item availability
-    testPrint("=== TESTING COMPREHENSIVE ITEM AVAILABILITY ===")
+    GVDebug.debugPrint("=== TESTING COMPREHENSIVE ITEM AVAILABILITY ===")
     
     -- Test sample from each category
     local testItems = {
@@ -288,12 +307,12 @@ local function verifyConfiguration()
     for _, item in ipairs(testItems) do
         local exists = getScriptManager():getItem(item) ~= nil
         if exists then existingItems = existingItems + 1 end
-        testPrint(string.format("%-35s %s", item, exists and "✅ EXISTS" or "❌ MISSING"))
+        GVDebug.debugPrint(string.format("%-35s %s", item, exists and "EXISTS" or "MISSING"))
     end
     
-    testPrint(string.format("=== ITEM AVAILABILITY: %d/%d (%.1f%%) ===", existingItems, totalItems, (existingItems/totalItems)*100))
-    testPrint(string.format("=== TOTAL SKILL DRIVES AVAILABLE: %d skills × 3 rarities = %d items ===", #AVAILABLE_ITEMS.skills, #AVAILABLE_ITEMS.skills * 3))
-    testPrint("=== VERIFICATION COMPLETE - MOD READY FOR TESTING ===")
+    GVDebug.debugPrint(string.format("=== ITEM AVAILABILITY: %d/%d (%.1f%%) ===", existingItems, totalItems, (existingItems/totalItems)*100))
+    GVDebug.debugPrint(string.format("=== TOTAL SKILL DRIVES AVAILABLE: %d skills × 3 rarities = %d items ===", #AVAILABLE_ITEMS.skills, #AVAILABLE_ITEMS.skills * 3))
+    GVDebug.debugPrint("=== VERIFICATION COMPLETE - MOD READY FOR TESTING ===")
 end
 
 -- Run verification after a short delay to ensure everything is loaded

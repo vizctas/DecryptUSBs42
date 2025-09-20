@@ -38,25 +38,25 @@ option GVDrive.Antivirus_Spawn_Rate
 
 option GVDrive.USB_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 5, default = 0.01,
+    type = double, min = 0, max = 50, default = 10.0,
     page = Drive_Decrypt, translation = GVDrive_USB_ZombieDrop,
 }
 
 option GVDrive.Laptop_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 5, default = 0.02,
+    type = double, min = 0, max = 25, default = 5.0,
     page = Drive_Decrypt, translation = GVDrive_Laptop_ZombieDrop,
 }
 
 option GVDrive.EliteDrive_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 5, default = 0.01,
+    type = double, min = 0, max = 10, default = 2.0,
     page = Drive_Decrypt, translation = GVDrive_EliteDrive_ZombieDrop,
 }
 
 option GVDrive.Antivirus_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 5, default = 0.02,
+    type = double, min = 0, max = 25, default = 8.0,
     page = Drive_Decrypt, translation = GVDrive_Antivirus_ZombieDrop_Chance,
 }
 

@@ -3,9 +3,18 @@ require("shared/GVDrive_Utils")
 require("shared/LaptopSystem")
 
 pcall(require, "shared/GVDrive_Config")
+-- Defensive GVDebug require: some load orders may not have it available yet
+local ok_dbg, dbg_mod = pcall(require, "shared/GVDebug")
+local GVDebug = nil
+if ok_dbg and type(dbg_mod) == "table" then
+    GVDebug = dbg_mod
+else
+    GVDebug = { debugPrint = function(...) end }
+end
+
 local function debugPrint(...)
-    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
-        print("[DecryptSkillDrive][DEBUG]", ...)
+    if GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint(...)
     end
 end
 
@@ -24,7 +33,7 @@ local function ensureGVDriveUtils()
         return GVDrive_Utils
     end
 
-    print("[DecryptSkillDrive] ERROR: GVDrive_Utils unavailable: " .. tostring(module))
+    debugPrint("[DecryptSkillDrive] ERROR: GVDrive_Utils unavailable: " .. tostring(module))
     return nil
 end
 
@@ -182,14 +191,14 @@ function DecryptSkillDrive:perform()
     forceDropHeavyItems(self.character)
 
     if not self.character or not self.character.getInventory then
-        print("[DecryptSkillDrive] ERROR: character or inventory missing")
+        debugPrint("[DecryptSkillDrive] ERROR: character or inventory missing")
         ISBaseTimedAction.perform(self)
         return
     end
 
     local inventory = self.character:getInventory()
     if not inventory then
-        print("[DecryptSkillDrive] ERROR: inventory not available")
+        debugPrint("[DecryptSkillDrive] ERROR: inventory not available")
         ISBaseTimedAction.perform(self)
         return
     end
@@ -200,7 +209,7 @@ function DecryptSkillDrive:perform()
     end
 
     if not laptopItem then
-        print("[DecryptSkillDrive] ERROR: Cannot get laptop item from world object")
+        debugPrint("[DecryptSkillDrive] ERROR: Cannot get laptop item from world object")
         if self.sound and self.character and self.character:getEmitter() then
             self.character:getEmitter():stopSound(self.sound)
             self.sound = nil
@@ -221,7 +230,7 @@ function DecryptSkillDrive:perform()
     end
 
     if not driveInfo then
-        print("[DecryptSkillDrive] ERROR: Could not determine drive info")
+        debugPrint("[DecryptSkillDrive] ERROR: Could not determine drive info")
         if self.sound and self.character and self.character:getEmitter() then
             self.character:getEmitter():stopSound(self.sound)
             self.sound = nil
@@ -260,6 +269,8 @@ function DecryptSkillDrive:perform()
             successChance = math.max(0, math.min(100, chance))
         end
     end
+    -- Ensure successChance is a number
+    successChance = tonumber(successChance) or 50
 
     local MaxRolls = 100
     local probabilityToGain = math.max(0, math.min(100, successChance))
@@ -269,6 +280,8 @@ function DecryptSkillDrive:perform()
     if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
         preserveChancePercent = GVDrive_Utils.getSandboxNumber('Drive_Preserve_Chance', 30)
     end
+    -- Ensure preserveChancePercent is a number
+    preserveChancePercent = tonumber(preserveChancePercent) or 30
     local preserveChance = math.max(0, math.min(100, preserveChancePercent)) / 100
     local shouldPreserve = ZombRand(100) / 100 < preserveChance
 

@@ -1,0 +1,473 @@
+-- Backup of LaptopFill.lua (moved by cleanup tool)
+-- Original path: media/lua/client/TimedActions/LaptopFill.lua.backup
+
+-- (contents preserved for historical reference)
+
+-- LaptopFill.lua.backup content preserved by automated cleanup
+
+-- Import required modules
+require "TimedActions/ISBaseTimedAction"
+require "client/TimedActions/ISUsbSys"
+require "client/TimedActions/ISFloppySys"
+
+-- Import for context menus and submenus
+pcall(require, "ISUI/ISContextMenu")
+
+local DecryptSkillDrive = require "client/TimedActions/DecryptSkillDrive"
+require "shared/LaptopSystem"
+require "shared/GVDrive_Utils"
+require "shared/EliteDriveSystem"
+
+print("[DecryptSkillSys] LaptopFill.lua starting to load...")
+
+-- Function to get random fun messages for USB decryption by skill type
+local function getRandomUSBMessage(skillName, rarity)
+    local messages = {
+        Woodwork = {
+            "You crack open the carpenter's secrets hidden in this USB drive!",
+            "The wisdom of master woodworkers flows into your mind...",
+            "Ancient building techniques reveal themselves to you!",
+            "You discover the lost art of precision woodworking!",
+            "The USB contains blueprints that would make any carpenter jealous!",
+            "Your mind absorbs decades of craftsmanship experience!",
+            "The digital ghost of a master builder guides your hands!",
+            "You unlock the mysteries of wood grain and joint perfection!",
+            "A carpenter's lifetime of knowledge downloads into your brain!",
+            "The USB whispers the secrets of flawless construction!"
+        },
+        Electricity = {
+            "Electrical circuits dance before your eyes as knowledge surges through you!",
+            "You feel the power of electricity coursing through your understanding!",
+            "The mysteries of voltage and current become crystal clear!",
+            "Lightning-fast insights spark in your mind!",
+            "You've tapped into the grid of electrical wisdom!",
+            "Shocking revelations about wiring fill your consciousness!",
+            "The USB electrifies your brain with technical knowledge!",
+            "Amperes of experience flow through your neural pathways!",
+            "You're now wired for electrical excellence!",
+            "The digital spirits of Tesla himself guide your learning!"
+        },
+        Farming = {
+            "The earth's ancient secrets sprout in your mind!",
+            "You feel connected to the soil and seasons like never before!",
+            "Agricultural wisdom takes root in your consciousness!",
+            "The USB plants seeds of knowledge that will grow forever!",
+            "You harvest a bounty of farming techniques!",
+            "The green thumb digitally transfers to your hands!",
+            "Mother Nature's cookbook downloads into your brain!",
+            "You cultivate an understanding that spans generations!",
+            "The USB fertilizes your mind with growing expertise!",
+            "Ancient farming spirits whisper their secrets to you!"
+        },
+        Aiming = {
+            "Your crosshairs align with deadly precision!",
+            "The USB downloads years of sniper training instantly!",
+            "You feel your hand steady with newfound accuracy!",
+            "Bullseye! The secrets of perfect aim are yours!",
+            "Your targeting instincts sharpen to a razor's edge!",
+            "The art of the perfect shot becomes second nature!",
+            "Marksmanship mastery floods your muscle memory!",
+            "You've acquired the eye of a legendary sharpshooter!",
+            "The USB calibrates your brain for pinpoint accuracy!",
+            "Silent death becomes your new specialty!"
+        },
+        Cooking = {
+            "Culinary magic bubbles up from the depths of this USB!",
+            "The flavors of a thousand recipes dance on your tongue!",
+            "You taste the knowledge of master chefs across the ages!",
+            "The USB seasoned your mind with gourmet wisdom!",
+            "Kitchen secrets that would make Gordon Ramsay weep!",
+            "You've unlocked the cookbook of the gods!",
+            "Delicious techniques simmer in your consciousness!",
+            "The USB serves up a feast of culinary knowledge!",
+            "You're now cooking with the fire of true expertise!",
+            "The digital ghost of Julia Child guides your hands!"
+        },
+        Sneak = {
+            "You melt into the shadows with newfound grace...",
+            "The art of invisibility becomes your second skin!",
+            "Silent footsteps echo the wisdom of master thieves!",
+            "You've learned to move like smoke in the wind!",
+            "The USB teaches you to dance with darkness!",
+            "Stealth techniques flow through you like liquid shadow!",
+            "You become one with the night and silence!",
+            "The secrets of legendary assassins are now yours!",
+            "Your presence becomes as light as a whisper!",
+            "The USB transforms you into a ghost among the living!"
+        },
+        Axe = {
+            "The primal fury of the axe awakens within you!",
+            "You feel the weight of Viking rage in your swings!",
+            "The USB channels the spirit of ancient warriors!",
+            "Your axe thirsts for battle with newfound hunger!",
+            "Berserker techniques flood your warrior's soul!",
+            "The art of the perfect cleave becomes instinct!",
+            "You've unlocked the savage wisdom of axe masters!",
+            "The USB forges your spirit in digital fire!",
+            "Your axe arm grows strong with ancient knowledge!",
+            "The ghosts of legendary lumberjacks guide your blade!"
+        },
+        Fitness = {
+            "Your muscles scream with the joy of newfound strength!",
+            "The USB pumps iron directly into your neural pathways!",
+            "You feel the burn of a thousand workouts instantly!",
+            "Athletic excellence surges through every fiber!",
+            "The secrets of peak physical performance are yours!",
+            "Your body remembers exercises you've never done!",
+            "The USB downloads decades of training experience!",
+            "You feel like you could benchpress a car!",
+            "Physical mastery floods your muscle memory!",
+            "The digital spirits of Olympic champions inspire you!"
+        },
+        Doctor = {
+            "Medical knowledge flows through you like healing energy!",
+            "The Hippocratic Oath echoes in your digital consciousness!",
+            "You've absorbed the wisdom of battlefield medics!",
+            "The USB diagnoses your brain with pure expertise!",
+            "Healing hands are born from digital knowledge!",
+            "The secrets of life and death dance in your mind!",
+            "You feel the pulse of medical mastery in your veins!",
+            "The USB performs surgery on your ignorance!",
+            "Ancient healing arts merge with modern medicine!",
+            "The digital ghosts of great doctors guide your hands!"
+        },
+        Survivalist = {
+            "The wild calls to you with newfound understanding!",
+            "Survival instincts sharpen to a primal edge!",
+            "You taste the knowledge of those who endured!",
+            "The USB teaches you to thrive where others perish!",
+            "Wilderness wisdom flows through your survival circuits!",
+            "You've unlocked the secrets of ultimate adaptation!",
+            "The art of staying alive becomes second nature!",
+            "Your survival skills evolve beyond human limits!",
+            "The USB transforms you into the apex survivor!",
+            "The spirits of legendary survivors whisper their secrets!"
+        }
+    }
+    
+    local skillMessages = messages[skillName] or {
+        "You absorb mysterious knowledge from the digital depths!",
+        "The USB reveals its secrets to your eager mind!",
+        "Unknown wisdom floods your consciousness!",
+        "You feel smarter already!",
+        "The data transforms you in ways you can't explain!",
+        "Digital enlightenment courses through your neural pathways!",
+        "You've tapped into something extraordinary!",
+        "The USB downloads directly into your soul!",
+        "Knowledge beyond comprehension fills your being!",
+        "You feel the power of learning itself!"
+    }
+    
+    local selectedMessage = skillMessages[ZombRand(#skillMessages) + 1]
+    
+    -- Add rarity flavor
+    if rarity == "Dificil" then
+        selectedMessage = "★★★ " .. selectedMessage .. " This was ELITE knowledge!"
+    elseif rarity == "Moderado" then
+        selectedMessage = "★★ " .. selectedMessage
+    else
+        selectedMessage = "★ " .. selectedMessage
+    end
+    
+    return selectedMessage
+end
+
+-- Function to get translated message with fallback
+local function getTranslatedMessage(key, fallback)
+    if not key then return fallback or "Unknown message" end
+    local translated = getText(key)
+    if translated and translated ~= key then
+        return translated
+    end
+    return fallback or "Unknown message"
+end
+
+local function ensureDecryptSkillDrive()
+    if DecryptSkillDrive and type(DecryptSkillDrive.new) == "function" then
+        return DecryptSkillDrive
+    end
+
+    local moduleNames = {
+        "client/TimedActions/DecryptSkillDrive",
+        "TimedActions/DecryptSkillDrive"
+    }
+
+    for _, name in ipairs(moduleNames) do
+        local ok, module = pcall(require, name)
+        if ok and module and type(module.new) == "function" then
+            DecryptSkillDrive = module
+            return DecryptSkillDrive
+        end
+    end
+
+    if _G.DecryptSkillDrive and type(_G.DecryptSkillDrive.new) == "function" then
+        DecryptSkillDrive = _G.DecryptSkillDrive
+        return DecryptSkillDrive
+    end
+
+    return nil
+end
+
+local function getDriveInfoSafe(item)
+    if not item then return nil end
+    if GVDrive_Utils and GVDrive_Utils.getDriveInfo then
+        local ok, info = pcall(GVDrive_Utils.getDriveInfo, item)
+        if ok and info then return info end
+    end
+    return nil
+end
+
+local rarityFallback = {
+    Facil = { en = "Easy", es = "Facil" },
+    Moderado = { en = "Moderate", es = "Moderado" },
+    Dificil = { en = "Hard", es = "Dificil" }
+}
+
+local function buildDriveDisplayName(isUSB, skillName, rarity)
+    if not skillName then skillName = "Unknown" end
+    if not rarity then rarity = "Unknown" end
+
+    local baseKey = isUSB and "DisplayName_SkillDrive_" or "DisplayName_SkillFloppy_"
+    local translationKey = baseKey .. skillName .. "_" .. rarity
+    local label = getText and getText(translationKey) or translationKey
+    if label == translationKey then
+        local rarityLabel = rarityFallback[rarity]
+        if rarityLabel then
+            local language = "EN"
+            if getCore and getCore() and getCore().getOptionLanguage then
+                local ok, lang = pcall(function() return getCore():getOptionLanguage() end)
+                if ok and lang then language = lang end
+            end
+            if language == "ES" then
+                rarity = rarityLabel.es
+            else
+                rarity = rarityLabel.en
+            end
+        end
+        label = string.format("%s (%s)", skillName, rarity)
+    end
+    return label
+end
+
+local function queueDecryptActions(player, worldObj, drives)
+    if not drives or #drives == 0 then return end
+
+    -- Validate laptop health before queuing actions
+    local laptopItem = worldObj
+    if laptopItem and laptopItem.getItem then
+        local ok, inner = pcall(function() return laptopItem:getItem() end)
+        if ok and inner then laptopItem = inner end
+    end
+
+    if LaptopSystem and laptopItem then
+        local health = LaptopSystem.getLaptopHealth(laptopItem)
+        if health <= 0 then
+            player:Say(getTranslatedMessage("GVDrive_Msg_Laptop_Broken", "This laptop doesn't work... I should find a way to repair it."))
+            return
+        end
+    end
+
+    local playerObj = player
+    if not playerObj or not playerObj.getInventory then return end
+
+    local usbDrives = {}
+    local floppyDrives = {}
+
+    for _, drive in ipairs(drives) do
+        if drive and drive.getItem and drive.getType then
+            local item = drive:getItem()
+            if item then
+                local driveType = item:getType()
+                if driveType == "USB" then
+                    table.insert(usbDrives, drive)
+                elseif driveType == "Floppy" then
+                    table.insert(floppyDrives, drive)
+                end
+            end
+        end
+    end
+
+    -- Sort drives by distance, closest first
+    table.sort(usbDrives, function(a, b) return a:getDistanceTo(playerObj) < b:getDistanceTo(playerObj) end)
+    table.sort(floppyDrives, function(a, b) return a:getDistanceTo(playerObj) < b:getDistanceTo(playerObj) end)
+
+    -- Queue decrypt actions for USB drives first
+    for _, drive in ipairs(usbDrives) do
+        if drive and drive.getItem and drive.getType then
+            local item = drive:getItem()
+            if item then
+                local driveSkill = item:getSkill()
+                local driveRarity = item:getRarity()
+                local action = ISUsbSys.queueDecryptAction(playerObj, drive)
+                if action then
+                    action:setActionAnim("Loot")
+                    action:setOverrideHandModels(nil, nil)
+                    action:setAnimVariable("LootPosition", "Belly")
+                    action:setIgnoreIfFail(true)
+                    action:setOnComplete(function()
+                        -- Success or failure, remove one drive from the queue
+                        if drive and drive.getItem and drive.getType then
+                            local item = drive:getItem()
+                            if item then
+                                local driveType = item:getType()
+                                if driveType == "USB" then
+                                    -- For USB drives, we can directly remove the drive from the world
+                                    -- This also ensures the drive is not used again in this session
+                                    drive:removeFromWorld()
+                                end
+                            end
+                        end
+                    end)
+                    playerObj:getQueue():add(action)
+                end
+            end
+        end
+    end
+
+    -- Queue decrypt actions for Floppy drives
+    for _, drive in ipairs(floppyDrives) do
+        if drive and drive.getItem and drive.getType then
+            local item = drive:getItem()
+            if item then
+                local driveSkill = item:getSkill()
+                local driveRarity = item:getRarity()
+                local action = ISFloppySys.queueDecryptAction(playerObj, drive)
+                if action then
+                    action:setActionAnim("Loot")
+                    action:setOverrideHandModels(nil, nil)
+                    action:setAnimVariable("LootPosition", "Belly")
+                    action:setIgnoreIfFail(true)
+                    action:setOnComplete(function()
+                        -- Success or failure, remove one drive from the queue
+                        if drive and drive.getItem and drive.getType then
+                            local item = drive:getItem()
+                            if item then
+                                local driveType = item:getType()
+                                if driveType == "Floppy" then
+                                    -- For Floppy drives, we can directly remove the drive from the world
+                                    -- This also ensures the drive is not used again in this session
+                                    drive:removeFromWorld()
+                                end
+                            end
+                        end
+                    end)
+                    playerObj:getQueue():add(action)
+                end
+            end
+        end
+    end
+end
+
+-- Function to start the decryption process
+function startLaptopDecryption(player, laptop)
+    if not player or not laptop then return end
+
+    -- Validate laptop health
+    local health = 100
+    if LaptopSystem and laptop.getItem then
+        local item = laptop:getItem()
+        if item then
+            health = LaptopSystem.getLaptopHealth(item)
+        end
+    end
+
+    if health <= 0 then
+        player:Say(getTranslatedMessage("GVDrive_Msg_Laptop_Broken", "This laptop doesn't work... I should find a way to repair it."))
+        return
+    end
+
+    -- Check if already decrypting
+    if player:getVariable("isDecrypting") == "true" then
+        player:Say(getTranslatedMessage("GVDrive_Msg_AlreadyDecrypting", "I'm already decrypting a drive."))
+        return
+    end
+
+    player:setVariable("isDecrypting", "true")
+
+    -- Get all drives in the laptop
+    local drives = {}
+    if laptop.getItem and laptop.getItem().getInventory then
+        local inv = laptop:getItem():getInventory()
+        if inv then
+            for i = 0, inv:getItems():size() - 1 do
+                local item = inv:getItems():get(i)
+                if item and (item:getType() == "USB" or item:getType() == "Floppy") then
+                    table.insert(drives, item)
+                end
+            end
+        end
+    end
+
+    -- If no drives found, show message
+    if #drives == 0 then
+        player:Say(getTranslatedMessage("GVDrive_Msg_NoDrives", "This laptop has no drives to decrypt."))
+        player:setVariable("isDecrypting", "false")
+        return
+    end
+
+    -- Queue decrypt actions for all drives
+    queueDecryptActions(player, laptop, drives)
+
+    -- Show final message with drive details
+    local finalMessage = getTranslatedMessage("GVDrive_Msg_DecryptionStarted", "Decryption started for drives:")
+    for _, drive in ipairs(drives) do
+        if drive and drive.getItem then
+            local item = drive:getItem()
+            if item then
+                local driveSkill = item:getSkill()
+                local driveRarity = item:getRarity()
+                local driveName = buildDriveDisplayName(drive:getType() == "USB", driveSkill, driveRarity)
+                finalMessage = finalMessage .. "\n- " .. driveName
+            end
+        end
+    end
+
+    player:Say(finalMessage)
+end
+
+-- Function to stop the decryption process
+function stopLaptopDecryption(player)
+    if not player then return end
+
+    player:setVariable("isDecrypting", "false")
+    player:Say(getTranslatedMessage("GVDrive_Msg_DecryptionStopped", "Decryption process stopped."))
+end
+
+-- ISBaseTimedAction overrides
+local function LaptopFillStart(action)
+    -- Call the original start function
+    action:originalStart()
+
+    -- Additional custom logic
+    -- For example, we can directly call the decryption without animation
+    if action.character and action.character:getPlayerNum() >= 0 then
+        local player = action.character
+        local laptop = action.target
+
+        -- Start the decryption process
+        startLaptopDecryption(player, laptop)
+    end
+end
+
+local function LaptopFillStop(action)
+    -- Call the original stop function
+    action:originalStop()
+
+    -- Additional custom logic
+    -- For example, we can stop the decryption if needed
+    if action.character and action.character:getPlayerNum() >= 0 then
+        local player = action.character
+
+        -- Stop the decryption process
+        stopLaptopDecryption(player)
+    end
+end
+
+-- Patch the ISBaseTimedAction methods
+local ISBaseTimedAction = ISBaseTimedAction
+ISBaseTimedAction.originalStart = ISBaseTimedAction.start
+ISBaseTimedAction.originalStop = ISBaseTimedAction.stop
+ISBaseTimedAction.start = LaptopFillStart
+ISBaseTimedAction.stop = LaptopFillStop
+
+print("[DecryptSkillSys] LaptopFill.lua loaded.")

@@ -92,10 +92,15 @@ function UseEliteDrive:perform()
 end
 
 pcall(require, "shared/GVDrive_Config")
-local function debugPrint(...)
-    if type(GVDrive_Config) == 'table' and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
-        print("[DecryptSkillSys][DEBUG]", ...)
-    end
+
+-- Defensive require for GVDebug: if the module isn't present or returns nil,
+-- provide a no-op fallback so calls to debugPrint never error at runtime.
+local _ok, _gv = pcall(require, "shared/GVDebug")
+local GVDebug = nil
+if _ok and type(_gv) == "table" and type(_gv.debugPrint) == "function" then
+    GVDebug = _gv
+else
+    GVDebug = { debugPrint = function(...) end }
 end
 
-debugPrint('UseEliteDrive timed action loaded')
+GVDebug.debugPrint('UseEliteDrive timed action loaded')

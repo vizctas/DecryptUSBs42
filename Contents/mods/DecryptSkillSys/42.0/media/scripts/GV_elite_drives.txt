@@ -6,7 +6,7 @@ module GValley
 	
 	item EliteDrive_Strength
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Elite Military USB - Combat Strength,
@@ -18,7 +18,7 @@ module GValley
 
 	item EliteDrive_Endurance
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Elite Military USB - Endurance,
@@ -30,7 +30,7 @@ module GValley
 
 	item EliteDrive_Capacity
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Elite Military USB - Tactical Load,
@@ -42,7 +42,7 @@ module GValley
 
 	item EliteDrive_Speed
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Elite Military USB - Agility,
@@ -54,7 +54,7 @@ module GValley
 
 	item EliteDrive_Luck
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Elite Military USB - Luck Algorithms,

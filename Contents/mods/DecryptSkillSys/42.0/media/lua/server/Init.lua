@@ -32,41 +32,50 @@ else
     initMod()
 end
 
+do
 GVDebug.debugPrint("Simplified Init.lua loaded")
+
+-- Helper to wait for sandbox vars with a tight but finite retry loop
+local function waitForSandboxVars()
     local maxAttempts = 10
     local attempt = 0
     local delaySeconds = 1
-    
+
     while attempt < maxAttempts do
         local ok, gv = pcall(function() return SandboxVars and SandboxVars.GVDrive or nil end)
         if not ok then
-            GVDebug.debugPrint(string.format("SandboxVars not available yet (attempt %d/%d)", attempt+1, maxAttempts))
+            if GVDebug and GVDebug.debugPrint then
+                GVDebug.debugPrint(string.format("SandboxVars not available yet (attempt %d/%d)", attempt+1, maxAttempts))
+            end
             attempt = attempt + 1
             if attempt < maxAttempts then
                 coroutine.yield(delaySeconds * 1000) -- Wait before retrying
             end
         else
-            if not gv then
-                GVDebug.debugPrint("GVDrive sandbox group is nil after ", attempt)
-            end
             return gv
         end
     end
-    
-    GVDebug.debugPrint("[WARNING] Failed to load SandboxVars after "..maxAttempts.." attempts")
+
+    if GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint("[WARNING] Failed to load SandboxVars after "..maxAttempts.." attempts")
+    end
     return nil
 end
 
 local function onStarted()
-    GVDebug.debugPrint("Server start detected; initializing sandbox settings...")
-    
+    if GVDebug and GVDebug.debugPrint then
+        GVDebug.debugPrint("Server start detected; initializing sandbox settings...")
+    end
+
     -- Create coroutine to handle retries
     local co = coroutine.create(function()
-        local gv = logGVDriveSandbox("GVDrive.")
-            if gv then
-                GVDebug.debugPrint("Successfully loaded sandbox settings")
-            else
+        local gv = waitForSandboxVars()
+        if gv and GVDebug and GVDebug.debugPrint then
+            GVDebug.debugPrint("Successfully loaded sandbox settings")
+        else
+            if GVDebug and GVDebug.debugPrint then
                 GVDebug.debugPrint("[WARNING] Using fallback sandbox settings")
+            end
             -- Initialize minimal fallback settings with correct values
             SandboxVars = SandboxVars or {}
             SandboxVars.GVDrive = {
@@ -79,8 +88,9 @@ local function onStarted()
                 Drive_Preserve_Chance = 30,
                 Malware_Chance = 15
             }
+            gv = SandboxVars.GVDrive
         end
-        
+
         -- Log sandbox settings (use helpers when available)
         local keys = {
             {k = "USB_ZombieDrop_Chance", fn = function() return GVDrive_Utils and GVDrive_Utils.getSandboxPercent and GVDrive_Utils.getSandboxPercent("USB_ZombieDrop_Chance", 0.4) or (gv and gv.USB_ZombieDrop_Chance) or 0.4 end},
@@ -91,16 +101,16 @@ local function onStarted()
         }
 
         for _, entry in ipairs(keys) do
-        local ok, value = pcall(entry.fn)
-        GVDebug.debugPrint(string.format("%s%s=%s", prefix or "GVDrive.", entry.k, tostring(ok and value or "<error>")))
-    GVDebug.debugPrint("OnInitWorld fired")
-        GVDebug.debugPrint("Successfully loaded sandbox settings")
+            local ok, value = pcall(entry.fn)
+            if GVDebug and GVDebug.debugPrint then
+                GVDebug.debugPrint(string.format("%s%s=%s", "GVDrive.", entry.k, tostring(ok and value or "<error>")))
+            end
         end
     end)
-    
+
     -- Start the coroutine
     local ok, err = coroutine.resume(co)
-    if not ok then
+    if not ok and GVDebug and GVDebug.debugPrint then
         GVDebug.debugPrint("[ERROR] in sandbox initialization:", tostring(err))
     end
 end
@@ -133,7 +143,9 @@ local function clampSandboxVars()
         if v ~= nil then
             local n = tonumber(v) or entry.def
             if n < entry.min or n > entry.max then
-                GVDebug.debugPrint(string.format("[WARN] Clamping sandbox var %s: %s -> %s (allowed %s..%s)", key, tostring(v), tostring(entry.def), tostring(entry.min), tostring(entry.max)))
+                if GVDebug and GVDebug.debugPrint then
+                    GVDebug.debugPrint(string.format("[WARN] Clamping sandbox var %s: %s -> %s (allowed %s..%s)", key, tostring(v), tostring(entry.def), tostring(entry.min), tostring(entry.max)))
+                end
                 gv[key] = entry.def
             end
         else
@@ -153,10 +165,12 @@ end
 if Events and Events.OnGameStart and Events.OnGameStart.Add then
     Events.OnGameStart.Add(onStarted)
 end
-    if Events and Events.OnInitWorld and Events.OnInitWorld.Add then
+if Events and Events.OnInitWorld and Events.OnInitWorld.Add then
     Events.OnInitWorld.Add(function()
-        GVDebug.debugPrint("OnInitWorld fired")
-        logGVDriveSandbox("GVDrive.")
+        if GVDebug and GVDebug.debugPrint then
+            GVDebug.debugPrint("OnInitWorld fired")
+        end
+        pcall(function() if logGVDriveSandbox then logGVDriveSandbox("GVDrive.") end end)
     end)
 end
 
@@ -165,7 +179,9 @@ pcall(require, "shared/GVDrive_Utils")
 pcall(require, "server/items/GV_Itemsdistro")
 pcall(require, "server/GV_ZombieLoot")
 
-GVDebug.debugPrint("Init.lua loaded (server)")
+if GVDebug and GVDebug.debugPrint then
+    GVDebug.debugPrint("Init.lua loaded (server)")
+end
 
 -- Debug: server-only test handler to confirm OnZombieDead fires
 do
@@ -176,7 +192,9 @@ do
     if canRegister then
         if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
             Events.OnZombieDead.Add(function(zombie)
-                GVDebug.debugPrint("[TEST] OnZombieDead fired for", tostring(zombie))
+                if GVDebug and GVDebug.debugPrint then
+                    GVDebug.debugPrint("[TEST] OnZombieDead fired for", tostring(zombie))
+                end
             end)
         end
     end
