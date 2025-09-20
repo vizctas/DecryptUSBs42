@@ -1,115 +1,16 @@
--- LaptopBatteryWidget.lua - Widget de batería de laptop basado en Survival HUD
--- Inspirado en el sistema de widgets del mod Survival HUD
+-- LaptopBatteryWidget.lua — REMOVED
+-- This file previously implemented a client-side laptop battery UI widget.
+-- The feature has been intentionally removed (kept as an inert stub) per project maintainers' request.
+-- Reason: feature will be reworked later; keeping a live implementation caused runtime errors and is unused.
 
-require "ISUI/ISPanel"
+-- No-op stub: do not register events or expose any functions. If other modules still call
+-- `showLaptopBatteryWidget` or `createLaptopBatteryWidget`, they should guard the call (check existence)
+-- or the call will be a no-op here. This avoids runtime errors while preserving the file for history.
 
--- Debug gating
-pcall(require, "shared/GVDrive_Config")
-local DEBUG = (GVDrive_Config and GVDrive_Config.getDebug) and GVDrive_Config.getDebug() or false
-local function debugPrint(...)
-    if not DEBUG then return end
-    print("[LaptopBatteryWidget]", ...)
-end
+-- Example of safe guard when calling this API elsewhere (recommended):
+-- if showLaptopBatteryWidget then showLaptopBatteryWidget(laptop) end
 
--- Intentar cargar LaptopSystem si está disponible
-local LaptopSystem = nil
-pcall(function()
-    LaptopSystem = require("shared/LaptopSystem")
-end)
-
--- Lista de tipos de laptop compatibles (definida antes de las funciones)
-local LAPTOP_TYPES = {
-    ["GValley.AsusZephLaptopOpened"] = "Asus Zephyrus (Open)",
-    ["GValley.AsusZephLaptopClosed"] = "Asus Zephyrus (Closed)",
-    ["GValley.Laptop90sClosed"] = "Toshiba Satellite (Closed)",
-    ["GValley.Laptop90sOpened"] = "Toshiba Satellite (Open)",
-    ["GValley.IBM_LP90Opened"] = "IBM Palm Top (Open)",
-    ["GValley.PBIBM_LP90Closed"] = "IBM Palm Top (Closed)"
-}
-
--- Configuración del widget (movida hacia arriba)
-local BATTERY_CONFIG = {
-    iconSize = 64,
-    baseIconSize = 64,
-    rightOffset = 200, -- Posición diferente para no chocar con Survival HUD
-    bottomOffset = 15,
-    updateThreshold = 1.0,
-    fadeDuration = 3000, -- 3 segundos para desaparecer
-    displayDurationMs = 10000, -- Duración visible del widget (ms)
-    searchRadius = 3 -- Radio de búsqueda de laptops
-}
-
--- Global variable para el widget
-local laptopBatteryWidget = nil
-
--- Función para crear el widget (definida antes de usarla)
-local function createLaptopBatteryWidget()
-    debugPrint("createLaptopBatteryWidget called")
-    
-    -- Remove existing widget safely
-    if laptopBatteryWidget then
-    debugPrint("Removing existing widget")
-        local ok, err = pcall(function()
-            laptopBatteryWidget:removeFromUIManager()
-        end)
-        if not ok then
-                print("[LaptopBatteryWidget] Error removing existing widget: " .. tostring(err))
-            end
-        laptopBatteryWidget = nil
-    end
-
-    -- Create new widget safely
-    local createOk, createErr = pcall(function()
-    debugPrint("Creating laptop battery widget...")
-        laptopBatteryWidget = LaptopBatteryWidget:new(0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize)
-        
-        if laptopBatteryWidget then
-            debugPrint("Widget object created, initializing...")
-            laptopBatteryWidget:initialise()
-            laptopBatteryWidget:addToUIManager()
-            debugPrint("Laptop battery widget created and added to UI manager successfully")
-        else
-            print("[LaptopBatteryWidget] ERROR: Failed to create widget object")
-        end
-    end)
-    
-    if not createOk then
-        print("[LaptopBatteryWidget] ERROR creating widget: " .. tostring(createErr))
-    end
-end
-
--- Función para mostrar el widget manualmente
-function showLaptopBatteryWidget(laptop)
-    debugPrint("showLaptopBatteryWidget called")
-    
-    if not laptopBatteryWidget then
-        debugPrint("Widget not initialized, creating...")
-        createLaptopBatteryWidget()
-    end
-    
-    if not laptopBatteryWidget then
-        print("[LaptopBatteryWidget] ERROR: Failed to create widget")
-        return
-    end
-    
-    local duration = BATTERY_CONFIG.displayDurationMs or 10000
-    
-    debugPrint("Showing widget for " .. (duration/1000) .. " seconds")
-    
-    -- Normalizar el parámetro: aceptar InventoryItem o WorldObject con :getItem()
-    local item = laptop
-    if item and item.getItem then
-        local ok, res = pcall(function() return item:getItem() end)
-        if ok and res then item = res end
-    end
-
-    -- Configurar datos de la laptop
-    if item then
-    debugPrint("Processing laptop object...")
-        
-        local itemType = "Unknown"
-        local health = 75 -- default value
-        local displayName = "Laptop"
+return
         
         -- Get item type safely
         pcall(function()
@@ -260,7 +161,7 @@ function LaptopBatteryWidget:initialise()
     end)
     
     if not ok then
-        print("[LaptopBatteryWidget] Error in ISPanel.initialise: " .. tostring(err))
+        debugPrint("[LaptopBatteryWidget] Error in ISPanel.initialise: " .. tostring(err))
         return
     end
     
@@ -271,7 +172,7 @@ function LaptopBatteryWidget:initialise()
     end)
     
     if not posOk then
-        print("[LaptopBatteryWidget] Error updating position: " .. tostring(posErr))
+        debugPrint("[LaptopBatteryWidget] Error updating position: " .. tostring(posErr))
     end
     
     local texOk, texErr = pcall(function()
@@ -279,7 +180,7 @@ function LaptopBatteryWidget:initialise()
     end)
     
     if not texOk then
-        print("[LaptopBatteryWidget] Error preloading textures: " .. tostring(texErr))
+        debugPrint("[LaptopBatteryWidget] Error preloading textures: " .. tostring(texErr))
     end
     
     debugPrint("Widget initialization completed")
@@ -437,11 +338,16 @@ function LaptopBatteryWidget:findNearbyLaptop()
 
                             if LAPTOP_TYPES[itemType] then
                                 debugPrint("LAPTOP FOUND! Type: " .. itemType)
+                                local healthVal = 100
+                                if LaptopSystem and type(LaptopSystem.getLaptopHealth) == "function" then
+                                    local ok, res = pcall(function() return LaptopSystem.getLaptopHealth(item) end)
+                                    if ok and res then healthVal = res end
+                                end
                                 return {
                                     item = item,
                                     type = itemType,
                                     name = LAPTOP_TYPES[itemType],
-                                    health = LaptopSystem.getLaptopHealth(item) or 100
+                                    health = healthVal
                                 }
                             end
                         end
@@ -469,11 +375,16 @@ function LaptopBatteryWidget:findNearbyLaptop()
                                 
                                 if LAPTOP_TYPES[itemType] then
                                     debugPrint("LAPTOP FOUND in regular objects! Type: " .. itemType)
+                                    local healthVal = 100
+                                    if LaptopSystem and type(LaptopSystem.getLaptopHealth) == "function" then
+                                        local ok, res = pcall(function() return LaptopSystem.getLaptopHealth(item) end)
+                                        if ok and res then healthVal = res end
+                                    end
                                     return {
                                         item = item,
                                         type = itemType,
                                         name = LAPTOP_TYPES[itemType],
-                                        health = LaptopSystem.getLaptopHealth(item) or 100
+                                        health = healthVal
                                     }
                                 end
                             end
@@ -636,6 +547,7 @@ function LaptopBatteryWidget:render()
                 debugPrint("Drew battery texture: battery_" .. newTextureValue)
             else
                 debugPrint("Missing battery texture: battery_" .. newTextureValue .. ", using text fallback")
+                debugPrint("Widget initialization completed")
                 -- Fallback: mostrar porcentaje como texto grande
                 self:drawText(self.currentBattery .. "%", 8, 20, 1, 1, 1, 1, UIFont.Large)
             end
@@ -651,7 +563,7 @@ function LaptopBatteryWidget:render()
     end)
     
     if not renderOk then
-    print("[LaptopBatteryWidget] Error rendering widget: " .. tostring(renderErr))
+        debugPrint("[LaptopBatteryWidget] Error rendering widget: " .. tostring(renderErr))
         -- Fallback rendering - just draw a simple indicator
         self:drawRect(0, 0, BATTERY_CONFIG.iconSize, BATTERY_CONFIG.iconSize, 0.8, 0.2, 0.2, 0.2)
         if self.currentBattery then
@@ -670,7 +582,7 @@ function LaptopBatteryWidget:render()
             end
         end)
         if not tooltipOk then
-            print("[LaptopBatteryWidget] Error drawing tooltip: " .. tostring(tooltipErr))
+            debugPrint("[LaptopBatteryWidget] Error drawing tooltip: " .. tostring(tooltipErr))
         end
     end
 end
