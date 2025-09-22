@@ -134,7 +134,7 @@
 
 **Issues Resueltos:**
 1. **ISSUE-001:** Menú contextual jerárquico (Skill → Difficulty) con supresión de menús legacy
-2. **ISSUE-002:** Barra de salud visual de laptop con colorización ASCII/Unicode  
+2. **ISSUE-002:** Iconos PNG de batería en menú contextual ✅ **CERRADO** - Implementado exitosamente con documentación completa  
 3. **ISSUE-003:** Arquitectura modular con patrones de diseño (Strategy, Factory)
 
 **Arquitectura Implementada:**

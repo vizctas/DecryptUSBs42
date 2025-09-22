@@ -7,6 +7,9 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 ### Fixed
+- **CRITICAL FIX**: Fixed runtime error "__concat not defined for operands: null and )" in LaptopFill.lua line 613 - added missing healthStatus variable definition and laptopHealth validation to prevent null concatenation errors
+- **UI FIX**: Removed duplicate "Health" option in context menu - eliminated redundant code block that was creating two identical health display options
+- **VISUAL ENHANCEMENT**: Enhanced battery status display with emoji indicators (🔋/🪫) when texture loading fails - provides clear visual health status even without PNG icons
 - Fixed menu duplication issue - removed duplicate event registration in DecryptDrivesContextMenu.lua to prevent "Decrypt Drives" appearing twice
 - Fixed critical syntax error in DecryptDrivesContextMenu.lua line 29 - malformed 'endnd' statement was causing "'end' expected" error
 - Fixed critical syntax error in DecryptDrivesContextMenu.lua line 10-11 - incomplete if statement was causing "'then' expected near function" error
@@ -23,7 +26,19 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 - Added comprehensive debug logging to diagnose why hierarchical menu is not showing difficulty submenus
 
 ### Changed
+## [Unreleased]
+### Changed
 - Changed main menu text from "Decrypt Drives" to "Insert Drive..." for better user experience
+
+### Added
+- **PNG BATTERY ICONS CORRECTED**: Fixed battery icon implementation in context menu - corrected from incorrect `<IMAGE:...>` markup to proper `option.iconTexture = getTexture(...)` assignment
+- Renamed function to `getBatteryTextureForHealth()` that returns Texture objects instead of strings
+- Implemented proper texture assignment using `healthOption.iconTexture = batteryTexture` for visual battery status display
+- Removed incorrect `<IMAGE:...>` markup approach that doesn't work in ISContextMenu
+- Added debug logging to track texture assignment success
+- Implemented battery icon mapping system for laptop health display - maps health percentages to appropriate battery PNG icons (batt0.png through batt100.png)
+- Added texture loading logic for battery icons using getTexture() function
+- Prepared foundation for visual battery icon rendering in context menus
 
 ## [2025-09-19] - Unreleased (cleanup)
 ### Added

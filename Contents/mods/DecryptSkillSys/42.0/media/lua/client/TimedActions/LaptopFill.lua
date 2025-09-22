@@ -569,43 +569,71 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
             debugPrint("Found laptop: " .. itemType)
             
             -- Add laptop health status at top with improved visual representation
-            -- Get and display real laptop health
-            local laptopHealth = 100 -- Default fallback
-            if LaptopSystem and LaptopSystem.getLaptopHealth then
-                laptopHealth = LaptopSystem.getLaptopHealth(item)
+            -- Get laptop health first
+            local laptopItem = worldObject:getItem()
+            local laptopHealth = 0
+            if laptopItem and LaptopSystem then
+                laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
+                debugPrint("Laptop health retrieved: " .. tostring(laptopHealth))
+            else
+                debugPrint("Failed to get laptop health - laptopItem or LaptopSystem is nil")
             end
             
-            -- Create visual health bar (10 characters) - using simple characters
-            local barLength = 10
-            local filledBars = math.floor((laptopHealth / 100) * barLength)
-            local emptyBars = barLength - filledBars
-            local healthBar = string.rep("|", filledBars) .. string.rep(".", emptyBars)
-            
-            -- Color based on health percentage
-            local healthColor = ""
+            -- Get battery texture based on health percentage for context menu icon
+            local function getBatteryTextureForHealth(healthPercent)
+                -- Ensure healthPercent is a valid number
+                if type(healthPercent) ~= "number" then
+                    debugPrint("getBatteryTextureForHealth: healthPercent is not a number, type=" .. type(healthPercent) .. ", value=" .. tostring(healthPercent))
+                    healthPercent = 0 -- Default to 0 if invalid
+                end
+
+                -- Clamp to valid range
+                if healthPercent < 0 then healthPercent = 0 end
+                if healthPercent > 100 then healthPercent = 100 end
+
+                -- Return texture object for context menu icon
+                if healthPercent <= 12 then
+                    return getTexture("media/textures/ui/health/batt0.png")
+                elseif healthPercent <= 37 then
+                    return getTexture("media/textures/ui/health/batt25.png")
+                elseif healthPercent <= 62 then
+                    return getTexture("media/textures/ui/health/batt50.png")
+                elseif healthPercent <= 87 then
+                    return getTexture("media/textures/ui/health/batt75.png")
+                else
+                    return getTexture("media/textures/ui/health/batt100.png")
+                end
+            end
+
+            -- Ensure laptopHealth is valid
+            if type(laptopHealth) ~= "number" then
+                debugPrint("LaptopOnFillWorldObjectContextMenu: laptopHealth is not a number, type=" .. type(laptopHealth) .. ", value=" .. tostring(laptopHealth))
+                laptopHealth = 0 -- Default to 0 if invalid
+            end
+
+            -- Get battery texture for menu icon
+            local batteryTexture = getBatteryTextureForHealth(laptopHealth)
+
+            -- Determine health status based on percentage
             local healthStatus = ""
-            
             if laptopHealth >= 80 then
-                healthColor = " <RGB:0,1,0> " -- Green
                 healthStatus = "Excellent"
             elseif laptopHealth >= 60 then
-                healthColor = " <RGB:1,1,0> " -- Yellow  
                 healthStatus = "Good"
             elseif laptopHealth >= 40 then
-                healthColor = " <RGB:1,0.5,0> " -- Orange
                 healthStatus = "Fair"
             elseif laptopHealth >= 20 then
-                healthColor = " <RGB:1,0,0> " -- Red
                 healthStatus = "Poor"
             else
-                healthColor = " <RGB:0.5,0,0> " -- Dark Red
                 healthStatus = "Critical"
             end
-            
-            -- Display format: Health: [████████░░] 75% (Good) - SIN formato RGB en opciones del menú
-            local healthDisplay = "Health: [" .. healthBar .. "] " .. laptopHealth .. "% (" .. healthStatus .. ")"
-            
-            context:addOptionOnTop(healthDisplay, playerObj, function() 
+
+            -- Display format: Health: percentage (status)
+            -- Icon will be displayed via option.iconTexture
+            local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ")"
+
+            -- Create a custom option with texture icon
+            local healthOption = context:addOptionOnTop(healthDisplay, playerObj, function()
                 local messages = {
                     "The laptop hums softly, displaying its current condition.",
                     "You examine the laptop's status indicators carefully.",
@@ -613,7 +641,7 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                     "You run a quick hardware diagnostic on the laptop.",
                     "The laptop responds to your touch, showing its current state."
                 }
-                
+
                 if laptopHealth <= 0 then
                     playerObj:Say("This laptop is completely dead. It's nothing more than expensive paperweight now.")
                 elseif laptopHealth < 20 then
@@ -629,8 +657,14 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                     playerObj:Say(randomMsg)
                 end
             end)
-            
-            -- Check for USB drives and organize by type
+
+            -- Assign battery texture as icon to the context menu option
+            if batteryTexture then
+                healthOption.iconTexture = batteryTexture
+                debugPrint("Battery texture assigned to menu option iconTexture successfully")
+            else
+                debugPrint("Failed to load battery texture - no icon will be displayed")
+            end            -- Check for USB drives and organize by type
             local inv = playerObj:getInventory()
             if inv then
                 -- Collect and organize USB drives by skill type
