@@ -1,0 +1,13 @@
+{
+  "project": "DecryptUSBs42",
+  "status": "EXECUTION",
+  "issues": {
+    "ISSUE-012": {
+      "title": "Critical Minigame System Refactoring",
+      "status": "EXECUTION",
+      "phase": "Phase 1: Module System & Configuration Unification",
+      "description": "Replace all require() calls with PZ-compatible module loading, centralize configuration, unify difficulty mapping, remove circular dependencies",
+      "timestamp": "2025-09-22"
+    }
+  }
+}

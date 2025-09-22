@@ -6,6 +6,13 @@ MinigameController = {}
 -- Active minigames registry
 MinigameController.activeGames = {}
 
+-- Validate game type
+function MinigameController.isValidGameType(gameType)
+    return gameType == MinigameConfig.GAME_TYPES.SEQUENCE_BREAKER or
+           gameType == MinigameConfig.GAME_TYPES.CODE_MATRIX or
+           gameType == MinigameConfig.GAME_TYPES.MEMORY_DECRYPT
+end
+
 -- Initialize the controller
 function MinigameController.initialize()
     MinigameController:debugPrint("MinigameController initialized")
@@ -13,11 +20,9 @@ end
 
 -- Start a minigame
 function MinigameController.startMinigame(gameType, difficulty, player, usbItem, onSuccess, onFailure)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    local DifficultyScaler = require "MinigameSystem.Utils.DifficultyScaler"
 
     -- Validate inputs
-    if not MinigameConfig.isValidGameType(gameType) then
+    if not MinigameController.isValidGameType(gameType) then
         MinigameController:debugPrint("Invalid game type:", gameType)
         return false
     end
@@ -52,8 +57,6 @@ end
 
 -- Create game instance based on type
 function MinigameController:createGameInstance(gameType, difficulty, player, usbItem, onSuccess, onFailure)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    local MinigameWindow = require "MinigameSystem.UI.MinigameWindow"
 
     -- Create base window
     local window = MinigameWindow.createWindow(gameType, difficulty, onSuccess, onFailure)
@@ -62,14 +65,10 @@ function MinigameController:createGameInstance(gameType, difficulty, player, usb
     local gameLogic = nil
     if gameType == MinigameConfig.GAME_TYPES.SEQUENCE_BREAKER then
         gameLogic = MinigameController:createSequenceBreakerLogic(window, difficulty, player, usbItem)
-    elseif gameType == MinigameConfig.GAME_TYPES.PATTERN_MATCH then
-        gameLogic = MinigameController:createPatternMatchLogic(window, difficulty, player, usbItem)
-    elseif gameType == MinigameConfig.GAME_TYPES.MEMORY_MATRIX then
-        gameLogic = MinigameController:createMemoryMatrixLogic(window, difficulty, player, usbItem)
-    elseif gameType == MinigameConfig.GAME_TYPES.CODE_CRACKER then
-        gameLogic = MinigameController:createCodeCrackerLogic(window, difficulty, player, usbItem)
-    elseif gameType == MinigameConfig.GAME_TYPES.DATA_STREAM then
-        gameLogic = MinigameController:createDataStreamLogic(window, difficulty, player, usbItem)
+    elseif gameType == MinigameConfig.GAME_TYPES.CODE_MATRIX then
+        gameLogic = MinigameController:createCodeMatrixLogic(window, difficulty, player, usbItem)
+    elseif gameType == MinigameConfig.GAME_TYPES.MEMORY_DECRYPT then
+        gameLogic = MinigameController:createMemoryDecryptLogic(window, difficulty, player, usbItem)
     else
         MinigameController:debugPrint("Unknown game type:", gameType)
         return nil
@@ -99,29 +98,40 @@ end
 
 -- Create Sequence Breaker logic
 function MinigameController:createSequenceBreakerLogic(window, difficulty, player, usbItem)
-    -- Placeholder - will be implemented in ISSUE-006
-    MinigameController:debugPrint("Creating Sequence Breaker logic (placeholder)")
+
+    -- Create the actual game instance using the existing window
+    local gameInstance = SequenceBreaker:new()
+    gameInstance.window = window
+    gameInstance.difficulty = difficulty
+    gameInstance.player = player
+    gameInstance.usbItem = usbItem
+    
+    -- Set game config on the window
+    window:setGameConfig("sequence_breaker", difficulty, 
+        function(xpGained) 
+            MinigameController:endMinigame(player:getUsername(), true, xpGained, 0)
+        end,
+        function(damage, abandoned) 
+            MinigameController:endMinigame(player:getUsername(), false, 0, damage)
+        end)
+
+    MinigameController:debugPrint("Created Sequence Breaker game instance")
+
     return {
         startGame = function(self)
-            window:updateStatus("Sequence Breaker - Coming Soon!")
-            -- Placeholder implementation
-            local TimerSystem = require "MinigameSystem.Utils.TimerSystem"
-            TimerSystem.startTimer(2.0, function()
-                window:completeGameSuccess(10)
-            end)
+            gameInstance:startGame()
         end
     }
 end
 
--- Create Pattern Match logic
-function MinigameController:createPatternMatchLogic(window, difficulty, player, usbItem)
+-- Create Code Matrix logic
+function MinigameController:createCodeMatrixLogic(window, difficulty, player, usbItem)
     -- Placeholder - will be implemented in ISSUE-007
-    MinigameController:debugPrint("Creating Pattern Match logic (placeholder)")
+    MinigameController:debugPrint("Creating Code Matrix logic (placeholder)")
     return {
         startGame = function(self)
-            window:updateStatus("Pattern Match - Coming Soon!")
+            window:updateStatus("Code Matrix - Coming Soon!")
             -- Placeholder implementation
-            local TimerSystem = require "MinigameSystem.Utils.TimerSystem"
             TimerSystem.startTimer(2.0, function()
                 window:completeGameSuccess(10)
             end)
@@ -129,47 +139,14 @@ function MinigameController:createPatternMatchLogic(window, difficulty, player, 
     }
 end
 
--- Create Memory Matrix logic
-function MinigameController:createMemoryMatrixLogic(window, difficulty, player, usbItem)
+-- Create Memory Decrypt logic
+function MinigameController:createMemoryDecryptLogic(window, difficulty, player, usbItem)
     -- Placeholder - will be implemented in ISSUE-008
-    MinigameController:debugPrint("Creating Memory Matrix logic (placeholder)")
+    MinigameController:debugPrint("Creating Memory Decrypt logic (placeholder)")
     return {
         startGame = function(self)
-            window:updateStatus("Memory Matrix - Coming Soon!")
+            window:updateStatus("Memory Decrypt - Coming Soon!")
             -- Placeholder implementation
-            local TimerSystem = require "MinigameSystem.Utils.TimerSystem"
-            TimerSystem.startTimer(2.0, function()
-                window:completeGameSuccess(10)
-            end)
-        end
-    }
-end
-
--- Create Code Cracker logic
-function MinigameController:createCodeCrackerLogic(window, difficulty, player, usbItem)
-    -- Placeholder - will be implemented in ISSUE-010
-    MinigameController:debugPrint("Creating Code Cracker logic (placeholder)")
-    return {
-        startGame = function(self)
-            window:updateStatus("Code Cracker - Coming Soon!")
-            -- Placeholder implementation
-            local TimerSystem = require "MinigameSystem.Utils.TimerSystem"
-            TimerSystem.startTimer(2.0, function()
-                window:completeGameSuccess(10)
-            end)
-        end
-    }
-end
-
--- Create Data Stream logic
-function MinigameController:createDataStreamLogic(window, difficulty, player, usbItem)
-    -- Placeholder - will be implemented in ISSUE-011
-    MinigameController:debugPrint("Creating Data Stream logic (placeholder)")
-    return {
-        startGame = function(self)
-            window:updateStatus("Data Stream - Coming Soon!")
-            -- Placeholder implementation
-            local TimerSystem = require "MinigameSystem.Utils.TimerSystem"
             TimerSystem.startTimer(2.0, function()
                 window:completeGameSuccess(10)
             end)
@@ -205,7 +182,6 @@ end
 
 -- Apply success rewards
 function MinigameController:applySuccessRewards(player, xpGained)
-    local GVDrive_Utils = require "GVDrive_Utils"
 
     -- Add XP to Electrical skill
     if player:getPerkLevel(Perks.Electricity) < 10 then
@@ -234,7 +210,6 @@ end
 
 -- Give bonus item
 function MinigameController:giveBonusItem(player)
-    local GVDrive_Utils = require "GVDrive_Utils"
     local bonusItems = GVDrive_Utils.getMinigameBonusItems()
     local itemType = bonusItems[ZombRand(1, #bonusItems + 1)]
 
@@ -270,10 +245,7 @@ end
 
 -- Debug print function
 function MinigameController:debugPrint(...)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    if MinigameConfig.DEBUG then
+    if MinigameConfig and MinigameConfig.DEBUG then
         print("[MinigameController]", ...)
     end
 end
-
-return MinigameController

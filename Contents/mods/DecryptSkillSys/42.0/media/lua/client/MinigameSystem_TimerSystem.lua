@@ -29,13 +29,22 @@ function TimerSystem.startTimer(duration, callback, timerType)
     local timerId = TimerSystem.nextTimerId
     TimerSystem.nextTimerId = TimerSystem.nextTimerId + 1
 
+    -- Use PZ's getGameTime() if available, fallback to os.time()
+    local startTime
+    local success, gameTime = pcall(function() return getGameTime() end)
+    if success and gameTime and gameTime.getWorldAgeHours then
+        startTime = gameTime:getWorldAgeHours() * 3600 -- Convert to seconds
+    else
+        startTime = os.time()
+    end
+
     local timer = {
         id = timerId,
         duration = duration,
         remaining = duration,
         callback = callback,
         timerType = timerType or "generic",
-        startTime = getGameTime():getWorldAgeHours() * 3600, -- Convert to seconds
+        startTime = startTime,
         paused = false,
         completed = false
     }
@@ -87,7 +96,7 @@ end
 function TimerSystem.getRemainingTime(timerId)
     local timer = TimerSystem.activeTimers[timerId]
     if timer and not timer.completed then
-        return timer.remaining
+        return math.max(0, timer.remaining)
     end
     return 0
 end
@@ -109,7 +118,15 @@ end
 
 -- Update all active timers (called every frame)
 function TimerSystem.update(deltaTime)
-    local currentTime = getGameTime():getWorldAgeHours() * 3600 -- Convert to seconds
+    -- Use PZ's getGameTime() if available, fallback to os.time()
+    local currentTime
+    local success, gameTime = pcall(function() return getGameTime() end)
+    if success and gameTime and gameTime.getWorldAgeHours then
+        currentTime = gameTime:getWorldAgeHours() * 3600 -- Convert to seconds
+    else
+        currentTime = os.time()
+    end
+
     local completedTimers = {}
 
     for timerId, timer in pairs(TimerSystem.activeTimers) do
@@ -188,8 +205,7 @@ end
 
 -- Debug print function
 function TimerSystem.debugPrint(...)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    if MinigameConfig.DEBUG then
+    if MinigameConfig and MinigameConfig.DEBUG then
         print("[TimerSystem]", ...)
     end
 end
@@ -203,5 +219,3 @@ Events.OnTick.Add(function()
 end)
 
 TimerSystem.debugPrint("TimerSystem.lua loaded and registered")
-
-return TimerSystem

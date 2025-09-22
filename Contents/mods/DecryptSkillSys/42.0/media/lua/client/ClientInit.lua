@@ -8,32 +8,67 @@ if GVDebug then GVDebug.debugPrint("ClientInit.lua loading...") end
 pcall(require, "shared/GVDrive_Utils")
 pcall(require, "shared/LaptopSystem")
 
--- Load minigame system modules
-print("[DecryptSkillSys][DEBUG] ClientInit: Loading MinigameSystem...")
-local minigameConfigLoaded = pcall(require, "MinigameSystem.Config.MinigameConfig")
-local minigameControllerLoaded = pcall(require, "MinigameSystem.MinigameController")
-local minigameWindowLoaded = pcall(require, "MinigameSystem.UI.MinigameWindow")
-
-if minigameConfigLoaded then
-    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameConfig loaded successfully")
+-- PZ auto-loads client modules, verify MinigameSystem availability
+print("[DecryptSkillSys][DEBUG] ClientInit: Checking MinigameSystem availability...")
+if MinigameConfig then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameConfig is available")
 else
-    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameConfig")
-end
-
-if minigameControllerLoaded then
-    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameController loaded successfully")
-    -- Initialize the controller
-    if MinigameController then
-        MinigameController.initialize()
+    print("[DecryptSkillSys][ERROR] ClientInit: MinigameConfig is NOT available - loading manually")
+    local success, err = pcall(dofile, "MinigameSystem_Config.lua")
+    if success then
+        print("[DecryptSkillSys][DEBUG] ClientInit: MinigameConfig loaded manually")
+    else
+        print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameConfig: " .. tostring(err))
     end
-else
-    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameController")
 end
 
-if minigameWindowLoaded then
-    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameWindow loaded successfully")
+if MinigameController then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameController is available")
+    -- Initialize the controller
+    MinigameController.initialize()
 else
-    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameWindow")
+    print("[DecryptSkillSys][ERROR] ClientInit: MinigameController is NOT available - loading manually")
+    local success, err = pcall(dofile, "MinigameSystem_Controller.lua")
+    if success then
+        print("[DecryptSkillSys][DEBUG] ClientInit: MinigameController loaded manually")
+        if MinigameController and MinigameController.initialize then
+            MinigameController.initialize()
+        end
+    else
+        print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameController: " .. tostring(err))
+    end
+end
+
+-- Load MinigameWindow and related modules manually if not auto-loaded
+local minigameModules = {
+    "MinigameSystem_Window.lua",
+    "MinigameSystem_SequenceBreaker.lua", 
+    "MinigameSystem_DifficultyScaler.lua",
+    "MinigameSystem_TimerSystem.lua",
+    "MinigameSystem_FeedbackSystem.lua"
+}
+
+for _, moduleFile in ipairs(minigameModules) do
+    local moduleName = moduleFile:gsub("%.lua$", ""):gsub("MinigameSystem_", "")
+    if _G[moduleName] then
+        print("[DecryptSkillSys][DEBUG] ClientInit: " .. moduleName .. " is available")
+    else
+        print("[DecryptSkillSys][ERROR] ClientInit: " .. moduleName .. " is NOT available - loading manually")
+        local success, err = pcall(dofile, moduleFile)
+        if success then
+            print("[DecryptSkillSys][DEBUG] ClientInit: " .. moduleName .. " loaded manually")
+        else
+            print("[DecryptSkillSys][ERROR] ClientInit: Failed to load " .. moduleName .. ": " .. tostring(err))
+        end
+    end
+end
+
+-- Final verification
+print("[DecryptSkillSys][DEBUG] ClientInit: Final module verification...")
+if MinigameWindow then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameWindow is available")
+else
+    print("[DecryptSkillSys][ERROR] ClientInit: MinigameWindow is NOT available")
 end
 
 -- Load client modules
@@ -47,6 +82,13 @@ else
     print("[DecryptSkillSys][ERROR] ClientInit: Failed to load DecryptDrivesContextMenu: " .. tostring(modernMenu))
 end
 
-require("client/TimedActions/LaptopFill")
+-- Load TimedActions with error handling
+print("[DecryptSkillSys][DEBUG] ClientInit: Loading TimedActions...")
+local laptopSuccess, laptopError = pcall(require, "client/TimedActions/LaptopFill")
+if laptopSuccess then
+    print("[DecryptSkillSys][DEBUG] ClientInit: LaptopFill loaded successfully")
+else
+    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load LaptopFill: " .. tostring(laptopError))
+end
 
 if GVDebug then GVDebug.debugPrint("ClientInit.lua loaded - all client modules should be active") end

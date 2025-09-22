@@ -17,11 +17,11 @@ MinigameConfig.STATES = {
     ABANDONED = "abandoned"
 }
 
--- Difficulty levels
+-- Difficulty levels (numeric for consistency)
 MinigameConfig.DIFFICULTIES = {
-    EASY = "Easy",
-    MODERATE = "Moderate",
-    EXPERT = "Expert"
+    EASY = 1,
+    MODERATE = 2,
+    EXPERT = 3
 }
 
 -- Minigame types
@@ -160,7 +160,6 @@ end
 
 -- Get default window settings from SANDBOXVARS
 function MinigameConfig.getWindowSettings()
-    local GVDrive_Utils = require "shared/GVDrive_Utils"
     local size = GVDrive_Utils.getMinigameWindowSize()
 
     return {
@@ -172,19 +171,16 @@ end
 
 -- Get auto-close delays from SANDBOXVARS
 function MinigameConfig.getAutoCloseDelays()
-    local GVDrive_Utils = require "shared/GVDrive_Utils"
     return GVDrive_Utils.getMinigameAutoCloseDelays()
 end
 
 -- Check if sound is enabled
 function MinigameConfig.isSoundEnabled()
-    local GVDrive_Utils = require "shared/GVDrive_Utils"
     return GVDrive_Utils.isMinigameSoundEnabled()
 end
 
 -- Check if visual effects are enabled
 function MinigameConfig.isVisualEffectsEnabled()
-    local GVDrive_Utils = require "shared/GVDrive_Utils"
     return GVDrive_Utils.isMinigameVisualEffectsEnabled()
 end
 
@@ -196,5 +192,3 @@ function MinigameConfig.debugPrint(...)
 end
 
 MinigameConfig.debugPrint("MinigameConfig.lua loaded successfully")
-
-return MinigameConfig

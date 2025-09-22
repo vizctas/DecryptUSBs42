@@ -387,11 +387,11 @@ debugPrint("MenuController require result: loaded=" .. tostring(menuControllerLo
 
 -- Initialize menu controller
 local menuController = nil
-if MenuController then
+if MenuController and menuControllerLoaded then
     menuController = MenuController:new()
     debugPrint("MenuController initialized successfully")
 else
-    debugPrint("[WARN] MenuController not available, falling back to legacy implementation")
+    debugPrint("[WARN] MenuController not available or failed to load, falling back to legacy implementation")
 end
 
 debugPrint("Final menuController state: " .. tostring(menuController))
@@ -441,7 +441,7 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
         local difficulties = {}
         for _, usbData in ipairs(usbs) do
             local diff = usbData.difficulty_spanish
-            debugPrint("LEGACY: Processing USB: skill=" .. skill .. ", difficulty=" .. tostring(diff))
+            debugPrint("LEGACY: Processing USB: skill=" .. skill .. ", difficulty=" .. tostring(diff) .. ", displayName=" .. tostring(usbData.displayName))
             if not difficulties[diff] then
                 difficulties[diff] = {}
             end
@@ -456,19 +456,26 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
         -- Create difficulty submenus with proper order
         local diffOrder = {"Facil", "Moderado", "Dificil"}
         for _, difficultyName in ipairs(diffOrder) do
-            if difficulties[difficultyName] then
+            if difficulties[difficultyName] and #difficulties[difficultyName] > 0 then
                 local count = #difficulties[difficultyName]
                 debugPrint("LEGACY: Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
-                -- Add difficulty option that directly triggers action with the first USB
-                skillSubMenu:addOption(
-                    difficultyName .. " x" .. count,
-                    DecryptDrivesContextMenu,
-                    DecryptDrivesContextMenu.onUSBSelected,
-                    player,
-                    laptop,
-                    difficulties[difficultyName][1]  -- Use the first USB in the list
-                )
-                debugPrint("LEGACY: Difficulty option added to skill submenu")
+                
+                -- Validate USB data before creating option
+                local selectedUSB = difficulties[difficultyName][1]
+                if selectedUSB and selectedUSB.displayName then
+                    -- Add difficulty option that directly triggers action with the first USB
+                    skillSubMenu:addOption(
+                        difficultyName .. " x" .. count,
+                        DecryptDrivesContextMenu,
+                        DecryptDrivesContextMenu.onUSBSelected,
+                        player,
+                        laptop,
+                        selectedUSB  -- Use the validated first USB
+                    )
+                    debugPrint("LEGACY: Difficulty option added to skill submenu")
+                else
+                    debugPrint("[ERROR] LEGACY: Invalid USB data for " .. difficultyName .. " - skipping option creation")
+                end
             else
                 debugPrint("LEGACY: No USBs found for difficulty: " .. difficultyName .. " in skill " .. skill)
             end
@@ -483,26 +490,38 @@ end
 -- ============================================================================
 
 -- Handle USB selection from context menu
-function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
-    if not usbData or not usbData.displayName then
-        debugPrint("[ERROR] onUSBSelected called with invalid usbData")
+function DecryptDrivesContextMenu.onUSBSelected(self, player, laptop, usbData)
+    debugPrint("onUSBSelected called with parameters:")
+    debugPrint("  player: " .. tostring(player))
+    debugPrint("  laptop: " .. tostring(laptop))
+    debugPrint("  usbData type: " .. type(usbData))
+    
+    if usbData and type(usbData) == "table" then
+        debugPrint("  usbData content:")
+        for k, v in pairs(usbData) do
+            debugPrint("    " .. k .. ": " .. tostring(v))
+        end
+    else
+        debugPrint("  usbData is nil or not a table")
+    end
+    
+    if not usbData or type(usbData) ~= "table" or not usbData.displayName then
+        debugPrint("[ERROR] onUSBSelected called with invalid usbData - missing displayName or not a table")
         return
     end
 
     debugPrint("USB selected: " .. usbData.displayName)
     debugPrint("Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
 
-    -- Check if minigame system is available
-    local minigameAvailable = pcall(require, "MinigameSystem.MinigameController")
-    if not minigameAvailable then
+    -- Check if minigame system is available (PZ auto-loads modules)
+    if not MinigameController then
         debugPrint("[WARN] Minigame system not available, falling back to legacy behavior")
         player:Say("Initiating decryption of " .. (usbData.skill or "Unknown") .. " drive (" .. (usbData.difficulty_spanish or "Unknown") .. ")...")
         return
     end
 
     -- Initialize minigame controller if not already done
-    if not MinigameController then
-        MinigameController = require "MinigameSystem.MinigameController"
+    if not MinigameController.initialized then
         MinigameController.initialize()
     end
 
@@ -513,15 +532,14 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     end
 
     -- Determine game type based on USB difficulty (for now, random selection)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    local gameTypes = {MinigameConfig.GAME_TYPES.SEQUENCE_BREAKER, MinigameConfig.GAME_TYPES.PATTERN_MATCH}
+    local gameTypes = {MinigameConfig.GAME_TYPES.SEQUENCE_BREAKER}
     local selectedGameType = gameTypes[ZombRand(1, #gameTypes + 1)]
 
     -- Map difficulty from Spanish to internal format
     local difficultyMap = {
         ["Facil"] = MinigameConfig.DIFFICULTIES.EASY,
-        ["Moderado"] = MinigameConfig.DIFFICULTIES.MEDIUM,
-        ["Dificil"] = MinigameConfig.DIFFICULTIES.HARD
+        ["Moderado"] = MinigameConfig.DIFFICULTIES.MODERATE,
+        ["Dificil"] = MinigameConfig.DIFFICULTIES.EXPERT
     }
     local internalDifficulty = difficultyMap[usbData.difficulty_spanish] or MinigameConfig.DIFFICULTIES.EASY
 
@@ -545,6 +563,12 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     end
 
     -- Start the minigame
+    if not usbData.item then
+        debugPrint("[ERROR] usbData.item is nil - cannot start minigame")
+        player:Say("Error: USB inválido. Inténtalo de nuevo.")
+        return
+    end
+
     local success = MinigameController.startMinigame(selectedGameType, internalDifficulty, player, usbData.item, onSuccess, onFailure)
 
     if success then

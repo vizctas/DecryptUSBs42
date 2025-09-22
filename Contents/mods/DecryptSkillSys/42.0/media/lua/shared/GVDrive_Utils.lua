@@ -690,3 +690,32 @@ function GVDrive_Utils.getMinigameDifficulty(driveInfo)
         return "Easy"
     end
 end
+
+-- Get minigame bonus item chance
+function GVDrive_Utils.getMinigameBonusItemChance()
+    return getSandboxNumber("Minigame_Bonus_Item_Chance", 25) -- 25% chance
+end
+
+-- Get minigame bonus items
+function GVDrive_Utils.getMinigameBonusItems()
+    -- Return list of possible bonus items
+    return {
+        "ElectronicsMag4",     -- Advanced Electronics Magazine
+        "ElectronicsMag3",     -- Intermediate Electronics Magazine  
+        "BookElectrician2",    -- Advanced Electrician Book
+        "BookElectrician1",    -- Basic Electrician Book
+        "Screwdriver",         -- Screwdriver
+        "ElectronicsScrap",    -- Electronics Scrap
+        "Wire",                -- Wire
+        "Battery",             -- Battery
+        "LightBulb",           -- Light Bulb
+        "Amplifier",           -- Amplifier
+        "Radio",               -- Radio
+        "Headphones",          -- Headphones
+        "CDplayer",            -- CD Player
+        "TV",                  -- TV
+        "Computer",            -- Computer
+        "PowerBar",            -- Power Bar
+        "Timer"                -- Timer
+    }
+end

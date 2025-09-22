@@ -296,7 +296,7 @@ option GVDrive.Minigame_Expert_XP_Multiplier
 
 option GVDrive.Minigame_Easy_Time_Limit
 {
-    type = integer, min = 10, max = 300, default = 0,
+    type = integer, min = 10, max = 300, default = 10,
     page = Drive_Decrypt, translation = GVDrive_Minigame_Easy_Time,
 }
 

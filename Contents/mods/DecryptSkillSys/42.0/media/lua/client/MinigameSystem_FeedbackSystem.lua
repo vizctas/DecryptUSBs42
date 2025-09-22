@@ -12,7 +12,6 @@ end
 function FeedbackSystem.playSound(soundType)
     if not FeedbackSystem.isSoundEnabled() then return end
 
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
     local soundName = MinigameConfig.SOUNDS[soundType]
 
     if soundName then
@@ -199,20 +198,17 @@ end
 
 -- Check if sound is enabled
 function FeedbackSystem.isSoundEnabled()
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
     return MinigameConfig.isSoundEnabled()
 end
 
 -- Check if visual effects are enabled
 function FeedbackSystem.isVisualEffectsEnabled()
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
     return MinigameConfig.isVisualEffectsEnabled()
 end
 
 -- Debug print function
 function FeedbackSystem.debugPrint(...)
-    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
-    if MinigameConfig.DEBUG then
+    if MinigameConfig and MinigameConfig.DEBUG then
         print("[FeedbackSystem]", ...)
     end
 end
@@ -221,5 +217,3 @@ end
 FeedbackSystem.init()
 
 FeedbackSystem.debugPrint("FeedbackSystem.lua loaded successfully")
-
-return FeedbackSystem
