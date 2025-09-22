@@ -568,40 +568,44 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
             if string.find(itemType, "Laptop") or string.find(itemType, "AsusZeph") or string.find(itemType, "IBM_LP90") or string.find(itemType, "PBIBM_LP90") then
             debugPrint("Found laptop: " .. itemType)
             
-            -- Add laptop health status at top with battery icon
+            -- Add laptop health status at top with improved visual representation
             -- Get and display real laptop health
             local laptopHealth = 100 -- Default fallback
             if LaptopSystem and LaptopSystem.getLaptopHealth then
                 laptopHealth = LaptopSystem.getLaptopHealth(item)
             end
             
+            -- Create visual health bar (10 characters) - using simple characters
+            local barLength = 10
+            local filledBars = math.floor((laptopHealth / 100) * barLength)
+            local emptyBars = barLength - filledBars
+            local healthBar = string.rep("|", filledBars) .. string.rep(".", emptyBars)
+            
+            -- Color based on health percentage
             local healthColor = ""
             local healthStatus = ""
-            local batteryIcon = ""
             
             if laptopHealth >= 80 then
                 healthColor = " <RGB:0,1,0> " -- Green
                 healthStatus = "Excellent"
-                batteryIcon = " [████] "  -- Full battery Unicode
             elseif laptopHealth >= 60 then
                 healthColor = " <RGB:1,1,0> " -- Yellow  
                 healthStatus = "Good"
-                batteryIcon = " [███▒] "  -- 3/4 battery Unicode
             elseif laptopHealth >= 40 then
                 healthColor = " <RGB:1,0.5,0> " -- Orange
                 healthStatus = "Fair"
-                batteryIcon = " [██▒▒] "  -- Half battery Unicode
             elseif laptopHealth >= 20 then
                 healthColor = " <RGB:1,0,0> " -- Red
                 healthStatus = "Poor"
-                batteryIcon = " [█▒▒▒] "  -- Low battery Unicode
             else
                 healthColor = " <RGB:0.5,0,0> " -- Dark Red
                 healthStatus = "Critical"
-                batteryIcon = " [▒▒▒▒] "  -- Dead battery Unicode
             end
             
-            context:addOptionOnTop(batteryIcon .. "Laptop Health: " .. laptopHealth .. "% (" .. healthStatus .. ")", playerObj, function() 
+            -- Display format: Health: [████████░░] 75% (Good) - SIN formato RGB en opciones del menú
+            local healthDisplay = "Health: [" .. healthBar .. "] " .. laptopHealth .. "% (" .. healthStatus .. ")"
+            
+            context:addOptionOnTop(healthDisplay, playerObj, function() 
                 local messages = {
                     "The laptop hums softly, displaying its current condition.",
                     "You examine the laptop's status indicators carefully.",
@@ -681,6 +685,53 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                 end
                 
                 if totalUSBCount > 0 then
+                    -- Check if modern menu system is available and working
+                    local modernMenuActive = false
+                    local modernMenuError = nil
+
+                    -- Try to check if modern menu is loaded
+                    if type(_G) == 'table' and _G.DecryptDrivesContextMenu_MODERN then
+                        modernMenuActive = true
+                        debugPrint("LaptopFill: Modern menu detected via global flag")
+                    else
+                        local ok, mod = pcall(function() return require "client/DecryptDrivesContextMenu" end)
+                        if ok and type(mod) == 'table' and mod.MODERN_MENU_ACTIVE then
+                            modernMenuActive = true
+                            debugPrint("LaptopFill: Modern menu detected via require")
+                        elseif not ok then
+                            modernMenuError = mod
+                            debugPrint("LaptopFill: Modern menu require failed: " .. tostring(mod))
+                        else
+                            debugPrint("LaptopFill: Modern menu module loaded but MODERN_MENU_ACTIVE is " .. tostring(mod and mod.MODERN_MENU_ACTIVE or "nil"))
+                        end
+                    end
+
+                    debugPrint("LaptopFill: modernMenuActive = " .. tostring(modernMenuActive))
+                    debugPrint("LaptopFill: context._DecryptDrives_ModernMenu = " .. tostring(context and context._DecryptDrives_ModernMenu or "nil"))
+
+                    -- If modern menu is active, try to call it directly instead of relying on event order
+                    if modernMenuActive then
+                        debugPrint("LaptopFill: Attempting to call modern menu directly")
+                        local ok, result = pcall(function()
+                            local modernMenu = require "DecryptDrivesContextMenu"
+                            if modernMenu and modernMenu.addContextMenuOption then
+                                modernMenu.addContextMenuOption(playerObj, context, worldobjects, test)
+                                debugPrint("LaptopFill: Modern menu called successfully")
+                                return true
+                            end
+                            return false
+                        end)
+                        
+                        if ok and result then
+                            debugPrint("LaptopFill: Modern menu executed successfully - skipping legacy menu")
+                            return
+                        else
+                            debugPrint("LaptopFill: Modern menu call failed: " .. tostring(result) .. " - falling back to legacy")
+                        end
+                    end
+
+                    -- Fallback to legacy menu if modern menu failed
+                    debugPrint("LaptopFill: Using legacy menu implementation")
                     -- Check if laptop can be used for decryption
                     if laptopHealth <= 0 then
                         local brokenOption = context:addOption("Drives Available (" .. totalUSBCount .. ") - LAPTOP BROKEN", playerObj, function()

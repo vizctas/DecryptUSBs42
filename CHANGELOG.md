@@ -6,7 +6,24 @@ All notable changes to this project will be documented in this file.
 The format is based on https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
-- None yet. Work in progress: changelog consolidation and QA checklist creation.
+### Fixed
+- Fixed menu duplication issue - removed duplicate event registration in DecryptDrivesContextMenu.lua to prevent "Decrypt Drives" appearing twice
+- Fixed critical syntax error in DecryptDrivesContextMenu.lua line 29 - malformed 'endnd' statement was causing "'end' expected" error
+- Fixed critical syntax error in DecryptDrivesContextMenu.lua line 10-11 - incomplete if statement was causing "'then' expected near function" error
+- Fixed require path in LaptopFill.lua - changed "client/DecryptDrivesContextMenu" to "DecryptDrivesContextMenu" to match PZ Lua require conventions
+- Reverted health bar display changes - now uses simple characters (||||||....) instead of Unicode blocks
+- Fixed USB drives menu disappearing by improving modern menu detection logic
+- Reverted difficulty emojis in context menu to avoid conflicts
+- Fixed hierarchical menu detection - modern menu now properly sets context marker to prevent legacy menu duplication
+- Added extensive debug logging to troubleshoot hierarchical menu creation and difficulty grouping
+- Fixed CONFIG reference bug in HierarchicalMenuStrategy - now properly initializes self.config
+- Fixed syntax error in LaptopBatteryWidget.lua - removed orphaned code after early return
+- Made HierarchicalMenuStrategy require safe in MenuController.lua to prevent runtime errors
+- Fixed menu execution order issue - LaptopFill.lua now calls modern menu directly instead of relying on event execution order
+- Added comprehensive debug logging to diagnose why hierarchical menu is not showing difficulty submenus
+
+### Changed
+- Changed main menu text from "Decrypt Drives" to "Insert Drive..." for better user experience
 
 ## [2025-09-19] - Unreleased (cleanup)
 ### Added
