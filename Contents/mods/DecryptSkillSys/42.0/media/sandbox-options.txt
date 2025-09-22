@@ -275,3 +275,93 @@ option GVDrive.Antivirus_MalwareBytes_Drop_Rate
     type = double, min = 0, max = 5, default = 0.01,
     page = Drive_Decrypt, translation = GVDrive_Antivirus_MalwareBytes_Drop_Rate,
 }
+
+option GVDrive.Minigame_Easy_XP_Multiplier
+{
+    type = double, min = 0.5, max = 3.0, default = 1.1,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Easy_XP,
+}
+
+option GVDrive.Minigame_Moderate_XP_Multiplier
+{
+    type = double, min = 0.5, max = 3.0, default = 1.25,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Moderate_XP,
+}
+
+option GVDrive.Minigame_Expert_XP_Multiplier
+{
+    type = double, min = 0.5, max = 5.0, default = 1.5,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Expert_XP,
+}
+
+option GVDrive.Minigame_Easy_Time_Limit
+{
+    type = integer, min = 10, max = 300, default = 0,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Easy_Time,
+}
+
+option GVDrive.Minigame_Moderate_Time_Limit
+{
+    type = integer, min = 5, max = 120, default = 12,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Moderate_Time,
+}
+
+option GVDrive.Minigame_Expert_Time_Limit
+{
+    type = integer, min = 3, max = 60, default = 8,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Expert_Time,
+}
+
+option GVDrive.Minigame_Window_Width
+{
+    type = integer, min = 300, max = 800, default = 400,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Window_Width,
+}
+
+option GVDrive.Minigame_Window_Height
+{
+    type = integer, min = 200, max = 600, default = 300,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Window_Height,
+}
+
+option GVDrive.Minigame_Auto_Close_Success
+{
+    type = integer, min = 1, max = 10, default = 3,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Auto_Close_Success,
+}
+
+option GVDrive.Minigame_Auto_Close_Fail
+{
+    type = integer, min = 1, max = 5, default = 2,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Auto_Close_Fail,
+}
+
+option GVDrive.Minigame_Enable_Sound
+{
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Enable_Sound,
+}
+
+option GVDrive.Minigame_Enable_Visual_Effects
+{
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_Enable_Visual_Effects,
+}
+
+option GVDrive.Minigame_SequenceBreaker_Weight
+{
+    type = integer, min = 0, max = 100, default = 40,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_SequenceBreaker_Weight,
+}
+
+option GVDrive.Minigame_CodeMatrix_Weight
+{
+    type = integer, min = 0, max = 100, default = 30,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_CodeMatrix_Weight,
+}
+
+option GVDrive.Minigame_MemoryDecrypt_Weight
+{
+    type = integer, min = 0, max = 100, default = 30,
+    page = Drive_Decrypt, translation = GVDrive_Minigame_MemoryDecrypt_Weight,
+}

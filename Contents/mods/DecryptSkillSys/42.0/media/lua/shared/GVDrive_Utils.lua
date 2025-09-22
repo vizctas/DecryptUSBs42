@@ -568,3 +568,125 @@ function GVDrive_Utils.getSandboxPercent(name, default)
     if n > 100 then return 100 end
     return n
 end
+
+-- ============================================================================
+-- MINIGAME SYSTEM UTILITIES
+-- ============================================================================
+
+-- Get XP multiplier for minigame difficulty
+function GVDrive_Utils.getMinigameXPMultiplier(difficulty)
+    if not difficulty then return 1.0 end
+    
+    local difficultyMap = {
+        ["Easy"] = "Minigame_Easy_XP_Multiplier",
+        ["Moderate"] = "Minigame_Moderate_XP_Multiplier", 
+        ["Expert"] = "Minigame_Expert_XP_Multiplier"
+    }
+    
+    local key = difficultyMap[difficulty]
+    if key then
+        return getSandboxNumber(key, 1.0)
+    end
+    
+    return 1.0
+end
+
+-- Get time limit for minigame difficulty
+function GVDrive_Utils.getMinigameTimeLimit(difficulty)
+    if not difficulty then return 0 end
+    
+    local difficultyMap = {
+        ["Easy"] = "Minigame_Easy_Time_Limit",
+        ["Moderate"] = "Minigame_Moderate_Time_Limit",
+        ["Expert"] = "Minigame_Expert_Time_Limit"
+    }
+    
+    local key = difficultyMap[difficulty]
+    if key then
+        return getSandboxNumber(key, 0)
+    end
+    
+    return 0
+end
+
+-- Get minigame window dimensions
+function GVDrive_Utils.getMinigameWindowSize()
+    return {
+        width = getSandboxNumber("Minigame_Window_Width", 400),
+        height = getSandboxNumber("Minigame_Window_Height", 300)
+    }
+end
+
+-- Get auto-close delays
+function GVDrive_Utils.getMinigameAutoCloseDelays()
+    return {
+        success = getSandboxNumber("Minigame_Auto_Close_Success", 3),
+        fail = getSandboxNumber("Minigame_Auto_Close_Fail", 2)
+    }
+end
+
+-- Check if sound effects are enabled
+function GVDrive_Utils.isMinigameSoundEnabled()
+    return GVDrive_Utils.getSandboxBool("Minigame_Enable_Sound", true)
+end
+
+-- Check if visual effects are enabled
+function GVDrive_Utils.isMinigameVisualEffectsEnabled()
+    return GVDrive_Utils.getSandboxBool("Minigame_Enable_Visual_Effects", true)
+end
+
+-- Get minigame selection weights
+function GVDrive_Utils.getMinigameWeights()
+    return {
+        sequence_breaker = getSandboxNumber("Minigame_SequenceBreaker_Weight", 40),
+        code_matrix = getSandboxNumber("Minigame_CodeMatrix_Weight", 30),
+        memory_decrypt = getSandboxNumber("Minigame_MemoryDecrypt_Weight", 30)
+    }
+end
+
+-- Select random minigame based on weights
+function GVDrive_Utils.selectRandomMinigame()
+    local weights = GVDrive_Utils.getMinigameWeights()
+    local totalWeight = weights.sequence_breaker + weights.code_matrix + weights.memory_decrypt
+    
+    if totalWeight <= 0 then
+        return "sequence_breaker" -- fallback
+    end
+    
+    local random = ZombRand(1, totalWeight + 1)
+    local currentWeight = 0
+    
+    currentWeight = currentWeight + weights.sequence_breaker
+    if random <= currentWeight then
+        return "sequence_breaker"
+    end
+    
+    currentWeight = currentWeight + weights.code_matrix
+    if random <= currentWeight then
+        return "code_matrix"
+    end
+    
+    return "memory_decrypt"
+end
+
+-- Calculate minigame XP reward
+function GVDrive_Utils.calculateMinigameXP(baseXP, difficulty)
+    local multiplier = GVDrive_Utils.getMinigameXPMultiplier(difficulty)
+    return math.floor(baseXP * multiplier)
+end
+
+-- Get minigame difficulty from drive info
+function GVDrive_Utils.getMinigameDifficulty(driveInfo)
+    if not driveInfo then return "Easy" end
+    
+    local rarity = tostring(driveInfo.rarity or ""):lower()
+    if rarity:find("dif") then
+        return "Expert"
+    elseif rarity:find("mod") then
+        return "Moderate"
+    elseif rarity:find("fac") then
+        return "Easy"
+    else
+        return "Easy"
+    end
+end

@@ -8,6 +8,34 @@ if GVDebug then GVDebug.debugPrint("ClientInit.lua loading...") end
 pcall(require, "shared/GVDrive_Utils")
 pcall(require, "shared/LaptopSystem")
 
+-- Load minigame system modules
+print("[DecryptSkillSys][DEBUG] ClientInit: Loading MinigameSystem...")
+local minigameConfigLoaded = pcall(require, "MinigameSystem.Config.MinigameConfig")
+local minigameControllerLoaded = pcall(require, "MinigameSystem.MinigameController")
+local minigameWindowLoaded = pcall(require, "MinigameSystem.UI.MinigameWindow")
+
+if minigameConfigLoaded then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameConfig loaded successfully")
+else
+    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameConfig")
+end
+
+if minigameControllerLoaded then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameController loaded successfully")
+    -- Initialize the controller
+    if MinigameController then
+        MinigameController.initialize()
+    end
+else
+    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameController")
+end
+
+if minigameWindowLoaded then
+    print("[DecryptSkillSys][DEBUG] ClientInit: MinigameWindow loaded successfully")
+else
+    print("[DecryptSkillSys][ERROR] ClientInit: Failed to load MinigameWindow")
+end
+
 -- Load client modules
 -- Ensure modern hierarchical context menu loads first to set global flags and register its handler
 print("[DecryptSkillSys][DEBUG] ClientInit: Attempting to load DecryptDrivesContextMenu...")

@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
+### Added
+- **MINIGAME FRAMEWORK COMPLETE**: Implemented complete modular minigame system for USB decryption challenges
+  - Created scalable framework with timer system, feedback system, and difficulty scaling
+  - All configuration driven by SANDBOXVARS (15+ new variables added)
+  - Built base modal window (MinigameWindow) with state management and callbacks
+  - Implemented main controller (MinigameController) for game lifecycle management
+  - Integrated with existing context menu - USB insertion now triggers minigames
+  - Framework ready for 5 different minigame types (Sequence Breaker, Pattern Match, Memory Matrix, Code Cracker, Data Stream)
+  - Added XP rewards for Electrical skill, damage penalties, and bonus item chances
+  - Comprehensive documentation and modular architecture for easy extension
+
 ### Fixed
 - **CRITICAL FIX**: Fixed runtime error "__concat not defined for operands: null and )" in LaptopFill.lua line 613 - added missing healthStatus variable definition and laptopHealth validation to prevent null concatenation errors
 - **UI FIX**: Removed duplicate "Health" option in context menu - eliminated redundant code block that was creating two identical health display options

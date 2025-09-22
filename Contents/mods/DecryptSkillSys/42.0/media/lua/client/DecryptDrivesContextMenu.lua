@@ -488,14 +488,71 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         debugPrint("[ERROR] onUSBSelected called with invalid usbData")
         return
     end
-    
+
     debugPrint("USB selected: " .. usbData.displayName)
     debugPrint("Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
 
-    -- For now, just show a message to the player
-    player:Say("Initiating decryption of " .. (usbData.skill or "Unknown") .. " drive (" .. (usbData.difficulty_spanish or "Unknown") .. ")...")
+    -- Check if minigame system is available
+    local minigameAvailable = pcall(require, "MinigameSystem.MinigameController")
+    if not minigameAvailable then
+        debugPrint("[WARN] Minigame system not available, falling back to legacy behavior")
+        player:Say("Initiating decryption of " .. (usbData.skill or "Unknown") .. " drive (" .. (usbData.difficulty_spanish or "Unknown") .. ")...")
+        return
+    end
 
-    -- TODO: Connect to MinigameController when ISSUE-003 is implemented
+    -- Initialize minigame controller if not already done
+    if not MinigameController then
+        MinigameController = require "MinigameSystem.MinigameController"
+        MinigameController.initialize()
+    end
+
+    -- Check if player already has an active minigame
+    if MinigameController.hasActiveGame(player:getUsername()) then
+        player:Say("Ya tienes un desafío activo. Completa el actual antes de iniciar uno nuevo.")
+        return
+    end
+
+    -- Determine game type based on USB difficulty (for now, random selection)
+    local MinigameConfig = require "MinigameSystem.Config.MinigameConfig"
+    local gameTypes = {MinigameConfig.GAME_TYPES.SEQUENCE_BREAKER, MinigameConfig.GAME_TYPES.PATTERN_MATCH}
+    local selectedGameType = gameTypes[ZombRand(1, #gameTypes + 1)]
+
+    -- Map difficulty from Spanish to internal format
+    local difficultyMap = {
+        ["Facil"] = MinigameConfig.DIFFICULTIES.EASY,
+        ["Moderado"] = MinigameConfig.DIFFICULTIES.MEDIUM,
+        ["Dificil"] = MinigameConfig.DIFFICULTIES.HARD
+    }
+    local internalDifficulty = difficultyMap[usbData.difficulty_spanish] or MinigameConfig.DIFFICULTIES.EASY
+
+    -- Success callback
+    local onSuccess = function(xpGained)
+        debugPrint("Minigame success! XP gained:", xpGained)
+        -- Remove USB from inventory after successful decryption
+        if usbData.item and player:getInventory() then
+            player:getInventory():Remove(usbData.item)
+            debugPrint("USB removed from inventory after successful decryption")
+        end
+        -- Show success message
+        player:Say("¡Desafío completado! Ganaste " .. xpGained .. " puntos de experiencia en Electricidad.")
+    end
+
+    -- Failure callback
+    local onFailure = function(damage, wasAbandoned)
+        debugPrint("Minigame failed! Damage:", damage, "Abandoned:", wasAbandoned)
+        local message = wasAbandoned and "Desafío abandonado." or ("Desafío fallido. Recibiste " .. damage .. " puntos de daño.")
+        player:Say(message)
+    end
+
+    -- Start the minigame
+    local success = MinigameController.startMinigame(selectedGameType, internalDifficulty, player, usbData.item, onSuccess, onFailure)
+
+    if success then
+        debugPrint("Minigame started successfully for player:", player:getUsername())
+    else
+        debugPrint("[ERROR] Failed to start minigame")
+        player:Say("No se pudo iniciar el desafío. Inténtalo de nuevo.")
+    end
 end
 
 -- ============================================================================
