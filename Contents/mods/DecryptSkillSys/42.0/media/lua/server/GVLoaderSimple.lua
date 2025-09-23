@@ -1,0 +1,121 @@
+
+local ok, GVDebug = pcall(require, "shared/GVDebug")
+if not ok or not GVDebug then
+    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
+end
+
+GVDebug.debugPrint("[LOADER] Starting simplified mod loading...")
+
+GVDebug.debugPrint("[LOADER] Items loading from scripts/ folder...")
+
+local function loadDistributions()
+    local ok, err = pcall(function()
+        require "server/Items/GVDistributions"
+    end)
+    if ok then
+        GVDebug.debugPrint("[LOADER] ✅ Native distributions loaded")
+    else
+        GVDebug.debugPrint("[LOADER] ❌ Distribution loading failed:", err)
+    end
+end
+
+local function loadZombieDrops()
+    local ok, err = pcall(function()
+        require "server/GVZombieDropsSimple"
+    end)
+    if ok then
+        GVDebug.debugPrint("[LOADER] ✅ Simple zombie drops loaded")
+    else
+        GVDebug.debugPrint("[LOADER] ❌ Zombie drops loading failed:", err)
+    end
+end
+
+local function loadAuxiliarySystems()
+    local systems = {
+        "shared/GVDrive_Utils",
+        "shared/LaptopSystem", 
+        "shared/EliteDriveSystem"
+    }
+    
+    local loaded = 0
+    for _, system in ipairs(systems) do
+        local ok, err = pcall(require, system)
+        if ok then
+            loaded = loaded + 1
+            GVDebug.debugPrint("[LOADER] ✅", system, "loaded")
+        else
+            GVDebug.debugPrint("[LOADER] ❌", system, "failed:", err)
+        end
+    end
+    
+    GVDebug.debugPrint(string.format("[LOADER] Auxiliary systems: %d/%d loaded", loaded, #systems))
+end
+
+local function verifyItemsSimple()
+    GVDebug.debugPrint("[LOADER] Verifying critical items...")
+    
+    local criticalItems = {
+        "GValley.SkillDrive_Woodwork_Facil",
+        "GValley.EliteDrive_Strength", 
+        "GValley.AsusZephLaptopClosed",
+        "GValley.Antivirus_Norton"
+    }
+    
+    local found = 0
+    for _, item in ipairs(criticalItems) do
+        local exists = getScriptManager():getItem(item) ~= nil
+        if exists then
+            found = found + 1
+        end
+        GVDebug.debugPrint(string.format("[LOADER] %s: %s", item, exists and "✅ OK" or "❌ MISSING"))
+    end
+    
+    local percentage = (found / #criticalItems) * 100
+    GVDebug.debugPrint(string.format("[LOADER] Item verification: %d/%d (%.0f%%) found", found, #criticalItems, percentage))
+    
+    if percentage >= 75 then
+        GVDebug.debugPrint("[LOADER] ✅ MOD READY - Most items loaded successfully")
+    else
+        GVDebug.debugPrint("[LOADER] ⚠️ MOD PARTIAL - Some items missing, check scripts")
+    end
+end
+
+local function loadModSystems()
+    GVDebug.debugPrint("[LOADER] === SIMPLIFIED LOADING SEQUENCE ===")
+    
+    -- Cargar en orden
+    loadAuxiliarySystems()
+    loadDistributions()
+    loadZombieDrops()
+    
+    -- Verificar después de un delay para asegurar que todo está cargado
+    local function delayedVerification()
+        verifyItemsSimple()
+        GVDebug.debugPrint("[LOADER] === LOADING COMPLETE ===")
+    end
+    
+    -- Programar verificación con delay
+    if Events and Events.OnGameStart then
+        Events.OnGameStart.Add(delayedVerification)
+    else
+        delayedVerification()
+    end
+end
+
+if Events and Events.OnInitGlobalModData then
+    Events.OnInitGlobalModData.Add(loadModSystems)
+elseif Events and Events.OnGameBoot then
+    Events.OnGameBoot.Add(loadModSystems)
+else
+    -- Fallback: cargar inmediatamente
+    loadModSystems()
+end
+
+GVDebug.debugPrint("[LOADER] Simplified loader initialized")
+
+-- EXPORTAR funciones para debugging
+GVLoader = {
+    verifyItems = verifyItemsSimple,
+    loadDistributions = loadDistributions,
+    loadZombieDrops = loadZombieDrops
+}

@@ -1,4 +1,8 @@
 require("TimedActions/ISBaseTimedAction")
+require("shared/GVDrive_Utils")
+require("shared/LaptopSystem")
+
+-- Use GVDrive_Utils helpers for sandbox reads (no direct SandboxVars access)
 
 DecryptFloppyDisk = ISBaseTimedAction:derive("DecryptFloppyDisk")
 
@@ -6,7 +10,7 @@ function DecryptFloppyDisk:isValid()
     return self.character and not self.character:isDead()
 end  
         
-    function DecryptFloppyDisk:update()
+function DecryptFloppyDisk:update()
     if self.item and self.item:getItem() then
         self.item:getItem():setJobDelta(self:getJobDelta())
     end
@@ -15,219 +19,140 @@ end
 function DecryptFloppyDisk:start()
     self:setActionAnim("Loot")
     self:setAnimVariable("LootPosition", "Medium")
-    if self.character:getEmitter() then
-        self.character:getEmitter():playSound("USBSys")
+    if self.character and self.character:getEmitter() then
+        self.sound = self.character:getEmitter():playSound("USBSys")
     end
     self:setOverrideHandModels(nil, nil)
 end
 
 function DecryptFloppyDisk:stop()
     ISBaseTimedAction.stop(self)
-    if self.item and self.item:getItem() then
-        self.item:getItem():setJobDelta(0.0)
+    if self.item then
+        self.item:setJobDelta(0.0)
     end
-    if self.character:getEmitter() then
-        self.character:getEmitter():stopSoundByName("USBSys")
+    if self.sound and self.character and self.character:getEmitter() then
+        self.character:getEmitter():stopSound(self.sound)
+        self.sound = nil
     end
 end
-    function DecryptFloppyDisk:perform()
-        forceDropHeavyItems(self.character)
-        local inventoryItem = self.character:getInventory()
-        local ISUsbAvaible = inventoryItem:getItemCount("FloppyDrive") -- doublecheck
-        local diceroll           = 0
-        local randomLvl                 = 0
-        local loopcter                  = 0
-        local randomPerk                = 0
-        local MaxRolls                  = 16
-        local probabilityToKppUsing     = 5
-        local probabilityToGain         = MaxRolls*(SandboxVars.GVDrive.Probability_Decrypt_Diskette/100) -- 90
-        local maxExpGain = SandboxVars.GVDrive.Max_Exp_Learn_By_Diskette
-        local minExpGain = SandboxVars.GVDrive.Min_Exp_Learn_By_Diskette
 
-        if ISUsbAvaible < 1  
-        then  
-            --self.character:Say("Need a floppy first") 
-            return
+function DecryptFloppyDisk:perform()
+    forceDropHeavyItems(self.character)
+    local inventoryItem = self.character:getInventory()
+    local ISFloppyAvaible = inventoryItem:getItemCount("GValley.FloppyDrive")
+    if ISFloppyAvaible < 1 then
+        return
+    end
+
+    local MaxRolls = 16
+    local successChance = 100
+    if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+        successChance = GVDrive_Utils.getSandboxNumber('Floppy_Decrypt_Success_Chance', 100)
+    end
+    local probabilityToGain = MaxRolls * (math.max(0, math.min(100, successChance)) / 100)
+    local diceroll = ZombRand(1.0, MaxRolls)
+
+    -- Check if drive should be preserved (chance to NOT destroy it)
+    local preserveChancePercent = 30
+    if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+        preserveChancePercent = GVDrive_Utils.getSandboxNumber('Drive_Preserve_Chance', 30)
+    end
+    local shouldPreserve = ZombRand(100) / 100 < math.max(0, math.min(100, preserveChancePercent)) / 100
+    
+    -- Always consume one floppy unless it's preserved
+    if not shouldPreserve then
+        inventoryItem:Remove("GValley.FloppyDrive")
+    end
+
+    if diceroll >= probabilityToGain then
+        -- Use GVDrive_Utils directly (ClientInit.lua ensures it's loaded)
+        local driveInfo = nil
+        if self.item and self.item.getItem and GVDrive_Utils and GVDrive_Utils.getDriveInfo then
+            local ok, info = pcall(GVDrive_Utils.getDriveInfo, self.item:getItem())
+            if ok then driveInfo = info end
         end
-        diceroll        = 0
-        diceroll         = ZombRand(1.0,MaxRolls);
-        --self.character:Say(tostring(diceroll).."of"..tostring(MaxRolls));
-        if diceroll     >= probabilityToGain -- 6.4 debe ser mayor al aleatorio de 1.0 a 15
-        then 
-            randomPerk = 0 -- Reinitialize per queue action
-            randomLvl = ZombRand(minExpGain,maxExpGain)+1;	-- gain exp
-            randomPerk = ZombRand(1,11);
 
-            if randomPerk == 0 then randomPerk = randomPerk+1 end       
-            if randomPerk == 1 
-            then 
-                self.character:getXp():AddXP(Perks.Woodwork, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Woodwork_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                    --self.character:Say("Well there is nothing else to decrypt here.")
-                    self.character:Say(getText("GVDrive_Msg_Woodwork_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
+        local perk = nil
+        if GVDrive_Utils and GVDrive_Utils.getDrivePerk then
+            perk = GVDrive_Utils.getDrivePerk(driveInfo or self.item)
+        else
+            perk = GVDrive_Utils.getPerkFromDrive(driveInfo)
+        end
+
+        local perkName = (GVDrive_Utils and GVDrive_Utils.getPerkName and GVDrive_Utils.getPerkName(perk)) or "Unknown"
+        local experienceGain = GVDrive_Utils and GVDrive_Utils.calculateDriveExperience and GVDrive_Utils.calculateDriveExperience(self.character, driveInfo) or 20
+
+        if perk and self.character and self.character.getXp then
+            self.character:getXp():AddXP(perk, experienceGain)
+        end
+
+        -- Success: normal laptop wear
+        LaptopSystem.damageLaptop(self.item, 1)
+
+        local consumeRoll = ZombRand(13) + 1
+        if consumeRoll >= 10 then
+            self.character:Say(getText("GVDrive_Msg_"..perkName.."_Success") or "Got it! Some "..perkName.." skills. Should keep trying to decrypt...")
+            -- Floppy is preserved, give it back as used
+            -- Floppy items removed in v42; add USB used variant instead for compatibility
+            inventoryItem:AddItem("GValley.USBOpened_Used", 1)
+        else
+            self.character:Say(getText("GVDrive_Msg_"..perkName.."_Consume") or "Got it! Some "..perkName.." skills. Floppy is consumed.")
+            -- Floppy is fully consumed, give used version
+            -- Floppy items removed in v42; add USB used variant instead for compatibility
+            inventoryItem:AddItem("GValley.USBOpened_Used", 1)
+        end
+    else
+        -- Failure: Check for malware
+        local malwareChancePercent = 15
+        if GVDrive_Utils and GVDrive_Utils.getMalwareChance then
+            local ok, malChance = pcall(GVDrive_Utils.getMalwareChance, GVDrive_Utils, driveInfo)
+            if ok and type(malChance) == 'number' then
+                malwareChancePercent = malChance
             end
-
-            if randomPerk == 2 
-            then 
-                self.character:getXp():AddXP(Perks.Electricity, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Electricity_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                    self.character:Say(getText("GVDrive_Msg_Electricity_Consume"))
-                       
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
+        else
+            if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
+                malwareChancePercent = GVDrive_Utils.getSandboxNumber('Malware_Chance', 15)
             end
-
-            if randomPerk == 3 
-            then 
-                self.character:getXp():AddXP(Perks.Farming, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Farming_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                    self.character:Say(getText("GVDrive_Msg_Farming_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-            if randomPerk == 4 
-            then 
-                self.character:getXp():AddXP(Perks.Aiming, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Aiming_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                   self.character:Say(getText("GVDrive_Msg_Aiming_Consume")) 
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-            if randomPerk == 5 
-            then 
-                self.character:getXp():AddXP(Perks.Cooking, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say("Got it! Some Cooking skills. So the government hid the food inside bunkers before the apocalypse ...! Should keep decrypting this drive ")
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                   self.character:Say("Got it! Some Cooking skills. What are these recipes?  I may find more info to decrypt more from another drive") 
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-            if randomPerk == 6 
-            then 
-                self.character:getXp():AddXP(Perks.Sneak, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say("Got it! Undercover agent's training files...That's how they sneak.... Hmm there might more information.")
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                   self.character:Say("Got it! Undercover agent's training files...That's how they sneak.  I may find more info to decrypt more from another drive") 
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-
-
-            if randomPerk == 7 
-            then 
-                self.character:getXp():AddXP(Perks.Axe, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Axe_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                    self.character:Say(getText("GVDrive_Msg_Axe_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-
-
-
-            if randomPerk == 8 
-            then 
-                self.character:getXp():AddXP(Perks.Fitness, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Fitness_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                   -- self.character:Say("Well there is nothing else to decrypt here.")
-                   self.character:Say(getText("GVDrive_Msg_Fitness_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-
-
-            if randomPerk == 9 
-            then 
-                self.character:getXp():AddXP(Perks.Doctor, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Doctor_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                    self.character:Say(getText("GVDrive_Msg_Doctor_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
-
-            if randomPerk == 10
-            then 
-                self.character:getXp():AddXP(Perks.Survivalist, randomLvl)
-                diceroll        = ZombRand(13)+1;
-                if diceroll >= 10
-                then
-                    self.character:Say(getText("GVDrive_Msg_Survivalist_Success"))
-                else -- deployed. This will be change to a number of uses. I dont know how to store variables per each character.
-                    self.character:Say(getText("GVDrive_Msg_Survivalist_Consume"))
-                    inventoryItem:Remove("FloppyDrive")
-                    inventoryItem:AddItem("GValley.FloppyDrive_Used",1)
-                end
-            end
+        end
+        local gotMalware = ZombRand(100) / 100 < math.max(0, math.min(100, malwareChancePercent)) / 100
+        
+        if gotMalware then
+            local isNewInfection = LaptopSystem.applyMalware(self.item)
+            if isNewInfection then
+                self.character:Say(getText("GVDrive_Msg_Floppy_Malware") or "WARNING: Malware detected! Laptop infected!")
             else
-            self.character:Say(getText("GVDrive_Msg_Disk_Corrupted"))
-            inventoryItem:Remove("FloppyDrive")
-            inventoryItem:AddItem("GValley.FloppyDrive_Damaged")
+                self.character:Say(getText("GVDrive_Msg_Floppy_Malware_Worse") or "Malware is spreading! Laptop severely damaged!")
+            end
+        else
+            -- Normal failure: just laptop wear
+            LaptopSystem.damageLaptop(self.item, 2)
+            self.character:Say(getText("GVDrive_Msg_Disk_Corrupted") or "Drive corrupted!")
         end
-        ISBaseTimedAction.perform(self);
+        self.character:Say(getText("GVDrive_Msg_Disk_Corrupted") or "Disk corrupted!")
+        -- Floppy is corrupted, give damaged version
+    -- Floppy items removed in v42; add USB damaged variant instead for compatibility
+    inventoryItem:AddItem("GValley.USBOpened_Damaged")
     end
 
-    function DecryptFloppyDisk:new (character, item, time)
-        local o = {}
-        setmetatable(o, self)
-        self.__index = self
-        o.character = character;
-        o.item = item;
-        o.stopOnWalk = true;
-        o.stopOnRun = true;
-        -- print("time?")		   
-        o.maxTime = time;
-        o.loopedAction = false;
-        return o
+    if self.sound and self.character and self.character:getEmitter() then
+        self.character:getEmitter():stopSound(self.sound)
+        self.sound = nil
     end
+    
+    ISBaseTimedAction.perform(self)
+end
 
+function DecryptFloppyDisk:new (character, item, time)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.character = character;
+    o.item = item;
+    o.stopOnWalk = true;
+    o.stopOnRun = true;
+    o.maxTime = time;
+    o.loopedAction = false;
+    return o
+end
 
 

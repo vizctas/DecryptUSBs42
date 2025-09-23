@@ -1,0 +1,68 @@
+-- Overrides for item display names (ES) to ensure clean, readable names
+Items_ES = Items_ES or {}
+
+Items_ES.DisplayName_SkillDrive_Woodwork_Facil = "USB: Carpinteria Basico"
+Items_ES.DisplayName_SkillDrive_Woodwork_Moderado = "USB: Carpinteria Intermedio"
+Items_ES.DisplayName_SkillDrive_Woodwork_Dificil = "USB: Carpinteria Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Electricity_Facil = "USB: Electronica Basico"
+Items_ES.DisplayName_SkillDrive_Electricity_Moderado = "USB: Electronica Intermedio"
+Items_ES.DisplayName_SkillDrive_Electricity_Dificil = "USB: Electronica Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Farming_Facil = "USB: Agricultura Basico"
+Items_ES.DisplayName_SkillDrive_Farming_Moderado = "USB: Agricultura Intermedio"
+Items_ES.DisplayName_SkillDrive_Farming_Dificil = "USB: Agricultura Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Aiming_Facil = "USB: Punteria Basico"
+Items_ES.DisplayName_SkillDrive_Aiming_Moderado = "USB: Punteria Intermedio"
+Items_ES.DisplayName_SkillDrive_Aiming_Dificil = "USB: Punteria Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Cooking_Facil = "USB: Cocina Basico"
+Items_ES.DisplayName_SkillDrive_Cooking_Moderado = "USB: Cocina Intermedio"
+Items_ES.DisplayName_SkillDrive_Cooking_Dificil = "USB: Cocina Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Sneak_Facil = "USB: Sigilo Basico"
+Items_ES.DisplayName_SkillDrive_Sneak_Moderado = "USB: Sigilo Intermedio"
+Items_ES.DisplayName_SkillDrive_Sneak_Dificil = "USB: Sigilo Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Axe_Facil = "USB: Combate con Hacha Basico"
+Items_ES.DisplayName_SkillDrive_Axe_Moderado = "USB: Combate con Hacha Intermedio"
+Items_ES.DisplayName_SkillDrive_Axe_Dificil = "USB: Combate con Hacha Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Fitness_Facil = "USB: Fitness Basico"
+Items_ES.DisplayName_SkillDrive_Fitness_Moderado = "USB: Fitness Intermedio"
+Items_ES.DisplayName_SkillDrive_Fitness_Dificil = "USB: Fitness Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Doctor_Facil = "USB: Medicina Basico"
+Items_ES.DisplayName_SkillDrive_Doctor_Moderado = "USB: Medicina Intermedio"
+Items_ES.DisplayName_SkillDrive_Doctor_Dificil = "USB: Medicina Avanzado"
+
+Items_ES.DisplayName_SkillDrive_Survivalist_Facil = "USB: Supervivencia Basico"
+Items_ES.DisplayName_SkillDrive_Survivalist_Moderado = "USB: Supervivencia Intermedio"
+Items_ES.DisplayName_SkillDrive_Survivalist_Dificil = "USB: Supervivencia Avanzado"
+
+-- Antivirus items
+Items_ES.DisplayName_Antivirus_Norton = "Disco Norton Security (Recuperacion 5%)"
+Items_ES.DisplayName_Antivirus_Kaspersky = "Disco Kaspersky Rescue (Recuperacion 8%)"
+Items_ES.DisplayName_Antivirus_McAfee = "USB McAfee Stinger (Recuperacion 10%)"
+Items_ES.DisplayName_Antivirus_MalwareBytes = "USB Malwarebytes Premium (Recuperacion 12%)"
+
+-- Antivirus disk compatibility names
+Items_ES.DisplayName_AntivirusDisk_Basic = "Disco Antivirus (Basico)"
+Items_ES.DisplayName_AntivirusDisk_Advanced = "Disco Antivirus (Avanzado)"
+Items_ES.DisplayName_AntivirusDisk_Premium = "Disco Antivirus (Premium)"
+
+-- Elite Drives and laptops
+Items_ES.DisplayName_EliteDrive_Strength = "USB Militar Elite - Fuerza de Combate"
+Items_ES.DisplayName_EliteDrive_Endurance = "USB Militar Elite - Resistencia"
+Items_ES.DisplayName_EliteDrive_Capacity = "USB Militar Elite - Capacidad Tactica"
+Items_ES.DisplayName_EliteDrive_Speed = "USB Militar Elite - Agilidad"
+Items_ES.DisplayName_EliteDrive_Luck = "USB Militar Elite - Algoritmos de Suerte"
+
+Items_ES.DisplayName_Laptop90sClosed = "Portátil años 90 (Cerrado)"
+Items_ES.DisplayName_Laptop90sOpened = "Portátil años 90 (Abierto)"
+Items_ES.DisplayName_AsusZephLaptopClosed = "Portátil Asus (Cerrado)"
+Items_ES.DisplayName_AsusZephLaptopOpened = "Portátil Asus (Abierto)"
+Items_ES.DisplayName_PBIBM_LP90Closed = "Portátil IBM (Cerrado)"
+Items_ES.DisplayName_PBIBM_LP90Opened = "Portátil IBM (Abierto)"
+

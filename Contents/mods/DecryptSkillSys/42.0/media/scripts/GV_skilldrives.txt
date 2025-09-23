@@ -1,0 +1,885 @@
+
+module GValley 
+{
+	// ============ SISTEMA DE USB POR SKILL Y DIFICULTAD ============
+	// Un único archivo: nomenclatura en Español (Facil/Moderado/Dificil)
+	// DisplayName usa claves de traducción (no hardcodeadas)
+
+	// ============ WOODWORK DRIVES ============
+	item SkillDrive_Woodwork_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB Woodwork - Working with chairs - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Woodwork_Moderado,
+		Tags			= SkillDrive;Woodwork;Moderado,
+	}
+
+	item SkillDrive_Woodwork_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB Woodwork - Working with chairs - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Woodwork_Dificil,
+		Tags			= SkillDrive;Woodwork;Dificil,
+	}
+
+	// ============ ELECTRICITY DRIVES ============
+	item SkillDrive_Electricity_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ElectroTech - Electricity - Easy,
+		Icon            = usb_electricity,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Electricity_Facil,
+		Tags			= SkillDrive;Electricity;Facil,
+	}
+
+	item SkillDrive_Electricity_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ElectroTech - Electricity - Moderate,
+		Icon            = usb_electricity,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Electricity_Moderado,
+		Tags			= SkillDrive;Electricity;Moderado,
+	}
+
+	item SkillDrive_Electricity_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ElectroTech - Electricity - Expert,
+		Icon            = usb_electricity,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Electricity_Dificil,
+		Tags			= SkillDrive;Electricity;Dificil,
+	}
+
+	// ============ FARMING DRIVES ============
+	item SkillDrive_Farming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AgroData - Agricultura - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Farming_Facil,
+		Tags			= SkillDrive;Farming;Facil,
+	}
+
+	item SkillDrive_Farming_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AgroData - Agricultura - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Farming_Moderado,
+		Tags			= SkillDrive;Farming;Moderado,
+	}
+
+	item SkillDrive_Farming_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AgroData - Agricultura - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Farming_Dificil,
+		Tags			= SkillDrive;Farming;Dificil,
+	}
+
+	// ============ AIMING DRIVES ============
+	item SkillDrive_Aiming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB TactiShot - Aiming - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Aiming_Facil,
+		Tags			= SkillDrive;Aiming;Facil,
+	}
+
+	item SkillDrive_Aiming_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB TactiShot - Aiming - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Aiming_Moderado,
+		Tags			= SkillDrive;Aiming;Moderado,
+	}
+
+	item SkillDrive_Aiming_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB TactiShot - Aiming - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Aiming_Dificil,
+		Tags			= SkillDrive;Aiming;Dificil,
+	}
+
+	// ============ COOKING DRIVES ============
+	item SkillDrive_Cooking_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ChefMaster - Cooking - Easy,
+		Icon            = usb_cooking,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Cooking_Facil,
+		Tags			= SkillDrive;Cooking;Facil,
+	}
+
+	item SkillDrive_Cooking_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ChefMaster - Cooking - Moderate,
+		Icon            = usb_cooking,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Cooking_Moderado,
+		Tags			= SkillDrive;Cooking;Moderado,
+	}
+
+	item SkillDrive_Cooking_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ChefMaster - Cooking - Expert,
+		Icon            = usb_cooking,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Cooking_Dificil,
+		Tags			= SkillDrive;Cooking;Dificil,
+	}
+
+	// ============ SNEAK DRIVES ============
+	item SkillDrive_Sneak_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ShadowOps - Sneaky - Easy,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sneak_Facil,
+		Tags			= SkillDrive;Sneak;Facil,
+	}
+
+	item SkillDrive_Sneak_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ShadowOps - Sneaky - Moderate,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sneak_Moderado,
+		Tags			= SkillDrive;Sneak;Moderado,
+	}
+
+	item SkillDrive_Sneak_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ShadowOps - Sneaky - Expert,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sneak_Dificil,
+		Tags			= SkillDrive;Sneak;Dificil,
+	}
+
+	// ============ AXE DRIVES ============
+	item SkillDrive_Axe_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AxeMaster - Axe - Easy,
+		Icon            = usb_axes,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Axe_Facil,
+		Tags			= SkillDrive;Axe;Facil,
+	}
+
+	item SkillDrive_Axe_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AxeMaster - Axe - Moderate,
+		Icon            = usb_axes,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Axe_Moderado,
+		Tags			= SkillDrive;Axe;Moderado,
+	}
+
+	item SkillDrive_Axe_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AxeMaster - Axe - Expert,
+		Icon            = usb_axes,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Axe_Dificil,
+		Tags			= SkillDrive;Axe;Dificil,
+	}
+
+	// ============ FITNESS DRIVES ============
+	item SkillDrive_Fitness_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB FitnessPro - Fitness - Easy,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fitness_Facil,
+		Tags			= SkillDrive;Fitness;Facil,
+	}
+
+	item SkillDrive_Fitness_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB FitnessPro - Fitness - Moderate,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fitness_Moderado,
+		Tags			= SkillDrive;Fitness;Moderado,
+	}
+
+	item SkillDrive_Fitness_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB FitnessPro - Fitness - Expert,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fitness_Dificil,
+		Tags			= SkillDrive;Fitness;Dificil,
+	}
+
+	// ============ DOCTOR DRIVES ============
+	item SkillDrive_Doctor_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB MediCore - Medicine - Easy,
+		Icon            = usb_medic,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Doctor_Facil,
+		Tags			= SkillDrive;Doctor;Facil,
+	}
+
+	item SkillDrive_Doctor_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB MediCore - Medicine - Moderate,
+		Icon            = usb_medic,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Doctor_Moderado,
+		Tags			= SkillDrive;Doctor;Moderado,
+	}
+
+	item SkillDrive_Doctor_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB MediCore - Medicine - Expert,
+		Icon            = usb_medic,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Doctor_Dificil,
+		Tags			= SkillDrive;Doctor;Dificil,
+	}
+
+	// ============ SURVIVALIST DRIVES ============
+	item SkillDrive_Survivalist_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB SurvivalTech - Supervivencia - Easy,
+		Icon            = usb_survivalist,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Survivalist_Facil,
+		Tags			= SkillDrive;Survivalist;Facil,
+	}
+
+	item SkillDrive_Survivalist_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB SurvivalTech - Supervivencia - Moderate,
+		Icon            = usb_survivalist,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Survivalist_Moderado,
+		Tags			= SkillDrive;Survivalist;Moderado,
+	}
+
+	item SkillDrive_Survivalist_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB SurvivalTech - Supervivencia - Expert,
+		Icon            = usb_survivalist,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Survivalist_Dificil,
+		Tags			= SkillDrive;Survivalist;Dificil,
+	}
+
+	// ============ MECHANICS DRIVES ============
+	item SkillDrive_Mechanics_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AutoTech - Mech - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Facil,
+		Tags			= SkillDrive;Mechanics;Facil,
+	}
+
+	item SkillDrive_Mechanics_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AutoTech - Mech - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Moderado,
+		Tags			= SkillDrive;Mechanics;Moderado,
+	}
+
+	item SkillDrive_Mechanics_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AutoTech - Mech - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Mechanics_Dificil,
+		Tags			= SkillDrive;Mechanics;Dificil,
+	}
+
+	// ============ TAILORING DRIVES ============
+	item SkillDrive_Tailoring_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Tailoring - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Facil,
+		Tags			= SkillDrive;Tailoring;Facil,
+	}
+
+	item SkillDrive_Tailoring_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Tailoring - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Moderado,
+		Tags			= SkillDrive;Tailoring;Moderado,
+	}
+
+	item SkillDrive_Tailoring_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FashionPro - Tailoring - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Tailoring_Dificil,
+		Tags			= SkillDrive;Tailoring;Dificil,
+	}
+
+	// ============ MAINTENANCE DRIVES ============
+	item SkillDrive_Maintenance_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mant - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Facil,
+		Tags			= SkillDrive;Maintenance;Facil,
+	}
+
+	item SkillDrive_Maintenance_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mant - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Moderado,
+		Tags			= SkillDrive;Maintenance;Moderado,
+	}
+
+	item SkillDrive_Maintenance_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ToolMaster - Mant - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Maintenance_Dificil,
+		Tags			= SkillDrive;Maintenance;Dificil,
+	}
+
+	// ============ SMALL BLADE DRIVES ============
+	item SkillDrive_SmallBlade_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Short Blade - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Facil,
+		Tags			= SkillDrive;SmallBlade;Facil,
+	}
+
+	item SkillDrive_SmallBlade_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Short Blade - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Moderado,
+		Tags			= SkillDrive;SmallBlade;Moderado,
+	}
+
+	item SkillDrive_SmallBlade_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB BladeTech - Short Blade - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlade_Dificil,
+		Tags			= SkillDrive;SmallBlade;Dificil,
+	}
+
+	// ============ LONG BLADE DRIVES ============
+	item SkillDrive_LongBlade_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB SwordMaster - Large blade - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Facil,
+		Tags			= SkillDrive;LongBlade;Facil,
+	}
+
+	item SkillDrive_LongBlade_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SwordMaster - Large blade - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Moderado,
+		Tags			= SkillDrive;LongBlade;Moderado,
+	}
+
+	item SkillDrive_LongBlade_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SwordMaster - Large blade - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlade_Dificil,
+		Tags			= SkillDrive;LongBlade;Dificil,
+	}
+
+	// ============ SMALL BLUNT DRIVES ============
+	item SkillDrive_SmallBlunt_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Facil,
+		Tags			= SkillDrive;SmallBlunt;Facil,
+	}
+
+	item SkillDrive_SmallBlunt_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Moderado,
+		Tags			= SkillDrive;SmallBlunt;Moderado,
+	}
+
+	item SkillDrive_SmallBlunt_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB ClubTech - Porra - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_SmallBlunt_Dificil,
+		Tags			= SkillDrive;SmallBlunt;Dificil,
+	}
+
+	// ============ LONG BLUNT DRIVES ============
+	item SkillDrive_LongBlunt_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Facil,
+		Tags			= SkillDrive;LongBlunt;Facil,
+	}
+
+	item SkillDrive_LongBlunt_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Moderado,
+		Tags			= SkillDrive;LongBlunt;Moderado,
+	}
+
+	item SkillDrive_LongBlunt_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB HammerTech - Martillo - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_LongBlunt_Dificil,
+		Tags			= SkillDrive;LongBlunt;Dificil,
+	}
+
+	// ============ SPEAR DRIVES ============
+	item SkillDrive_Spear_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Facil,
+		Tags			= SkillDrive;Spear;Facil,
+	}
+
+	item SkillDrive_Spear_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Moderate,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Moderado,
+		Tags			= SkillDrive;Spear;Moderado,
+	}
+
+	item SkillDrive_Spear_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SpearTech - Lanza - Expert,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Spear_Dificil,
+		Tags			= SkillDrive;Spear;Dificil,
+	}
+
+	// ============ TRAPPING DRIVES ============
+	item SkillDrive_Trapping_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Facil,
+		Tags			= SkillDrive;Trapping;Facil,
+	}
+
+	item SkillDrive_Trapping_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Moderado,
+		Tags			= SkillDrive;Trapping;Moderado,
+	}
+
+	item SkillDrive_Trapping_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB TrapMaster - Trampas - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Trapping_Dificil,
+		Tags			= SkillDrive;Trapping;Dificil,
+	}
+
+	// ============ FISHING DRIVES ============
+	item SkillDrive_Fishing_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Facil,
+		Tags			= SkillDrive;Fishing;Facil,
+	}
+
+	item SkillDrive_Fishing_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Moderate,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Moderado,
+		Tags			= SkillDrive;Fishing;Moderado,
+	}
+
+	item SkillDrive_Fishing_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB FishPro - Pesca - Expert,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Fishing_Dificil,
+		Tags			= SkillDrive;Fishing;Dificil,
+	}
+
+	// ============ SPRINTING DRIVES ============
+	item SkillDrive_Sprinting_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Easy,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Facil,
+		Tags			= SkillDrive;Sprinting;Facil,
+	}
+
+	item SkillDrive_Sprinting_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Moderate,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Moderado,
+		Tags			= SkillDrive;Sprinting;Moderado,
+	}
+
+	item SkillDrive_Sprinting_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB SprintMax - Velocidad - Expert,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sprinting_Dificil,
+		Tags			= SkillDrive;Sprinting;Dificil,
+	}
+
+	// ============ STRENGTH DRIVES ============
+	item SkillDrive_Strength_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Easy,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Facil,
+		Tags			= SkillDrive;Strength;Facil,
+	}
+
+	item SkillDrive_Strength_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Moderate,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Moderado,
+		Tags			= SkillDrive;Strength;Moderado,
+	}
+
+	item SkillDrive_Strength_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB PowerLift - Fuerza - Expert,
+		Icon            = usb_fitness,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Strength_Dificil,
+		Tags			= SkillDrive;Strength;Dificil,
+	}
+
+	// ============ NIMBLE DRIVES ============
+	item SkillDrive_Nimble_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Easy,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Facil,
+		Tags			= SkillDrive;Nimble;Facil,
+	}
+
+	item SkillDrive_Nimble_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Moderate,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Moderado,
+		Tags			= SkillDrive;Nimble;Moderado,
+	}
+
+	item SkillDrive_Nimble_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB AgilityMax - Agilidad - Expert,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Nimble_Dificil,
+		Tags			= SkillDrive;Nimble;Dificil,
+	}
+
+	// ============ LIGHTFOOT DRIVES ============
+	item SkillDrive_Lightfoot_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Easy,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Facil,
+		Tags			= SkillDrive;Lightfoot;Facil,
+	}
+
+	item SkillDrive_Lightfoot_Moderado
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Moderate,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Moderado,
+		Tags			= SkillDrive;Lightfoot;Moderado,
+	}
+
+	item SkillDrive_Lightfoot_Dificil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+	DisplayName     = USB StealthStep - Paso Ligero - Expert,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Lightfoot_Dificil,
+		Tags			= SkillDrive;Lightfoot;Dificil,
+	}
+
+}
+

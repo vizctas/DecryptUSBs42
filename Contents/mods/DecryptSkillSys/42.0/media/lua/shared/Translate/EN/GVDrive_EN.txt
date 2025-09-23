@@ -1,40 +1,150 @@
-GVDrive_EN = 
-{
+GVDrive_EN = {
+    -- Context menu labels
+    GVDrive_Laptop_Health_Label = "Laptop Health",
+    GVDrive_Ctx_Decrypt_Drive = "Decrypt drive",
+    GVDrive_Ctx_Decrypt_Skill_USB = "Decrypt Skill USB Drives",
+
+    -- USB drive messages
     GVDrive_Msg_UsbTooOldLaptop = "Eh? This laptop is too old for a USB drive...",
-    GVDrive_Msg_NeedsFloppyLaptop = "I must find a laptop with a floppy drive...",
-
     GVDrive_Msg_USB_Corrupted = "Drive corrupted??",
-    GVDrive_Msg_Disk_Corrupted = "Disk corrupted??",
+    GVDrive_Msg_Laptop_Broken = "This laptop doesn't work... I should find a way to repair it.",
 
+    -- Skill USB success/fallback messages
     GVDrive_Msg_Woodwork_Success = "Got it! Some woodcraft tutorials. Should keep trying decrypt... maybe there's still information.",
     GVDrive_Msg_Woodwork_Consume = "Got it! Some woodcraft tutorials. I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Electricity_Success = "Got it! Some electricity skills. So that's how the government hid the files. Should keep trying to decrypt...",
     GVDrive_Msg_Electricity_Consume = "Got it! Some electricity skills. I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Farming_Success = "Got it! How to build your own corn farm... There's still more info.",
     GVDrive_Msg_Farming_Consume = "Got it! Some farming advice.",
-
-    GVDrive_Msg_Aiming_Success = "Got it! How to improve your aiming? Excellent tutorial. Keep decrypting this drive.",
+    GVDrive_Msg_Aiming_Success = "Got it! How to improve my aiming? Excellent tutorial. Keep decrypting this drive.",
     GVDrive_Msg_Aiming_Consume = "Got it! Some aiming skills. I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Cooking_Success = "Got it! Some cooking skills. So the government hid food in bunkers before the apocalypse! Keep decrypting this drive.",
     GVDrive_Msg_Cooking_Consume = "Got it! Some cooking skills. What are these recipes? I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Sneak_Success = "Got it! Undercover agent training files... That's how they sneak. There might be more information.",
     GVDrive_Msg_Sneak_Consume = "Got it! Undercover agent training files... I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Axe_Success = "Got it! Tips to improve my axe swing... There might be more information.",
     GVDrive_Msg_Axe_Consume = "Got it! Tips to improve my axe swing... I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Fitness_Success = "Got it! Some fitness shakes and diets... There might be more information.",
     GVDrive_Msg_Fitness_Consume = "Got it! Some fitness shakes and diets... I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Doctor_Success = "Got it! Some first aid skills. 'Medicines heal doubts as well as diseases.' There might be more information to decrypt.",
     GVDrive_Msg_Doctor_Consume = "Got it! Some first aid skills. 'Medicines heal doubts as well as diseases.' I may find more info to decrypt from another drive.",
-
     GVDrive_Msg_Survivalist_Success = "Got it! Survival can be summed up in three words: never give up. Keep trying. There might be more information to decrypt.",
     GVDrive_Msg_Survivalist_Consume = "Got it! Survival can be summed up in three words: never give up. Keep trying. I may find more info to decrypt from another drive.",
 
+    GVDrive_Msg_No_Drives = "No drives found in inventory!",
     GVDrive_Msg_USB_Opened_OK = "This one seems to work",
+    GVDrive_Msg_Drive_Corrupted = "Drive corrupted during decryption!",
+    GVDrive_Msg_Drive_Preserved = "Drive survived the decryption and can be used again!",
+    GVDrive_Msg_Decrypt_Action_Failed = "Cannot start decrypt action right now.",
+
+    -- Antivirus messages (updated for new items and reduced recovery)
+    GVDrive_Msg_Antivirus_Norton_Success = "Norton Security cleaned malware! Laptop restored by 5%.",
+    GVDrive_Msg_Antivirus_Kaspersky_Success = "Kaspersky Rescue Disk removed malware! Laptop restored by 8%.",
+    GVDrive_Msg_Antivirus_McAfee_Success = "McAfee Stinger cleaned malware! Laptop restored by 10%.",
+    GVDrive_Msg_Antivirus_MalwareBytes_Success = "Malwarebytes Premium removed all malware! Laptop restored by 12%.",
+    GVDrive_Msg_Antivirus_NoMalware = "No malware detected. Laptop condition slightly improved.",
+
+    -- Malware warnings (USB only)
+    GVDrive_Msg_USB_Malware = "WARNING: Malware detected! Laptop infected!",
+    GVDrive_Msg_USB_Malware_Worse = "Malware is spreading! Laptop severely damaged!",
+
+    -- Laptop status names/tooltips
+    GVDrive_Laptop_Broken = "Broken Laptop (Unusable)",
+    GVDrive_Laptop_Critical = "Laptop (Critical Condition)",
+    GVDrive_Laptop_Damaged = "Laptop (Heavily Damaged)",
+    GVDrive_Laptop_Worn = "Laptop (Worn)",
+    GVDrive_Laptop_Healthy = "Laptop (Good Condition)",
+    GVDrive_Laptop_Status_Excellent = "Excellent",
+    GVDrive_Laptop_Status_Good = "Good",
+    GVDrive_Laptop_Status_Warning = "Warning",
+    GVDrive_Laptop_Status_Critical = "Critical",
+    GVDrive_Laptop_Status_Failing = "Failing",
+
+    -- Elite drive messages
+    GVDrive_Msg_Elite_Found = "Found something unusual...",
+    GVDrive_Msg_Elite_Token_Created = "Elite enhancement protocol created!",
+    GVDrive_Msg_Enhancement_Applied = "Elite enhancement applied!",
+    GVDrive_Msg_Enhancement_Already_Used = "You have already reached the max uses for this elite enhancement (2).",
+    GVDrive_Msg_Enhancement_Capacity = "Elite enhancement applied! +5 Carry Weight!",
+    GVDrive_Msg_Enhancement_Speed = "Elite enhancement applied! +10% Movement Speed!",
+    GVDrive_Msg_Enhancement_Strength = "Elite enhancement applied! Enhanced combat abilities!",
+    GVDrive_Msg_Enhancement_Endurance = "Elite enhancement applied! Enhanced endurance!",
+    GVDrive_Msg_Enhancement_Luck = "Elite enhancement applied! Enhanced luck!",
+    GVDrive_Msg_Enhancement_Max_Used = "You have already used elite enhancements for all available stats!",
+
+    -- Elite enhancement dialog / menu
+    GVDrive_Ctx_Use_Elite_Token = "Use Elite Enhancement Protocol",
+    GVDrive_Ctx_Use_Elite_Capacity = "Increase Carry Capacity",
+    GVDrive_Ctx_Use_Elite_Speed = "Increase Movement Speed",
+    GVDrive_Ctx_Use_Elite_Strength = "Increase Strength",
+    GVDrive_Ctx_Use_Elite_Endurance = "Increase Endurance",
+    GVDrive_Ctx_Use_Elite_Luck = "Increase Luck",
+    GVDrive_Ctx_Use_Elite_Choose = "Choose an elite enhancement to apply",
+    GVDrive_Msg_Enhancement_Failed = "Cannot apply enhancement right now.",
+
+    -- Skill drive display names (USB) - Updated naming format
+    DisplayName_SkillDrive_Woodwork_Facil = "USB CarpinterIA - Carpinteria - Facil",
+    DisplayName_SkillDrive_Woodwork_Moderado = "USB CarpinterIA - Carpinteria - Moderado",
+    DisplayName_SkillDrive_Woodwork_Dificil = "USB CarpinterIA - Carpinteria - Dificil",
+    DisplayName_SkillDrive_Electricity_Facil = "USB ElectroTech - Electronica - Facil",
+    DisplayName_SkillDrive_Electricity_Moderado = "USB ElectroTech - Electronica - Moderado",
+    DisplayName_SkillDrive_Electricity_Dificil = "USB ElectroTech - Electronica - Dificil",
+    DisplayName_SkillDrive_Farming_Facil = "USB AgroData - Agricultura - Facil",
+    DisplayName_SkillDrive_Farming_Moderado = "USB AgroData - Agricultura - Moderado",
+    DisplayName_SkillDrive_Farming_Dificil = "USB AgroData - Agricultura - Dificil",
+    DisplayName_SkillDrive_Aiming_Facil = "USB TactiShot - Punteria - Facil",
+    DisplayName_SkillDrive_Aiming_Moderado = "USB TactiShot - Punteria - Moderado",
+    DisplayName_SkillDrive_Aiming_Dificil = "USB TactiShot - Punteria - Dificil",
+    DisplayName_SkillDrive_Cooking_Facil = "USB ChefMaster - Cocina - Facil",
+    DisplayName_SkillDrive_Cooking_Moderado = "USB ChefMaster - Cocina - Moderado",
+    DisplayName_SkillDrive_Cooking_Dificil = "USB ChefMaster - Cocina - Dificil",
+    DisplayName_SkillDrive_Sneak_Facil = "USB ShadowOps - Sigilo - Facil",
+    DisplayName_SkillDrive_Sneak_Moderado = "USB ShadowOps - Sigilo - Moderado",
+    DisplayName_SkillDrive_Sneak_Dificil = "USB ShadowOps - Sigilo - Dificil",
+    DisplayName_SkillDrive_Axe_Facil = "USB AxeMaster - Hacha - Facil",
+    DisplayName_SkillDrive_Axe_Moderado = "USB AxeMaster - Hacha - Moderado",
+    DisplayName_SkillDrive_Axe_Dificil = "USB AxeMaster - Hacha - Dificil",
+    DisplayName_SkillDrive_Fitness_Facil = "USB FitnessPro - Fitness - Facil",
+    DisplayName_SkillDrive_Fitness_Moderado = "USB FitnessPro - Fitness - Moderado",
+    DisplayName_SkillDrive_Fitness_Dificil = "USB FitnessPro - Fitness - Dificil",
+    DisplayName_SkillDrive_Doctor_Facil = "USB MediCore - Medicina - Facil",
+    DisplayName_SkillDrive_Doctor_Moderado = "USB MediCore - Medicina - Moderado",
+    DisplayName_SkillDrive_Doctor_Dificil = "USB MediCore - Medicina - Dificil",
+    DisplayName_SkillDrive_Survivalist_Facil = "USB SurvivalTech - Supervivencia - Facil",
+    DisplayName_SkillDrive_Survivalist_Moderado = "USB SurvivalTech - Supervivencia - Moderado",
+    DisplayName_SkillDrive_Survivalist_Dificil = "USB SurvivalTech - Supervivencia - Dificil",
+
+    -- Antivirus items display names (reduced recovery rates)
+    DisplayName_Antivirus_Norton = "Norton Security Disk (5% Recovery)",
+    DisplayName_Antivirus_Kaspersky = "Kaspersky Rescue Disk (8% Recovery)",
+    DisplayName_Antivirus_McAfee = "McAfee Stinger USB (10% Recovery)",
+    DisplayName_Antivirus_MalwareBytes = "Malwarebytes Premium USB (12% Recovery)",
+    -- Compatibility display names used by menu code
+    DisplayName_AntivirusDisk_Basic = "Antivirus Disk (Basic)",
+    DisplayName_AntivirusDisk_Advanced = "Antivirus Disk (Advanced)",
+    DisplayName_AntivirusDisk_Premium = "Antivirus Disk (Premium)",
+
+    -- Elite Drive System (Simplified - Direct Benefits)
+    DisplayName_EliteDrive_Strength = "Elite Military USB - Combat Strength",
+    DisplayName_EliteDrive_Endurance = "Elite Military USB - Endurance",
+    DisplayName_EliteDrive_Capacity = "Elite Military USB - Tactical Load",
+    DisplayName_EliteDrive_Speed = "Elite Military USB - Agility",
+    DisplayName_EliteDrive_Luck = "Elite Military USB - Luck Algorithms",
+
+    -- Elite messages (simplified system)
+    GVDrive_Msg_Elite_Direct_Use = "Using elite military protocol...",
+    GVDrive_Msg_Elite_Strength_Applied = "Elite enhancement applied! +Combat effectiveness!",
+    GVDrive_Msg_Elite_Endurance_Applied = "Elite enhancement applied! +1 Endurance!",
+    GVDrive_Msg_Elite_Capacity_Applied = "Elite enhancement applied! +8kg Carry Weight!",
+    GVDrive_Msg_Elite_Speed_Applied = "Elite enhancement applied! +Movement Speed!",
+    GVDrive_Msg_Elite_Luck_Applied = "Elite enhancement applied! +Enhanced Luck!",
+    GVDrive_Msg_Elite_Already_Used = "You have already used this elite enhancement!",
+
+    -- Laptop display names
+    DisplayName_Laptop90sClosed = "90's Laptop (Closed)",
+    DisplayName_Laptop90sOpened = "90's Laptop (Opened)",
+    DisplayName_AsusZephLaptopClosed = "Asus Laptop (Closed)",
+    DisplayName_AsusZephLaptopOpened = "Asus Laptop (Opened)",
+    DisplayName_PBIBM_LP90Closed = "IBM Laptop (Closed)",
+    DisplayName_PBIBM_LP90Opened = "IBM Laptop (Opened)",
 }

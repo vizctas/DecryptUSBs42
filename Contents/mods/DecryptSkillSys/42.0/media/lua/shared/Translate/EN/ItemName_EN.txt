@@ -1,0 +1,80 @@
+-- Item display names (EN) for DecryptSkillSys mod
+ItemName_EN = {
+
+-- Skill USB Drives - Woodworking
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Facil = "USB: Basic Woodworking",
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Moderado = "USB: Intermediate Woodworking",
+ItemName_DecryptSkillSys.SkillDrive_Woodwork_Dificil = "USB: Advanced Woodworking",
+
+-- Skill USB Drives - Electronics
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Facil = "USB: Basic Electronics",
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Moderado = "USB: Intermediate Electronics",
+ItemName_DecryptSkillSys.SkillDrive_Electricity_Dificil = "USB: Advanced Electronics",
+
+-- Skill USB Drives - Farming
+ItemName_DecryptSkillSys.SkillDrive_Farming_Facil = "USB: Basic Farming",
+ItemName_DecryptSkillSys.SkillDrive_Farming_Moderado = "USB: Intermediate Farming",
+ItemName_DecryptSkillSys.SkillDrive_Farming_Dificil = "USB: Advanced Farming",
+
+-- Skill USB Drives - Aiming
+ItemName_DecryptSkillSys.SkillDrive_Aiming_Facil = "USB: Basic Marksmanship",
+ItemName_DecryptSkillSys.SkillDrive_Aiming_Moderado = "USB: Intermediate Marksmanship",
+ItemName_DecryptSkillSys.SkillDrive_Aiming_Dificil = "USB: Advanced Marksmanship",
+
+-- Skill USB Drives - Cooking
+ItemName_DecryptSkillSys.SkillDrive_Cooking_Facil = "USB: Basic Cooking",
+ItemName_DecryptSkillSys.SkillDrive_Cooking_Moderado = "USB: Intermediate Cooking",
+ItemName_DecryptSkillSys.SkillDrive_Cooking_Dificil = "USB: Advanced Cooking",
+
+-- Skill USB Drives - Stealth
+ItemName_DecryptSkillSys.SkillDrive_Sneak_Facil = "USB: Basic Stealth",
+ItemName_DecryptSkillSys.SkillDrive_Sneak_Moderado = "USB: Intermediate Stealth",
+ItemName_DecryptSkillSys.SkillDrive_Sneak_Dificil = "USB: Advanced Stealth",
+
+-- Skill USB Drives - Axe Combat
+ItemName_DecryptSkillSys.SkillDrive_Axe_Facil = "USB: Basic Axe Combat",
+ItemName_DecryptSkillSys.SkillDrive_Axe_Moderado = "USB: Intermediate Axe Combat",
+ItemName_DecryptSkillSys.SkillDrive_Axe_Dificil = "USB: Advanced Axe Combat",
+
+-- Skill USB Drives - Fitness
+ItemName_DecryptSkillSys.SkillDrive_Fitness_Facil = "USB: Basic Fitness",
+ItemName_DecryptSkillSys.SkillDrive_Fitness_Moderado = "USB: Intermediate Fitness",
+ItemName_DecryptSkillSys.SkillDrive_Fitness_Dificil = "USB: Advanced Fitness",
+
+-- Skill USB Drives - Medicine
+ItemName_DecryptSkillSys.SkillDrive_Doctor_Facil = "USB: Basic Medicine",
+ItemName_DecryptSkillSys.SkillDrive_Doctor_Moderado = "USB: Intermediate Medicine",
+ItemName_DecryptSkillSys.SkillDrive_Doctor_Dificil = "USB: Advanced Medicine",
+
+-- Skill USB Drives - Survival
+ItemName_DecryptSkillSys.SkillDrive_Survivalist_Facil = "USB: Basic Survival",
+ItemName_DecryptSkillSys.SkillDrive_Survivalist_Moderado = "USB: Intermediate Survival",
+ItemName_DecryptSkillSys.SkillDrive_Survivalist_Dificil = "USB: Advanced Survival",
+
+-- Antivirus Items
+ItemName_DecryptSkillSys.Antivirus_Norton = "Norton Security Disk (5% Recovery)",
+ItemName_DecryptSkillSys.Antivirus_Kaspersky = "Kaspersky Rescue Disk (8% Recovery)",
+ItemName_DecryptSkillSys.Antivirus_McAfee = "McAfee Stinger USB (10% Recovery)",
+ItemName_DecryptSkillSys.Antivirus_MalwareBytes = "Malwarebytes Premium USB (12% Recovery)",
+
+-- Antivirus Disk Compatibility
+ItemName_DecryptSkillSys.AntivirusDisk_Basic = "Antivirus Disk (Basic)",
+ItemName_DecryptSkillSys.AntivirusDisk_Advanced = "Antivirus Disk (Advanced)",
+ItemName_DecryptSkillSys.AntivirusDisk_Premium = "Antivirus Disk (Premium)",
+
+-- Elite Drives
+ItemName_DecryptSkillSys.EliteDrive_Strength = "Elite Military USB - Combat Strength",
+ItemName_DecryptSkillSys.EliteDrive_Endurance = "Elite Military USB - Endurance",
+ItemName_DecryptSkillSys.EliteDrive_Capacity = "Elite Military USB - Tactical Load",
+ItemName_DecryptSkillSys.EliteDrive_Speed = "Elite Military USB - Agility",
+ItemName_DecryptSkillSys.EliteDrive_Luck = "Elite Military USB - Luck Algorithms",
+
+-- Laptops
+ItemName_DecryptSkillSys.Laptop90sClosed = "90's Laptop (Closed)",
+ItemName_DecryptSkillSys.Laptop90sOpened = "90's Laptop (Opened)",
+ItemName_DecryptSkillSys.AsusZephLaptopClosed = "Asus Laptop (Closed)",
+ItemName_DecryptSkillSys.AsusZephLaptopOpened = "Asus Laptop (Opened)",
+ItemName_DecryptSkillSys.PBIBM_LP90Closed = "IBM Laptop (Closed)",
+ItemName_DecryptSkillSys.PBIBM_LP90Opened = "IBM Laptop (Opened)",
+
+}

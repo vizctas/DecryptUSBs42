@@ -2,7 +2,7 @@ module GValley
 {
 		item AsusZephLaptopOpened
 	{
-		DisplayCategory		= GValley,
+		DisplayCategory		= Electronics,
 		Weight          	= 2,
 		Type            	= Container,
 		Capacity			= 1,
@@ -13,7 +13,7 @@ module GValley
 	}
 		item AsusZephLaptopClosed
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 2,
 		Type            = Normal,
 		DisplayName     = Asus Zephyrus M (Closed),
@@ -23,7 +23,7 @@ module GValley
 	}
 		item Laptop90sClosed
 	{
-		DisplayCategory		= GValley,
+		DisplayCategory		= Electronics,
 		Weight          	= 2,
 		Type            	= Container,
 		Capacity			= 1,
@@ -34,7 +34,7 @@ module GValley
 	}
 		item Laptop90sOpened
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 2,
 		Type            = Normal,
 		DisplayName     = Toshiba Satellite Pro (Opened),
@@ -45,7 +45,7 @@ module GValley
 
 		item IBM_LP90Opened
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 2,
 		Type            = Normal,
 		DisplayName     = IBM Palm Top PC 110 (Opened),
@@ -55,7 +55,7 @@ module GValley
 	}
 		item PBIBM_LP90Closed
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 2,
 		Type            = Normal,
 		DisplayName     = IBM Palm Top PC 110 (Closed),
@@ -63,41 +63,10 @@ module GValley
 		WorldStaticModel = PBIBM_LP90Closed,
 		Tooltip = Tooltip_IBMPlm,
 	}
-		item FloppyDrive
-	{
-		DisplayCategory	= GValley,
-		Weight          = 0.1,
-		Type            = Normal,
-		DisplayName     = Floppy 1.24 MB,
-		Icon            = floppy,
-		WorldStaticModel = FloppyDisk,
-		Tooltip = Tooltip_USB,
-	}	
-
-		item FloppyDrive_Used
-	{
-		DisplayCategory	= 	GValley,
-		Weight          = 	0.1,
-		Type            = 	Normal,
-		DisplayName     = 	Floppy 1.24MB (Useless),
-		Icon            = 	floppy,
-		WorldStaticModel = 	FloppyDisk,
-		Tooltip			 = 	Tooltip_USB,
-	}	
-
-		item FloppyDrive_Damaged
-	{
-		DisplayCategory	= 	GValley,
-		Weight          = 	0.1,
-		Type            = 	Normal,
-		DisplayName     = 	Floppy 1.24MB (Broken),
-		Icon            = 	floppy_d,
-		WorldStaticModel = 	FloppyDisk,
-		Tooltip			 = 	Tooltip_USB,
-	}	
+	
 		item USBOpened
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Opened Drive,
@@ -108,7 +77,7 @@ module GValley
 
 		item USB_Closed
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.1,
 		Type            = Normal,
 		DisplayName     = Closed Drive,
@@ -118,7 +87,7 @@ module GValley
 	}	
 		item USBOpened_Damaged
 	{
-		DisplayCategory		= 	GValley,
+		DisplayCategory		= 	Electronics,
 		Weight          	= 	0.1,
 		Type            	= 	Normal,	
 		DisplayName     	= 	Damaged Drive,
@@ -128,7 +97,7 @@ module GValley
 	}
 		item USBOpened_Used
 	{
-		DisplayCategory		= GValley,
+		DisplayCategory		= Electronics,
 		Weight          	= 0.1,
 		Type            	= Normal,	
 		DisplayName     	= Used Drive,
@@ -138,12 +107,175 @@ module GValley
 	}
 		item USBTapa
 	{
-		DisplayCategory	= GValley,
+		DisplayCategory	= Electronics,
 		Weight          = 0.0,
 		Type            = Normal,
 		DisplayName     = Drive Cover,
 		Icon            = USBTapa,
 		WorldStaticModel = USB_Tapa,
 		Tooltip = Tooltip_TUSB,
-	}	
+	}
+
+		item SkillDrive_Woodwork_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB Woodwork - Working with chairs - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Woodwork_Facil,
+		Tags			= SkillDrive;Woodwork;Facil,
+	}
+
+		item SkillDrive_Electricity_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ElectroTech - Electricity - Easy,
+		Icon            = usb_electricity,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Electricity_Facil,
+		Tags			= SkillDrive;Electricity;Facil,
+	}
+
+		item SkillDrive_Farming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AgroData - Agricultura - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Farming_Facil,
+		Tags			= SkillDrive;Farming;Facil,
+	}
+
+		item SkillDrive_Aiming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB TactiShot - Aiming - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Aiming_Facil,
+		Tags			= SkillDrive;Aiming;Facil,
+	}
+
+		item SkillDrive_Cooking_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ChefMaster - Cooking - Easy,
+		Icon            = usb_cooking,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Cooking_Facil,
+		Tags			= SkillDrive;Cooking;Facil,
+	}
+
+	item SkillDrive_Sneak_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ShadowOps - Sneaky - Easy,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sneak_Facil,
+		Tags			= SkillDrive;Sneak;Facil,
+	}
+
+		item SkillDrive_Axe_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AxeMaster - Axe - Easy,
+		Icon            = usb_axes,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Axe_Facil,
+		Tags			= SkillDrive;Axe;Facil,
+	}
+
+	// ============ ANTIVIRUS ITEMS ============
+	item Antivirus_Norton
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Norton Security Disk (5% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Norton,
+	}
+
+	item Antivirus_Kaspersky
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Kaspersky Rescue Disk (8% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Kaspersky,
+	}
+
+	item Antivirus_McAfee
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = McAfee Stinger USB (10% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_McAfee,
+	}
+
+	item Antivirus_MalwareBytes
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Malwarebytes Premium USB (12% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_MalwareBytes,
+	}
+
+	// Compatibility aliases: recipes reference these IDs (AntivirusDisk_Basic/Advanced/Premium)
+	item AntivirusDisk_Basic
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Basic),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Basic,
+	}
+
+	item AntivirusDisk_Advanced
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Advanced),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Advanced,
+	}
+
+	item AntivirusDisk_Premium
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Premium),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Premium,
+	}
 }

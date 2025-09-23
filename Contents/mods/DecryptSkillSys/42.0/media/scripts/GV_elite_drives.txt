@@ -1,0 +1,66 @@
+module GValley 
+{
+	// ============ SISTEMA ELITE SIMPLIFICADO ============
+	// 5 USBs Elite diferentes que dan mejoras permanentes directas
+	// No necesitas combinarlos - cada uno da su beneficio inmediatamente
+	
+	item EliteDrive_Strength
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Military USB - Combat Strength,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Strength,
+		Tags			= EliteDrive;Strength,
+	}
+
+	item EliteDrive_Endurance
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Military USB - Endurance,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Endurance,
+		Tags			= EliteDrive;Endurance,
+	}
+
+	item EliteDrive_Capacity
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Military USB - Tactical Load,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Capacity,
+		Tags			= EliteDrive;Capacity,
+	}
+
+	item EliteDrive_Speed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Military USB - Agility,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Speed,
+		Tags			= EliteDrive;Speed,
+	}
+
+	item EliteDrive_Luck
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Elite Military USB - Luck Algorithms,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_EliteDrive_Luck,
+		Tags			= EliteDrive;Luck,
+	}
+}

@@ -1,8 +1,92 @@
 Tooltip_EN = 
+
 {
+
 Tooltip_LPAsus = "A modern laptop from Asus ROG. <br> Processor: i7 9th Generation. <br> Graphics: RTX 20270 Super <br> Dimensions: 15.12 x 10.31 x 0.78 inches",
+
 Tooltip_USB = "Confidential Drive. <br> It may contain sensitive information to improve your skills",
+
 Tooltip_BUSB = "Confidential Drive. <br> There are no more uses for it. It can be dismantled",
+
 Tooltip_IBMPlm = "IBM Palm Top PC 110 <br> Processor: Intel 80486SX microprocessor <br> Dimensions: 6.2 by 5.2 by 1.3 in",
+
 Tooltip_Generic90 = "This Toshiba Laptop can take up to 320 MB RAM, with a fixed amount of 64 MB (non-removable) installed PC100 SDRAM SODIMMs <br> Processor: Intel Mobile Pentium III ",
+
+Tooltip_TUSB = "Drive Cover. <br> Can be used to protect drives",
+
+-- Elite Drive Tooltips
+
+Tooltip_EliteDrive_Strength = "Elite Drive: Combat Protocols <br> Contains advanced combat training data. <br> Rarity: EXTREMELY RARE. <br>Requires 2 identical Elite USBs and a functional laptop to apply. Each Elite can be applied up to 2 times.",
+
+Tooltip_EliteDrive_Endurance = "Elite Drive: Survival Manual <br> Contains specialized endurance training data. <br> Rarity: EXTREMELY RARE. <br>Requires 2 identical Elite USBs and a functional laptop to apply. Each Elite can be applied up to 2 times.",
+
+Tooltip_EliteDrive_Capacity = "Elite Drive: Storage Optimization <br> Contains advanced load management techniques. <br> Rarity: EXTREMELY RARE. <br>Requires 2 identical Elite USBs and a functional laptop to apply. Each Elite can be applied up to 2 times.",
+
+Tooltip_EliteDrive_Speed = "Elite Drive: Movement Techniques <br> Contains optimized movement and agility training. <br> Rarity: EXTREMELY RARE. <br>Requires 2 identical Elite USBs and a functional laptop to apply. Each Elite can be applied up to 2 times.",
+
+Tooltip_EliteDrive_Luck = "Elite Drive: Fortune Algorithms <br> Contains probability enhancement protocols. <br> Rarity: EXTREMELY RARE. <br>Requires 2 identical Elite USBs and a functional laptop to apply. Each Elite can be applied up to 2 times.",
+
+Tooltip_EliteEnhancement_Token = "Elite Enhancement Protocol <br> A powerful enhancement that permanently improves your capabilities. <br> +5 Carry Weight <br> +10% Movement Speed <br> Enhanced combat abilities <br> Single use only!",
+
+-- Antivirus Tooltips
+
+Tooltip_Antivirus_Basic = "Basic Antivirus Disk <br> Can remove malware from infected laptops. <br> Restores 25 health points <br> VERY RARE <br> Use on any laptop via crafting menu.",
+
+Tooltip_Antivirus_Advanced = "Advanced Antivirus Disk <br> Advanced malware removal and laptop restoration. <br> Restores 50 health points <br> EXTREMELY RARE <br> Use on any laptop via crafting menu.",
+
+Tooltip_Antivirus_Premium = "Premium Antivirus Disk <br> Military-grade malware removal and full restoration. <br> Restores 75 health points <br> LEGENDARY RARITY <br> Use on any laptop via crafting menu.",
+
+-- Skill Drive Tooltips
+
+-- USB-specific tooltip aliases (Facil/Moderado/Dificil)
+Tooltip_USB_Woodwork_Facil = "Woodworking USB Drive<br>Contains focused woodworking training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Woodwork_Moderado = "Woodworking USB Drive<br>Contains focused woodworking training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Woodwork_Dificil = "Advanced Woodworking USB<br>Elite-level woodworking programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Electricity_Facil = "Electronics USB Drive<br>Contains focused electronics training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Electricity_Moderado = "Electronics USB Drive<br>Contains focused electronics training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Electricity_Dificil = "Advanced Electronics USB<br>Elite-level electronics programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Farming_Facil = "Farming USB Drive<br>Contains focused farming training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Farming_Moderado = "Farming USB Drive<br>Contains focused farming training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Farming_Dificil = "Advanced Farming USB<br>Elite-level farming programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Aiming_Facil = "Marksmanship USB Drive<br>Contains focused marksmanship training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Aiming_Moderado = "Marksmanship USB Drive<br>Contains focused marksmanship training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Aiming_Dificil = "Advanced Marksmanship USB<br>Elite-level marksmanship programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Cooking_Facil = "Cooking USB Drive<br>Contains focused cooking training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Cooking_Moderado = "Cooking USB Drive<br>Contains focused cooking training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Cooking_Dificil = "Advanced Cooking USB<br>Elite-level cooking programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Sneak_Facil = "Stealth USB Drive<br>Contains focused stealth training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Sneak_Moderado = "Stealth USB Drive<br>Contains focused stealth training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Sneak_Dificil = "Advanced Stealth USB<br>Elite-level stealth programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Axe_Facil = "Axe Combat USB Drive<br>Contains focused axe combat training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Axe_Moderado = "Axe Combat USB Drive<br>Contains focused axe combat training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Axe_Dificil = "Advanced Axe Combat USB<br>Elite-level axe combat programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Fitness_Facil = "Fitness USB Drive<br>Contains focused fitness training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Fitness_Moderado = "Fitness USB Drive<br>Contains focused fitness training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Fitness_Dificil = "Advanced Fitness USB<br>Elite-level fitness programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Doctor_Facil = "Medical USB Drive<br>Contains focused medical training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Doctor_Moderado = "Medical USB Drive<br>Contains focused medical training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Doctor_Dificil = "Advanced Medical USB<br>Elite-level medical programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_USB_Survivalist_Facil = "Survival USB Drive<br>Contains focused survival training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Survivalist_Moderado = "Survival USB Drive<br>Contains focused survival training modules.<br>Improves success and experience gain.",
+Tooltip_USB_Survivalist_Dificil = "Advanced Survival USB<br>Elite-level survival programs for rapid mastery.<br>Very high success chance and rewards.",
+
+-- (legacy SkillDrive tooltip keys are left intact for compatibility)
+
+-- Skill Floppy Tooltips
+
+Tooltip_SkillFloppy_Woodwork = "Woodworking Floppy Disk<br>Introductory lessons in woodworking.<br>Easy to decrypt for early gains.",
+Tooltip_SkillFloppy_Electricity = "Electronics Floppy Disk<br>Introductory lessons in electronics.<br>Easy to decrypt for early gains.",
+Tooltip_SkillFloppy_Farming = "Farming Floppy Disk<br>Introductory lessons in farming.<br>Easy to decrypt for early gains.",
+Tooltip_SkillFloppy_Cooking = "Cooking Floppy Disk<br>Introductory lessons in cooking.<br>Easy to decrypt for early gains.",
+
 }
+

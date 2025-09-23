@@ -1,0 +1,5 @@
+module Base
+{
+	// Elite recipes temporarily removed to avoid script load order issues
+	// Elite drives functionality works through code-based systems
+}

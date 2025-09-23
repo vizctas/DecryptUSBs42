@@ -1,12 +1,72 @@
-Sandbox_EN = 
-{
-	Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
-	Sandbox_GVDrive_DriveDrop_Chance_U  = "USB Drop Chance out of 100 on Zeds (Keep it as low possible)",
-	Sandbox_GVDrive_DriveDrop_Chance_D  = "Diskette Drop Chance out of 100 on Zeds (Keep it as low possible)",
-    Sandbox_GVDrive_Minimun_Exp_by_Disk = "Min. expercience learn by Diskettes",
-    Sandbox_GVDrive_Maximun_Exp_by_Disk = "Max. expercience learn by Diskettes",
-    Sandbox_GVDrive_Minimun_Exp_by_USB  = "Min. expercience learn by USB",
-    Sandbox_GVDrive_Maximun_Exp_by_USB  = "Max. expercience learn by USB",
-    Sandbox_GVDrive_Percentage_Disk     = "successful rate to decrypt Diskette out of 100 (Recommended less than 40)",
-    Sandbox_GVDrive_Percentage_USB      = "successful rate to decrypt USB out of 100 (Recommended less than 40)",
+Sandbox_EN = {
+    -- Page title
+    Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
+
+    -- General Settings
+    Sandbox_GVDrive_EnableWorldLoot = "Enable World Loot",
+
+    -- World Loot Spawn Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Elite Drive Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Skill USB Spawn Rate (World, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Disk Spawn Rate (World, 0.0-5.0)",
+
+    -- Zombie Drop Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
+    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies, 0.0-5.0)",
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies, 0.0-5.0)",
+
+    -- Decryption Mechanics
+    Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate (%)",
+    Sandbox_GVDrive_Drive_Preserve = "Drive Preservation Chance (%)",
+    Sandbox_GVDrive_Malware_Chance = "Malware Infection Chance (%)",
+    Sandbox_GVDrive_Malware_Damage = "Malware Damage Per Use",
+
+    -- XP Rewards
+    Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience",
+    Sandbox_GVDrive_USB_Max_Exp = "USB Max Experience",
+
+    -- Laptop Health
+    Sandbox_GVDrive_Laptop_Initial_Health = "Laptop Initial Health",
+    Sandbox_GVDrive_Laptop_Random_Health_Min = "Laptop Random Health Min (%)",
+    Sandbox_GVDrive_Laptop_Random_Health_Max = "Laptop Random Health Max (%)",
+
+    -- Elite Drive Bonuses
+    Sandbox_GVDrive_Elite_Strength = "Elite Strength Bonus",
+    Sandbox_GVDrive_Elite_Endurance = "Elite Endurance Bonus",
+    Sandbox_GVDrive_Elite_Capacity = "Elite Capacity Bonus",
+    Sandbox_GVDrive_Elite_Speed = "Elite Speed Bonus",
+    Sandbox_GVDrive_Elite_Luck = "Elite Luck Bonus",
+
+    -- Rarity: Facil (Easy)
+    Sandbox_GVDrive_Normal_Success_Bonus = "Easy Drives: Success Bonus (%)",
+    Sandbox_GVDrive_Normal_Malware_Chance = "Easy Drives: Malware Chance (%)",
+    Sandbox_GVDrive_Normal_Laptop_Damage_Min = "Easy Drives: Laptop Damage Min",
+    Sandbox_GVDrive_Normal_Laptop_Damage_Max = "Easy Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Normal_XP_Bonus = "Easy Drives: XP Bonus (%)",
+    Sandbox_GVDrive_Normal_Loot_Chance = "Easy Drives: Loot Weight (%)",
+
+    -- Rarity: Moderado (Medium)
+    Sandbox_GVDrive_Common_Success_Bonus = "Medium Drives: Success Bonus (%)",
+    Sandbox_GVDrive_Common_Malware_Chance = "Medium Drives: Malware Chance (%)",
+    Sandbox_GVDrive_Common_Laptop_Damage_Min = "Medium Drives: Laptop Damage Min",
+    Sandbox_GVDrive_Common_Laptop_Damage_Max = "Medium Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Common_XP_Bonus = "Medium Drives: XP Bonus (%)",
+    Sandbox_GVDrive_Common_Loot_Chance = "Medium Drives: Loot Weight (%)",
+
+    -- Rarity: Dificil (Hard)
+    Sandbox_GVDrive_Advanced_Success_Bonus = "Hard Drives: Success Bonus (%)",
+    Sandbox_GVDrive_Advanced_Malware_Chance = "Hard Drives: Malware Chance (%)",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Hard Drives: Laptop Damage Min",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Hard Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Advanced_XP_Bonus = "Hard Drives: XP Bonus (%)",
+    Sandbox_GVDrive_Advanced_Loot_Chance = "Hard Drives: Loot Weight (%)",
+
+    -- Antivirus Drop Rates
+    Sandbox_GVDrive_Antivirus_Norton_Drop_Rate = "Norton Antivirus Drop Rate (%)",
+    Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Kaspersky Antivirus Drop Rate (%)",
+    Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "McAfee Antivirus Drop Rate (%)",
+    Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "MalwareBytes Antivirus Drop Rate (%)",
 }
