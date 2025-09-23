@@ -733,7 +733,17 @@ function MiniGameWindow:render()
 
     -- TÍTULO CENTRADO con efecto de terminal
     local titleText = "DECRYPT SEQUENCE TERMINAL"
-    local titleWidth = getTextManager():MeasureStringX(UIFont.Large, titleText)
+    -- VALIDACIÓN ULTRA SEGURA para getTextManager en título - CORREGIDA
+    local titleWidth = 250 -- Valor por defecto más realista
+    local textManager = getTextManager()
+    if textManager and textManager.MeasureStringX then
+        local success, width = pcall(function()
+            return textManager:MeasureStringX(UIFont.Large, titleText)
+        end)
+        if success and width and type(width) == "number" then
+            titleWidth = width
+        end
+    end
     local titleX = (self.width - titleWidth) / 2
     
     -- Efecto de resplandor en el título
@@ -743,25 +753,46 @@ function MiniGameWindow:render()
     -- Información de dificultad
     local diffText = DIFFICULTY_TEXT or "DIFFICULTY: BASIC"
     
-    local diffWidth = getTextManager():MeasureStringX(UIFont.Small, diffText)
+    -- VALIDACIÓN ULTRA SEGURA para getTextManager - CORREGIDA
+    local diffWidth = 150 -- Valor por defecto más realista
+    local textManager = getTextManager()
+    if textManager and textManager.MeasureStringX then
+        local success, width = pcall(function()
+            return textManager:MeasureStringX(UIFont.Small, diffText)
+        end)
+        if success and width and type(width) == "number" then
+            diffWidth = width
+        end
+    end
     local diffX = (self.width - diffWidth) / 2
     self:drawText(diffText, diffX, 35, 0.2, 0.8, 0.2, 0.9, UIFont.Small)
     
     -- Draw sequence info con estilo terminal
     if self.sequence and #self.sequence > 0 then
         local seqInfo = "PROGRESS: " .. (self.currentIndex - 1) .. "/" .. #self.sequence
-        local seqWidth = getTextManager():MeasureStringX(UIFont.Small, seqInfo)
+        
+        -- VALIDACIÓN ULTRA SEGURA para getTextManager en progreso - CORREGIDA
+        local seqWidth = 120 -- Valor por defecto más realista
+        local textManager = getTextManager()
+        if textManager and textManager.MeasureStringX then
+            local success, width = pcall(function()
+                return textManager:MeasureStringX(UIFont.Small, seqInfo)
+            end)
+            if success and width and type(width) == "number" then
+                seqWidth = width
+            end
+        end
         local seqX = self.width - seqWidth - 10
         
-        -- Efecto de parpadeo en el progreso - VALIDACIÓN SEGURA
-        local time = os.clock()
-        if time and type(time) == 'number' then
-            local alpha = 0.7 + 0.3 * math.sin(time * 3)
-            self:drawText(seqInfo, seqX, self.height - 20, 0.2, 1, 0.2, alpha, UIFont.Small)
-        else
-            -- Fallback sin animación si os.clock() falla
-            self:drawText(seqInfo, seqX, self.height - 20, 0.2, 1, 0.2, 0.9, UIFont.Small)
+        -- Efecto de parpadeo en el progreso - VALIDACIÓN ULTRA SEGURA
+        local alpha = 0.9 -- Valor por defecto
+        if os and os.clock then
+            local success, time = pcall(os.clock)
+            if success and time and type(time) == 'number' and time > 0 then
+                alpha = 0.7 + 0.3 * math.sin(time * 3)
+            end
         end
+        self:drawText(seqInfo, seqX, self.height - 20, 0.2, 1, 0.2, alpha, UIFont.Small)
     end
     
     -- Línea de estado en la parte inferior
@@ -770,16 +801,26 @@ function MiniGameWindow:render()
         statusText = "SEQUENCE ANALYSIS COMPLETE"
     end
     
-    local statusWidth = getTextManager():MeasureStringX(UIFont.Small, statusText)
+    -- VALIDACIÓN ULTRA SEGURA para getTextManager en estado - CORREGIDA
+    local statusWidth = 140 -- Valor por defecto más realista
+    local textManager = getTextManager()
+    if textManager and textManager.MeasureStringX then
+        local success, width = pcall(function()
+            return textManager:MeasureStringX(UIFont.Small, statusText)
+        end)
+        if success and width and type(width) == "number" then
+            statusWidth = width
+        end
+    end
     local statusX = (self.width - statusWidth) / 2
     
-    -- Efecto de parpadeo en el estado - VALIDACIÓN SEGURA
-    local time = os.clock()
-    if time and type(time) == 'number' then
-        local blinkAlpha = 0.5 + 0.5 * math.sin(time * 4)
-        self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, blinkAlpha, UIFont.Small)
-    else
-        -- Fallback sin animación si os.clock() falla
-        self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, 0.8, UIFont.Small)
+    -- Efecto de parpadeo en el estado - VALIDACIÓN ULTRA SEGURA
+    local blinkAlpha = 0.8 -- Valor por defecto
+    if os and os.clock then
+        local success, time = pcall(os.clock)
+        if success and time and type(time) == 'number' and time > 0 then
+            blinkAlpha = 0.5 + 0.5 * math.sin(time * 4)
+        end
     end
+    self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, blinkAlpha, UIFont.Small)
 end

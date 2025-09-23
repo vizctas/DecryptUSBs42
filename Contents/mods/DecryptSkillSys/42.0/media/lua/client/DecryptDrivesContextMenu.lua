@@ -13,6 +13,16 @@ local function debugPrint(...)
     end
 end
 
+-- Verificar que Events esté disponible inmediatamente
+if not Events then
+    debugPrint("[ERROR] DecryptDrivesContextMenu: Events is nil at module load time")
+    debugPrint("[ERROR] DecryptDrivesContextMenu: This indicates Events is not available in this game version")
+    -- Crear un Events falso para evitar errores
+    Events = { OnFillWorldObjectContextMenu = { Add = function() end } }
+else
+    debugPrint("DecryptDrivesContextMenu: Events is available at load time")
+end
+
 -- Create hierarchical context menu
 function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList)
     debugPrint("DecryptDrivesContextMenu.createHierarchicalMenu called")
@@ -28,12 +38,11 @@ function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop
     return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
 end
 
+-- ============================================================================
+-- MODULE INITIALIZATION
+-- ============================================================================
+
 debugPrint("DecryptDrivesContextMenu.lua starting to load...")
-
--- ============================================================================
--- CONFIGURATION CONSTANTS
--- ============================================================================
-
 local DECRYPT_CONFIG = {
     LAPTOP_TYPES = {
         "AsusZephLaptopOpened",    -- ASUS Zephyrus M (Opened)
@@ -357,6 +366,15 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
 
         if isValid then
             debugPrint("DecryptDrivesContextMenu: Valid laptop found!")
+
+            -- Get laptop item for health and other operations
+            local laptopItem = worldObject:getItem()
+            if laptopItem then
+                -- Add laptop health status at the top with battery icon
+                DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
+                debugPrint("DecryptDrivesContextMenu: Health status added to menu")
+            end
+
             -- Scan for USBs in player inventory
             local usbList = DecryptDrivesContextMenu.scanPlayerUSBs(playerObj)
 
@@ -364,12 +382,25 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
                 debugPrint("DecryptDrivesContextMenu: USBs found: " .. #usbList)
                 -- Create hierarchical menu
                 DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, worldObject, usbList)
-                debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (menu created) ===")
-                break -- Only need one laptop
+                debugPrint("DecryptDrivesContextMenu: USB menu created")
             else
                 debugPrint("DecryptDrivesContextMenu: No USBs found in player inventory")
-                debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (no USBs) ===")
             end
+
+            -- Add antivirus options
+            DecryptDrivesContextMenu.addAntivirusOptions(context, playerObj, worldObject)
+            debugPrint("DecryptDrivesContextMenu: Antivirus options added")
+
+            -- Add elite drive options
+            DecryptDrivesContextMenu.addEliteDriveOptions(context, playerObj)
+            debugPrint("DecryptDrivesContextMenu: Elite drive options added")
+
+            -- Mark context to indicate modern menu has been attached (defensive against other handlers)
+            context._DecryptDrives_ModernMenu = true
+            debugPrint("DecryptDrivesContextMenu: Context marked as modern menu active")
+
+            debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (complete menu created) ===")
+            break -- Only need one laptop
         else
             debugPrint("DecryptDrivesContextMenu: Invalid laptop: " .. tostring(reason))
         end
@@ -488,7 +519,7 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         debugPrint("[ERROR] onUSBSelected called with invalid usbData")
         return
     end
-    
+
     debugPrint("USB selected: " .. usbData.displayName)
     debugPrint("Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
 
@@ -496,6 +527,340 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     player:Say("Initiating decryption of " .. (usbData.skill or "Unknown") .. " drive (" .. (usbData.difficulty_spanish or "Unknown") .. ")...")
 
     -- TODO: Connect to MinigameController when ISSUE-003 is implemented
+end
+
+-- ============================================================================
+-- LAPTOP HEALTH SYSTEM
+-- ============================================================================
+
+-- Get battery texture based on health percentage
+function DecryptDrivesContextMenu.getBatteryTextureForHealth(healthPercent)
+    -- Ensure healthPercent is a valid number
+    if type(healthPercent) ~= "number" then
+        debugPrint("getBatteryTextureForHealth: healthPercent is not a number, type=" .. type(healthPercent) .. ", value=" .. tostring(healthPercent))
+        healthPercent = 0 -- Default to 0 if invalid
+    end
+
+    -- Clamp to valid range
+    if healthPercent < 0 then healthPercent = 0 end
+    if healthPercent > 100 then healthPercent = 100 end
+
+    -- Return texture object for context menu icon
+    if healthPercent <= 12 then
+        return getTexture("media/textures/ui/health/batt0.png")
+    elseif healthPercent <= 37 then
+        return getTexture("media/textures/ui/health/batt25.png")
+    elseif healthPercent <= 62 then
+        return getTexture("media/textures/ui/health/batt50.png")
+    elseif healthPercent <= 87 then
+        return getTexture("media/textures/ui/health/batt75.png")
+    else
+        return getTexture("media/textures/ui/health/batt100.png")
+    end
+end
+
+-- Add laptop health status to context menu
+function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopItem)
+    if not laptopItem then return end
+
+    -- Get laptop health
+    local laptopHealth = 0
+    if LaptopSystem then
+        laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
+        debugPrint("Laptop health retrieved: " .. tostring(laptopHealth))
+    else
+        debugPrint("LaptopSystem not available for health check")
+    end
+
+    -- Ensure laptopHealth is valid
+    if type(laptopHealth) ~= "number" then
+        debugPrint("Laptop health is not a number, type=" .. type(laptopHealth) .. ", value=" .. tostring(laptopHealth))
+        laptopHealth = 0 -- Default to 0 if invalid
+    end
+
+    -- Get battery texture for menu icon
+    local batteryTexture = DecryptDrivesContextMenu.getBatteryTextureForHealth(laptopHealth)
+
+    -- Determine health status based on percentage
+    local healthStatus = ""
+    if laptopHealth >= 80 then
+        healthStatus = "Excellent"
+    elseif laptopHealth >= 60 then
+        healthStatus = "Good"
+    elseif laptopHealth >= 40 then
+        healthStatus = "Fair"
+    elseif laptopHealth >= 20 then
+        healthStatus = "Poor"
+    else
+        healthStatus = "Critical"
+    end
+
+    -- Display format: Health: percentage (status)
+    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ")"
+
+    -- Create a custom option with texture icon
+    local healthOption = context:addOptionOnTop(healthDisplay, player, function()
+        local messages = {
+            "The laptop hums softly, displaying its current condition.",
+            "You examine the laptop's status indicators carefully.",
+            "The screen flickers slightly as you check the system diagnostics.",
+            "You run a quick hardware diagnostic on the laptop.",
+            "The laptop responds to your touch, showing its current state."
+        }
+
+        if laptopHealth <= 0 then
+            player:Say("This laptop is completely dead. It's nothing more than expensive paperweight now.")
+        elseif laptopHealth < 20 then
+            player:Say("This laptop is barely hanging on. One wrong move and it'll be toast.")
+        elseif laptopHealth < 40 then
+            player:Say("This laptop has seen better days. Some TLC with antivirus might help.")
+        elseif laptopHealth < 60 then
+            player:Say("This laptop is holding up okay, but could use some maintenance.")
+        elseif laptopHealth < 80 then
+            player:Say("This laptop is in good shape and should serve you well.")
+        else
+            local randomMsg = messages[ZombRand(#messages) + 1]
+            player:Say(randomMsg)
+        end
+    end)
+
+    -- Assign battery texture as icon to the context menu option
+    if batteryTexture then
+        healthOption.iconTexture = batteryTexture
+        debugPrint("Battery texture assigned to menu option iconTexture successfully")
+    else
+        debugPrint("Failed to load battery texture - no icon will be displayed")
+    end
+end
+
+-- ============================================================================
+-- ANTIVIRUS SYSTEM
+-- ============================================================================
+
+-- Add antivirus options to context menu
+function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObject)
+    if not player or not worldObject then return end
+
+    local inv = player:getInventory()
+    if not inv then return end
+
+    -- Check for antivirus (both old and new item names)
+    local antivirusCount = inv:getItemCount("GValley.AntivirusDisk_Basic") +
+                           inv:getItemCount("GValley.AntivirusDisk_Advanced") +
+                           inv:getItemCount("GValley.AntivirusDisk_Premium") +
+                           inv:getItemCount("GValley.Antivirus_Norton") +
+                           inv:getItemCount("GValley.Antivirus_Kaspersky") +
+                           inv:getItemCount("GValley.Antivirus_McAfee") +
+                           inv:getItemCount("GValley.Antivirus_MalwareBytes")
+
+    if antivirusCount > 0 then
+        -- Create antivirus submenu
+        local antivirusOption = context:addOption("Use Antivirus (" .. antivirusCount .. ")", player, function() end)
+        local antivirusSubMenu = ISContextMenu:getNew(context)
+        context:addSubMenu(antivirusOption, antivirusSubMenu)
+
+        -- Check each antivirus type and add to submenu
+        local antivirusTypes = {
+            {id = "GValley.Antivirus_MalwareBytes", name = "MalwareBytes", heal = 12},
+            {id = "GValley.Antivirus_McAfee", name = "McAfee", heal = 10},
+            {id = "GValley.Antivirus_Kaspersky", name = "Kaspersky", heal = 8},
+            {id = "GValley.Antivirus_Norton", name = "Norton", heal = 5},
+            {id = "GValley.AntivirusDisk_Premium", name = "Premium", heal = 75},
+            {id = "GValley.AntivirusDisk_Advanced", name = "Advanced", heal = 50},
+            {id = "GValley.AntivirusDisk_Basic", name = "Basic", heal = 25}
+        }
+
+        for _, avType in ipairs(antivirusTypes) do
+            local count = inv:getItemCount(avType.id)
+            if count > 0 then
+                antivirusSubMenu:addOption(avType.name .. " (" .. count .. ") - Heal +" .. avType.heal .. "%", player, function()
+                    DecryptDrivesContextMenu.useAntivirus(player, worldObject, avType)
+                end)
+            end
+        end
+    end
+end
+
+-- Use antivirus on laptop
+function DecryptDrivesContextMenu.useAntivirus(player, worldObject, avType)
+    local inv = player:getInventory()
+    if not inv then
+        player:Say("Cannot access inventory.")
+        return
+    end
+
+    -- Find and use this specific antivirus type
+    local antivirusItem = nil
+
+    -- Try multiple methods to find the item
+    local items = inv:getItems()
+    for i = 0, items:size() - 1 do
+        local checkItem = items:get(i)
+        if checkItem and checkItem:getFullType() == avType.id then
+            antivirusItem = checkItem
+            break
+        end
+    end
+
+    -- Fallback: try getItemsFromType
+    if not antivirusItem then
+        local itemList = inv:getItemsFromType(avType.id)
+        if itemList and itemList:size() > 0 then
+            antivirusItem = itemList:get(0)
+        end
+    end
+
+    if antivirusItem then
+        -- Use the antivirus on the world object laptop
+        local laptopItem = worldObject:getItem()
+        if laptopItem and LaptopSystem then
+            -- Get current health before treatment
+            local beforeHealth = LaptopSystem.getLaptopHealth(laptopItem)
+
+            -- Remove the antivirus item
+            inv:DoRemoveItem(antivirusItem)
+
+            -- Apply antivirus cleaning directly to world object
+            local cleaned = false
+            if LaptopSystem.cleanMalware then
+                cleaned = LaptopSystem.cleanMalware(laptopItem, avType.heal)
+            end
+            local afterHealth = LaptopSystem.getLaptopHealth(laptopItem)
+            local healthGain = afterHealth - beforeHealth
+
+            if cleaned then
+                player:Say("Antivirus " .. avType.name .. " successfully cleaned malware! Health: " .. beforeHealth .. "% -> " .. afterHealth .. "% (+" .. healthGain .. "%)")
+            else
+                player:Say("No malware detected. " .. avType.name .. " improved laptop condition: " .. beforeHealth .. "% -> " .. afterHealth .. "% (+" .. healthGain .. "%)")
+                if LaptopSystem.damageLaptop then
+                    LaptopSystem.damageLaptop(laptopItem, -math.floor(avType.heal / 2))
+                end
+                -- Update after the additional healing
+                local finalHealth = LaptopSystem.getLaptopHealth(laptopItem)
+                if finalHealth ~= afterHealth then
+                    player:Say("Additional maintenance applied. Final health: " .. finalHealth .. "%")
+                end
+            end
+        else
+            player:Say("Cannot access laptop for cleaning.")
+        end
+    else
+        player:Say("No " .. avType.name .. " antivirus found in inventory.")
+    end
+end
+
+-- ============================================================================
+-- ELITE DRIVES SYSTEM
+-- ============================================================================
+
+-- Add elite drives options to context menu
+function DecryptDrivesContextMenu.addEliteDriveOptions(context, player)
+    if not player then return end
+
+    local inv = player:getInventory()
+    if not inv then return end
+
+    local eliteCount = 0
+    local eliteTypes = {{"Strength", "Force"}, {"Endurance", "Resistance"}, {"Capacity", "Weight"}, {"Speed", "Movement"}, {"Luck", "Fortune"}}
+    local availableElites = {}
+
+    for _, eData in ipairs(eliteTypes) do
+        local eType = eData[1]
+        local displayName = eData[2]
+        local fullTypeName = "GValley.EliteDrive_" .. eType
+
+        -- Use multiple methods to count elite drives
+        local count = 0
+
+        -- Method 1: getItemCount
+        count = inv:getItemCount(fullTypeName)
+
+        -- Method 2: Manual count if getItemCount fails
+        if count == 0 then
+            local items = inv:getItems()
+            for i = 0, items:size() - 1 do
+                local checkItem = items:get(i)
+                if checkItem and checkItem:getFullType() == fullTypeName then
+                    count = count + 1
+                end
+            end
+        end
+
+        if count >= 2 then
+            eliteCount = eliteCount + 1
+            table.insert(availableElites, {type = eType, name = displayName, count = count, fullType = fullTypeName})
+        end
+    end
+
+    if eliteCount > 0 then
+        -- Create elite drives submenu
+        local eliteOption = context:addOption("Use Elite Enhancement (" .. eliteCount .. " types)", player, function() end)
+        local eliteSubMenu = ISContextMenu:getNew(context)
+        context:addSubMenu(eliteOption, eliteSubMenu)
+
+        -- Add info header
+        local infoOpt = eliteSubMenu:addOption("Elite Enhancements Available:", player, function() end)
+        infoOpt.notAvailable = true
+        eliteSubMenu:addOption("---------", player, function() end).notAvailable = true
+
+        -- Add each available elite type
+        for _, elite in ipairs(availableElites) do
+            eliteSubMenu:addOption("Elite " .. elite.name .. " (" .. elite.count .. "/2)", player, function()
+                DecryptDrivesContextMenu.useEliteDrive(player, elite)
+            end)
+        end
+
+        eliteSubMenu:addOption("---------", player, function() end).notAvailable = true
+        eliteSubMenu:addOption("Note: Elite drives work independently", player, function()
+            player:Say("Elite drives can be used directly from inventory without requiring a laptop.")
+        end).notAvailable = true
+    end
+end
+
+-- Use elite drive enhancement
+function DecryptDrivesContextMenu.useEliteDrive(player, elite)
+    local inv = player:getInventory()
+    if not inv then
+        player:Say("Cannot access inventory.")
+        return
+    end
+
+    -- Find elite drives in inventory
+    local eliteItems = {}
+    local items = inv:getItems()
+    for i = 0, items:size() - 1 do
+        local checkItem = items:get(i)
+        if checkItem and checkItem:getFullType() == elite.fullType then
+            table.insert(eliteItems, checkItem)
+            if #eliteItems >= 2 then break end -- Only need 2
+        end
+    end
+
+    if #eliteItems >= 2 then
+        -- Remove 2 elite drives from inventory
+        inv:DoRemoveItem(eliteItems[1])
+        inv:DoRemoveItem(eliteItems[2])
+
+        -- Apply elite enhancement
+        if EliteDriveSystem and EliteDriveSystem.useEliteDrive then
+            local success = EliteDriveSystem.useEliteDrive(player, elite.type)
+            if success then
+                player:Say("Elite " .. elite.name .. " enhancement successfully applied! You feel more powerful...")
+            else
+                player:Say("Elite " .. elite.name .. " enhancement failed. You may have already used this enhancement.")
+                -- Return items if failed
+                inv:AddItem(elite.fullType)
+                inv:AddItem(elite.fullType)
+            end
+        else
+            player:Say("Elite enhancement system not available.")
+            -- Return items if system not available
+            inv:AddItem(elite.fullType)
+            inv:AddItem(elite.fullType)
+        end
+    else
+        player:Say("Not enough Elite " .. elite.name .. " drives found. Need 2, have " .. #eliteItems)
+    end
 end
 
 -- ============================================================================
@@ -598,9 +963,54 @@ end
 -- Registrar manejadores de eventos
 debugPrint("DecryptDrivesContextMenu: Registrando manejadores de menú contextual...")
 
--- NO registrar para objetos en el mundo - LaptopFill.lua maneja esto para evitar duplicación
--- El menú moderno se llama directamente desde LaptopFill.lua
-debugPrint("DecryptDrivesContextMenu: Menú moderno disponible para llamada directa desde LaptopFill.lua")
+-- INTENTAR múltiples eventos posibles para el menú contextual
+local eventRegistered = false
+
+-- Evento principal para objetos del mundo
+if Events and Events.OnFillWorldObjectContextMenu and Events.OnFillWorldObjectContextMenu.Add then
+    Events.OnFillWorldObjectContextMenu.Add(DecryptDrivesContextMenu.addContextMenuOption)
+    debugPrint("DecryptDrivesContextMenu: Manejador principal registrado exitosamente")
+    eventRegistered = true
+end
+
+-- Evento alternativo 1
+if not eventRegistered and Events and Events.OnObjectRightClicked and Events.OnObjectRightClicked.Add then
+    Events.OnObjectRightClicked.Add(DecryptDrivesContextMenu.addContextMenuOption)
+    debugPrint("DecryptDrivesContextMenu: Manejador alternativo 1 registrado")
+    eventRegistered = true
+end
+
+-- Evento alternativo 2
+if not eventRegistered and Events and Events.OnRightMouseUp and Events.OnRightMouseUp.Add then
+    Events.OnRightMouseUp.Add(DecryptDrivesContextMenu.addContextMenuOption)
+    debugPrint("DecryptDrivesContextMenu: Manejador alternativo 2 registrado")
+    eventRegistered = true
+end
+
+-- Verificar si Events existe
+if not Events then
+    debugPrint("[ERROR] DecryptDrivesContextMenu: Events es nil - no se pueden registrar eventos")
+    debugPrint("[ERROR] DecryptDrivesContextMenu: Esto indica que el sistema de eventos no está disponible")
+else
+    debugPrint("DecryptDrivesContextMenu: Events está disponible")
+
+    -- Listar eventos disponibles para debugging
+    local availableEvents = {}
+    for key, value in pairs(Events) do
+        if type(value) == "table" and value.Add then
+            table.insert(availableEvents, key)
+        end
+    end
+
+    debugPrint("DecryptDrivesContextMenu: Eventos disponibles con Add(): " .. table.concat(availableEvents, ", "))
+end
+
+if not eventRegistered then
+    debugPrint("[ERROR] DecryptDrivesContextMenu: No se pudo registrar ningún manejador de eventos")
+    debugPrint("[ERROR] DecryptDrivesContextMenu: El menú contextual no funcionará")
+else
+    debugPrint("DecryptDrivesContextMenu: Al menos un manejador de eventos registrado exitosamente")
+end
 
 -- Registrar también el depurador si está en modo DEBUG
 if getDebug() then
