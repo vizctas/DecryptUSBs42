@@ -31,6 +31,11 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 - Changed main menu text from "Decrypt Drives" to "Insert Drive..." for better user experience
 
 ### Added
+- **MINIGAME INTEGRATION COMPLETE**: Successfully integrated MiniGameMorse and MiniGameFallout as modular minigames with automatic selection based on USB type
+- **INTELLIGENT MINIGAME SELECTION**: Implemented smart minigame routing - Electrical USBs trigger Morse Code Decoding, Security USBs trigger Fallout Password Hacking, other skills use Sequence Memory
+- **ROBUST MODULE LOADING**: Enhanced module loading system in DecryptDrivesContextMenu.lua with fallback mechanisms and comprehensive error handling for all minigame modules
+- **GLOBAL FUNCTION REGISTRATION**: Ensured MiniGameMorse and MiniGameFallout are available as global functions after module loading, enabling direct console calls
+- **TEST SCRIPT CREATED**: Added test_minigames.lua for validating global function availability and module loading integrity
 - **PNG BATTERY ICONS CORRECTED**: Fixed battery icon implementation in context menu - corrected from incorrect `<IMAGE:...>` markup to proper `option.iconTexture = getTexture(...)` assignment
 - Renamed function to `getBatteryTextureForHealth()` that returns Texture objects instead of strings
 - Implemented proper texture assignment using `healthOption.iconTexture = batteryTexture` for visual battery status display

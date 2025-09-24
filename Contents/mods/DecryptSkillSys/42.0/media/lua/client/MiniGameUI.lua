@@ -1,16 +1,56 @@
--- MiniGameUI.lua - Ventana configurable UI para DecryptSkillSys
--- Basado en patrones del CODEBASE (PATRONES_UI_Y_MINIJUEGOS.md)
+-- ✅ MINIJUEGO SEPARADO CON FORMATO COMPLETO RESTAURADO
+-- MiniGameUI.lua - Sistema de minijuego independiente para DecryptSkillSys
+-- Basado en patrones del CODEBASE y memorias de formato perfecto
+
+print("[DecryptSkillSys] Loading MiniGameUI.lua - Independent minigame system")
+
+-- ✅ FUNCIÓN DE RECARGA PARA DEBUG - Permite recargar sin reiniciar el juego
+function ReloadMiniGame()
+    print("[DEBUG] Reloading MiniGame system...")
+    
+    -- Limpiar función global anterior
+    if MiniGame then
+        MiniGame = nil
+        print("[DEBUG] Previous MiniGame function cleared")
+    end
+    
+    -- Forzar recarga del módulo
+    package.loaded["client/MiniGameUI"] = nil
+    
+    -- Recargar
+    local success, result = pcall(require, "client/MiniGameUI")
+    if success then
+        print("[DEBUG] MiniGame system reloaded successfully!")
+        print("[DEBUG] You can now test different configurations by calling MiniGame(width%, height%)")
+        print("[DEBUG] Example: MiniGame(30, 40) for 30% width, 40% height")
+    else
+        print("[DEBUG] Failed to reload MiniGame: " .. tostring(result))
+    end
+end
+
+-- ✅ FUNCIÓN DE PRUEBA RÁPIDA PARA DEBUG
+function TestMiniGame(widthPct, heightPct)
+    widthPct = widthPct or 25
+    heightPct = heightPct or 35
+    print("[DEBUG] Testing MiniGame with size: " .. widthPct .. "% x " .. heightPct .. "%")
+    
+    if MiniGame then
+        return MiniGame(widthPct, heightPct, "TestSkill", "Easy", nil, {skill="TestSkill", difficulty_english="Easy", displayName="Test USB"})
+    else
+        print("[DEBUG] MiniGame function not available. Try ReloadMiniGame() first.")
+    end
+end
 
 -- ========== CONFIGURACIÓN DEL GRID ==========
--- Modifica estas variables para cambiar el tamaño del grid del minijuego
 local GRID_ROWS = 4           -- Número de filas (ej: 2 para 2x2, 4 para 4x4)
-local GRID_COLS = 4           -- Número de columnas (ej: 2 para 2x2, 4 para 4x4)
+local GRID_COLS = 4           -- Número de columnas (ej: 2 para 2x2, 4 para 4x4)  
 local SEQUENCE_LENGTH = 5     -- Longitud de la secuencia a recordar
-local BUTTON_SIZE = 12        -- Tamaño de los botones en píxeles
-local SEQUENCE_DELAY = 35     -- Ticks entre cada paso de secuencia (20 = 1 segundo)
+local BUTTON_SIZE = 10        -- Tamaño de los botones en píxeles
+local BUTTON_SPACING = 8      -- Espaciado entre botones en píxeles
+local SEQUENCE_DELAY = 30     -- Ticks entre cada paso de secuencia (20 = 1 segundo)
 local RESULT_DISPLAY_TIME = 60 -- Ticks para mostrar resultado (ERROR/DECRYPT) antes de cerrar
-local DIFFICULTY_PATTERNS = 1 -- Número de patrones simultáneos (1-3): 1=Solo verde, 2=Verde+Rojo, 3=Verde+Rojo+Azul
-local DIFFICULTY_TEXT = "DIFFICULTY: BASIC" -- Texto configurable de dificultad
+local DIFFICULTY_PATTERNS = 2 -- Número de patrones simultáneos (1-3): 1=Solo verde, 2=Verde+Rojo, 3=Verde+Rojo+Azul
+local DIFFICULTY_TEXT = "DIFFICULTY: ADVANCED [GREEN PATTERN ONLY]" -- Texto configurable de dificultad
 -- =============================================
 
 -- SISTEMA DE TIMERS ULTRA SIMPLE - Sin closures complejos
@@ -60,93 +100,126 @@ function SimpleTimer:update()
     end
 end
 
--- Registrar el sistema de timers ultra simple
-Events.OnTick.Add(function() SimpleTimer:update() end)
+-- Registrar el sistema de timers ultra simple (solo si Events existe)
+if Events and Events.OnTick and Events.OnTick.Add then
+    Events.OnTick.Add(function() SimpleTimer:update() end)
+else
+    print("[MiniGameUI] Events not available - timers will not be registered (expected in test environment)")
+end
 
 local MiniGameWindow = ISPanel:derive("MiniGameWindow")
 
-function MiniGameWindow:new(x, y, width, height, player)
+function MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
     local o = ISPanel:new(x, y, width, height)
     setmetatable(o, self)
     self.__index = self
-
+    
+    -- ✅ PROPIEDADES ESTÉTICA ALIEN CRT RESTAURADA
     o.player = player
-    -- Fondo ligeramente translúcido; disminuir para que el texto no quede tan apagado
-    o.backgroundColor = {r=0, g=0, b=0, a=0.6}
-    o.borderColor = {r=0.4, g=0.4, b=0.4, a=1}
+    o.backgroundColor = {r=0.05, g=0.2, b=0.05, a=0.9}  -- Fondo verde CRT
+    o.borderColor = {r=0.2, g=1, b=0.2, a=1}            -- Borde verde brillante
     o.moveWithMouse = true
-
-    -- Game state for sequence minigame - CONFIGURABLE
+    
+    -- ✅ INTEGRACIÓN USB MANTENIDA (pipeline intacto)
+    o.usbType = usbType
+    o.difficulty = difficulty  
+    o.laptopItem = laptopItem
+    o.usbData = usbData
+    
+    -- ✅ ESTADO DEL JUEGO COMPLETO
     o.sequence = {}
     o.currentIndex = 1
     o.playing = false
     o.userInput = {}
-    o.sequenceLength = SEQUENCE_LENGTH  -- ← Usa configuración global
+    o.sequenceLength = SEQUENCE_LENGTH
+    o.sequenceButtons = {}
     
-    -- Sistema de timers para esta instancia
-    o.activeTimers = {}
-
+    -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
+    o:configureFromUSB()
+    
     return o
 end
 
-function MiniGameWindow:initialise()
-    ISPanel.initialise(self)
-    self:createChildren()
-end
-
--- SISTEMA DE TIMERS PARA LA INSTANCIA - Más seguro que closures
-function MiniGameWindow:addTimer(duration, callback)
-    return SimpleTimer:addTimer(duration, callback)
-end
-
-function MiniGameWindow:clearAllTimers()
-    -- Limpiar todos los timers activos
-    for id, timer in pairs(SimpleTimer.activeTimers) do
-        SimpleTimer.activeTimers[id] = nil
+function MiniGameWindow:configureFromUSB()
+    -- Configurar automáticamente el minijuego según la dificultad del USB
+    if not self.usbType or not self.difficulty then
+        print("MiniGame: No USB parameters provided, using default configuration")
+        return
     end
+
+    -- Configuración equilibrada por dificultad
+    local config = self:getDifficultyConfig(self.difficulty)
+
+    -- Aplicar configuración global
+    SEQUENCE_LENGTH = config.sequenceLength
+    SEQUENCE_DELAY = config.delay
+    DIFFICULTY_PATTERNS = config.patterns
+    DIFFICULTY_TEXT = config.displayText
+
+    print(string.format("MiniGame: Configured for USB %s - Difficulty: %s - Patterns: %d, Length: %d, Delay: %d",
+        self.usbType, self.difficulty, config.patterns, config.sequenceLength, config.delay))
 end
 
-function MiniGameWindow:onClose()
-    self:clearAllTimers()
-    self:setVisible(false)
-    self:removeFromUIManager()
+-- Configuración equilibrada por dificultad
+function MiniGameWindow:getDifficultyConfig(difficulty)
+    local configs = {
+        ["Easy"] = {
+            patterns = 1,           -- Solo verde
+            sequenceLength = 4,     -- 4 pasos
+            delay = 40,             -- 2 segundos entre pasos
+            displayText = "DIFFICULTY: EASY"
+        },
+        ["Moderate"] = {
+            patterns = 2,           -- Verde + Rojo
+            sequenceLength = 5,     -- 5 pasos
+            delay = 30,             -- 1.5 segundos entre pasos
+            displayText = "DIFFICULTY: MODERATE"
+        },
+        ["Expert"] = {
+            patterns = 3,           -- Verde + Rojo + Azul
+            sequenceLength = 6,     -- 6 pasos
+            delay = 25,             -- 1.25 segundos entre pasos
+            displayText = "DIFFICULTY: EXPERT"
+        }
+    }
+    
+    -- Retornar configuración específica o fallback a Easy
+    return configs[difficulty] or configs["Easy"]
 end
 
 -- No override de onMouseUp: dejar comportamiento por defecto para que el dragging se libere correctamente
 
 function MiniGameWindow:createChildren()
-    -- VALIDACIÓN ROBUSTA: usar valores seguros para configuración
+    -- ✅ VALIDACIÓN ROBUSTA MANTENIDA
     local gridRows = tonumber(GRID_ROWS) or 4
     local gridCols = tonumber(GRID_COLS) or 4
     local buttonSize = tonumber(BUTTON_SIZE) or 15
+    local buttonSpacing = tonumber(BUTTON_SPACING) or 4
 
-    -- Asegurar valores mínimos y máximos seguros
     gridRows = math.max(1, math.min(10, gridRows))
     gridCols = math.max(1, math.min(10, gridCols))
     buttonSize = math.max(10, math.min(100, buttonSize))
+    buttonSpacing = math.max(0, math.min(50, buttonSpacing))
 
-    -- Botón de cierre
+    -- ✅ BOTÓN DE CIERRE (esquina superior derecha)
     self.closeButton = ISButton:new(self.width - 25, 5, 20, 20, "X", self, self.onClose)
     self.closeButton:initialise()
     self:addChild(self.closeButton)
 
-    -- Start button
-    self.startButton = ISButton:new(10, 45, 100, 30, "Start", self, self.onStart)
-    self.startButton:initialise()
-    self:addChild(self.startButton)
-
-    -- Reset button
-    self.resetButton = ISButton:new(120, 45, 100, 30, "Reset", self, self.onReset)
-    self.resetButton:initialise()
-    self:addChild(self.resetButton)
-
-    -- Create GRID_ROWS x GRID_COLS grid of sequence buttons - CONFIGURABLE
+    -- ✅ CREAR GRID DE BOTONES CENTRADO
     self.sequenceButtons = {}
+    local gridWidth = gridCols * buttonSize + (gridCols - 1) * buttonSpacing
+    local gridHeight = gridRows * buttonSize + (gridRows - 1) * buttonSpacing
+    local gridStartX = (self.width - gridWidth) / 2
+    local gridStartY = 80  -- Espacio para título
+    
     for row = 1, gridRows do
         self.sequenceButtons[row] = {}
         for col = 1, gridCols do
             local btnIndex = (row - 1) * gridCols + col
-            local btn = ISButton:new(0, 0, buttonSize, buttonSize, "", self, self.onSequencePress)
+            local x = gridStartX + (col - 1) * (buttonSize + buttonSpacing)
+            local y = gridStartY + (row - 1) * (buttonSize + buttonSpacing)
+            local btn = ISButton:new(x, y, buttonSize, buttonSize, "", self, self.onSequencePress)
             btn.sequenceIndex = btnIndex
             btn.gridRow = row
             btn.gridCol = col
@@ -156,7 +229,14 @@ function MiniGameWindow:createChildren()
         end
     end
 
-    self:updateLayout()
+    -- ✅ BOTÓN START ABAJO DEL GRID, CENTRADO (formato restaurado)
+    local startButtonY = gridStartY + gridHeight + 20  -- 20px padding después del grid
+    local startButtonX = (self.width - 100) / 2        -- Centrado horizontalmente
+    self.startButton = ISButton:new(startButtonX, startButtonY, 100, 30, "START", self, self.onStart)
+    self.startButton:initialise()
+    self:addChild(self.startButton)
+
+    -- ✅ BOTÓN RESET REMOVIDO - Ya no se necesita según requerimientos del usuario
 end
 
 function MiniGameWindow:updateLayout()
@@ -220,14 +300,12 @@ function MiniGameWindow:updateLayout()
     local btnWidth = math.max(80, math.floor((self.width - 40) / 2) - 10)
     if self.startButton then
         self.startButton:setWidth(btnWidth)
-        self.startButton:setX(10)
+        -- ✅ MANTENER BOTÓN START CENTRADO ABAJO DEL GRID
+        local startButtonX = (self.width - btnWidth) / 2
+        self.startButton:setX(startButtonX)
         self.startButton:setY(65)
     end
-    if self.resetButton then
-        self.resetButton:setWidth(btnWidth)
-        self.resetButton:setX(20 + btnWidth)
-        self.resetButton:setY(65)
-    end
+    -- Reset button removed - no longer needed
 end
 
 function MiniGameWindow:onResize(newW, newH)
@@ -235,8 +313,51 @@ function MiniGameWindow:onResize(newW, newH)
 end
 
 function MiniGameWindow:onClose()
+    -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
+    if self.playing or (self.sequence and #self.sequence > 0 and self.currentIndex <= #self.sequence) then
+        print("[CLOSE FAILURE] Minigame closed while in progress - treating as failure")
+
+        -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
+        if self.usbData and self.usbData.item then
+            local inventory = self.player:getInventory()
+            if inventory:contains(self.usbData.item) then
+                inventory:Remove(self.usbData.item)
+                print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
+            else
+                print("[WARNING] USB not found in inventory for consumption on close")
+            end
+        end
+
+        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO por cierre)
+        if self.usbType and self.difficulty and self.laptopItem then
+            -- Verificar que GVDrive_Utils esté disponible
+            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+                if not success then
+                    self.player:Say("Laptop damaged from interrupted " .. self.usbType .. " decryption!")
+                end
+            else
+                print("[ERROR] GVDrive_Utils not available for damage calculation on close")
+                self.player:Say("Decryption interrupted, but damage system unavailable.")
+            end
+        end
+
+        -- Mensaje al jugador sobre el cierre prematuro
+        if self.player then
+            self.player:Say("Decryption sequence interrupted! You gave up too early.")
+        end
+    end
+
+    -- Cerrar la ventana normalmente
     self:setVisible(false)
     self:removeFromUIManager()
+end
+
+function MiniGameWindow:clearAllTimers()
+    -- Limpiar cualquier timer activo (SimpleTimer no tiene cancelación directa)
+    -- Los timers se ejecutan una sola vez, así que solo reseteamos el estado
+    self.currentIndex = 1
+    self.playing = false
 end
 
 function MiniGameWindow:onStart()
@@ -554,6 +675,31 @@ function MiniGameWindow:onSequencePress(button)
             self.playing = false
             self:setAllButtonsColorSafe({r=0, g=1, b=0, a=1}, "DECRYPT")
             
+            -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
+            if self.usbData and self.usbData.item then
+                local inventory = self.player:getInventory()
+                if inventory:contains(self.usbData.item) then
+                    inventory:Remove(self.usbData.item)
+                    print("[SUCCESS] USB consumed from inventory: " .. tostring(self.usbData.displayName))
+                else
+                    print("[WARNING] USB not found in inventory for consumption")
+                end
+            end
+            
+            -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (ÉXITO)
+            if self.usbType and self.difficulty and self.laptopItem then
+                -- Verificar que GVDrive_Utils esté disponible
+                if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+                    local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, true)
+                    if success then
+                        self.player:Say("Experience gained from " .. self.usbType .. " decryption!")
+                    end
+                else
+                    print("[ERROR] GVDrive_Utils not available for XP calculation")
+                    self.player:Say("Decryption completed, but XP system unavailable.")
+                end
+            end
+            
             -- Close minigame after configured time
             SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
                 self:onClose() -- Cerrar minijuego después de mostrar éxito
@@ -569,6 +715,31 @@ function MiniGameWindow:onSequencePress(button)
         
         -- Show error on ALL buttons immediately
         self:setAllButtonsColorSafe({r=1, g=0, b=0, a=1}, "ERROR")
+        
+        -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
+        if self.usbData and self.usbData.item then
+            local inventory = self.player:getInventory()
+            if inventory:contains(self.usbData.item) then
+                inventory:Remove(self.usbData.item)
+                print("[FAILURE] USB consumed from inventory after failure: " .. tostring(self.usbData.displayName))
+            else
+                print("[WARNING] USB not found in inventory for consumption after failure")
+            end
+        end
+        
+        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO)
+        if self.usbType and self.difficulty and self.laptopItem then
+            -- Verificar que GVDrive_Utils esté disponible
+            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+                if not success then
+                    self.player:Say("Laptop damaged from failed " .. self.usbType .. " decryption!")
+                end
+            else
+                print("[ERROR] GVDrive_Utils not available for damage calculation")
+                self.player:Say("Decryption failed, but damage system unavailable.")
+            end
+        end
         
         -- Clear error after configured time and CLOSE minigame
         SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
@@ -680,37 +851,34 @@ function MiniGameWindow:setAllButtonsColor(color, text)
     self:setAllButtonsColorSafe(color, text)
 end
 
--- Función global para abrir la ventana
-function MiniGame(widthPct, heightPct)
+-- Función global para abrir la ventana (versión integrada con USBs)
+function MiniGame(usbType, difficulty, laptopItem, usbData)
     local player = getPlayer()
     if not player then 
         print("MiniGame: No player found")
         return 
     end
 
-    -- Soporta tamaños dinámicos en %: MiniGame(widthPct, heightPct)
+    -- ✅ TAMAÑOS FIJOS DEFINIDOS EN EL ARCHIVO DEL MINIJUEGO
+    local width = 400  -- Ancho fijo del minijuego
+    local height = 500 -- Alto fijo del minijuego
+    
     local screenW = getCore():getScreenWidth()
     local screenH = getCore():getScreenHeight()
-
-    widthPct = tonumber(widthPct) or 20
-    heightPct = tonumber(heightPct) or 40
-
-    -- Validar rangos
-    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then widthPct = 20 end
-    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then heightPct = 40 end
-
-    local width = math.max(200, math.floor(screenW * (widthPct / 100)))
-    local height = math.max(80, math.floor(screenH * (heightPct / 100)))
     local x = math.floor((screenW - width) / 2)
     local y = math.floor((screenH - height) / 2)
 
-    local window = MiniGameWindow:new(x, y, width, height, player)
+    -- Crear ventana con integración USB
+    local window = MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
     window:initialise()
     window:addToUIManager()
     window:bringToTop()
     window:setVisible(true)
     return window
 end
+
+-- ✅ FUNCIÓN DUPLICADA ELIMINADA: Solo mantener la versión integrada con USB
+-- La función MiniGame ahora maneja tanto llamadas con USB como sin USB automáticamente
 
 -- Mejorar renderizado: EFECTO CRT VERDE ESTILO ALIEN
 function MiniGameWindow:render()

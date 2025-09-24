@@ -6,10 +6,78 @@ pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 -- Import centralized config
 pcall(require, "shared/GVDrive_Config")
 
--- Debug print function
+-- Debug print function - DEFINIR PRIMERO
 local function debugPrint(...)
     if GVDrive_Config and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
         print("[DecryptSkillSys][DEBUG]", ...)
+    end
+end
+
+-- ✅ CARGAR MINIJUEGO SEPARADO - PATRÓN MODULAR DEL CODEBASE
+local miniGameLoaded = false
+
+-- Verificar si MiniGame ya está disponible
+if MiniGame and type(MiniGame) == "function" then
+    miniGameLoaded = true
+    debugPrint("[SUCCESS] MiniGame already available from separate module")
+else
+    debugPrint("[INFO] MiniGame not available, attempting to load from MiniGameUI.lua")
+    
+    -- Intentar cargar el módulo separado
+    local success, result = pcall(require, "client/MiniGameUI")
+    if success then
+        debugPrint("[SUCCESS] MiniGameUI.lua loaded successfully")
+        miniGameLoaded = true
+        if MiniGame and type(MiniGame) == "function" then
+            debugPrint("[SUCCESS] MiniGame function now available")
+        else
+            debugPrint("[WARNING] MiniGame function still not available after loading")
+        end
+    else
+        debugPrint("[WARNING] Failed to load MiniGameUI.lua: " .. tostring(result))
+        debugPrint("[INFO] MiniGame will be loaded by the separate file automatically")
+        miniGameLoaded = true  -- Asumir que se cargará
+    end
+end
+
+-- ✅ CARGAR MINIJUEGOS ADICIONALES
+local morseGameLoaded = false
+if MiniGameMorse and type(MiniGameMorse) == "function" then
+    morseGameLoaded = true
+    debugPrint("[SUCCESS] MiniGameMorse already available")
+else
+    debugPrint("[INFO] Loading MiniGameMorse.lua")
+    local success, result = pcall(require, "client/MiniGameMorse")
+    if success then
+        debugPrint("[SUCCESS] MiniGameMorse.lua loaded successfully")
+        morseGameLoaded = true
+        if MiniGameMorse and type(MiniGameMorse) == "function" then
+            debugPrint("[SUCCESS] MiniGameMorse function available")
+        else
+            debugPrint("[WARNING] MiniGameMorse function not available after loading")
+        end
+    else
+        debugPrint("[WARNING] Failed to load MiniGameMorse.lua: " .. tostring(result))
+    end
+end
+
+local falloutGameLoaded = false
+if MiniGameFallout and type(MiniGameFallout) == "function" then
+    falloutGameLoaded = true
+    debugPrint("[SUCCESS] MiniGameFallout already available")
+else
+    debugPrint("[INFO] Loading MiniGameFallout.lua")
+    local success, result = pcall(require, "client/MiniGameFallout")
+    if success then
+        debugPrint("[SUCCESS] MiniGameFallout.lua loaded successfully")
+        falloutGameLoaded = true
+        if MiniGameFallout and type(MiniGameFallout) == "function" then
+            debugPrint("[SUCCESS] MiniGameFallout function available")
+        else
+            debugPrint("[WARNING] MiniGameFallout function not available after loading")
+        end
+    else
+        debugPrint("[WARNING] Failed to load MiniGameFallout.lua: " .. tostring(result))
     end
 end
 
@@ -243,14 +311,25 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
                     if r:find("dif") then rarityEs = "Dificil"
                     elseif r:find("mod") then rarityEs = "Moderado"
                     elseif r:find("fac") then rarityEs = "Facil" else rarityEs = "Facil" end
-                    table.insert(usbList, {
+                    local usbEntry = {
                         item = item,
                         fullType = (item.getFullType and item:getFullType()) or (item.getType and item:getType()) or "",
                         skill = tostring(info.skillName),
                         difficulty_spanish = rarityEs,
                         difficulty_english = (DECRYPT_CONFIG.DIFFICULTY_MAP[rarityEs] or "Easy"),
                         displayName = DECRYPT_CONFIG.MENU_TEXT.USB_PREFIX .. tostring(info.skillName) .. " (" .. rarityEs .. ")"
-                    })
+                    }
+                    debugPrint("✅ USB entry created via GVDrive_Utils:")
+                    -- Usar pcall para evitar errores si pairs falla
+                    local success, err = pcall(function()
+                        for k, v in pairs(usbEntry) do
+                            debugPrint("✅   " .. tostring(k) .. ": " .. tostring(v))
+                        end
+                    end)
+                    if not success then
+                        debugPrint("[ERROR] Could not iterate usbEntry: " .. tostring(err))
+                    end
+                    table.insert(usbList, usbEntry)
                     handled = true
                 end
             end
@@ -295,7 +374,7 @@ function DecryptDrivesContextMenu.parseUSBData(item, fullType)
             difficulty = "Facil"
         end
 
-        return {
+        local usbEntry = {
             item = item,
             fullType = fullType,
             skill = skillName,
@@ -303,6 +382,17 @@ function DecryptDrivesContextMenu.parseUSBData(item, fullType)
             difficulty_english = DECRYPT_CONFIG.DIFFICULTY_MAP[difficulty] or "Easy",
             displayName = DECRYPT_CONFIG.MENU_TEXT.USB_PREFIX .. skillName .. " (" .. difficulty .. ")"
         }
+        debugPrint("✅ USB entry created via parseUSBData:")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for k, v in pairs(usbEntry) do
+                debugPrint("✅   " .. tostring(k) .. ": " .. tostring(v))
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate parseUSBData usbEntry: " .. tostring(err))
+        end
+        return usbEntry
     end
 
     return nil
@@ -451,8 +541,14 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
     local groupedUSBs = DecryptDrivesContextMenu.groupUSBsBySkill(usbList)
 
     debugPrint("Grouped USBs:")
-    for skill, usbs in pairs(groupedUSBs) do
-        debugPrint("  Skill: " .. skill .. " - Count: " .. #usbs)
+    -- Usar pcall para evitar errores si pairs falla
+    local success, err = pcall(function()
+        for skill, usbs in pairs(groupedUSBs) do
+            debugPrint("  Skill: " .. skill .. " - Count: " .. #usbs)
+        end
+    end)
+    if not success then
+        debugPrint("[ERROR] Could not iterate groupedUSBs: " .. tostring(err))
     end
 
     -- Create main menu option
@@ -480,26 +576,46 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
         end
 
         debugPrint("LEGACY: Difficulties for skill " .. skill .. ":")
-        for diffName, diffList in pairs(difficulties) do
-            debugPrint("LEGACY:   " .. diffName .. ": " .. #diffList .. " USBs")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for diffName, diffList in pairs(difficulties) do
+                debugPrint("LEGACY:   " .. diffName .. ": " .. #diffList .. " USBs")
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate difficulties: " .. tostring(err))
         end
 
         -- Create difficulty submenus with proper order
         local diffOrder = {"Facil", "Moderado", "Dificil"}
         for _, difficultyName in ipairs(diffOrder) do
-            if difficulties[difficultyName] then
+            if difficulties[difficultyName] and #difficulties[difficultyName] > 0 then
                 local count = #difficulties[difficultyName]
-                debugPrint("LEGACY: Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
-                -- Add difficulty option that directly triggers action with the first USB
-                skillSubMenu:addOption(
-                    difficultyName .. " x" .. count,
-                    DecryptDrivesContextMenu,
-                    DecryptDrivesContextMenu.onUSBSelected,
-                    player,
-                    laptop,
-                    difficulties[difficultyName][1]  -- Use the first USB in the list
-                )
-                debugPrint("LEGACY: Difficulty option added to skill submenu")
+                local firstUSB = difficulties[difficultyName][1]
+                
+                -- ✅ VALIDACIÓN CRÍTICA: Verificar que el primer USB sea válido
+                if firstUSB and firstUSB.displayName then
+                    debugPrint("LEGACY: Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
+                    debugPrint("LEGACY: First USB data: " .. tostring(firstUSB.displayName))
+                    
+                    -- Add difficulty option that directly triggers action with the first USB
+                    -- ✅ CORRECCIÓN CRÍTICA: Usar wrapper function para garantizar parámetros correctos
+                    skillSubMenu:addOption(
+                        difficultyName .. " x" .. count,
+                        player,
+                        function(playerObj, laptopObj)
+                            -- Llamar onUSBSelected con parámetros garantizados
+                            DecryptDrivesContextMenu.onUSBSelected(playerObj, laptop, firstUSB)
+                        end
+                    )
+                    debugPrint("LEGACY: Difficulty option added to skill submenu")
+                else
+                    debugPrint("[ERROR] LEGACY: Invalid first USB data for difficulty: " .. difficultyName .. " in skill " .. skill)
+                    debugPrint("[ERROR] LEGACY: firstUSB: " .. tostring(firstUSB))
+                    if firstUSB then
+                        debugPrint("[ERROR] LEGACY: firstUSB.displayName: " .. tostring(firstUSB.displayName))
+                    end
+                end
             else
                 debugPrint("LEGACY: No USBs found for difficulty: " .. difficultyName .. " in skill " .. skill)
             end
@@ -515,18 +631,99 @@ end
 
 -- Handle USB selection from context menu
 function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
-    if not usbData or not usbData.displayName then
-        debugPrint("[ERROR] onUSBSelected called with invalid usbData")
+    debugPrint("✅ onUSBSelected called with parameters:")
+    debugPrint("✅   player: " .. tostring(player) .. " (type: " .. type(player) .. ")")
+    debugPrint("✅   laptop: " .. tostring(laptop) .. " (type: " .. type(laptop) .. ")")
+    debugPrint("✅   usbData: " .. tostring(usbData) .. " (type: " .. type(usbData) .. ")")
+    
+    -- ✅ VALIDACIÓN MEJORADA: Información detallada de debugging
+    if not usbData then
+        debugPrint("[ERROR] onUSBSelected called with nil usbData")
+        debugPrint("[ERROR] Parameters received:")
+        debugPrint("[ERROR]   player: " .. tostring(player))
+        debugPrint("[ERROR]   laptop: " .. tostring(laptop))
+        debugPrint("[ERROR]   usbData: nil")
+        return
+    end
+    
+    -- ✅ VALIDACIÓN CRÍTICA: Verificar que usbData sea una tabla válida
+    if type(usbData) ~= "table" then
+        debugPrint("[ERROR] onUSBSelected called with usbData that is not a table")
+        debugPrint("[ERROR] usbData type: " .. type(usbData))
+        debugPrint("[ERROR] usbData value: " .. tostring(usbData))
+        debugPrint("[ERROR] This suggests parameter order is incorrect in addOption call")
+        return
+    end
+    
+    if not usbData.displayName then
+        debugPrint("[ERROR] onUSBSelected called with usbData missing displayName")
+        debugPrint("[ERROR] usbData contents:")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for key, value in pairs(usbData) do
+                debugPrint("[ERROR]   " .. tostring(key) .. ": " .. tostring(value))
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate usbData: " .. tostring(err))
+        end
         return
     end
 
-    debugPrint("USB selected: " .. usbData.displayName)
-    debugPrint("Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
+    debugPrint("✅ USB selected successfully: " .. usbData.displayName)
+    debugPrint("✅ Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
+    debugPrint("✅ Full usbData:")
+    -- Usar pcall para evitar errores si pairs falla
+    local success, err = pcall(function()
+        for key, value in pairs(usbData) do
+            debugPrint("✅   " .. tostring(key) .. ": " .. tostring(value))
+        end
+    end)
+    if not success then
+        debugPrint("[ERROR] Could not iterate successful usbData: " .. tostring(err))
+    end
 
-    -- For now, just show a message to the player
-    player:Say("Initiating decryption of " .. (usbData.skill or "Unknown") .. " drive (" .. (usbData.difficulty_spanish or "Unknown") .. ")...")
+    -- Obtener laptop item para integración
+    local laptopItem = nil
+    if laptop then
+        laptopItem = laptop:getItem()
+    end
 
-    -- TODO: Connect to MinigameController when ISSUE-003 is implemented
+    -- ✅ VERIFICACIÓN CRÍTICA: Verificar salud de la laptop antes de iniciar minijuego
+    if laptopItem and LaptopSystem then
+        local laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
+        if type(laptopHealth) == "number" and laptopHealth <= 0 then
+            debugPrint("[ERROR] Laptop health is 0% or less, cannot start minigame")
+            player:Say("This laptop is completely dead. It cannot run any decryption software.")
+            return
+        end
+    end
+
+    -- Configurar y abrir minijuego con integración USB
+    local usbType = usbData.skill
+    local difficulty = usbData.difficulty_english
+
+    if usbType and difficulty then
+        debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ")")
+
+        -- ✅ LLAMAR MINIJUEGO DE SECUENCIA DIRECTAMENTE
+        if MiniGame and type(MiniGame) == "function" then
+            local success, minigame = pcall(MiniGame, usbType, difficulty, laptopItem, usbData)
+            if success and minigame then
+                debugPrint("Sequence minigame opened successfully with USB integration")
+                player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - Sequence Memory...")
+            else
+                debugPrint("[ERROR] Failed to create sequence minigame: " .. tostring(minigame))
+                player:Say("Error initializing sequence decryption system.")
+            end
+        else
+            debugPrint("[ERROR] MiniGame function not available")
+            player:Say("No decryption protocol available for this drive type.")
+        end
+    else
+        debugPrint("[ERROR] Invalid USB data - skill: " .. tostring(usbType) .. ", difficulty: " .. tostring(difficulty))
+        player:Say("Invalid drive data. Cannot proceed with decryption.")
+    end
 end
 
 -- ============================================================================

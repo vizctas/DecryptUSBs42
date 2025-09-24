@@ -24,4 +24,8 @@ require("client/TimedActions/LaptopFill")
 -- Load MiniGame UI with integrated sequence game
 require("client/MiniGameUI")
 
+-- Load additional minigames
+require("client/MiniGameMorse")
+require("client/MiniGameFallout")
+
 if GVDebug then GVDebug.debugPrint("ClientInit.lua loaded - all client modules should be active") end

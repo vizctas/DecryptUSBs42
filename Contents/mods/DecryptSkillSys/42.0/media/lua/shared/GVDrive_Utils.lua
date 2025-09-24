@@ -9,7 +9,7 @@ local rarityDefaults = {
         laptopDamageMin = 3,
         laptopDamageMax = 5,
         xpBonus = 0.0,
-        lootChance = 0.8,
+        lootChance = 0.1,
     },
     Facil = {
         successBonus = 4.5,
@@ -17,7 +17,7 @@ local rarityDefaults = {
         laptopDamageMin = 5,
         laptopDamageMax = 10,
         xpBonus = 0.0,
-        lootChance = 0.4,
+        lootChance = 0.1,
     },
     Dificil = {
         successBonus = 6.5,
@@ -25,7 +25,7 @@ local rarityDefaults = {
         laptopDamageMin = 15,
         laptopDamageMax = 20,
         xpBonus = 0.0,
-        lootChance = 1.8,
+        lootChance = 0.3,
     },
 }
 
@@ -560,6 +560,7 @@ function GVDrive_Utils.getSandboxPercent(name, default)
         Antivirus_ZombieDrop_Chance = true,
         Antivirus_Spawn_Rate = true,
     }
+
     if scale5_keys[name] then
         -- raw is expected in 0..5, map to 0..100
         if n > 5 then n = 5 end
@@ -568,3 +569,82 @@ function GVDrive_Utils.getSandboxPercent(name, default)
     if n > 100 then return 100 end
     return n
 end
+
+function GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
+    -- Calcular XP usando configuración sandbox
+    local minXP = getSandboxNumber("USB_Min_Experience", 25)
+    local maxXP = getSandboxNumber("USB_Max_Experience", 50)
+
+    -- Generar valor aleatorio
+    local baseXP = ZombRand(minXP, maxXP + 1)
+
+    -- Aplicar multiplicador por dificultad
+    local multiplier = 1.0
+    if difficulty == "Easy" then
+        multiplier = getSandboxNumber("Facil_Success_Bonus", 0.8)
+    elseif difficulty == "Moderate" then
+        multiplier = getSandboxNumber("Moderado_Success_Bonus", 1.2)
+    elseif difficulty == "Expert" then
+        multiplier = getSandboxNumber("Dificil_Success_Bonus", 1.5)
+    end
+
+    local finalXP = math.floor(baseXP * multiplier)
+    return math.max(1, finalXP)
+end
+
+function GVDrive_Utils.calculateMinigameDamage(difficulty)
+    -- Calcular daño a laptop según dificultad
+    local minDamage = 0
+    local maxDamage = 0
+
+    if difficulty == "Easy" then
+        minDamage = getSandboxNumber("Facil_Laptop_Damage_Min", 3)
+        maxDamage = getSandboxNumber("Facil_Laptop_Damage_Max", 5)
+    elseif difficulty == "Moderate" then
+        minDamage = getSandboxNumber("Moderado_Laptop_Damage_Min", 8)
+        maxDamage = getSandboxNumber("Moderado_Laptop_Damage_Max", 12)
+    elseif difficulty == "Expert" then
+        minDamage = getSandboxNumber("Dificil_Laptop_Damage_Min", 15)
+        maxDamage = getSandboxNumber("Dificil_Laptop_Damage_Max", 20)
+    end
+
+    return ZombRand(minDamage, maxDamage + 1)
+end
+
+function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, difficulty, success)
+    if not player or not skillType then
+        return false
+    end
+
+    -- Obtener perk correspondiente a la habilidad
+    local perk = GVDrive_Utils.getSkillPerk(skillType)
+    if not perk then
+        print("GVDrive_Utils: Could not find perk for skill: " .. tostring(skillType))
+        return false
+    end
+
+    if success then
+        -- ✅ ÉXITO: Otorgar experiencia
+        local xp = GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
+        player:getXp():AddXP(perk, xp)
+        print("GVDrive_Utils: Awarded " .. xp .. " XP in " .. skillType)
+        return true
+    else
+        -- ❌ FALLO: Aplicar daño a laptop
+        if laptopItem then
+            local damage = GVDrive_Utils.calculateMinigameDamage(difficulty)
+            local currentHealth = 0
+
+            -- Obtener health actual usando LaptopSystem si está disponible
+            if LaptopSystem and LaptopSystem.getLaptopHealth then
+                currentHealth = LaptopSystem.getLaptopHealth(laptopItem)
+                LaptopSystem.damageLaptop(laptopItem, damage)
+                print("GVDrive_Utils: Laptop damaged by " .. damage .. "% (" .. currentHealth .. "% -> " .. (currentHealth - damage) .. "%)")
+            end
+        end
+        return false
+    end
+end
+
+-- ✅ Las funciones ya están expuestas automáticamente como parte del módulo GVDrive_Utils
+-- No es necesario reasignarlas explícitamente
