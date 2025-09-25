@@ -48,7 +48,8 @@ local SEQUENCE_LENGTH = 5     -- Longitud de la secuencia a recordar
 local BUTTON_SIZE = 10        -- Tamaño de los botones en píxeles
 local BUTTON_SPACING = 8      -- Espaciado entre botones en píxeles
 local SEQUENCE_DELAY = 30     -- Ticks entre cada paso de secuencia (20 = 1 segundo)
-local RESULT_DISPLAY_TIME = 60 -- Ticks para mostrar resultado (ERROR/DECRYPT) antes de cerrar
+local RESULT_DISPLAY_TIME = 180 -- Ticks para mostrar resultado antes de cerrar (180 = 9 segundos)
+local AUTO_CLOSE_DELAY = 60     -- Ticks para cierre automático después de llenar grid (60 = 3 segundos)
 local DIFFICULTY_PATTERNS = 2 -- Número de patrones simultáneos (1-3): 1=Solo verde, 2=Verde+Rojo, 3=Verde+Rojo+Azul
 local DIFFICULTY_TEXT = "DIFFICULTY: ADVANCED [GREEN PATTERN ONLY]" -- Texto configurable de dificultad
 -- =============================================
@@ -162,6 +163,7 @@ function MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, la
     o.sequenceLength = SEQUENCE_LENGTH
     o.sequenceButtons = {}
     o.typingIndex = 0  -- ✅ PARA ANIMACIÓN DE TIPEO
+    o.resultProcessed = false  -- ✅ FLAG PARA EVITAR DOBLE PROCESAMIENTO
     
     -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
     o:configureFromUSB()
@@ -223,26 +225,18 @@ function MiniGameWindow:applySuccessXP()
         return false
     end
     
-    -- Usar GVDrive_Utils para calcular XP basado en SandboxVars
-    if GVDrive_Utils and GVDrive_Utils.calculateMinigameXP then
-        local xp = GVDrive_Utils.calculateMinigameXP(self.usbType, self.difficulty)
-        if xp and xp > 0 then
-            -- Obtener el perk correspondiente al usbType
-            local perk = GVDrive_Utils.getSkillPerk(self.usbType)
-            if perk then
-                self.player:getXp():AddXP(perk, xp)
-                print(string.format("[SUCCESS] Granted %d XP to %s (difficulty: %s)", xp, self.usbType, self.difficulty))
-                return true
-            else
-                print("[ERROR] Could not find perk for skill: " .. tostring(self.usbType))
-                return false
-            end
+    -- Usar GVDrive_Utils.applyMinigameResult para XP (ya incluye cálculo de XP)
+    if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+        local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, true)
+        if success then
+            print("[SUCCESS] XP granted via GVDrive_Utils.applyMinigameResult")
+            return true
         else
-            print("[ERROR] Invalid XP calculated: " .. tostring(xp))
+            print("[ERROR] GVDrive_Utils.applyMinigameResult returned false")
             return false
         end
     else
-        print("[ERROR] GVDrive_Utils.calculateMinigameXP not available")
+        print("[ERROR] GVDrive_Utils.applyMinigameResult not available")
         return false
     end
 end
@@ -254,34 +248,130 @@ function MiniGameWindow:applyFailureDamage()
         return false
     end
     
-    -- Usar GVDrive_Utils para calcular daño basado en SandboxVars
-    if GVDrive_Utils and GVDrive_Utils.calculateMinigameDamage then
-        local damage = GVDrive_Utils.calculateMinigameDamage(self.difficulty)
-        if damage and damage > 0 and self.laptopItem then
-            -- Aplicar daño usando LaptopSystem si está disponible
-            if LaptopSystem and LaptopSystem.damageLaptop then
-                LaptopSystem.damageLaptop(self.laptopItem, damage)
-                print(string.format("[FAILURE] Laptop damaged by %d points (difficulty: %s)", damage, self.difficulty))
-                return true
-            else
-                print("[ERROR] LaptopSystem.damageLaptop not available")
-                return false
-            end
+    -- Usar GVDrive_Utils.applyMinigameResult para daño (ya incluye cálculo de daño)
+    if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+        local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+        if success then
+            print("[FAILURE] Damage applied via GVDrive_Utils.applyMinigameResult")
+            return true
         else
-            print("[ERROR] Invalid damage calculated: " .. tostring(damage))
+            print("[ERROR] GVDrive_Utils.applyMinigameResult returned false for damage")
             return false
         end
     else
-        print("[ERROR] GVDrive_Utils.calculateMinigameDamage not available")
+        print("[ERROR] GVDrive_Utils.applyMinigameResult not available for damage")
         return false
     end
 end
 
--- ✅ FUNCIÓN ABIERTA PARA EFECTOS ADVERSOS EN FRACASO (puede ser extendida)
-function MiniGameWindow:applyFailureEffects()
-    -- Por ahora solo daño a la laptop, pero se puede extender con más efectos
-    -- Ejemplos futuros: perder items, reducir stats temporales, etc.
-    self:applyFailureDamage()
+-- ✅ FUNCIÓN PARA LLENAR GRID PROGRESIVAMENTE CON RESULTADO
+function MiniGameWindow:fillGridWithResult(resultText, onComplete)
+    local gridRows = tonumber(GRID_ROWS) or 4
+    local gridCols = tonumber(GRID_COLS) or 4
+    local totalButtons = gridRows * gridCols
+    local fillIndex = 0
+    
+    -- Función recursiva para llenar un botón a la vez
+    local function fillNextButton()
+        fillIndex = fillIndex + 1
+        
+        if fillIndex <= totalButtons then
+            -- Calcular fila y columna (top-left to bottom-right)
+            local row = math.ceil(fillIndex / gridCols)
+            local col = ((fillIndex - 1) % gridCols) + 1
+            
+            if self.sequenceButtons and self.sequenceButtons[row] and self.sequenceButtons[row][col] then
+                local btn = self.sequenceButtons[row][col]
+                if btn then
+                    -- Establecer color y texto según resultado
+                    if resultText == "OK" then
+                        btn.backgroundColor = {r=0, g=1, b=0, a=1} -- Verde para éxito
+                    else
+                        btn.backgroundColor = {r=1, g=0, b=0, a=1} -- Rojo para error
+                    end
+                    btn:setTitle(resultText)
+                    
+                    -- Programar siguiente botón en 0.1 segundos (2 ticks)
+                    SimpleTimer:addTimer(2, fillNextButton)
+                else
+                    -- Botón no existe, continuar
+                    fillNextButton()
+                end
+            else
+                -- Botón no existe, continuar
+                fillNextButton()
+            end
+        else
+            -- Grid completado, ejecutar callback si existe
+            if onComplete and type(onComplete) == 'function' then
+                onComplete()
+            end
+        end
+    end
+    
+    -- Iniciar el llenado
+    fillNextButton()
+end
+
+-- ✅ FUNCIÓN PARA PROCESAR RESULTADO FINAL (PIPELINE)
+function MiniGameWindow:processFinalResult(success)
+    -- ✅ GUARD: Evitar doble procesamiento
+    if self.resultProcessed then
+        print("[MiniGame] Result already processed, skipping")
+        return
+    end
+    self.resultProcessed = true
+    
+    print(string.format("[MiniGame] Processing final result: %s", success and "SUCCESS" or "FAILURE"))
+    
+    -- 1. ADD XP or DMG LAPTOP
+    if success then
+        self:applySuccessXP()
+        if self.player then
+            self.player:Say("Experience gained from " .. self.usbType .. " decryption!")
+        end
+    else
+        self:applyFailureDamage()
+        if self.player then
+            self.player:Say("Laptop damaged from failed " .. self.usbType .. " decryption!")
+        end
+    end
+    
+    -- 2. EMPTY PIPE (reservado para futuras actualizaciones)
+    -- Aquí se pueden agregar efectos adicionales en el futuro
+    
+    -- 3. RESET BUG PREVENTION
+    self:resetForNextGame()
+    
+    -- 4. FILL GRID con resultado
+    local resultText = success and "OK" or "ERR"
+    self:fillGridWithResult(resultText, function()
+    -- 5. WAIT 3 seconds and CLOSE
+    SimpleTimer:addTimer(AUTO_CLOSE_DELAY, function() -- 60 ticks = 3 segundos
+        self:onClose()
+    end)
+    end)
+end
+
+-- ✅ FUNCIÓN PARA RESET PARA EVITAR BUGS EN SIGUIENTE USB
+function MiniGameWindow:resetForNextGame()
+    -- Limpiar todas las secuencias
+    self.greenSequence = nil
+    self.redSequence = nil
+    self.blueSequence = nil
+    self.sequence = {}
+    self.userInput = {}
+    self.currentIndex = 1
+    self.playing = false
+    self.typingIndex = 0
+    
+    -- Limpiar timers activos
+    self:clearAllTimers()
+    
+    -- ✅ RESET FLAG PARA PERMITIR NUEVO PROCESAMIENTO
+    self.resultProcessed = false
+    
+    print("[MiniGame] Reset completed for next game prevention")
 end
 
 -- No override de onMouseUp: dejar comportamiento por defecto para que el dragging se libere correctamente
@@ -778,11 +868,10 @@ function MiniGameWindow:onSequencePress(button)
         self.currentIndex = self.currentIndex + 1
         
         if self.currentIndex > #self.sequence then
-            -- Success! All buttons green with OK
+            -- Success! Process final result with new pipeline
             self.playing = false
-            self:setAllButtonsColorSafe({r=0, g=1, b=0, a=1}, "OK")
             
-            -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
+            -- ✅ CONSUMIR USB DEL INVENTARIO
             if self.usbData and self.usbData.item then
                 local inventory = self.player:getInventory()
                 if inventory:contains(self.usbData.item) then
@@ -793,31 +882,18 @@ function MiniGameWindow:onSequencePress(button)
                 end
             end
             
-            -- ✅ APLICAR XP DIRECTAMENTE
-            local xpGranted = self:applySuccessXP()
-            if xpGranted then
-                self.player:Say("Experience gained from " .. self.usbType .. " decryption!")
-            else
-                self.player:Say("Decryption completed, but XP system unavailable.")
-            end
-            
-            -- Close minigame after configured time
-            SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
-                self:onClose() -- Cerrar minijuego después de mostrar éxito
-            end)
+            -- ✅ PROCESAR RESULTADO FINAL CON NUEVO PIPELINE
+            self:processFinalResult(true)
             
             if self.player then
                 self.player:Say("Perfect! Sequence completed!")
             end
         end
     else
-        -- Failure: Show error on all buttons
+        -- Failure: Process final result with new pipeline
         self.playing = false
         
-        -- Show error on ALL buttons immediately
-        self:setAllButtonsColorSafe({r=1, g=0, b=0, a=1}, "ERR")
-        
-        -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
+        -- ✅ CONSUMIR USB DEL INVENTARIO
         if self.usbData and self.usbData.item then
             local inventory = self.player:getInventory()
             if inventory:contains(self.usbData.item) then
@@ -828,15 +904,8 @@ function MiniGameWindow:onSequencePress(button)
             end
         end
         
-        -- ✅ APLICAR DAÑO A LA LAPTOP Y EFECTOS ADVERSOS
-        self:applyFailureEffects()
-        self.player:Say("Laptop damaged from failed " .. self.usbType .. " decryption!")
-        
-        -- Clear error after configured time and CLOSE minigame
-        SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
-            self:clearAllButtonColors()
-            self:onClose() -- Cerrar minijuego después de mostrar error
-        end)
+        -- ✅ PROCESAR RESULTADO FINAL CON NUEVO PIPELINE
+        self:processFinalResult(false)
         
         if self.player then
             self.player:Say("Wrong! You lost. Resetting for retry.")

@@ -800,3 +800,6 @@ function GVDrive_Utils.getSkillColors(skillName)
     -- Fallback a Farming si no se encuentra
     return GVDrive_Utils.skillColors["Farming"]
 end
+
+-- ✅ EXPONER MÓDULO GLOBALMENTE PARA QUE ESTÉ DISPONIBLE EN TODOS LOS ARCHIVOS
+_G.GVDrive_Utils = GVDrive_Utils

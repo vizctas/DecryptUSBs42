@@ -28,6 +28,27 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 - Made HierarchicalMenuStrategy require safe in MenuController.lua to prevent runtime errors
 - Fixed menu execution order issue - LaptopFill.lua now calls modern menu directly instead of relying on event execution order
 - Added comprehensive debug logging to diagnose why hierarchical menu is not showing difficulty submenus
+- **CRITICAL GVDRIVE_UTILS EXPOSURE FIX**: Added explicit global exposure `_G.GVDrive_Utils = GVDrive_Utils` at end of shared module to ensure availability across all contexts
+- **MODULAR MENU FALLBACK STRATEGY**: Implemented built-in fallback strategy in MenuController when external HierarchicalMenuStrategy fails to load, preventing "No strategy available" errors
+- **CONTEXT MENU STRATEGY RESOLUTION**: Resolved "No strategy available - cannot create menu" error by adding robust fallback mechanism in MenuController
+
+### Changed
+- Changed main menu text from "Decrypt Drives" to "Insert Drive..." for better user experience
+
+### Added
+- **MINIGAME INTEGRATION COMPLETE**: Successfully integrated MiniGameMorse and MiniGameFallout as modular minigames with automatic selection based on USB type
+- **INTELLIGENT MINIGAME SELECTION**: Implemented smart minigame routing - Electrical USBs trigger Morse Code Decoding, Security USBs trigger Fallout Password Hacking, other skills use Sequence Memory
+- **ROBUST MODULE LOADING**: Enhanced module loading system in DecryptDrivesContextMenu.lua with fallback mechanisms and comprehensive error handling for all minigame modules
+- **GLOBAL FUNCTION REGISTRATION**: Ensured MiniGameMorse and MiniGameFallout are available as global functions after module loading, enabling direct console calls
+- **TEST SCRIPT CREATED**: Added test_minigames.lua for validating global function availability and module loading integrity
+- **PNG BATTERY ICONS CORRECTED**: Fixed battery icon implementation in context menu - corrected from incorrect `<IMAGE:...>` markup to proper `option.iconTexture = getTexture(...)` assignment
+- Renamed function to `getBatteryTextureForHealth()` that returns Texture objects instead of strings
+- Implemented proper texture assignment using `healthOption.iconTexture = batteryTexture` for visual battery status display
+- Removed incorrect `<IMAGE:...>` markup approach that doesn't work in ISContextMenu
+- Added debug logging to track texture assignment success
+- Implemented battery icon mapping system for laptop health display - maps health percentages to appropriate battery PNG icons (batt0.png through batt100.png)
+- Added texture loading logic for battery icons using getTexture() function
+- Prepared foundation for visual battery icon rendering in context menus
 
 ### Changed
 ## [Unreleased]
