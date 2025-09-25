@@ -7,6 +7,10 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 ### Fixed
+- **CRITICAL MODULAR MENU FIX**: Fixed nil error in MenuController:createMenu when strategy fails to load - implemented robust fallback system with pcall error handling in DecryptDrivesContextMenu.createHierarchicalMenu
+- **MODULAR MENU ERROR HANDLING**: Enhanced MenuController to throw descriptive error when no strategy is available instead of returning false, enabling proper fallback to legacy implementation
+- **MENU COMPILATION VERIFIED**: Confirmed all modular menu components (MenuController, HierarchicalMenuStrategy, MenuComponentFactory) compile successfully after error handling improvements
+- **CRITICAL RUNTIME FIX**: Fixed "Object tried to call nil" errors in MiniGameUI.lua onResize() and onStart() functions - added missing updateLayout() and clearAllTimers() method definitions to prevent crashes when resizing window or starting minigame
 - **CRITICAL FIX**: Fixed runtime error "__concat not defined for operands: null and )" in LaptopFill.lua line 613 - added missing healthStatus variable definition and laptopHealth validation to prevent null concatenation errors
 - **UI FIX**: Removed duplicate "Health" option in context menu - eliminated redundant code block that was creating two identical health display options
 - **VISUAL ENHANCEMENT**: Enhanced battery status display with emoji indicators (🔋/🪫) when texture loading fails - provides clear visual health status even without PNG icons

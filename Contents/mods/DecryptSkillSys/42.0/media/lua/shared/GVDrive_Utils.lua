@@ -648,3 +648,155 @@ end
 
 -- ✅ Las funciones ya están expuestas automáticamente como parte del módulo GVDrive_Utils
 -- No es necesario reasignarlas explícitamente
+
+-- ========== COLORES POR SKILL PARA MINIJUEGOS ==========
+-- Diccionario centralizado de colores temáticos por skill para reutilización en múltiples minijuegos
+-- Formato: {border = {r,g,b,a}, title = {r,g,b,a}, accent = {r,g,b,a}}
+GVDrive_Utils.skillColors = {
+    -- Skills básicas de supervivencia
+    ["Farming"] = {
+        border = {r=0.2, g=0.8, b=0.2, a=1},    -- Verde agrícola
+        title = {r=0.3, g=1, b=0.3, a=1},       -- Verde brillante
+        accent = {r=0.4, g=0.9, b=0.4, a=1}     -- Verde claro
+    },
+    ["Electricity"] = {
+        border = {r=1, g=1, b=0.2, a=1},        -- Amarillo eléctrico
+        title = {r=1, g=1, b=0.4, a=1},         -- Amarillo brillante
+        accent = {r=1, g=1, b=0.6, a=1}         -- Amarillo claro
+    },
+    ["Woodwork"] = {
+        border = {r=0.6, g=0.4, b=0.2, a=1},    -- Marrón madera
+        title = {r=0.8, g=0.6, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.7, g=0.5, b=0.3, a=1}     -- Marrón medio
+    },
+    ["Cooking"] = {
+        border = {r=1, g=0.6, b=0.2, a=1},      -- Naranja cocción
+        title = {r=1, g=0.8, b=0.4, a=1},       -- Naranja brillante
+        accent = {r=1, g=0.7, b=0.3, a=1}       -- Naranja medio
+    },
+    ["Doctor"] = {
+        border = {r=1, g=0.2, b=0.2, a=1},      -- Rojo médico
+        title = {r=1, g=0.4, b=0.4, a=1},       -- Rojo claro
+        accent = {r=1, g=0.3, b=0.3, a=1}       -- Rojo medio
+    },
+    ["Fitness"] = {
+        border = {r=0.8, g=0.2, b=0.8, a=1},    -- Magenta fitness
+        title = {r=1, g=0.4, b=1, a=1},         -- Magenta brillante
+        accent = {r=0.9, g=0.3, b=0.9, a=1}     -- Magenta medio
+    },
+    ["Aiming"] = {
+        border = {r=0.2, g=0.2, b=1, a=1},      -- Azul precisión
+        title = {r=0.4, g=0.4, b=1, a=1},       -- Azul brillante
+        accent = {r=0.3, g=0.3, b=1, a=1}       -- Azul medio
+    },
+    ["Sneak"] = {
+        border = {r=0.5, g=0.5, b=0.5, a=1},    -- Gris sigilo
+        title = {r=0.7, g=0.7, b=0.7, a=1},     -- Gris claro
+        accent = {r=0.6, g=0.6, b=0.6, a=1}     -- Gris medio
+    },
+    ["Axe"] = {
+        border = {r=0.4, g=0.2, b=0.1, a=1},    -- Marrón oscuro hacha
+        title = {r=0.6, g=0.4, b=0.2, a=1},     -- Marrón rojizo
+        accent = {r=0.5, g=0.3, b=0.15, a=1}    -- Marrón rojizo oscuro
+    },
+    ["Survivalist"] = {
+        border = {r=0.3, g=0.6, b=0.3, a=1},    -- Verde oliva supervivencia
+        title = {r=0.5, g=0.8, b=0.5, a=1},     -- Verde oliva claro
+        accent = {r=0.4, g=0.7, b=0.4, a=1}     -- Verde oliva medio
+    },
+    -- Skills avanzadas
+    ["Mechanics"] = {
+        border = {r=0.7, g=0.7, b=0.2, a=1},    -- Dorado mecánico
+        title = {r=0.9, g=0.9, b=0.4, a=1},     -- Dorado brillante
+        accent = {r=0.8, g=0.8, b=0.3, a=1}     -- Dorado medio
+    },
+    ["Tailoring"] = {
+        border = {r=0.8, g=0.4, b=0.8, a=1},    -- Lila costura
+        title = {r=1, g=0.6, b=1, a=1},         -- Lila brillante
+        accent = {r=0.9, g=0.5, b=0.9, a=1}     -- Lila medio
+    },
+    ["Maintenance"] = {
+        border = {r=0.5, g=0.5, b=0.8, a=1},    -- Azul grisáceo mantenimiento
+        title = {r=0.7, g=0.7, b=1, a=1},       -- Azul grisáceo claro
+        accent = {r=0.6, g=0.6, b=0.9, a=1}     -- Azul grisáceo medio
+    },
+    -- Skills de combate cuerpo a cuerpo
+    ["SmallBlade"] = {
+        border = {r=0.9, g=0.9, b=0.9, a=1},    -- Plata cuchillos
+        title = {r=1, g=1, b=1, a=1},           -- Blanco brillante
+        accent = {r=0.95, g=0.95, b=0.95, a=1}  -- Plata claro
+    },
+    ["LongBlade"] = {
+        border = {r=0.8, g=0.8, b=0.8, a=1},    -- Plata espadas
+        title = {r=0.95, g=0.95, b=0.95, a=1},  -- Plata brillante
+        accent = {r=0.85, g=0.85, b=0.85, a=1}  -- Plata medio
+    },
+    ["SmallBlunt"] = {
+        border = {r=0.6, g=0.4, b=0.2, a=1},    -- Marrón oscuro mazas
+        title = {r=0.8, g=0.6, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.7, g=0.5, b=0.3, a=1}     -- Marrón medio
+    },
+    ["LongBlunt"] = {
+        border = {r=0.5, g=0.3, b=0.1, a=1},    -- Marrón muy oscuro
+        title = {r=0.7, g=0.5, b=0.3, a=1},     -- Marrón rojizo oscuro
+        accent = {r=0.6, g=0.4, b=0.2, a=1}     -- Marrón rojizo
+    },
+    ["Spear"] = {
+        border = {r=0.4, g=0.6, b=0.8, a=1},    -- Azul lanza
+        title = {r=0.6, g=0.8, b=1, a=1},       -- Azul brillante
+        accent = {r=0.5, g=0.7, b=0.9, a=1}     -- Azul medio
+    },
+    -- Skills de caza/supervivencia avanzada
+    ["Trapping"] = {
+        border = {r=0.4, g=0.3, b=0.2, a=1},    -- Marrón trampa
+        title = {r=0.6, g=0.5, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.5, g=0.4, b=0.3, a=1}     -- Marrón medio
+    },
+    ["Fishing"] = {
+        border = {r=0.2, g=0.5, b=0.8, a=1},    -- Azul agua
+        title = {r=0.4, g=0.7, b=1, a=1},       -- Azul brillante
+        accent = {r=0.3, g=0.6, b=0.9, a=1}     -- Azul medio
+    },
+    -- Skills físicas
+    ["Sprinting"] = {
+        border = {r=1, g=0.8, b=0.2, a=1},      -- Amarillo velocidad
+        title = {r=1, g=0.9, b=0.4, a=1},       -- Amarillo brillante
+        accent = {r=1, g=0.85, b=0.3, a=1}      -- Amarillo medio
+    },
+    ["Strength"] = {
+        border = {r=0.8, g=0.3, b=0.3, a=1},    -- Rojo fuerza
+        title = {r=1, g=0.5, b=0.5, a=1},       -- Rojo brillante
+        accent = {r=0.9, g=0.4, b=0.4, a=1}     -- Rojo medio
+    },
+    ["Nimble"] = {
+        border = {r=0.6, g=0.8, b=0.4, a=1},    -- Verde lima agilidad
+        title = {r=0.8, g=1, b=0.6, a=1},       -- Verde lima brillante
+        accent = {r=0.7, g=0.9, b=0.5, a=1}     -- Verde lima medio
+    },
+    ["Lightfoot"] = {
+        border = {r=0.7, g=0.5, b=0.9, a=1},    -- Púrpura sigilo
+        title = {r=0.9, g=0.7, b=1, a=1},       -- Púrpura brillante
+        accent = {r=0.8, g=0.6, b=0.95, a=1}    -- Púrpura medio
+    }
+}
+
+-- Función para obtener colores por skill (con fallback seguro)
+function GVDrive_Utils.getSkillColors(skillName)
+    if not skillName then
+        return GVDrive_Utils.skillColors["Farming"] -- Fallback por defecto
+    end
+
+    -- Buscar por nombre exacto
+    if GVDrive_Utils.skillColors[skillName] then
+        return GVDrive_Utils.skillColors[skillName]
+    end
+
+    -- Buscar por nombre capitalizado
+    local capName = tostring(skillName):gsub("^%l", string.upper)
+    if GVDrive_Utils.skillColors[capName] then
+        return GVDrive_Utils.skillColors[capName]
+    end
+
+    -- Fallback a Farming si no se encuentra
+    return GVDrive_Utils.skillColors["Farming"]
+end

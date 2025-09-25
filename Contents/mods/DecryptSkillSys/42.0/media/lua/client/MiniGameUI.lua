@@ -30,8 +30,8 @@ end
 
 -- ✅ FUNCIÓN DE PRUEBA RÁPIDA PARA DEBUG
 function TestMiniGame(widthPct, heightPct)
-    widthPct = widthPct or 25
-    heightPct = heightPct or 35
+    widthPct = widthPct or WINDOW_WIDTH_PCT
+    heightPct = heightPct or WINDOW_HEIGHT_PCT
     print("[DEBUG] Testing MiniGame with size: " .. widthPct .. "% x " .. heightPct .. "%")
     
     if MiniGame then
@@ -51,6 +51,30 @@ local SEQUENCE_DELAY = 30     -- Ticks entre cada paso de secuencia (20 = 1 segu
 local RESULT_DISPLAY_TIME = 60 -- Ticks para mostrar resultado (ERROR/DECRYPT) antes de cerrar
 local DIFFICULTY_PATTERNS = 2 -- Número de patrones simultáneos (1-3): 1=Solo verde, 2=Verde+Rojo, 3=Verde+Rojo+Azul
 local DIFFICULTY_TEXT = "DIFFICULTY: ADVANCED [GREEN PATTERN ONLY]" -- Texto configurable de dificultad
+-- =============================================
+
+-- ========== CONFIGURACIÓN DE ESCALADO ADAPTATIVO (de MiniGameFallout.lua) ==========
+local PADDING_HORIZONTAL = 40   -- Espacio horizontal alrededor de elementos
+local PADDING_VERTICAL = 90     -- Espacio vertical para título y controles
+local MIN_BUTTON_SIZE = 20      -- Tamaño mínimo de botones
+local MAX_BUTTON_SIZE = 40      -- Tamaño máximo de botones
+local BUTTON_SIZE_FALLBACK = 30 -- Tamaño preferido de botones
+local BUTTON_SPACING_FALLBACK = 10 -- Espaciado entre botones
+-- ========== CONFIGURACIÓN DE VENTANA ==========
+local WINDOW_WIDTH_PCT = 15     -- Porcentaje del ancho de pantalla
+local WINDOW_HEIGHT_PCT = 30    -- Porcentaje del alto de pantalla
+local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
+local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
+-- ============== DIFFICULTY SETTINGS (de MiniGameFallout.lua) ===============
+local EASY_TIME = 240
+local MODERATE_TIME = 180
+local EXPERT_TIME = 120
+local EASY_LENGTH = 4
+local MODERATE_LENGTH = 5
+local EXPERT_LENGTH = 6
+local EASY_PATTERNS = 1
+local MODERATE_PATTERNS = 2
+local EXPERT_PATTERNS = 3
 -- =============================================
 
 -- SISTEMA DE TIMERS ULTRA SIMPLE - Sin closures complejos
@@ -157,28 +181,28 @@ function MiniGameWindow:configureFromUSB()
     DIFFICULTY_TEXT = config.displayText
 
     print(string.format("MiniGame: Configured for USB %s - Difficulty: %s - Patterns: %d, Length: %d, Delay: %d",
-        self.usbType, self.difficulty, config.patterns, config.sequenceLength, config.delay))
+        tostring(self.usbType), tostring(self.difficulty), config.patterns or 0, config.sequenceLength or 0, config.delay or 0))
 end
 
 -- Configuración equilibrada por dificultad
 function MiniGameWindow:getDifficultyConfig(difficulty)
     local configs = {
         ["Easy"] = {
-            patterns = 1,           -- Solo verde
-            sequenceLength = 4,     -- 4 pasos
-            delay = 40,             -- 2 segundos entre pasos
+            patterns = EASY_PATTERNS,           -- Solo verde
+            sequenceLength = EASY_LENGTH,       -- 4 pasos
+            delay = 40,                         -- 2 segundos entre pasos
             displayText = "DIFFICULTY: EASY"
         },
         ["Moderate"] = {
-            patterns = 2,           -- Verde + Rojo
-            sequenceLength = 5,     -- 5 pasos
-            delay = 30,             -- 1.5 segundos entre pasos
+            patterns = MODERATE_PATTERNS,       -- Verde + Rojo
+            sequenceLength = MODERATE_LENGTH,   -- 5 pasos
+            delay = 30,                         -- 1.5 segundos entre pasos
             displayText = "DIFFICULTY: MODERATE"
         },
         ["Expert"] = {
-            patterns = 3,           -- Verde + Rojo + Azul
-            sequenceLength = 6,     -- 6 pasos
-            delay = 25,             -- 1.25 segundos entre pasos
+            patterns = EXPERT_PATTERNS,         -- Verde + Rojo + Azul
+            sequenceLength = EXPERT_LENGTH,     -- 6 pasos
+            delay = 25,                         -- 1.25 segundos entre pasos
             displayText = "DIFFICULTY: EXPERT"
         }
     }
@@ -190,18 +214,25 @@ end
 -- No override de onMouseUp: dejar comportamiento por defecto para que el dragging se libere correctamente
 
 function MiniGameWindow:createChildren()
-    -- ✅ VALIDACIÓN ROBUSTA MANTENIDA
+    -- ✅ ESCALADO ADAPTATIVO PARA BOTONES (de MiniGameFallout.lua)
+    local paddingHorizontal = tonumber(PADDING_HORIZONTAL) or 40
+    local paddingVertical = tonumber(PADDING_VERTICAL) or 60
+    local availableWidth = math.max(100, self.width - paddingHorizontal * 2)
+    local availableHeight = math.max(100, self.height - paddingVertical)
+    
+    local buttonSpacing = tonumber(BUTTON_SPACING_FALLBACK) or 10
     local gridRows = tonumber(GRID_ROWS) or 4
     local gridCols = tonumber(GRID_COLS) or 4
-    local buttonSize = tonumber(BUTTON_SIZE) or 15
-    local buttonSpacing = tonumber(BUTTON_SPACING) or 4
+    local maxButtonSizeByWidth = math.floor((availableWidth - (gridCols - 1) * buttonSpacing) / gridCols)
+    local maxButtonSizeByHeight = math.floor(availableHeight / gridRows)
+    
+    local minButtonSize = tonumber(MIN_BUTTON_SIZE) or 20
+    local maxButtonSize = tonumber(MAX_BUTTON_SIZE) or 40
+    local buttonSize = math.max(minButtonSize, math.min(maxButtonSize, math.min(maxButtonSizeByWidth, maxButtonSizeByHeight)))
+    local configuredMinSize = tonumber(BUTTON_SIZE_FALLBACK) or 30
+    buttonSize = math.max(buttonSize, math.min(configuredMinSize, maxButtonSize))
 
-    gridRows = math.max(1, math.min(10, gridRows))
-    gridCols = math.max(1, math.min(10, gridCols))
-    buttonSize = math.max(10, math.min(100, buttonSize))
-    buttonSpacing = math.max(0, math.min(50, buttonSpacing))
-
-    -- ✅ BOTÓN DE CIERRE (esquina superior derecha)
+    -- ✅ BOTÓN DE CIERRE
     self.closeButton = ISButton:new(self.width - 25, 5, 20, 20, "X", self, self.onClose)
     self.closeButton:initialise()
     self:addChild(self.closeButton)
@@ -852,19 +883,23 @@ function MiniGameWindow:setAllButtonsColor(color, text)
 end
 
 -- Función global para abrir la ventana (versión integrada con USBs)
-function MiniGame(usbType, difficulty, laptopItem, usbData)
+function MiniGame(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
     local player = getPlayer()
     if not player then 
         print("MiniGame: No player found")
         return 
     end
 
-    -- ✅ TAMAÑOS FIJOS DEFINIDOS EN EL ARCHIVO DEL MINIJUEGO
-    local width = 400  -- Ancho fijo del minijuego
-    local height = 500 -- Alto fijo del minijuego
-    
+    widthPct = tonumber(widthPct) or WINDOW_WIDTH_PCT
+    heightPct = tonumber(heightPct) or WINDOW_HEIGHT_PCT
+
+    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then widthPct = WINDOW_WIDTH_PCT end
+    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then heightPct = WINDOW_HEIGHT_PCT end
+
     local screenW = getCore():getScreenWidth()
     local screenH = getCore():getScreenHeight()
+    local width = math.max(350, math.floor(screenW * (widthPct / 100)))
+    local height = math.max(300, math.floor(screenH * (heightPct / 100)))
     local x = math.floor((screenW - width) / 2)
     local y = math.floor((screenH - height) / 2)
 
@@ -880,61 +915,48 @@ end
 -- ✅ FUNCIÓN DUPLICADA ELIMINADA: Solo mantener la versión integrada con USB
 -- La función MiniGame ahora maneja tanto llamadas con USB como sin USB automáticamente
 
--- Mejorar renderizado: EFECTO CRT VERDE ESTILO ALIEN
+-- Mejorar renderizado: EFECTO CRT VERDE ESTILO ALIEN (de MiniGameFallout.lua)
 function MiniGameWindow:render()
-    -- Llamar render base primero para dibujar hijos
     ISPanel.render(self)
 
-    -- EFECTO CRT: Fondo verde oscuro con líneas de escaneo
+    -- EFECTO CRT
     local crtGreen = {r=0, g=0, b=0, a=0.3}
     self:drawRect(0, 0, self.width, self.height, crtGreen.a, crtGreen.r, crtGreen.g, crtGreen.b)
     
-    -- Líneas de escaneo horizontales para efecto CRT
     for y = 0, self.height, 4 do
         self:drawRect(0, y, self.width, 1, 0.1, 0, 0.3, 0)
     end
     
-    -- Borde verde brillante estilo terminal
     local borderGreen = {r=0.2, g=1, b=0.2, a=1}
     self:drawRectBorder(0, 0, self.width, self.height, borderGreen.a, borderGreen.r, borderGreen.g, borderGreen.b)
     self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
 
-    -- TÍTULO CENTRADO con efecto de terminal
+    -- TÍTULO
     local titleText = "DECRYPT SEQUENCE TERMINAL"
-    -- VALIDACIÓN ULTRA SEGURA para getTextManager en título - CORREGIDA
-    local titleWidth = 250 -- Valor por defecto más realista
+    local titleWidth = 220
     local textManager = getTextManager()
     if textManager and textManager.MeasureStringX then
         local success, width = pcall(function()
             return textManager:MeasureStringX(UIFont.Large, titleText)
         end)
-        if success and width and type(width) == "number" then
-            titleWidth = width
-        end
+        if success and width then titleWidth = width end
     end
     local titleX = (self.width - titleWidth) / 2
-    
-    -- Efecto de resplandor en el título
-    self:drawText(titleText, titleX + 1, 11, 0.1, 0.5, 0.1, 0.8, UIFont.Large) -- Sombra
-    self:drawText(titleText, titleX, 10, 0.2, 1, 0.2, 1, UIFont.Large) -- Texto principal
-    
-    -- Información de dificultad
+    self:drawText(titleText, titleX + 1, 11, 0.1, 0.5, 0.1, 0.8, UIFont.Large)
+    self:drawText(titleText, titleX, 10, 0.2, 1, 0.2, 1, UIFont.Large)
+
+    -- Dificultad
     local diffText = DIFFICULTY_TEXT or "DIFFICULTY: BASIC"
-    
-    -- VALIDACIÓN ULTRA SEGURA para getTextManager - CORREGIDA
-    local diffWidth = 150 -- Valor por defecto más realista
-    local textManager = getTextManager()
+    local diffWidth = 180
     if textManager and textManager.MeasureStringX then
         local success, width = pcall(function()
             return textManager:MeasureStringX(UIFont.Small, diffText)
         end)
-        if success and width and type(width) == "number" then
-            diffWidth = width
-        end
+        if success and width then diffWidth = width end
     end
     local diffX = (self.width - diffWidth) / 2
     self:drawText(diffText, diffX, 35, 0.2, 0.8, 0.2, 0.9, UIFont.Small)
-    
+
     -- Draw sequence info con estilo terminal
     if self.sequence and #self.sequence > 0 then
         local seqInfo = "PROGRESS: " .. (self.currentIndex - 1) .. "/" .. #self.sequence

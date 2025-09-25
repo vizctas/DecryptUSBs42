@@ -3,11 +3,42 @@
 -- Implements Skill → Difficulty hierarchical menu structure
 -- ============================================================================
 
-require "DecryptDrivesContextMenu.strategies.MenuCreationStrategy"
-require "DecryptDrivesContextMenu.factories.MenuComponentFactory"
-require "ISUI/ISContextMenu"
+-- Lazy load dependencies
+local function getMenuCreationStrategy()
+    if not MenuCreationStrategy then
+        local success, result = pcall(require, "DecryptDrivesContextMenu.strategies.MenuCreationStrategy")
+        if success then
+            MenuCreationStrategy = result
+        else
+            error("Failed to load MenuCreationStrategy: " .. tostring(result))
+        end
+    end
+    return MenuCreationStrategy
+end
 
-HierarchicalMenuStrategy = MenuCreationStrategy:new()
+local function getMenuComponentFactory()
+    if not MenuComponentFactory then
+        local success, result = pcall(require, "DecryptDrivesContextMenu.factories.MenuComponentFactory")
+        if success then
+            MenuComponentFactory = result
+        else
+            error("Failed to load MenuComponentFactory: " .. tostring(result))
+        end
+    end
+    return MenuComponentFactory
+end
+
+-- Initialize base class safely
+local baseStrategy = nil
+local function getBaseStrategy()
+    if not baseStrategy then
+        baseStrategy = getMenuCreationStrategy()
+    end
+    return baseStrategy
+end
+
+-- Create HierarchicalMenuStrategy class
+HierarchicalMenuStrategy = {}
 
 -- Configuration constants
 HierarchicalMenuStrategy.CONFIG = {
@@ -20,11 +51,21 @@ HierarchicalMenuStrategy.CONFIG = {
 
 -- Initialize with factory
 function HierarchicalMenuStrategy:new(o)
-    o = o or MenuCreationStrategy:new(o)
-    o.factory = MenuComponentFactory:new()
-    o.config = HierarchicalMenuStrategy.CONFIG
+    o = o or {}
+    -- Ensure the class table inherits from base strategy for fallback methods
+    local base = getBaseStrategy()
+    if base and type(base) == "table" then
+        -- set base as fallback for class-level lookups
+        setmetatable(HierarchicalMenuStrategy, { __index = base })
+    end
+
+    -- Standard instance creation using this class as metatable
     setmetatable(o, self)
-    self.__index = self
+
+    -- Initialize this instance
+    o.factory = getMenuComponentFactory():new()
+    o.config = HierarchicalMenuStrategy.CONFIG
+
     return o
 end
 
@@ -68,53 +109,50 @@ function HierarchicalMenuStrategy:createMenu(player, context, laptop, usbList)
         local skillOption, skillSubMenu = self.factory:createSkillCategoryOption(subMenu, skill)
         if not skillSubMenu then
             debugPrint("[ERROR] HierarchicalMenuStrategy: Failed to create skill category for " .. skill)
-            goto continue
-        end
-
-        -- Group USBs by difficulty within this skill
-        local difficulties = {}
-        for _, usbData in ipairs(usbs) do
-            local diff = usbData.difficulty_spanish
-            debugPrint("Processing USB: skill=" .. skill .. ", difficulty=" .. tostring(diff))
-            if not difficulties[diff] then
-                difficulties[diff] = {}
-            end
-            table.insert(difficulties[diff], usbData)
-        end
-
-        debugPrint("Difficulties for skill " .. skill .. ":")
-        for diffName, diffList in pairs(difficulties) do
-            debugPrint("  " .. diffName .. ": " .. #diffList .. " USBs")
-        end
-
-        -- Create difficulty options with proper order
-        for _, difficultyName in ipairs(self.config.DIFFICULTY_ORDER) do
-            if difficulties[difficultyName] then
-                local count = #difficulties[difficultyName]
-                debugPrint("Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
-
-                -- Create difficulty option that directly triggers action with the first USB
-                local option = self.factory:createDifficultyOption(
-                    skillSubMenu,
-                    difficultyName,
-                    count,
-                    DecryptDrivesContextMenu,
-                    DecryptDrivesContextMenu.onUSBSelected,
-                    player,
-                    laptop,
-                    difficulties[difficultyName][1]  -- Use the first USB in the list
-                )
-                if option then
-                    debugPrint("Difficulty option created successfully")
-                else
-                    debugPrint("[ERROR] Failed to create difficulty option")
+        else
+            -- Group USBs by difficulty within this skill
+            local difficulties = {}
+            for _, usbData in ipairs(usbs) do
+                local diff = usbData.difficulty_spanish
+                debugPrint("Processing USB: skill=" .. skill .. ", difficulty=" .. tostring(diff))
+                if not difficulties[diff] then
+                    difficulties[diff] = {}
                 end
-            else
-                debugPrint("No USBs found for difficulty: " .. difficultyName .. " in skill " .. skill)
+                table.insert(difficulties[diff], usbData)
+            end
+
+            debugPrint("Difficulties for skill " .. skill .. ":")
+            for diffName, diffList in pairs(difficulties) do
+                debugPrint("  " .. diffName .. ": " .. #diffList .. " USBs")
+            end
+
+            -- Create difficulty options with proper order
+            for _, difficultyName in ipairs(self.config.DIFFICULTY_ORDER) do
+                if difficulties[difficultyName] then
+                    local count = #difficulties[difficultyName]
+                    debugPrint("Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
+
+                    -- Create difficulty option that directly triggers action with the first USB
+                    local option = self.factory:createDifficultyOption(
+                        skillSubMenu,
+                        difficultyName,
+                        count,
+                        DecryptDrivesContextMenu,
+                        DecryptDrivesContextMenu.onUSBSelected,
+                        player,
+                        laptop,
+                        difficulties[difficultyName][1]  -- Use the first USB in the list
+                    )
+                    if option then
+                        debugPrint("Difficulty option created successfully")
+                    else
+                        debugPrint("[ERROR] Failed to create difficulty option")
+                    end
+                else
+                    debugPrint("No USBs found for difficulty: " .. difficultyName .. " in skill " .. skill)
+                end
             end
         end
-
-        ::continue::
     end
 
     debugPrint("Hierarchical menu created with " .. #usbList .. " USB options")

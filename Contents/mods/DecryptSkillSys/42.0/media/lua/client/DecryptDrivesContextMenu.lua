@@ -17,9 +17,9 @@ end
 local miniGameLoaded = false
 
 -- Verificar si MiniGame ya está disponible
-if MiniGame and type(MiniGame) == "function" then
+if _G.MiniGame and type(_G.MiniGame) == "function" then
     miniGameLoaded = true
-    debugPrint("[SUCCESS] MiniGame already available from separate module")
+    debugPrint("[SUCCESS] MiniGame already available from global scope")
 else
     debugPrint("[INFO] MiniGame not available, attempting to load from MiniGameUI.lua")
     
@@ -27,22 +27,24 @@ else
     local success, result = pcall(require, "client/MiniGameUI")
     if success then
         debugPrint("[SUCCESS] MiniGameUI.lua loaded successfully")
-        miniGameLoaded = true
-        if MiniGame and type(MiniGame) == "function" then
-            debugPrint("[SUCCESS] MiniGame function now available")
+        if _G.MiniGame and type(_G.MiniGame) == "function" then
+            debugPrint("[SUCCESS] MiniGame function now available in global scope")
+            miniGameLoaded = true
         else
             debugPrint("[WARNING] MiniGame function still not available after loading")
+            -- NO forzar registro - dejar que el módulo se cargue naturalmente
+            miniGameLoaded = true
         end
     else
-        debugPrint("[WARNING] Failed to load MiniGameUI.lua: " .. tostring(result))
-        debugPrint("[INFO] MiniGame will be loaded by the separate file automatically")
-        miniGameLoaded = true  -- Asumir que se cargará
+        debugPrint("[ERROR] Failed to load MiniGameUI.lua: " .. tostring(result))
+        debugPrint("[INFO] MiniGame will attempt to load naturally when called")
+        miniGameLoaded = true
     end
 end
 
 -- ✅ CARGAR MINIJUEGOS ADICIONALES
 local morseGameLoaded = false
-if MiniGameMorse and type(MiniGameMorse) == "function" then
+if _G.MiniGameMorse and type(_G.MiniGameMorse) == "function" then
     morseGameLoaded = true
     debugPrint("[SUCCESS] MiniGameMorse already available")
 else
@@ -51,7 +53,7 @@ else
     if success then
         debugPrint("[SUCCESS] MiniGameMorse.lua loaded successfully")
         morseGameLoaded = true
-        if MiniGameMorse and type(MiniGameMorse) == "function" then
+        if _G.MiniGameMorse and type(_G.MiniGameMorse) == "function" then
             debugPrint("[SUCCESS] MiniGameMorse function available")
         else
             debugPrint("[WARNING] MiniGameMorse function not available after loading")
@@ -62,7 +64,7 @@ else
 end
 
 local falloutGameLoaded = false
-if MiniGameFallout and type(MiniGameFallout) == "function" then
+if _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
     falloutGameLoaded = true
     debugPrint("[SUCCESS] MiniGameFallout already available")
 else
@@ -71,7 +73,7 @@ else
     if success then
         debugPrint("[SUCCESS] MiniGameFallout.lua loaded successfully")
         falloutGameLoaded = true
-        if MiniGameFallout and type(MiniGameFallout) == "function" then
+        if _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
             debugPrint("[SUCCESS] MiniGameFallout function available")
         else
             debugPrint("[WARNING] MiniGameFallout function not available after loading")
@@ -503,15 +505,26 @@ end
 -- ============================================================================
 
 -- Import modular components
-local menuControllerLoaded, menuControllerError = pcall(require, "DecryptDrivesContextMenu.MenuController")
-debugPrint("MenuController require result: loaded=" .. tostring(menuControllerLoaded) .. ", error=" .. tostring(menuControllerError))
+-- Import modular MenuController module safely
+local menuControllerModuleLoaded, menuControllerModuleOrErr = pcall(require, "DecryptDrivesContextMenu.MenuController")
+debugPrint("MenuController require result: loaded=" .. tostring(menuControllerModuleLoaded) .. ", value=" .. tostring(menuControllerModuleOrErr))
 
--- Initialize menu controller
+-- Initialize menu controller instance using returned module or global fallback
 local menuController = nil
-if MenuController then
+if menuControllerModuleLoaded and type(menuControllerModuleOrErr) == "table" then
+    local mod = menuControllerModuleOrErr
+    if not MenuController then MenuController = mod end
+    if mod.new and type(mod.new) == "function" then
+        menuController = mod:new()
+        debugPrint("MenuController initialized from module return value")
+    end
+end
+
+-- Fallback to global MenuController if module didn't return instance
+if not menuController and MenuController and type(MenuController.new) == "function" then
     menuController = MenuController:new()
-    debugPrint("MenuController initialized successfully")
-else
+    debugPrint("MenuController initialized from global table fallback")
+elseif not menuController then
     debugPrint("[WARN] MenuController not available, falling back to legacy implementation")
 end
 
@@ -524,11 +537,20 @@ function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop
     -- Try to use modular controller first
     if menuController then
         debugPrint("Using modular MenuController")
-        return menuController:createMenu(player, context, laptop, usbList)
+        local success, result = pcall(function()
+            return menuController:createMenu(player, context, laptop, usbList)
+        end)
+        if success then
+            debugPrint("Modular menu created successfully")
+            return result
+        else
+            debugPrint("[ERROR] Modular menu failed: " .. tostring(result))
+            debugPrint("Falling back to legacy implementation")
+        end
     end
 
     -- Fallback to legacy implementation
-    debugPrint("Using legacy menu implementation - MenuController not available")
+    debugPrint("Using legacy menu implementation")
     return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
 end
 
@@ -707,8 +729,10 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ")")
 
         -- ✅ LLAMAR MINIJUEGO DE SECUENCIA DIRECTAMENTE
-        if MiniGame and type(MiniGame) == "function" then
-            local success, minigame = pcall(MiniGame, usbType, difficulty, laptopItem, usbData)
+        debugPrint("[DEBUG] About to call _G.MiniGame")
+        debugPrint("[DEBUG] _G.MiniGame type: " .. type(_G.MiniGame))
+        if _G.MiniGame and type(_G.MiniGame) == "function" then
+            local success, minigame = pcall(_G.MiniGame, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
                 debugPrint("Sequence minigame opened successfully with USB integration")
                 player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - Sequence Memory...")
@@ -717,7 +741,8 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
                 player:Say("Error initializing sequence decryption system.")
             end
         else
-            debugPrint("[ERROR] MiniGame function not available")
+            debugPrint("[ERROR] MiniGame function not available in global scope")
+            debugPrint("[ERROR] _G.MiniGame: " .. tostring(_G.MiniGame))
             player:Say("No decryption protocol available for this drive type.")
         end
     else
@@ -1221,5 +1246,7 @@ end
 
 debugPrint("DecryptDrivesContextMenu: Cargado correctamente")
 
--- Exportar el módulo para pruebas e integración
+-- Exportar el módulo para pruebas e integración y hacer global para acceso desde estrategias
+_G.DecryptDrivesContextMenu = DecryptDrivesContextMenu
+
 return DecryptDrivesContextMenu

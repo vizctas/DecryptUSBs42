@@ -37,7 +37,32 @@ local TIME_LIMIT = 180         -- Tiempo límite en segundos
 local PASSWORD_LENGTH = 6       -- Longitud de la contraseña
 local WORD_COUNT = 8            -- Número de palabras candidatas
 local MAX_ATTEMPTS = 4          -- Máximo número de intentos
-local DIFFICULTY_TEXT = "DIFFICULTY: HACKING BASIC"
+local DIFFICULTY_TEXT = ""
+-- ========== CONFIGURACIÓN DE ESCALADO ADAPTATIVO ==========
+local PADDING_HORIZONTAL = 40   -- Espacio horizontal alrededor de elementos
+local PADDING_VERTICAL = 90     -- Espacio vertical para título y controles
+local MIN_BUTTON_SIZE = 20      -- Tamaño mínimo de botones
+local MAX_BUTTON_SIZE = 40      -- Tamaño máximo de botones
+local BUTTON_SIZE = 30          -- Tamaño preferido de botones
+local BUTTON_SPACING = 10       -- Espaciado entre botones
+-- ========== CONFIGURACIÓN DE VENTANA ==========
+local WINDOW_WIDTH_PCT = 18     -- Porcentaje del ancho de pantalla
+local WINDOW_HEIGHT_PCT = 45    -- Porcentaje del alto de pantalla
+local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
+local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
+-- ============== DIFFICULTY SETTINGS==============================
+local EASY_TIME = 240
+local MODERATE_TIME = 180
+local EXPERT_TIME = 120
+local EASY_LENGTH = 5
+local MODERATE_LENGTH = 6
+local EXPERT_LENGTH = 7
+local EASY_WORDS = 6
+local MODERATE_WORDS = 8
+local EXPERT_WORDS = 10
+local EASY_ATTEMPTS = 5
+local MODERATE_ATTEMPTS = 4
+local EXPERT_ATTEMPTS = 3
 -- =============================================
 
 -- Lista de palabras para hacking (estilo Fallout)
@@ -68,7 +93,13 @@ local HACKING_WORDS = {
     "TRANSFER", "TRIGGER", "TRUE", "TYPE", "UNIT", "UPDATE", "UPLOAD",
     "USER", "VALUE", "VECTOR", "VERSION", "VIEW", "VIRTUAL", "VOID",
     "WARNING", "WATCH", "WAVE", "WINDOW", "WIRE", "WORD", "WORK",
-    "WORLD", "WRITE", "ZERO", "ZONE"
+    "WORLD", "WRITE", "ZERO", "ZONE", "ZULU","RICOCHET","QUANTUM","PYTHON",
+    "NEPTUNE","MERCURY","LUNAR","JUPITER","HYPERION","GALAXY","FUSION",
+    "ECLIPSE","COSMIC","CRYSTAL","COSMOS","COMET","CELESTIAL","TANJIRO",
+    "DEMO","INOSUKE","OCZY","KAMADO","ANKUI","BOO","SHIORY","JULY","JULS",
+    "JOZH","BETTA","NODRIZA","MELOW","SUSHI","BOQT","BRRTE","JOEY",
+    "BOOSY","HALLOWEEN","JERRY","IOUL","GHOUL","KIRARA","KATO","SHADOW",
+    "LUCKY","BATMAN","JENJI","BREE"
 }
 
 -- Función para generar palabras candidatas y contraseña correcta
@@ -196,7 +227,7 @@ end
 
 local MiniGameFalloutWindow = ISPanel:derive("MiniGameFalloutWindow")
 
-function MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
+function MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData, demoMode)
     local o = ISPanel:new(x, y, width, height)
     setmetatable(o, self)
     self.__index = self
@@ -212,6 +243,7 @@ function MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficu
     o.difficulty = difficulty  
     o.laptopItem = laptopItem
     o.usbData = usbData
+    o.demoMode = demoMode or false  -- ✅ MODO DEMO
     
     -- ✅ ESTADO DEL JUEGO FALLOUT
     o.correctPassword = ""
@@ -242,7 +274,7 @@ function MiniGameFalloutWindow:configureFromUSB()
     DIFFICULTY_TEXT = config.displayText
 
     print(string.format("FalloutGame: Configured for USB %s - Difficulty: %s - Time: %ds, Length: %d, Words: %d",
-        self.usbType, self.difficulty, config.timeLimit, config.passwordLength, config.wordCount))
+        tostring(self.usbType), tostring(self.difficulty), config.timeLimit or 0, config.passwordLength or 0, config.wordCount or 0))
 end
 
 function MiniGameFalloutWindow:getDifficultyConfig(difficulty)
@@ -280,13 +312,29 @@ function MiniGameFalloutWindow:createChildren()
     self.closeButton:initialise()
     self:addChild(self.closeButton)
 
+    -- ✅ ESCALADO ADAPTATIVO PARA BOTONES
+    local paddingHorizontal = tonumber(PADDING_HORIZONTAL) or 40
+    local paddingVertical = tonumber(PADDING_VERTICAL) or 60
+    local availableWidth = math.max(100, self.width - paddingHorizontal * 2)
+    local availableHeight = math.max(100, self.height - paddingVertical)
+    
+    local buttonSpacing = tonumber(BUTTON_SPACING) or 10
+    local wordCount = tonumber(WORD_COUNT) or 8
+    local maxButtonSizeByWidth = math.floor((availableWidth - (wordCount - 1) * buttonSpacing) / wordCount)
+    local maxButtonSizeByHeight = math.floor(availableHeight / wordCount)
+    
+    local minButtonSize = tonumber(MIN_BUTTON_SIZE) or 20
+    local maxButtonSize = tonumber(MAX_BUTTON_SIZE) or 40
+    local buttonSize = math.max(minButtonSize, math.min(maxButtonSize, math.min(maxButtonSizeByWidth, maxButtonSizeByHeight)))
+    local configuredMinSize = tonumber(BUTTON_SIZE) or 30
+    buttonSize = math.max(buttonSize, math.min(configuredMinSize, maxButtonSize))
+
     -- Crear botones para palabras candidatas
     self.wordButtons = {}
-    local buttonHeight = 25
-    local buttonSpacing = 5
+    local buttonHeight = buttonSize
     local startY = 100
     
-    for i = 1, WORD_COUNT do
+    for i = 1, wordCount do
         local btn = ISButton:new(20, startY + (i-1) * (buttonHeight + buttonSpacing), 
                                 self.width - 40, buttonHeight, "", self, self.onWordSelect)
         btn.wordIndex = i
@@ -424,26 +472,44 @@ function MiniGameFalloutWindow:showResult(success, message)
 end
 
 function MiniGameFalloutWindow:applyResult(success)
-    -- ✅ CONSUMIR USB
+    -- ✅ MODO DEMO: NO APLICAR RESULTADOS REALES
+    if self.demoMode then
+        print("[DEMO] Demo mode - skipping USB consumption and result application")
+        if self.player then
+            self.player:Say(success and "[DEMO] Access granted!" or "[DEMO] Access denied.")
+        end
+        return
+    end
+    
+    -- ✅ CONSUMIR USB CON VALIDACIONES ROBUSTAS
     if self.usbData and self.usbData.item then
-        local inventory = self.player:getInventory()
-        if inventory:contains(self.usbData.item) then
+        local inventory = self.player and self.player:getInventory()
+        if inventory and inventory:contains(self.usbData.item) then
             inventory:Remove(self.usbData.item)
             print("[SUCCESS] USB consumed from inventory: " .. tostring(self.usbData.displayName))
+        else
+            print("[WARNING] USB not found in inventory or inventory not accessible")
         end
     end
     
-    -- ✅ INTEGRACIÓN USB
+    -- ✅ INTEGRACIÓN USB SEGURA
     if self.usbType and self.difficulty and self.laptopItem then
         if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
             local result = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
             if success then
-                self.player:Say("Password cracked! Experience gained!")
+                if self.player then self.player:Say("Password cracked! Experience gained!") end
             else
-                self.player:Say("Hack failed. Laptop damaged!")
+                if self.player then self.player:Say("Hack failed. Laptop damaged!") end
             end
         else
-            print("[ERROR] GVDrive_Utils not available")
+            print("[ERROR] GVDrive_Utils not available for result application")
+            if self.player then
+                self.player:Say(success and "Access granted!" or "Access denied.")
+            end
+        end
+    else
+        print("[WARNING] Missing USB parameters for result application")
+        if self.player then
             self.player:Say(success and "Access granted!" or "Access denied.")
         end
     end
@@ -484,18 +550,18 @@ function MiniGameFalloutWindow:onClose()
 end
 
 -- Función global para abrir la ventana Fallout
-function MiniGameFallout(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
+function MiniGameFallout(widthPct, heightPct, usbType, difficulty, laptopItem, usbData, demoMode)
     local player = getPlayer()
     if not player then 
         print("MiniGameFallout: No player found")
         return 
     end
 
-    widthPct = tonumber(widthPct) or 30
-    heightPct = tonumber(heightPct) or 40
+    widthPct = tonumber(widthPct) or WINDOW_WIDTH_PCT
+    heightPct = tonumber(heightPct) or WINDOW_HEIGHT_PCT
 
-    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then widthPct = 30 end
-    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then heightPct = 40 end
+    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then widthPct = WINDOW_WIDTH_PCT end
+    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then heightPct = WINDOW_HEIGHT_PCT end
 
     local screenW = getCore():getScreenWidth()
     local screenH = getCore():getScreenHeight()
@@ -504,7 +570,7 @@ function MiniGameFallout(widthPct, heightPct, usbType, difficulty, laptopItem, u
     local x = math.floor((screenW - width) / 2)
     local y = math.floor((screenH - height) / 2)
 
-    local window = MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
+    local window = MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData, demoMode)
     window:initialise()
     window:addToUIManager()
     window:bringToTop()
@@ -529,7 +595,7 @@ function MiniGameFalloutWindow:render()
     self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
 
     -- TÍTULO
-    local titleText = "PASSWORD HACK TERMINAL"
+    local titleText = self.demoMode and "PASSWORD HACK TERMINAL [DEMO]" or "PASSWORD HACK TERMINAL"
     local titleWidth = 220
     local textManager = getTextManager()
     if textManager and textManager.MeasureStringX then
