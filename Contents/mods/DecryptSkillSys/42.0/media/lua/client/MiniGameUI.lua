@@ -63,7 +63,7 @@ local BUTTON_SIZE_FALLBACK = 30 -- Tamaño preferido de botones
 local BUTTON_SPACING_FALLBACK = 10 -- Espaciado entre botones
 -- ========== CONFIGURACIÓN DE VENTANA ==========
 local WINDOW_WIDTH_PCT = 15     -- Porcentaje del ancho de pantalla
-local WINDOW_HEIGHT_PCT = 30    -- Porcentaje del alto de pantalla
+local WINDOW_HEIGHT_PCT = 35    -- Porcentaje del alto de pantalla
 local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
 local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
 -- ============== DIFFICULTY SETTINGS (de MiniGameFallout.lua) ===============
@@ -171,7 +171,8 @@ function MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, la
     o.totalButtons = GRID_ROWS * GRID_COLS  -- Total de botones a revelar
 
     -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
-    o:configureFromUSB()    return o
+    o:configureFromUSB()
+    return o
 end
 
 function MiniGameWindow:configureFromUSB()
@@ -1104,8 +1105,12 @@ function MiniGame(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
     widthPct = tonumber(widthPct) or WINDOW_WIDTH_PCT
     heightPct = tonumber(heightPct) or WINDOW_HEIGHT_PCT
 
-    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then widthPct = WINDOW_WIDTH_PCT end
-    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then heightPct = WINDOW_HEIGHT_PCT end
+    if type(widthPct) ~= 'number' or widthPct < 10 or widthPct > 100 then
+        widthPct = WINDOW_WIDTH_PCT
+    end
+    if type(heightPct) ~= 'number' or heightPct < 10 or heightPct > 100 then
+        heightPct = WINDOW_HEIGHT_PCT
+    end
 
     local screenW = getCore():getScreenWidth()
     local screenH = getCore():getScreenHeight()

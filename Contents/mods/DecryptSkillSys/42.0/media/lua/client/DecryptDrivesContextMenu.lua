@@ -725,6 +725,18 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     local usbType = usbData.skill
     local difficulty = usbData.difficulty_english
 
+    -- ✅ VALIDACIÓN CRÍTICA: Verificar que usbType sea válido antes de proceder
+    if not usbType or usbType == "" then
+        debugPrint("[ERROR] usbData.skill is nil or empty. usbData contents:")
+        if usbData then
+            for key, value in pairs(usbData) do
+                debugPrint("[ERROR]   " .. tostring(key) .. ": " .. tostring(value))
+            end
+        end
+        player:Say("Invalid USB skill data. Cannot proceed with decryption.")
+        return
+    end
+
     if usbType and difficulty then
         debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ")")
 
@@ -732,7 +744,9 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         debugPrint("[DEBUG] About to call _G.MiniGame")
         debugPrint("[DEBUG] _G.MiniGame type: " .. type(_G.MiniGame))
         if _G.MiniGame and type(_G.MiniGame) == "function" then
-            local success, minigame = pcall(_G.MiniGame, usbType, difficulty, laptopItem, usbData)
+            -- ✅ Permitir que MiniGame use la configuración global de ventana (widthPct/heightPct nil)
+            debugPrint("[DEBUG] Calling MiniGame with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
+            local success, minigame = pcall(_G.MiniGame, nil, nil, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
                 debugPrint("Sequence minigame opened successfully with USB integration")
                 player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - Sequence Memory...")
