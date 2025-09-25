@@ -3,6 +3,11 @@
 -- Centralizes creation of menu components (options, submenus, etc.)
 -- ============================================================================
 
+-- Safe debug print function
+if not debugPrint then
+    debugPrint = function(msg) print("[DecryptSkillSys][DEBUG] " .. tostring(msg)) end
+end
+
 MenuComponentFactory = {}
 
 -- Create a new factory instance

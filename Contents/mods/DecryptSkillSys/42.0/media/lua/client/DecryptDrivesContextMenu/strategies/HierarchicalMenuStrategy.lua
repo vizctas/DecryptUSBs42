@@ -3,39 +3,17 @@
 -- Implements Skill → Difficulty hierarchical menu structure
 -- ============================================================================
 
--- Lazy load dependencies
-local function getMenuCreationStrategy()
-    if not MenuCreationStrategy then
-        local success, result = pcall(require, "DecryptDrivesContextMenu.strategies.MenuCreationStrategy")
-        if success then
-            MenuCreationStrategy = result
-        else
-            error("Failed to load MenuCreationStrategy: " .. tostring(result))
-        end
-    end
-    return MenuCreationStrategy
+-- Safe debug print function
+if not debugPrint then
+    debugPrint = function(msg) print("[DecryptSkillSys][DEBUG] " .. tostring(msg)) end
 end
 
-local function getMenuComponentFactory()
-    if not MenuComponentFactory then
-        local success, result = pcall(require, "DecryptDrivesContextMenu.factories.MenuComponentFactory")
-        if success then
-            MenuComponentFactory = result
-        else
-            error("Failed to load MenuComponentFactory: " .. tostring(result))
-        end
-    end
-    return MenuComponentFactory
-end
+-- Load dependencies
+local MenuCreationStrategy = require "DecryptDrivesContextMenu.strategies.MenuCreationStrategy"
+local MenuComponentFactory = require "DecryptDrivesContextMenu.factories.MenuComponentFactory"
 
 -- Initialize base class safely
-local baseStrategy = nil
-local function getBaseStrategy()
-    if not baseStrategy then
-        baseStrategy = getMenuCreationStrategy()
-    end
-    return baseStrategy
-end
+local baseStrategy = MenuCreationStrategy
 
 -- Create HierarchicalMenuStrategy class
 HierarchicalMenuStrategy = {}
@@ -53,17 +31,13 @@ HierarchicalMenuStrategy.CONFIG = {
 function HierarchicalMenuStrategy:new(o)
     o = o or {}
     -- Ensure the class table inherits from base strategy for fallback methods
-    local base = getBaseStrategy()
-    if base and type(base) == "table" then
-        -- set base as fallback for class-level lookups
-        setmetatable(HierarchicalMenuStrategy, { __index = base })
-    end
+    setmetatable(HierarchicalMenuStrategy, { __index = baseStrategy })
 
     -- Standard instance creation using this class as metatable
     setmetatable(o, self)
 
     -- Initialize this instance
-    o.factory = getMenuComponentFactory():new()
+    o.factory = MenuComponentFactory:new()
     o.config = HierarchicalMenuStrategy.CONFIG
 
     return o

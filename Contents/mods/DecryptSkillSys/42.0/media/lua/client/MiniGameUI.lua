@@ -66,15 +66,19 @@ local WINDOW_HEIGHT_PCT = 30    -- Porcentaje del alto de pantalla
 local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
 local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
 -- ============== DIFFICULTY SETTINGS (de MiniGameFallout.lua) ===============
-local EASY_TIME = 240
-local MODERATE_TIME = 180
-local EXPERT_TIME = 120
+local EASY_DELAY = 38
+local MODERATE_DELAY = 35
+local EXPERT_DELAY = 31
 local EASY_LENGTH = 4
 local MODERATE_LENGTH = 5
 local EXPERT_LENGTH = 6
 local EASY_PATTERNS = 1
 local MODERATE_PATTERNS = 2
 local EXPERT_PATTERNS = 3
+-- ============== XP AND DAMAGE SETTINGS (ahora desde SandboxVars) ===============
+-- Los valores se obtienen dinámicamente de GVDrive_Utils usando SandboxVars
+-- XP: USB_Min_Experience, USB_Max_Experience + bonuses por dificultad
+-- Daño: Laptop_Damage_Min/Max por dificultad
 -- =============================================
 
 -- SISTEMA DE TIMERS ULTRA SIMPLE - Sin closures complejos
@@ -157,6 +161,7 @@ function MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, la
     o.userInput = {}
     o.sequenceLength = SEQUENCE_LENGTH
     o.sequenceButtons = {}
+    o.typingIndex = 0  -- ✅ PARA ANIMACIÓN DE TIPEO
     
     -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
     o:configureFromUSB()
@@ -190,25 +195,93 @@ function MiniGameWindow:getDifficultyConfig(difficulty)
         ["Easy"] = {
             patterns = EASY_PATTERNS,           -- Solo verde
             sequenceLength = EASY_LENGTH,       -- 4 pasos
-            delay = 40,                         -- 2 segundos entre pasos
-            displayText = "DIFFICULTY: EASY"
+            delay = EASY_DELAY,                         -- 2 segundos entre pasos
+            displayText = ""
         },
         ["Moderate"] = {
             patterns = MODERATE_PATTERNS,       -- Verde + Rojo
             sequenceLength = MODERATE_LENGTH,   -- 5 pasos
-            delay = 30,                         -- 1.5 segundos entre pasos
-            displayText = "DIFFICULTY: MODERATE"
+            delay = MODERATE_DELAY,                         -- 1.5 segundos entre pasos
+            displayText = ""
         },
         ["Expert"] = {
             patterns = EXPERT_PATTERNS,         -- Verde + Rojo + Azul
             sequenceLength = EXPERT_LENGTH,     -- 6 pasos
-            delay = 25,                         -- 1.25 segundos entre pasos
-            displayText = "DIFFICULTY: EXPERT"
+            delay = EXPERT_DELAY,                         -- 1.25 segundos entre pasos
+            displayText = ""
         }
     }
     
     -- Retornar configuración específica o fallback a Easy
     return configs[difficulty] or configs["Easy"]
+end
+
+-- ✅ FUNCIÓN PARA APLICAR XP EN ÉXITO
+function MiniGameWindow:applySuccessXP()
+    if not self.usbType or not self.difficulty or not self.player then
+        print("[MiniGame] Missing parameters for XP calculation")
+        return false
+    end
+    
+    -- Usar GVDrive_Utils para calcular XP basado en SandboxVars
+    if GVDrive_Utils and GVDrive_Utils.calculateMinigameXP then
+        local xp = GVDrive_Utils.calculateMinigameXP(self.usbType, self.difficulty)
+        if xp and xp > 0 then
+            -- Obtener el perk correspondiente al usbType
+            local perk = GVDrive_Utils.getSkillPerk(self.usbType)
+            if perk then
+                self.player:getXp():AddXP(perk, xp)
+                print(string.format("[SUCCESS] Granted %d XP to %s (difficulty: %s)", xp, self.usbType, self.difficulty))
+                return true
+            else
+                print("[ERROR] Could not find perk for skill: " .. tostring(self.usbType))
+                return false
+            end
+        else
+            print("[ERROR] Invalid XP calculated: " .. tostring(xp))
+            return false
+        end
+    else
+        print("[ERROR] GVDrive_Utils.calculateMinigameXP not available")
+        return false
+    end
+end
+
+-- ✅ FUNCIÓN PARA APLICAR DAÑO EN FRACASO
+function MiniGameWindow:applyFailureDamage()
+    if not self.difficulty then
+        print("[MiniGame] No difficulty for damage calculation")
+        return false
+    end
+    
+    -- Usar GVDrive_Utils para calcular daño basado en SandboxVars
+    if GVDrive_Utils and GVDrive_Utils.calculateMinigameDamage then
+        local damage = GVDrive_Utils.calculateMinigameDamage(self.difficulty)
+        if damage and damage > 0 and self.laptopItem then
+            -- Aplicar daño usando LaptopSystem si está disponible
+            if LaptopSystem and LaptopSystem.damageLaptop then
+                LaptopSystem.damageLaptop(self.laptopItem, damage)
+                print(string.format("[FAILURE] Laptop damaged by %d points (difficulty: %s)", damage, self.difficulty))
+                return true
+            else
+                print("[ERROR] LaptopSystem.damageLaptop not available")
+                return false
+            end
+        else
+            print("[ERROR] Invalid damage calculated: " .. tostring(damage))
+            return false
+        end
+    else
+        print("[ERROR] GVDrive_Utils.calculateMinigameDamage not available")
+        return false
+    end
+end
+
+-- ✅ FUNCIÓN ABIERTA PARA EFECTOS ADVERSOS EN FRACASO (puede ser extendida)
+function MiniGameWindow:applyFailureEffects()
+    -- Por ahora solo daño a la laptop, pero se puede extender con más efectos
+    -- Ejemplos futuros: perder items, reducir stats temporales, etc.
+    self:applyFailureDamage()
 end
 
 -- No override de onMouseUp: dejar comportamiento por defecto para que el dragging se libere correctamente
@@ -394,6 +467,9 @@ end
 function MiniGameWindow:onStart()
     -- Limpiar timers anteriores
     self:clearAllTimers()
+    
+    -- ✅ RESET ANIMACIÓN DE TIPEO
+    self.typingIndex = 0
     
     -- VALIDACIÓN ROBUSTA: usar valores seguros
     local gridRows = tonumber(GRID_ROWS) or 4
@@ -702,9 +778,9 @@ function MiniGameWindow:onSequencePress(button)
         self.currentIndex = self.currentIndex + 1
         
         if self.currentIndex > #self.sequence then
-            -- Success! All buttons green with DECRYPT
+            -- Success! All buttons green with OK
             self.playing = false
-            self:setAllButtonsColorSafe({r=0, g=1, b=0, a=1}, "DECRYPT")
+            self:setAllButtonsColorSafe({r=0, g=1, b=0, a=1}, "OK")
             
             -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
             if self.usbData and self.usbData.item then
@@ -717,18 +793,12 @@ function MiniGameWindow:onSequencePress(button)
                 end
             end
             
-            -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (ÉXITO)
-            if self.usbType and self.difficulty and self.laptopItem then
-                -- Verificar que GVDrive_Utils esté disponible
-                if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
-                    local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, true)
-                    if success then
-                        self.player:Say("Experience gained from " .. self.usbType .. " decryption!")
-                    end
-                else
-                    print("[ERROR] GVDrive_Utils not available for XP calculation")
-                    self.player:Say("Decryption completed, but XP system unavailable.")
-                end
+            -- ✅ APLICAR XP DIRECTAMENTE
+            local xpGranted = self:applySuccessXP()
+            if xpGranted then
+                self.player:Say("Experience gained from " .. self.usbType .. " decryption!")
+            else
+                self.player:Say("Decryption completed, but XP system unavailable.")
             end
             
             -- Close minigame after configured time
@@ -745,7 +815,7 @@ function MiniGameWindow:onSequencePress(button)
         self.playing = false
         
         -- Show error on ALL buttons immediately
-        self:setAllButtonsColorSafe({r=1, g=0, b=0, a=1}, "ERROR")
+        self:setAllButtonsColorSafe({r=1, g=0, b=0, a=1}, "ERR")
         
         -- ✅ CONSUMIR USB DEL INVENTARIO (tanto en éxito como en fracaso)
         if self.usbData and self.usbData.item then
@@ -758,19 +828,9 @@ function MiniGameWindow:onSequencePress(button)
             end
         end
         
-        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO)
-        if self.usbType and self.difficulty and self.laptopItem then
-            -- Verificar que GVDrive_Utils esté disponible
-            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
-                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
-                if not success then
-                    self.player:Say("Laptop damaged from failed " .. self.usbType .. " decryption!")
-                end
-            else
-                print("[ERROR] GVDrive_Utils not available for damage calculation")
-                self.player:Say("Decryption failed, but damage system unavailable.")
-            end
-        end
+        -- ✅ APLICAR DAÑO A LA LAPTOP Y EFECTOS ADVERSOS
+        self:applyFailureEffects()
+        self.player:Say("Laptop damaged from failed " .. self.usbType .. " decryption!")
         
         -- Clear error after configured time and CLOSE minigame
         SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
@@ -787,6 +847,9 @@ end
 function MiniGameWindow:onReset()
     -- Limpiar todos los timers activos
     self:clearAllTimers()
+    
+    -- ✅ RESET ANIMACIÓN DE TIPEO
+    self.typingIndex = 0
     
     self.sequence = {}
     self.userInput = {}
@@ -932,8 +995,8 @@ function MiniGameWindow:render()
     self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
 
     -- TÍTULO
-    local titleText = "DECRYPT SEQUENCE TERMINAL"
-    local titleWidth = 220
+    local titleText = "SEQUENCE TERMINAL"
+    local titleWidth = 190
     local textManager = getTextManager()
     if textManager and textManager.MeasureStringX then
         local success, width = pcall(function()
@@ -957,38 +1020,25 @@ function MiniGameWindow:render()
     local diffX = (self.width - diffWidth) / 2
     self:drawText(diffText, diffX, 35, 0.2, 0.8, 0.2, 0.9, UIFont.Small)
 
-    -- Draw sequence info con estilo terminal
-    if self.sequence and #self.sequence > 0 then
-        local seqInfo = "PROGRESS: " .. (self.currentIndex - 1) .. "/" .. #self.sequence
-        
-        -- VALIDACIÓN ULTRA SEGURA para getTextManager en progreso - CORREGIDA
-        local seqWidth = 120 -- Valor por defecto más realista
-        local textManager = getTextManager()
-        if textManager and textManager.MeasureStringX then
-            local success, width = pcall(function()
-                return textManager:MeasureStringX(UIFont.Small, seqInfo)
-            end)
-            if success and width and type(width) == "number" then
-                seqWidth = width
-            end
-        end
-        local seqX = self.width - seqWidth - 10
-        
-        -- Efecto de parpadeo en el progreso - VALIDACIÓN ULTRA SEGURA
-        local alpha = 0.9 -- Valor por defecto
-        if os and os.clock then
-            local success, time = pcall(os.clock)
-            if success and time and type(time) == 'number' and time > 0 then
-                alpha = 0.7 + 0.3 * math.sin(time * 3)
-            end
-        end
-        self:drawText(seqInfo, seqX, self.height - 20, 0.2, 1, 0.2, alpha, UIFont.Small)
-    end
-    
     -- Línea de estado en la parte inferior
-    local statusText = self.playing and "AWAITING INPUT..." or "SYSTEM READY"
-    if not self.playing and self.sequence and #self.sequence > 0 then
+    local statusText
+    if self.playing then
+        -- ✅ MOSTRAR PROGRESO INMEDIATAMENTE AL PRESIONAR START
+        statusText = "PROGRESS: " .. (self.currentIndex - 1) .. "/" .. #self.sequence
+    elseif not self.playing and self.sequence and #self.sequence > 0 then
         statusText = "SEQUENCE ANALYSIS COMPLETE"
+    else
+        -- ✅ ANIMACIÓN DE TIPEO PARA "SYSTEM READY"
+        local fullText = "SYSTEM READY"
+        self.typingIndex = (self.typingIndex or 0) + 1
+        local charsToShow = math.floor(self.typingIndex / 3)  -- Velocidad de tipeo
+        statusText = string.sub(fullText, 1, charsToShow)
+        if charsToShow < #fullText then
+            statusText = statusText .. "_"  -- Cursor parpadeante
+        end
+        if charsToShow >= #fullText then
+            self.typingIndex = #fullText * 3  -- Detener animación
+        end
     end
     
     -- VALIDACIÓN ULTRA SEGURA para getTextManager en estado - CORREGIDA

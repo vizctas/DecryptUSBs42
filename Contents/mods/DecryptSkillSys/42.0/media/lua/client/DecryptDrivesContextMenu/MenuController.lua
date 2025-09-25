@@ -3,6 +3,11 @@
 -- Main controller that orchestrates menu creation using strategies
 -- ============================================================================
 
+-- Safe debug print function
+if not debugPrint then
+    debugPrint = function(msg) print("[DecryptSkillSys][DEBUG] " .. tostring(msg)) end
+end
+
 MenuController = {}
 
 -- Initialize controller with default strategy
