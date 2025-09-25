@@ -164,11 +164,14 @@ function MiniGameWindow:new(x, y, width, height, player, usbType, difficulty, la
     o.sequenceButtons = {}
     o.typingIndex = 0  -- ✅ PARA ANIMACIÓN DE TIPEO
     o.resultProcessed = false  -- ✅ FLAG PARA EVITAR DOBLE PROCESAMIENTO
-    
+
+    -- ✅ ANIMACIÓN DE REVELACIÓN DEL GRID
+    o.gridRevealed = false   -- Si el grid ya se reveló
+    o.revealIndex = 0        -- Índice actual de revelación
+    o.totalButtons = GRID_ROWS * GRID_COLS  -- Total de botones a revelar
+
     -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
-    o:configureFromUSB()
-    
-    return o
+    o:configureFromUSB()    return o
 end
 
 function MiniGameWindow:configureFromUSB()
@@ -418,6 +421,7 @@ function MiniGameWindow:createChildren()
             btn.gridRow = row
             btn.gridCol = col
             btn:initialise()
+            btn:setVisible(false)  -- ✅ INICIALMENTE INVISIBLE PARA ANIMACIÓN
             self:addChild(btn)
             self.sequenceButtons[row][col] = btn
         end
@@ -552,6 +556,81 @@ function MiniGameWindow:clearAllTimers()
     -- Los timers se ejecutan una sola vez, así que solo reseteamos el estado
     self.currentIndex = 1
     self.playing = false
+end
+
+-- ========== ANIMACIÓN DE REVELACIÓN DEL GRID ==========
+-- Sistema ultra fiable de revelación secuencial 1:1
+
+function MiniGameWindow:startGridRevealAnimation()
+    print("[MiniGame] Starting grid reveal animation...")
+
+    -- Reset estado de animación
+    self.gridRevealed = false
+    self.revealIndex = 0
+
+    -- Iniciar revelación del primer botón
+    self:revealNextButton()
+end
+
+function MiniGameWindow:revealNextButton()
+    self.revealIndex = self.revealIndex + 1
+
+    if self.revealIndex > self.totalButtons then
+        -- Animación completa
+        self.gridRevealed = true
+        print("[MiniGame] Grid reveal animation complete!")
+        return
+    end
+
+    -- Calcular fila y columna del botón actual (izquierda a derecha, arriba a abajo)
+    local row = math.ceil(self.revealIndex / GRID_COLS)
+    local col = ((self.revealIndex - 1) % GRID_COLS) + 1
+
+    -- Revelar botón con efecto
+    local button = self.sequenceButtons[row] and self.sequenceButtons[row][col]
+    if button then
+        self:revealButton(button)
+    end
+
+    -- Programar siguiente revelación (muy rápido pero smooth: 3-5 frames)
+    SimpleTimer:addTimer(3 + ZombRand(0, 3), function()  -- 0.15-0.3 segundos
+        self:revealNextButton()
+    end)
+end
+
+function MiniGameWindow:revealButton(button)
+    if not button then return end
+
+    -- Hacer visible
+    button:setVisible(true)
+
+    -- Efecto de "aparición" con flash rápido estilo CRT
+    local revealColor = {r=1, g=1, b=1, a=1}  -- Blanco brillante
+    self:setSafeButtonColor(button, revealColor)
+
+    -- Restaurar a color normal después de flash
+    SimpleTimer:addTimer(8, function()  -- 0.4 segundos
+        if button then
+            self:setSafeButtonColor(button, nil)  -- Color por defecto
+        end
+    end)
+end
+
+-- ========== FUNCIONES DE UTILIDAD PARA COLORES ==========
+-- Función segura para establecer colores de botones
+
+function MiniGameWindow:setSafeButtonColor(button, color)
+    -- VALIDACIÓN ULTRA SEGURA: nunca usar nil en colores
+    if button and color and type(color) == 'table' then
+        button.backgroundColor = {
+            r = tonumber(color.r) or 0.5,
+            g = tonumber(color.g) or 0.5,
+            b = tonumber(color.b) or 0.5,
+            a = tonumber(color.a) or 1
+        }
+    elseif button then
+        button.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}
+    end
 end
 
 function MiniGameWindow:onStart()
@@ -1041,6 +1120,11 @@ function MiniGame(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
     window:addToUIManager()
     window:bringToTop()
     window:setVisible(true)
+
+    -- ✅ INICIAR ANIMACIÓN DE REVELACIÓN DEL GRID
+    window:startGridRevealAnimation()
+
+    print(string.format("[MiniGame] Window opened: %dx%d at (%d,%d)", width, height, x, y))
     return window
 end
 

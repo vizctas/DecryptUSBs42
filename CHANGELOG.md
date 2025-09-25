@@ -83,6 +83,16 @@ The format is based on https://keepachangelog.com/en/1.0.0/
 - Backups and dead-code files moved to `logs/deleted_backups/` for archive and review (non-destructive).
 - Removed client UI file `Contents/mods/DecryptSkillSys/42.0/media/lua/client/UI/LaptopBatteryWidget.lua` (feature retired; caused runtime errors). 
 
+### Added
+- **GRID REVEAL ANIMATION**: Added smooth sequential button reveal animation on window open - buttons appear one by one from top-left to bottom-right with CRT-style flash effect
+- **VISUAL ENHANCEMENT**: Ultra-fast grid reveal (0.15-0.3s per button) with white flash transition to normal state, creating professional "system boot-up" appearance
+- **TEMPLATE SYSTEM COMPLETE**: Created comprehensive template system for dynamic window creation in Project Zomboid mods
+- **TEMPLATE_VENTANA_DINAMICA_GUIA_COMPLETA.md**: Detailed architectural guide covering all MiniGameUI patterns, best practices, and implementation strategies for future AI/developer use
+- **TEMPLATE_VENTANA_DINAMICA_CODIGO.lua**: Reusable code template with ultra-reliable window creation, adaptive layout, robust error handling, and CRT visual effects
+- **EJEMPLO_HACKING_WINDOW.lua**: Practical 2-minute implementation example showing hacking terminal window with XP integration and visual feedback
+- **README.md**: Quick-start guide for template usage with 5-step implementation process and common error solutions
+- **MODULAR TEMPLATE ARCHITECTURE**: Templates include SimpleTimer system, adaptive grid scaling, global exposure patterns, and comprehensive debugging utilities
+
 ### Notes
 - All changes were applied on branch `feature/working_state_v1`.
 - Next: run QA checks and certification steps described in `docs/QA-CHECKLIST.md`.
