@@ -555,7 +555,12 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
     local playerObj = getSpecificPlayer(player)
     if not playerObj then return end
 
-    debugPrint("LaptopFill: Backup system activated - modern menu may have failed")
+    local modernMenuActive = context and context._DecryptDrives_ModernMenu
+    if modernMenuActive then
+        debugPrint("LaptopFill: Backup hook invoked after modern menu - nothing to do")
+    else
+        debugPrint("LaptopFill: Backup system evaluating context (modern menu not detected yet)")
+    end
 
     -- Simplified laptop detection
     for _, worldObject in ipairs(worldobjects) do
@@ -587,14 +592,14 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                         brokenOption.notAvailable = true
                     else
                         -- Check if modern menu system is already active
-                        local modernMenuActive = context._DecryptDrives_ModernMenu or false
-
-                        if not modernMenuActive then
+                        if modernMenuActive then
+                            debugPrint("LaptopFill: Backup system not adding menu options (modern menu is active)")
+                        else
                             -- Simple USB check
                             local inv = playerObj:getInventory()
                             local totalUSBCount = 0
 
-                            if inv then
+{{ ... }}
                                 local items = inv:getItems()
                                 for i = 0, items:size() - 1 do
                                     local invItem = items:get(i)
@@ -615,12 +620,10 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                             end
 
                             debugPrint("LaptopFill: Backup menu options added (modern menu not detected)")
-                        else
-                            debugPrint("LaptopFill: Modern menu detected, skipping backup options")
                         end
                     end
 
-                    debugPrint("LaptopFill: Menu processing completed")
+                    debugPrint("LaptopFill: Menu processing completed (backup layer)")
                     break -- Only add menu once per laptop found
                 end
             end

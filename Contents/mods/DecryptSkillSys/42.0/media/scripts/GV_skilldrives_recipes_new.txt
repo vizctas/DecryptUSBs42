@@ -1,253 +1,281 @@
-module Base
+module GValley 
 {
-    /*************** NUEVO SISTEMA DE RAREZAS: Fácil/Moderado/Difícil ***************/
-    
-    // ============ RECETAS BÁSICAS PARA ABRIR/CERRAR LAPTOPS (sin cambios) ============
-    craftRecipe GValley.OpenAsusLaptop
-    {
-        timedAction = MakingElectrical,
-        time = 100,
-        Tags = InHandCraft,
-        category = Electrical,
+		item AsusZephLaptopOpened
+	{
+		DisplayCategory		= Electronics,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Asus Zephyrus M (Opened),
+		Icon            	= Asus,
+		WorldStaticModel 	= AsusLaptop_Open,
+		Tooltip	= Tooltip_LPAsus,
+	}
+		item AsusZephLaptopClosed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Asus Zephyrus M (Closed),
+		Icon            = Asus,
+		WorldStaticModel = AsusLaptop_Close,
+		Tooltip = Tooltip_LPAsus,
+	}
+		item Laptop90sClosed
+	{
+		DisplayCategory		= Electronics,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Toshiba Satellite Pro (Closed),
+		Icon            	= 90sLaptopClosed,
+		WorldStaticModel 	= Laptop90Closed,
+		Tooltip			 	= Tooltip_Generic90,
+	}
+		item Laptop90sOpened
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Toshiba Satellite Pro (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = Laptop90Opened,
+		Tooltip			 = Tooltip_Generic90,
+	}
 
-        inputs
-        {
-            item 1 [GValley.AsusZephLaptopClosed],
-        }
-        outputs
-        {
-            item 1 GValley.AsusZephLaptopOpened,
-        }
-    }
+		item IBM_LP90Opened
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = IBM_LP90Opened,
+		Tooltip = Tooltip_IBMPlm,
+	}
+		item PBIBM_LP90Closed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Closed),
+		Icon            = 90sLaptopClosed,
+		WorldStaticModel = PBIBM_LP90Closed,
+		Tooltip = Tooltip_IBMPlm,
+	}
+	
+		item USBOpened
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Opened Drive,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			 = Tooltip_USB,
+	}	
 
-    craftRecipe GValley.CloseAsusLaptop
-    {
-        timedAction = Making,
-        time = 100,
-        Tags = InHandCraft,
-        category = Electrical,
+		item USB_Closed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Closed Drive,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			 = Tooltip_USB,
+	}	
+		item USBOpened_Damaged
+	{
+		DisplayCategory		= 	Electronics,
+		Weight          	= 	0.1,
+		Type            	= 	Normal,	
+		DisplayName     	= 	Damaged Drive,
+		Icon            	= 	USBOpened_d,
+		WorldStaticModel 	= 	USB_Opened,
+		Tooltip				= 	Tooltip_BUSB,
+	}
+		item USBOpened_Used
+	{
+		DisplayCategory		= Electronics,
+		Weight          	= 0.1,
+		Type            	= Normal,	
+		DisplayName     	= Used Drive,
+		Icon            	= USBOpened,
+		WorldStaticModel 	= USB_Opened,
+		Tooltip				= Tooltip_USB,
+	}
+		item USBTapa
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.0,
+		Type            = Normal,
+		DisplayName     = Drive Cover,
+		Icon            = USBTapa,
+		WorldStaticModel = USB_Tapa,
+		Tooltip = Tooltip_TUSB,
+	}
 
-        inputs
-        {
-            item 1 [GValley.AsusZephLaptopOpened],
-        }
-        outputs
-        {
-            item 1 GValley.AsusZephLaptopClosed,
-        }
-    }
+		item SkillDrive_Woodwork_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB Woodwork - Working with chairs - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Woodwork_Facil,
+		Tags			= SkillDrive;Woodwork;Facil,
+	}
 
-    craftRecipe GValley.OpenCompaqLaptop
-    {
-        timedAction = MakingElectrical,
-        time = 100,
-        Tags = InHandCraft,
-        category = Electrical,
+		item SkillDrive_Electricity_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ElectroTech - Electricity - Easy,
+		Icon            = usb_electricity,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Electricity_Facil,
+		Tags			= SkillDrive;Electricity;Facil,
+	}
 
-        inputs
-        {
-            item 1 [GValley.Laptop90sClosed],
-        }
-        outputs
-        {
-            item 1 GValley.Laptop90sOpened,
-        }
-    }
+		item SkillDrive_Farming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AgroData - Agricultura - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Farming_Facil,
+		Tags			= SkillDrive;Farming;Facil,
+	}
 
-    craftRecipe GValley.CloseCompaqLaptop
-    {
-        timedAction = Making,
-        time = 100,
-        Tags = InHandCraft,
-        category = Electrical,
+		item SkillDrive_Aiming_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB TactiShot - Aiming - Easy,
+		Icon            = usb_combat,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Aiming_Facil,
+		Tags			= SkillDrive;Aiming;Facil,
+	}
 
-        inputs
-        {
-            item 1 [GValley.Laptop90sOpened],
-        }
-        outputs
-        {
-            item 1 GValley.Laptop90sClosed,
-        }
-    }
+		item SkillDrive_Cooking_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ChefMaster - Cooking - Easy,
+		Icon            = usb_cooking,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Cooking_Facil,
+		Tags			= SkillDrive;Cooking;Facil,
+	}
 
-    craftRecipe GValley.OpenPortableIBMLaptop
-    {
-        timedAction = MakingElectrical,
-        time = 150,
-        Tags = InHandCraft,
-        category = Electrical,
+	item SkillDrive_Sneak_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB ShadowOps - Sneaky - Easy,
+		Icon            = usb_lightfoot,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Sneak_Facil,
+		Tags			= SkillDrive;Sneak;Facil,
+	}
 
-        inputs
-        {
-            item 1 [GValley.PBIBM_LP90Closed],
-        }
-        outputs
-        {
-            item 1 GValley.IBM_LP90Opened,
-        }
-    }
+		item SkillDrive_Axe_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB AxeMaster - Axe - Easy,
+		Icon            = usb_axes,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Axe_Facil,
+		Tags			= SkillDrive;Axe;Facil,
+	}
 
-    craftRecipe GValley.ClosePortableIBMLaptop
-    {
-        timedAction = Making,
-        time = 150,
-        Tags = InHandCraft,
-        category = Electrical,
+	// ============ ANTIVIRUS ITEMS ============
+	item Antivirus_Norton
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Norton Security Disk (5% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Norton,
+	}
 
-        inputs
-        {
-            item 1 [GValley.IBM_LP90Opened],
-        }
-        outputs
-        {
-            item 1 GValley.PBIBM_LP90Closed,
-        }
-    }
+	item Antivirus_Kaspersky
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Kaspersky Rescue Disk (8% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Kaspersky,
+	}
 
-    // ============ RECETAS DE RECICLAJE PARA DRIVES DAÑADOS/USADOS ============
-    craftRecipe GValley.RecycleDriveUsed
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
+	item Antivirus_McAfee
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = McAfee Stinger USB (10% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_McAfee,
+	}
 
-        inputs
-        {
-            item 1 [GValley.USBOpened_Used;GValley.USBOpened_Damaged] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
+	item Antivirus_MalwareBytes
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Malwarebytes Premium USB (12% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_MalwareBytes,
+	}
 
-    craftRecipe GValley.RecycleDriveDamaged
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
+	// Compatibility aliases: recipes reference these IDs (AntivirusDisk_Basic/Advanced/Premium)
+	item AntivirusDisk_Basic
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Basic),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Basic,
+	}
 
-        inputs
-        {
-            item 1 [GValley.USBOpened_Damaged;GValley.USBOpened_Used] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
+	item AntivirusDisk_Advanced
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Advanced),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Advanced,
+	}
 
-    craftRecipe GValley.RecycleUSBUsed
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.USBOpened_Used] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
-
-    craftRecipe GValley.RecycleUSBDamaged
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.USBOpened_Damaged] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
-
-    // ============ RECETAS ANTIVIRUS (sin cambios) ============
-    craftRecipe GValley.UseAntivirusBasic
-    {
-        timedAction = MakingElectrical,
-        time = 100,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.AntivirusDisk_Basic] mode:destroy,
-            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
-        }
-        outputs
-        {
-            // Laptop condition will be updated via context menu actions
-        }
-    }
-
-    craftRecipe GValley.UseAntivirusAdvanced
-    {
-        timedAction = MakingElectrical,
-        time = 150,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.AntivirusDisk_Advanced] mode:destroy,
-            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
-        }
-        outputs
-        {
-            // Laptop condition will be updated via context menu actions
-        }
-    }
-
-    craftRecipe GValley.UseAntivirusPremium
-    {
-        timedAction = MakingElectrical,
-        time = 200,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.AntivirusDisk_Premium] mode:destroy,
-            item 1 [GValley.AsusZephLaptopOpened;GValley.Laptop90sOpened;GValley.IBM_LP90Opened] mode:keep,
-        }
-        outputs
-        {
-            // Laptop condition will be updated via context menu actions
-        }
-    }
-
-    // ============ LEGACY USB RECIPE (compatibilidad) ============
-    craftRecipe GValley.OpenLegacyUSB
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft;CanBeDoneInDark,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.USB_Closed],
-        }
-        outputs
-        {
-            item 1 GValley.USBTapa,
-        }
-    }
+	item AntivirusDisk_Premium
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Premium),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Premium,
+	}
 }

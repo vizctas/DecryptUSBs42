@@ -94,18 +94,40 @@ else
 end
 
 -- Create hierarchical context menu
-function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList)
+function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList, healthOption)
     debugPrint("DecryptDrivesContextMenu.createHierarchicalMenu called")
 
     -- Try to use modular controller first
     if menuController then
         debugPrint("DecryptDrivesContextMenu: Using modular MenuController")
-        return menuController:createMenu(player, context, laptop, usbList)
+        local ok, result = pcall(function()
+            return menuController:createMenu(player, context, laptop, usbList, healthOption)
+        end)
+        if ok then
+            local option = nil
+            if type(result) == "table" then
+                option = result
+            elseif result == true then
+                option = context and context._DecryptDrives_MainOption
+            end
+
+            if type(option) ~= "table" then
+                option = context and context._DecryptDrives_MainOption
+            end
+
+            if type(option) ~= "table" then
+                debugPrint("[WARN] MenuController returned without table option; falling back to legacy")
+            else
+                return option
+            end
+        else
+            debugPrint("[ERROR] MenuController:createMenu failed: " .. tostring(result))
+        end
     end
 
     -- Fallback to legacy implementation
     debugPrint("DecryptDrivesContextMenu: Using legacy menu implementation - MenuController not available")
-    return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
+    return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList, healthOption)
 end
 
 -- ============================================================================
@@ -127,12 +149,109 @@ local DECRYPT_CONFIG = {
         ["Dificil"] = "Expert"
     },
     MENU_TEXT = {
-        MAIN = "Insert Drive...",
+        MAIN = "Insert Drive",
         USB_PREFIX = "USB "
     }
 }
 
 print("[DecryptSkillSys] Loading DecryptDrivesContextMenu (DEBUG MODE)...")
+
+-- =========================================================================
+-- UI HELPERS
+-- =========================================================================
+
+local USB_ICON_PATH = "media/textures/ui/usb/usb.png"
+local usbIconCache = false -- false = not yet attempted, nil = attempted but missing
+
+function DecryptDrivesContextMenu.getUSBIconTexture()
+    if usbIconCache == false then
+        usbIconCache = getTexture(USB_ICON_PATH)
+        if usbIconCache then
+            debugPrint("USB icon texture loaded successfully: " .. USB_ICON_PATH)
+        else
+            debugPrint("[WARN] USB icon texture could not be loaded: " .. USB_ICON_PATH)
+        end
+    end
+    return usbIconCache or nil
+end
+
+function DecryptDrivesContextMenu.moveOptionBelow(context, option, anchorOption)
+    if not context or not option or not anchorOption then return end
+    local options = context.options
+    if not options then return end
+
+    local optionIndex, anchorIndex
+    for index, opt in ipairs(options) do
+        if opt == option then optionIndex = index end
+        if opt == anchorOption then anchorIndex = index end
+    end
+
+    if not optionIndex or not anchorIndex then return end
+    if optionIndex == anchorIndex + 1 then return end -- already in correct position
+
+    table.remove(options, optionIndex)
+    local insertIndex = math.min(anchorIndex + 1, #options + 1)
+    table.insert(options, insertIndex, option)
+
+    if context.calculateHeight then
+        context:calculateHeight()
+    elseif context.derivePosition then
+        context:derivePosition()
+    end
+end
+
+function DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, healthOption)
+    if not context then return end
+
+    if mainOption and type(mainOption) ~= "table" then
+        mainOption = nil
+    end
+
+    if not mainOption then
+        if context and context._DecryptDrives_MainOption and type(context._DecryptDrives_MainOption) == "table" then
+            mainOption = context._DecryptDrives_MainOption
+        end
+    end
+
+    if not mainOption then
+        local options = context.options
+        if options and type(options) == "table" then
+            for _, opt in ipairs(options) do
+                if opt and type(opt) == "table" and (opt.name == DECRYPT_CONFIG.MENU_TEXT.MAIN or opt.name == "Decrypt USB Drives") then
+                    mainOption = opt
+                    break
+                end
+            end
+        end
+    end
+
+    if not mainOption or type(mainOption) ~= "table" then
+        debugPrint("[WARN] applyUSBMenuFormatting: No main option table available; skipping formatting")
+        return
+    end
+
+    if mainOption then
+        local desiredLabel = (DECRYPT_CONFIG and DECRYPT_CONFIG.MENU_TEXT and DECRYPT_CONFIG.MENU_TEXT.MAIN) or "Insert Drive"
+        if desiredLabel and mainOption.name ~= desiredLabel then
+            mainOption.name = desiredLabel
+            mainOption.text = desiredLabel
+        end
+
+        local iconTexture = DecryptDrivesContextMenu.getUSBIconTexture()
+        if iconTexture then
+            mainOption.iconTexture = iconTexture
+        end
+        if healthOption then
+            DecryptDrivesContextMenu.moveOptionBelow(context, mainOption, healthOption)
+        end
+
+        if context.calculateHeight then
+            context:calculateHeight()
+        elseif context.derivePosition then
+            context:derivePosition()
+        end
+    end
+end
 
 -- ============================================================================
 -- LAPTOP VALIDATION FUNCTIONS
@@ -461,9 +580,10 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
 
             -- Get laptop item for health and other operations
             local laptopItem = worldObject:getItem()
+            local healthOption = nil
             if laptopItem then
                 -- Add laptop health status at the top with battery icon
-                DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
+                healthOption = DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
                 debugPrint("DecryptDrivesContextMenu: Health status added to menu")
             end
 
@@ -473,7 +593,8 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
             if #usbList > 0 then
                 debugPrint("DecryptDrivesContextMenu: USBs found: " .. #usbList)
                 -- Create hierarchical menu
-                DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, worldObject, usbList)
+                local mainOption = DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, worldObject, usbList, healthOption)
+                DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, healthOption)
                 debugPrint("DecryptDrivesContextMenu: USB menu created")
             else
                 debugPrint("DecryptDrivesContextMenu: No USBs found in player inventory")
@@ -538,7 +659,7 @@ function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop
     if menuController then
         debugPrint("Using modular MenuController")
         local success, result = pcall(function()
-            return menuController:createMenu(player, context, laptop, usbList)
+            return menuController:createMenu(player, context, laptop, usbList, healthOption)
         end)
         if success then
             debugPrint("Modular menu created successfully")
@@ -555,7 +676,7 @@ function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop
 end
 
 -- Legacy implementation (kept for compatibility)
-function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
+function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList, healthOption)
     debugPrint("createHierarchicalMenuLegacy called")
     debugPrint("USB count: " .. #usbList)
 
@@ -645,6 +766,7 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
     end
 
     debugPrint("Context menu created with " .. #usbList .. " USB options")
+    return mainOption
 end
 
 -- ============================================================================
@@ -895,6 +1017,8 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     else
         debugPrint("Failed to load battery texture - no icon will be displayed")
     end
+
+    return healthOption
 end
 
 -- ============================================================================
@@ -909,10 +1033,7 @@ function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObje
     if not inv then return end
 
     -- Check for antivirus (both old and new item names)
-    local antivirusCount = inv:getItemCount("GValley.AntivirusDisk_Basic") +
-                           inv:getItemCount("GValley.AntivirusDisk_Advanced") +
-                           inv:getItemCount("GValley.AntivirusDisk_Premium") +
-                           inv:getItemCount("GValley.Antivirus_Norton") +
+    local antivirusCount = inv:getItemCount("GValley.Antivirus_Norton") +
                            inv:getItemCount("GValley.Antivirus_Kaspersky") +
                            inv:getItemCount("GValley.Antivirus_McAfee") +
                            inv:getItemCount("GValley.Antivirus_MalwareBytes")
@@ -928,10 +1049,7 @@ function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObje
             {id = "GValley.Antivirus_MalwareBytes", name = "MalwareBytes", heal = 12},
             {id = "GValley.Antivirus_McAfee", name = "McAfee", heal = 10},
             {id = "GValley.Antivirus_Kaspersky", name = "Kaspersky", heal = 8},
-            {id = "GValley.Antivirus_Norton", name = "Norton", heal = 5},
-            {id = "GValley.AntivirusDisk_Premium", name = "Premium", heal = 75},
-            {id = "GValley.AntivirusDisk_Advanced", name = "Advanced", heal = 50},
-            {id = "GValley.AntivirusDisk_Basic", name = "Basic", heal = 25}
+            {id = "GValley.Antivirus_Norton", name = "Norton", heal = 5}
         }
 
         for _, avType in ipairs(antivirusTypes) do
