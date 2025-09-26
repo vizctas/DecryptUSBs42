@@ -194,7 +194,7 @@ module Base
         }
     }
 
-    // ============ ANTIVIRUS RECIPES ============
+    /* ============ ANTIVIRUS RECIPES ============ */
     craftRecipe GValley.UseAntivirusBasic
     {
         timedAction = MakingElectrical,
@@ -210,7 +210,7 @@ module Base
         }
         outputs
         {
-            // Laptop condition will be updated via OnCreate
+            /* Laptop condition will be updated via OnCreate */
         }
     }
 

@@ -1089,6 +1089,35 @@ function MiniGameWindow:setButtonColor(btnIndex, color)
     end
 end
 
+function MiniGameWindow:setButtonColor(btnIndex, color)
+    if type(btnIndex) ~= "number" or btnIndex < 1 then
+        return
+    end
+
+    local gridRows = tonumber(GRID_ROWS) or 4
+    local gridCols = tonumber(GRID_COLS) or 4
+    gridRows = math.max(1, gridRows)
+    gridCols = math.max(1, gridCols)
+
+    local row = math.ceil(btnIndex / gridCols)
+    local col = ((btnIndex - 1) % gridCols) + 1
+
+    if not self.sequenceButtons or not self.sequenceButtons[row] then
+        return
+    end
+
+    local btn = self.sequenceButtons[row][col]
+    if not btn or type(color) ~= "table" then
+        return
+    end
+
+    local r = tonumber(color.r) or 0.5
+    local g = tonumber(color.g) or 0.5
+    local b = tonumber(color.b) or 0.5
+    local a = tonumber(color.a) or 1
+    btn.backgroundColor = {r=r, g=g, b=b, a=a}
+end
+
 -- MANTENER LA FUNCIÓN ORIGINAL PARA COMPATIBILIDAD
 function MiniGameWindow:setAllButtonsColor(color, text)
     self:setAllButtonsColorSafe(color, text)

@@ -99,7 +99,7 @@ local HACKING_WORDS = {
     "DEMO","INOSUKE","OCZY","KAMADO","ANKUI","BOO","SHIORY","JULY","JULS",
     "JOZH","BETTA","NODRIZA","MELOW","SUSHI","BOQT","BRRTE","JOEY",
     "BOOSY","HALLOWEEN","JERRY","IOUL","GHOUL","KIRARA","KATO","SHADOW",
-    "LUCKY","BATMAN","JENJI","BREE"
+    "LUCKY","BATMAN","JENJI","BREE","GINGERSNAP","SNAP","KENSHI","ALICE"
 }
 
 -- Función para generar palabras candidatas y contraseña correcta

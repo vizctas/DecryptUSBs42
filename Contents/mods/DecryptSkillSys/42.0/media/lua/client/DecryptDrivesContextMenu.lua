@@ -741,6 +741,34 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ")")
 
         -- ✅ LLAMAR MINIJUEGO DE SECUENCIA DIRECTAMENTE
+        if not _G.MiniGame or type(_G.MiniGame) ~= "function" then
+            debugPrint("[WARN] _G.MiniGame missing or not a function. Attempting to reload MiniGameUI module...")
+            if package and package.loaded then
+                package.loaded["client/MiniGameUI"] = nil
+            else
+                debugPrint("[WARN] Lua 'package.loaded' not available in this context; skipping cache clear")
+            end
+            local ok, result = pcall(require, "client/MiniGameUI")
+            if ok then
+                debugPrint("[INFO] MiniGameUI module reloaded. _G.MiniGame type after reload: " .. type(_G.MiniGame))
+            else
+                debugPrint("[ERROR] Failed to reload MiniGameUI module: " .. tostring(result))
+                debugPrint("[WARN] Trying ReloadMiniGame() as secondary fallback...")
+                local reloadOk, reloadResult = pcall(function()
+                    if _G.ReloadMiniGame then
+                        _G.ReloadMiniGame()
+                    else
+                        debugPrint("[ERROR] ReloadMiniGame not available")
+                    end
+                end)
+                if not reloadOk then
+                    debugPrint("[ERROR] ReloadMiniGame() threw an error: " .. tostring(reloadResult))
+                else
+                    debugPrint("[INFO] ReloadMiniGame() executed. _G.MiniGame type now: " .. type(_G.MiniGame))
+                end
+            end
+        end
+
         debugPrint("[DEBUG] About to call _G.MiniGame")
         debugPrint("[DEBUG] _G.MiniGame type: " .. type(_G.MiniGame))
         if _G.MiniGame and type(_G.MiniGame) == "function" then
