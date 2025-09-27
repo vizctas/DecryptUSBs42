@@ -16,15 +16,15 @@ function ReloadMiniGameFallout()
     if success then
         print("[DEBUG] Fallout minigame reloaded successfully!")
     else
-        print("[DEBUG] Failed to reload Fallout: " .. tostring(result))
     end
 end
 
 -- ✅ FUNCIÓN DE PRUEBA RÁPIDA PARA DEBUG
 function TestMiniGameFallout(widthPct, heightPct)
-    widthPct = widthPct or 30
-    heightPct = heightPct or 40
+    widthPct = widthPct or WINDOW_WIDTH_PCT
+    heightPct = heightPct or WINDOW_HEIGHT_PCT
     print("[DEBUG] Testing Fallout minigame with size: " .. widthPct .. "% x " .. heightPct .. "%")
+    
     if MiniGameFallout then
         return MiniGameFallout(widthPct, heightPct, "TestSkill", "Easy", nil, {skill="TestSkill", difficulty_english="Easy", displayName="Test USB"})
     else
@@ -33,6 +33,7 @@ function TestMiniGameFallout(widthPct, heightPct)
 end
 
 -- ========== CONFIGURACIÓN DEL MINIJUEGO FALLOUT ==========
+-- Configuraciones principales del hacking de contraseñas
 local TIME_LIMIT = 180         -- Tiempo límite en segundos
 local PASSWORD_LENGTH = 6       -- Longitud de la contraseña
 local WORD_COUNT = 8            -- Número de palabras candidatas
@@ -40,29 +41,32 @@ local MAX_ATTEMPTS = 4          -- Máximo número de intentos
 local DIFFICULTY_TEXT = ""
 -- ========== CONFIGURACIÓN DE ESCALADO ADAPTATIVO ==========
 local PADDING_HORIZONTAL = 40   -- Espacio horizontal alrededor de elementos
-local PADDING_VERTICAL = 90     -- Espacio vertical para título y controles
+local PADDING_VERTICAL = 80     -- Espacio vertical para título y controles
 local MIN_BUTTON_SIZE = 20      -- Tamaño mínimo de botones
-local MAX_BUTTON_SIZE = 40      -- Tamaño máximo de botones
-local BUTTON_SIZE = 30          -- Tamaño preferido de botones
-local BUTTON_SPACING = 10       -- Espaciado entre botones
+local MAX_BUTTON_SIZE = 35      -- Tamaño máximo de botones
+local BUTTON_SIZE = 25          -- Tamaño preferido de botones
+local BUTTON_SPACING = 15       -- Espaciado entre botones
 -- ========== CONFIGURACIÓN DE VENTANA ==========
 local WINDOW_WIDTH_PCT = 18     -- Porcentaje del ancho de pantalla
-local WINDOW_HEIGHT_PCT = 45    -- Porcentaje del alto de pantalla
+local WINDOW_HEIGHT_PCT = 39    -- Porcentaje del alto de pantalla
 local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
 local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
 -- ============== DIFFICULTY SETTINGS==============================
-local EASY_TIME = 240
-local MODERATE_TIME = 180
-local EXPERT_TIME = 120
-local EASY_LENGTH = 5
-local MODERATE_LENGTH = 6
-local EXPERT_LENGTH = 7
-local EASY_WORDS = 6
-local MODERATE_WORDS = 8
-local EXPERT_WORDS = 10
-local EASY_ATTEMPTS = 5
-local MODERATE_ATTEMPTS = 4
-local EXPERT_ATTEMPTS = 3
+local EASY_TIME = 240           -- Tiempo para dificultad fácil
+local MODERATE_TIME = 180       -- Tiempo para dificultad moderada
+local EXPERT_TIME = 120         -- Tiempo para dificultad experta
+local EASY_LENGTH = 5           -- Longitud de contraseña fácil
+local MODERATE_LENGTH = 6       -- Longitud de contraseña moderada
+local EXPERT_LENGTH = 7         -- Longitud de contraseña experta
+local EASY_WORDS = 6            -- Número de palabras fáciles
+local MODERATE_WORDS = 8        -- Número de palabras moderadas
+local EXPERT_WORDS = 10         -- Número de palabras expertas
+local EASY_ATTEMPTS = 5         -- Intentos para dificultad fácil
+local MODERATE_ATTEMPTS = 4     -- Intentos para dificultad moderada
+local EXPERT_ATTEMPTS = 3       -- Intentos para dificultad experta
+-- ============== RESULTADO Y TIEMPOS =============================
+local RESULT_DISPLAY_TIME = 180 -- Ticks para mostrar resultado antes de cerrar (180 = 9 segundos)
+local AUTO_CLOSE_DELAY = 60     -- Ticks para cierre automático después de resultado (60 = 3 segundos)
 -- =============================================
 
 -- Lista de palabras para hacking (estilo Fallout)
@@ -280,25 +284,25 @@ end
 function MiniGameFalloutWindow:getDifficultyConfig(difficulty)
     local configs = {
         ["Easy"] = {
-            timeLimit = 240,      -- 4 minutos
+            timeLimit = 45,      -- 45 segundos
             passwordLength = 5,   -- 5 letras
             wordCount = 6,        -- 6 palabras
-            maxAttempts = 5,      -- 5 intentos
-            displayText = "DIFFICULTY: HACKING EASY"
+            maxAttempts = 4,      -- 5 intentos
+            displayText = ""
         },
         ["Moderate"] = {
-            timeLimit = 180,      -- 3 minutos
+            timeLimit = 35,      -- 35 segundos
             passwordLength = 6,   -- 6 letras
             wordCount = 8,        -- 8 palabras
-            maxAttempts = 4,      -- 4 intentos
-            displayText = "DIFFICULTY: HACKING MODERATE"
+            maxAttempts = 3,      -- 4 intentos
+            displayText = ""
         },
         ["Expert"] = {
-            timeLimit = 120,      -- 2 minutos
+            timeLimit = 30,      -- 30 segundos
             passwordLength = 7,   -- 7 letras
             wordCount = 10,       -- 10 palabras
             maxAttempts = 3,      -- 3 intentos
-            displayText = "DIFFICULTY: HACKING EXPERT"
+            displayText = ""
         }
     }
     
@@ -343,20 +347,20 @@ function MiniGameFalloutWindow:createChildren()
         self.wordButtons[i] = btn
     end
 
-    -- ✅ BOTÓN TRY
-    self.tryButton = ISButton:new((self.width - 100) / 2, self.height - 80, 100, 30, "TRY", self, self.onTry)
+    -- ✅ BOTÓN DECODE - ALINEADO A LA IZQUIERDA
+    self.tryButton = ISButton:new(20, self.height - 70, 100, 30, "DECODE", self, self.onTry)
     self.tryButton:initialise()
     self:addChild(self.tryButton)
 
-    -- ✅ BOTÓN START
-    self.startButton = ISButton:new(20, self.height - 120, 100, 30, "START", self, self.onStart)
+    -- ✅ BOTÓN START - AL LADO DE DECODE
+    self.startButton = ISButton:new(130, self.height - 70, 100, 30, "START", self, self.onStart)
     self.startButton:initialise()
     self:addChild(self.startButton)
 
-    -- ✅ BOTÓN RESET
-    self.resetButton = ISButton:new(self.width - 120, self.height - 120, 100, 30, "RESET", self, self.onReset)
-    self.resetButton:initialise()
-    self:addChild(self.resetButton)
+    -- ✅ BOTÓN RESET - COMENTADO: Un usuario no debe poder resetear el desafío
+    -- self.resetButton = ISButton:new(self.width - 120, self.height - 120, 100, 30, "RESET", self, self.onReset)
+    -- self.resetButton:initialise()
+    -- self:addChild(self.resetButton)
 end
 
 function MiniGameFalloutWindow:onStart()
@@ -380,6 +384,11 @@ function MiniGameFalloutWindow:onStart()
         end
     end
     
+    -- ✅ OCULTAR BOTÓN START para evitar re-roll
+    if self.startButton then
+        self.startButton:setVisible(false)
+    end
+    
     -- Iniciar timer
     self:startTimer()
     
@@ -387,6 +396,40 @@ function MiniGameFalloutWindow:onStart()
         self.player:Say("Initiating password hack...")
     end
 end
+
+-- ✅ FUNCIÓN RESET - COMENTADA: Un jugador no debe poder resetear el desafío
+-- function MiniGameFalloutWindow:onReset()
+--     self:clearAllTimers()
+--     
+--     -- Reiniciar estado del juego
+--     self.gameActive = false
+--     self.correctPassword = ""
+--     self.candidateWords = {}
+--     self.attemptsRemaining = MAX_ATTEMPTS
+--     self.timeRemaining = TIME_LIMIT
+--     self.selectedWordIndex = 0
+--     self.lastHint = ""
+--     
+--     -- Limpiar texto de botones de palabras
+--     for i, btn in ipairs(self.wordButtons) do
+--         btn:setTitle("")
+--         btn:setVisible(false)
+--     end
+--     
+--     -- ✅ MOSTRAR BOTÓN START nuevamente
+--     if self.startButton then
+--         self.startButton:setVisible(true)
+--     end
+--     
+--     -- Limpiar mensajes de estado
+--     if self.statusLabel then
+--         self.statusLabel:setName("")
+--     end
+--     
+--     if self.player then
+--         self.player:Say("Hacking terminal reset...")
+--     end
+-- end
 
 function MiniGameFalloutWindow:startTimer()
     self.timerId = SimpleTimer:addTimer(60, function()
@@ -466,7 +509,7 @@ function MiniGameFalloutWindow:showResult(success, message)
         end
     end
     
-    SimpleTimer:addTimer(180, function()
+    SimpleTimer:addTimer(RESULT_DISPLAY_TIME or 180, function()
         self:onClose()
     end)
 end
@@ -551,6 +594,11 @@ end
 
 -- Función global para abrir la ventana Fallout
 function MiniGameFallout(widthPct, heightPct, usbType, difficulty, laptopItem, usbData, demoMode)
+    return MiniGame_Fallout(widthPct, heightPct, usbType, difficulty, laptopItem, usbData, demoMode)
+end
+
+-- Función principal Fallout - NO sobrescribir MiniGame global para evitar conflictos
+function MiniGame_Fallout(widthPct, heightPct, usbType, difficulty, laptopItem, usbData, demoMode)
     local player = getPlayer()
     if not player then 
         print("MiniGameFallout: No player found")
@@ -595,7 +643,7 @@ function MiniGameFalloutWindow:render()
     self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
 
     -- TÍTULO
-    local titleText = self.demoMode and "PASSWORD HACK TERMINAL [DEMO]" or "PASSWORD HACK TERMINAL"
+    local titleText = self.demoMode and "PASSWORD HACK TERMINAL [DEMO]" or "HACK TERMINAL"
     local titleWidth = 220
     local textManager = getTextManager()
     if textManager and textManager.MeasureStringX then
@@ -630,8 +678,8 @@ function MiniGameFalloutWindow:render()
         local attemptsText = "ATTEMPTS: " .. self.attemptsRemaining
         local timeText = "TIME: " .. self.timeRemaining .. "s"
         
-        self:drawText(attemptsText, 20, self.height - 50, 0.2, 1, 0.2, 1, UIFont.Small)
-        self:drawText(timeText, self.width - 100, self.height - 50, 0.2, 1, 0.2, 1, UIFont.Small)
+        self:drawText(attemptsText, 20, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
+        self:drawText(timeText, self.width - 120, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
     end
 
     -- Estado
@@ -644,5 +692,5 @@ function MiniGameFalloutWindow:render()
         if success and width then statusWidth = width end
     end
     local statusX = (self.width - statusWidth) / 2
-    self:drawText(statusText, statusX, self.height - 25, 0.2, 1, 0.2, 1, UIFont.Small)
+    self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
 end

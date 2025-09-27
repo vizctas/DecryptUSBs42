@@ -3,6 +3,13 @@ local DecryptDrivesContextMenu = {}
 DecryptDrivesContextMenu.MODERN_MENU_ACTIVE = true
 pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 
+-- ========== CONFIGURACIÓN DE MINIJUEGO ==========
+-- Cambia esta variable para alternar entre minijuegos:
+-- "sequence" = Minijuego de secuencia (MiniGameUI.lua) - Memoria de secuencia
+-- "fallout" = Minijuego de hacking Fallout (MiniGameFallout.lua) - Hacking de contraseñas
+local ACTIVE_MINIGAME = "fallout"  -- ← CAMBIA AQUÍ: "sequence" o "fallout"
+-- ================================================
+
 -- Import centralized config
 pcall(require, "shared/GVDrive_Config")
 
@@ -13,31 +20,57 @@ local function debugPrint(...)
     end
 end
 
--- ✅ CARGAR MINIJUEGO SEPARADO - PATRÓN MODULAR DEL CODEBASE
+-- ✅ CARGAR MINIJUEGO SELECCIONADO - PATRÓN MODULAR DEL CODEBASE
 local miniGameLoaded = false
 
--- Verificar si MiniGame ya está disponible
-if _G.MiniGame and type(_G.MiniGame) == "function" then
+-- Función helper para obtener configuración del minijuego activo
+local function getActiveMinigameConfig()
+    if ACTIVE_MINIGAME == "sequence" then
+        return {
+            name = "MiniGame",  -- Función global para secuencia
+            module = "client.MiniGameUI",  -- Path con client/ para PZ
+            reloadFunc = "ReloadMiniGame",
+            displayName = "sequence"
+        }
+    elseif ACTIVE_MINIGAME == "fallout" then
+        return {
+            name = "MiniGame_Fallout",  -- Función específica para Fallout (evita conflictos)
+            module = "client.MiniGameFallout",  -- Path con client/ para PZ
+            reloadFunc = "ReloadMiniGameFallout",
+            displayName = "fallout hacking"
+        }
+    else
+        debugPrint("[ERROR] Invalid ACTIVE_MINIGAME: " .. tostring(ACTIVE_MINIGAME) .. ". Using default 'fallout'")
+        ACTIVE_MINIGAME = "fallout"
+        return getActiveMinigameConfig()
+    end
+end
+
+local activeConfig = getActiveMinigameConfig()
+debugPrint("[INFO] Active minigame: " .. ACTIVE_MINIGAME .. " (" .. activeConfig.displayName .. ")")
+
+-- Verificar si el minijuego ya está disponible
+if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
     miniGameLoaded = true
-    debugPrint("[SUCCESS] MiniGame already available from global scope")
+    debugPrint("[SUCCESS] " .. activeConfig.name .. " already available from global scope")
 else
-    debugPrint("[INFO] MiniGame not available, attempting to load from MiniGameUI.lua")
+    debugPrint("[INFO] " .. activeConfig.name .. " not available, attempting to load from " .. activeConfig.module .. ".lua")
     
-    -- Intentar cargar el módulo separado
-    local success, result = pcall(require, "client/MiniGameUI")
+    -- Intentar cargar el módulo seleccionado
+    local success, result = pcall(require, activeConfig.module)
     if success then
-        debugPrint("[SUCCESS] MiniGameUI.lua loaded successfully")
-        if _G.MiniGame and type(_G.MiniGame) == "function" then
-            debugPrint("[SUCCESS] MiniGame function now available in global scope")
+        debugPrint("[SUCCESS] " .. activeConfig.module .. ".lua loaded successfully")
+        if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
+            debugPrint("[SUCCESS] " .. activeConfig.name .. " function now available in global scope")
             miniGameLoaded = true
         else
-            debugPrint("[WARNING] MiniGame function still not available after loading")
+            debugPrint("[WARNING] " .. activeConfig.name .. " function still not available after loading")
             -- NO forzar registro - dejar que el módulo se cargue naturalmente
             miniGameLoaded = true
         end
     else
-        debugPrint("[ERROR] Failed to load MiniGameUI.lua: " .. tostring(result))
-        debugPrint("[INFO] MiniGame will attempt to load naturally when called")
+        debugPrint("[ERROR] Failed to load " .. activeConfig.module .. ".lua: " .. tostring(result))
+        debugPrint("[INFO] Minigame will attempt to load naturally when called")
         miniGameLoaded = true
     end
 end
@@ -64,23 +97,14 @@ else
 end
 
 local falloutGameLoaded = false
-if _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
+if _G.MiniGame_Fallout and type(_G.MiniGame_Fallout) == "function" then
     falloutGameLoaded = true
-    debugPrint("[SUCCESS] MiniGameFallout already available")
+    debugPrint("[SUCCESS] MiniGame_Fallout already available")
+elseif _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
+    falloutGameLoaded = true
+    debugPrint("[SUCCESS] MiniGameFallout (legacy) already available")
 else
-    debugPrint("[INFO] Loading MiniGameFallout.lua")
-    local success, result = pcall(require, "client/MiniGameFallout")
-    if success then
-        debugPrint("[SUCCESS] MiniGameFallout.lua loaded successfully")
-        falloutGameLoaded = true
-        if _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
-            debugPrint("[SUCCESS] MiniGameFallout function available")
-        else
-            debugPrint("[WARNING] MiniGameFallout function not available after loading")
-        end
-    else
-        debugPrint("[WARNING] Failed to load MiniGameFallout.lua: " .. tostring(result))
-    end
+    debugPrint("[INFO] MiniGame_Fallout not available, will load when needed")
 end
 
 -- Verificar que Events esté disponible inmediatamente
@@ -860,54 +884,54 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     end
 
     if usbType and difficulty then
-        debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ")")
+        debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ") using " .. ACTIVE_MINIGAME .. " minigame")
 
-        -- ✅ LLAMAR MINIJUEGO DE SECUENCIA DIRECTAMENTE
-        if not _G.MiniGame or type(_G.MiniGame) ~= "function" then
-            debugPrint("[WARN] _G.MiniGame missing or not a function. Attempting to reload MiniGameUI module...")
+        -- ✅ VERIFICACIÓN Y RECARGA DEL MINIJUEGO ACTIVO
+        if not _G[activeConfig.name] or type(_G[activeConfig.name]) ~= "function" then
+            debugPrint("[WARN] _G." .. activeConfig.name .. " missing or not a function. Attempting to reload " .. activeConfig.module .. " module...")
             if package and package.loaded then
-                package.loaded["client/MiniGameUI"] = nil
+                package.loaded[activeConfig.module] = nil
             else
                 debugPrint("[WARN] Lua 'package.loaded' not available in this context; skipping cache clear")
             end
-            local ok, result = pcall(require, "client/MiniGameUI")
+            local ok, result = pcall(require, activeConfig.module)
             if ok then
-                debugPrint("[INFO] MiniGameUI module reloaded. _G.MiniGame type after reload: " .. type(_G.MiniGame))
+                debugPrint("[INFO] " .. activeConfig.module .. " module reloaded. _G." .. activeConfig.name .. " type after reload: " .. type(_G[activeConfig.name]))
             else
-                debugPrint("[ERROR] Failed to reload MiniGameUI module: " .. tostring(result))
-                debugPrint("[WARN] Trying ReloadMiniGame() as secondary fallback...")
+                debugPrint("[ERROR] Failed to reload " .. activeConfig.module .. " module: " .. tostring(result))
+                debugPrint("[WARN] Trying " .. activeConfig.reloadFunc .. "() as secondary fallback...")
                 local reloadOk, reloadResult = pcall(function()
-                    if _G.ReloadMiniGame then
-                        _G.ReloadMiniGame()
+                    if _G[activeConfig.reloadFunc] then
+                        _G[activeConfig.reloadFunc]()
                     else
-                        debugPrint("[ERROR] ReloadMiniGame not available")
+                        debugPrint("[ERROR] " .. activeConfig.reloadFunc .. " not available")
                     end
                 end)
                 if not reloadOk then
-                    debugPrint("[ERROR] ReloadMiniGame() threw an error: " .. tostring(reloadResult))
+                    debugPrint("[ERROR] " .. activeConfig.reloadFunc .. "() threw an error: " .. tostring(reloadResult))
                 else
-                    debugPrint("[INFO] ReloadMiniGame() executed. _G.MiniGame type now: " .. type(_G.MiniGame))
+                    debugPrint("[INFO] " .. activeConfig.reloadFunc .. "() executed. _G." .. activeConfig.name .. " type now: " .. type(_G[activeConfig.name]))
                 end
             end
         end
 
-        debugPrint("[DEBUG] About to call _G.MiniGame")
-        debugPrint("[DEBUG] _G.MiniGame type: " .. type(_G.MiniGame))
-        if _G.MiniGame and type(_G.MiniGame) == "function" then
-            -- ✅ Permitir que MiniGame use la configuración global de ventana (widthPct/heightPct nil)
-            debugPrint("[DEBUG] Calling MiniGame with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
-            local success, minigame = pcall(_G.MiniGame, nil, nil, usbType, difficulty, laptopItem, usbData)
+        debugPrint("[DEBUG] About to call _G." .. activeConfig.name)
+        debugPrint("[DEBUG] _G." .. activeConfig.name .. " type: " .. type(_G[activeConfig.name]))
+        if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
+            -- ✅ Permitir que el minijuego use la configuración global de ventana (widthPct/heightPct nil)
+            debugPrint("[DEBUG] Calling " .. activeConfig.name .. " with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
+            local success, minigame = pcall(_G[activeConfig.name], nil, nil, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
-                debugPrint("Sequence minigame opened successfully with USB integration")
-                player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - Sequence Memory...")
+                debugPrint(activeConfig.displayName .. " minigame opened successfully with USB integration")
+                player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - " .. (ACTIVE_MINIGAME == "fallout" and "Password Hacking..." or "Sequence Memory..."))
             else
-                debugPrint("[ERROR] Failed to create sequence minigame: " .. tostring(minigame))
-                player:Say("Error initializing sequence decryption system.")
+                debugPrint("[ERROR] Failed to create " .. activeConfig.displayName .. " minigame: " .. tostring(minigame))
+                player:Say("Error initializing " .. (ACTIVE_MINIGAME == "fallout" and "password hacking" or "sequence decryption") .. " system.")
             end
         else
-            debugPrint("[ERROR] MiniGame function not available in global scope")
-            debugPrint("[ERROR] _G.MiniGame: " .. tostring(_G.MiniGame))
-            player:Say("No decryption protocol available for this drive type.")
+            debugPrint("[ERROR] " .. activeConfig.name .. " function not available in global scope")
+            debugPrint("[ERROR] _G." .. activeConfig.name .. ": " .. tostring(_G[activeConfig.name]))
+            player:Say("No " .. (ACTIVE_MINIGAME == "fallout" and "password hacking" or "decryption") .. " protocol available for this drive type.")
         end
     else
         debugPrint("[ERROR] Invalid USB data - skill: " .. tostring(usbType) .. ", difficulty: " .. tostring(difficulty))
