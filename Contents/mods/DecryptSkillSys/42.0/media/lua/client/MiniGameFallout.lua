@@ -58,12 +58,12 @@ local EXPERT_TIME = 120         -- Tiempo para dificultad experta
 local EASY_LENGTH = 5           -- Longitud de contraseña fácil
 local MODERATE_LENGTH = 6       -- Longitud de contraseña moderada
 local EXPERT_LENGTH = 7         -- Longitud de contraseña experta
-local EASY_WORDS = 6            -- Número de palabras fáciles
+local EASY_WORDS = 8            -- Número de palabras fáciles
 local MODERATE_WORDS = 8        -- Número de palabras moderadas
 local EXPERT_WORDS = 10         -- Número de palabras expertas
 local EASY_ATTEMPTS = 5         -- Intentos para dificultad fácil
 local MODERATE_ATTEMPTS = 4     -- Intentos para dificultad moderada
-local EXPERT_ATTEMPTS = 3       -- Intentos para dificultad experta
+local EXPERT_ATTEMPTS = 4       -- Intentos para dificultad experta
 -- ============== RESULTADO Y TIEMPOS =============================
 local RESULT_DISPLAY_TIME = 180 -- Ticks para mostrar resultado antes de cerrar (180 = 9 segundos)
 local AUTO_CLOSE_DELAY = 60     -- Ticks para cierre automático después de resultado (60 = 3 segundos)
@@ -203,20 +203,28 @@ end
 
 function SimpleTimer:update()
     local toRemove = {}
-    
+
     for id, timer in pairs(self.activeTimers) do
-        timer.elapsed = timer.elapsed + 1
-        if timer.elapsed >= timer.duration then
-            if timer.callback and type(timer.callback) == 'function' then
-                local success, err = pcall(timer.callback)
-                if not success then
-                    print("SimpleTimer: Callback error:", err)
+        -- Verificar que el timer sea una tabla válida
+        if timer and type(timer) == 'table' and timer.elapsed and timer.duration and timer.callback then
+            timer.elapsed = timer.elapsed + 1
+            if timer.elapsed >= timer.duration then
+                -- Ejecutar callback de forma segura
+                if timer.callback and type(timer.callback) == 'function' then
+                    local success, err = pcall(timer.callback)
+                    if not success then
+                        print("SimpleTimer: Callback error:", err)
+                    end
                 end
+                toRemove[id] = true
             end
+        else
+            -- Timer inválido, marcar para remover
             toRemove[id] = true
         end
     end
-    
+
+    -- Remover timers completados o inválidos
     for id in pairs(toRemove) do
         self.activeTimers[id] = nil
     end
@@ -257,6 +265,27 @@ function MiniGameFalloutWindow:new(x, y, width, height, player, usbType, difficu
     o.gameActive = false
     o.selectedWordIndex = 0
     o.lastHint = ""
+    o.wordFeedback = {}
+
+    -- ✅ EFECTOS VISUALES Y DE AUDIO
+    o.flashTicks = 0
+    o.flashColor = {r=0.2, g=1, b=0.2}
+    o.scanOffset = 0
+    o.scanDelay = 4
+    o.scanStep = 6
+    o.statusMessages = {"LINK ESTABLISHED", "BRUTE FORCE IN PROGRESS", "WARNING: FIREWALL"}
+    o.statusTextManual = "STANDBY"
+    o.statusCycleDelay = 180
+    o.statusIndex = 1
+    o.shakeTicks = 0
+    o.baseX = x
+    o.baseY = y
+    o.statusCycleEnabled = true
+    o.scanAnimationActive = true
+    o.scanTickCounter = 0
+    o.statusTickCounter = 0
+    o.statusPulseTick = 0
+    o.statusPulseValue = 1
     
     -- ✅ CONFIGURACIÓN AUTOMÁTICA SEGÚN USB
     o:configureFromUSB()
@@ -361,6 +390,171 @@ function MiniGameFalloutWindow:createChildren()
     -- self.resetButton = ISButton:new(self.width - 120, self.height - 120, 100, 30, "RESET", self, self.onReset)
     -- self.resetButton:initialise()
     -- self:addChild(self.resetButton)
+
+    self.wordFeedback = self.wordFeedback or {}
+    self:startScanAnimation()
+    self:startStatusCycle(true)
+    self:updateActionButtons()
+    self:updateWordButtonStyles()
+end
+
+function MiniGameFalloutWindow:cancelTimer(fieldName)
+    if not fieldName then return end
+    local timerId = self[fieldName]
+    if timerId then
+        SimpleTimer:removeTimer(timerId)
+        self[fieldName] = nil
+    end
+end
+
+function MiniGameFalloutWindow:startScanAnimation()
+    self:cancelTimer("scanTimerId")
+    if not self.scanStep or self.scanStep <= 0 then return end
+
+    local delay = math.max(1, self.scanDelay or 4)
+    self.scanTimerId = SimpleTimer:addTimer(delay, function()
+        if not self:getIsVisible() then
+            self:cancelTimer("scanTimerId")
+            return
+        end
+
+        local height = self.height or 0
+        self.scanOffset = (self.scanOffset or -20) + (self.scanStep or 6)
+        if self.scanOffset > height + 20 then
+            self.scanOffset = -20
+        end
+
+        self:startScanAnimation()
+    end)
+end
+
+function MiniGameFalloutWindow:startStatusCycle(forceReset)
+    self:cancelTimer("statusTimerId")
+    if not self.gameActive then return end
+
+    local messages = self.statusMessages or {}
+    if #messages == 0 then return end
+
+    local delay = math.max(30, self.statusCycleDelay or 180)
+    self.statusTimerId = SimpleTimer:addTimer(delay, function()
+        if not self.gameActive then
+            self:cancelTimer("statusTimerId")
+            return
+        end
+
+        local count = #messages
+        if count > 0 then
+            self.statusIndex = (self.statusIndex or 1) + 1
+            if self.statusIndex > count then self.statusIndex = 1 end
+            self.statusTextManual = messages[self.statusIndex]
+        end
+
+        self:startStatusCycle()
+    end)
+end
+
+function MiniGameFalloutWindow:updateActionButtons()
+    if self.tryButton then
+        local canTry = self.gameActive and self.selectedWordIndex and self.selectedWordIndex > 0
+        self.tryButton:setEnable(canTry)
+        self.tryButton:setVisible(true)
+    end
+
+    if self.startButton then
+        local canStart = not self.gameActive
+        self.startButton:setEnable(canStart)
+        if not canStart then
+            self.startButton:setVisible(false)
+        end
+    end
+end
+
+function MiniGameFalloutWindow:updateWordButtonStyles(successMode)
+    if not self.wordButtons then return end
+
+    local length = PASSWORD_LENGTH or (self.correctPassword and string.len(self.correctPassword)) or 1
+    for index, btn in ipairs(self.wordButtons) do
+        if btn then
+            local isSelected = self.gameActive and self.selectedWordIndex == index
+            local feedback = self.wordFeedback and self.wordFeedback[index] or nil
+            local color = {r=0.15, g=0.35, b=0.2, a=0.6}
+
+            if successMode and self.candidateWords and self.candidateWords[index] == self.correctPassword then
+                color = {r=0.0, g=0.7, b=0.2, a=0.9}
+            elseif feedback then
+                local correctness = math.min(1, (feedback.pos or 0) / length)
+                local letterBonus = math.min(1, (feedback.letters or 0) / length)
+                color = {
+                    r = 0.15 + 0.6 * letterBonus,
+                    g = 0.4 + 0.5 * correctness,
+                    b = 0.15,
+                    a = 0.75
+                }
+            end
+
+            if isSelected then
+                color = {r=0.2, g=0.9, b=0.2, a=0.95}
+            end
+
+            if not self.gameActive then
+                color.a = math.min(color.a, 0.4)
+            end
+
+            btn.backgroundColor = color
+            btn.borderColor = {r=color.r, g=color.g, b=color.b, a=1}
+        end
+    end
+end
+
+function MiniGameFalloutWindow:triggerFlash(ticks, color)
+    self.flashTicks = math.max(self.flashTicks or 0, ticks or 20)
+    if color then
+        self.flashColor = color
+    end
+end
+
+function MiniGameFalloutWindow:triggerShake(ticks)
+    local amount = tonumber(ticks) or 20
+    if amount < 0 then amount = 0 end
+    self.shakeTicks = math.max(self.shakeTicks or 0, amount)
+end
+
+function MiniGameFalloutWindow:playSound(soundName)
+    if not soundName or type(soundName) ~= "string" then
+        return
+    end
+
+    local success = false
+
+    if self.player and type(self.player) == "table" then
+        local square = nil
+        if self.player.getCurrentSquare and type(self.player.getCurrentSquare) == "function" then
+            square = self.player:getCurrentSquare()
+        end
+
+        if square then
+            local sm = getSoundManager()
+            if sm and type(sm) == "table" and sm.playWorldSound then
+                local status, err = pcall(function()
+                    sm:playWorldSound(soundName, square, 0, 10, 1, false)
+                end)
+                if status then
+                    success = true
+                else
+                    print("MiniGameFallout: Sound error:", err)
+                end
+            end
+        end
+    end
+
+    if not success then
+        local sm = getSoundManager()
+        if sm and sm.playUISound then
+            pcall(function()
+                sm:playUISound(soundName)
+            end)
+        end
+    end
 end
 
 function MiniGameFalloutWindow:onStart()
@@ -373,6 +567,7 @@ function MiniGameFalloutWindow:onStart()
     self.gameActive = true
     self.selectedWordIndex = 0
     self.lastHint = ""
+    self.wordFeedback = {}
     
     -- Actualizar texto de botones
     for i, btn in ipairs(self.wordButtons) do
@@ -388,6 +583,24 @@ function MiniGameFalloutWindow:onStart()
     if self.startButton then
         self.startButton:setVisible(false)
     end
+
+    -- ✅ FEEDBACK AUDIO/VISUAL
+    self:triggerFlash(30, {r=0.2, g=1, b=0.2})
+    if self.playSound then
+        self:playSound("UIActivate")
+    end
+
+    self.statusCycleEnabled = true
+    self.statusIndex = 1
+    if self.statusMessages and #self.statusMessages > 0 then
+        self.statusTextManual = self.statusMessages[1]
+    else
+        self.statusTextManual = "LINK ESTABLISHED"
+    end
+    self:startStatusCycle(true)
+    self:startScanAnimation()
+    self:updateWordButtonStyles()
+    self:updateActionButtons()
     
     -- Iniciar timer
     self:startTimer()
@@ -432,8 +645,9 @@ end
 -- end
 
 function MiniGameFalloutWindow:startTimer()
+    self:cancelTimer("timerId")
     self.timerId = SimpleTimer:addTimer(60, function()
-        self.timeRemaining = self.timeRemaining - 1
+        self.timeRemaining = math.max((self.timeRemaining or 0) - 1, 0)
         if self.timeRemaining <= 0 then
             self:onTimeUp()
         else
@@ -445,52 +659,90 @@ end
 function MiniGameFalloutWindow:onTimeUp()
     self.gameActive = false
     self:clearAllTimers()
+    self:cancelTimer("statusTimerId")
+    self.statusTextManual = "TIME UP"
+    self.selectedWordIndex = 0
+    self:updateActionButtons()
+    self:updateWordButtonStyles()
     self:showResult(false, "TIME UP")
     self:applyResult(false)
 end
 
 function MiniGameFalloutWindow:onWordSelect(button)
     if not self.gameActive then return end
-    
-    -- Resaltar selección
-    for i, btn in ipairs(self.wordButtons) do
-        if btn == button then
-            btn.backgroundColor = {r=0.3, g=1, b=0.3, a=1}  -- Verde para seleccionado
-            self.selectedWordIndex = i
-        else
-            btn.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}  -- Normal
+
+    if self.wordButtons then
+        for i, btn in ipairs(self.wordButtons) do
+            if btn == button then
+                self.selectedWordIndex = i
+                break
+            end
         end
+    end
+
+    self:updateWordButtonStyles()
+    self:updateActionButtons()
+
+    if self.playSound then
+        self:playSound("UIToggle")
     end
 end
 
 function MiniGameFalloutWindow:onTry()
     if not self.gameActive or self.selectedWordIndex == 0 then return end
     
-    local selectedWord = self.candidateWords[self.selectedWordIndex]
+    local selectedIndex = self.selectedWordIndex
+    local selectedWord = self.candidateWords[selectedIndex]
     local success = (selectedWord == self.correctPassword)
-    
+
     if success then
+        self:triggerFlash(35, {r=0.2, g=1, b=0.2})
+        if self.playSound then
+            self:playSound("UIUnlock")
+        end
         self.gameActive = false
         self:clearAllTimers()
+        self:cancelTimer("statusTimerId")
+        self.statusTextManual = "ACCESS GRANTED"
+        self:updateActionButtons()
+        self:updateWordButtonStyles(true)
         self:showResult(true, "ACCESS GRANTED")
         self:applyResult(true)
+        return
+    end
+
+    local correctPos, correctLet = calculateHints(selectedWord, self.correctPassword)
+    self.wordFeedback[selectedIndex] = {pos = correctPos, letters = correctLet}
+    self.lastHint = string.format("%d/%d correct", correctPos, PASSWORD_LENGTH)
+    self.attemptsRemaining = self.attemptsRemaining - 1
+    self.selectedWordIndex = 0
+    self:updateWordButtonStyles()
+
+    if self.attemptsRemaining <= 0 then
+        self:triggerFlash(40, {r=1, g=0.2, b=0.2})
+        if self.playSound then
+            self:playSound("UIObjectiveFailed")
+        end
+        self.gameActive = false
+        self:clearAllTimers()
+        self:cancelTimer("statusTimerId")
+        self.statusTextManual = "LOCKOUT"
+        self:triggerShake(40)
+        self:showResult(false, "LOCKOUT")
+        self:applyResult(false)
     else
-        -- Calcular pista
-        local correctPos, correctLet = calculateHints(selectedWord, self.correctPassword)
-        self.lastHint = string.format("%d/%d correct", correctPos, PASSWORD_LENGTH)
-        self.attemptsRemaining = self.attemptsRemaining - 1
-        
-        if self.attemptsRemaining <= 0 then
-            self.gameActive = false
-            self:clearAllTimers()
-            self:showResult(false, "LOCKOUT")
-            self:applyResult(false)
-        else
-            if self.player then
-                self.player:Say("Incorrect. " .. self.lastHint .. " remaining.")
-            end
+        self:triggerFlash(20, {r=1, g=0.6, b=0.2})
+        if self.playSound then
+            self:playSound("UIError")
+        end
+        self.statusTextManual = string.format("FIREWALL: %s", self.lastHint)
+        self:startStatusCycle()
+        if self.player then
+            self.player:Say("Incorrect. " .. self.lastHint .. " remaining.")
         end
     end
+
+    self:updateActionButtons()
 end
 
 function MiniGameFalloutWindow:showResult(success, message)
@@ -509,7 +761,8 @@ function MiniGameFalloutWindow:showResult(success, message)
         end
     end
     
-    SimpleTimer:addTimer(RESULT_DISPLAY_TIME or 180, function()
+    self:cancelTimer("resultTimerId")
+    self.resultTimerId = SimpleTimer:addTimer(RESULT_DISPLAY_TIME or 180, function()
         self:onClose()
     end)
 end
@@ -560,6 +813,8 @@ end
 
 function MiniGameFalloutWindow:onReset()
     self:clearAllTimers()
+    self:cancelTimer("statusTimerId")
+    self:cancelTimer("resultTimerId")
     self.correctPassword = ""
     self.candidateWords = {}
     self.attemptsRemaining = MAX_ATTEMPTS
@@ -567,6 +822,10 @@ function MiniGameFalloutWindow:onReset()
     self.gameActive = false
     self.selectedWordIndex = 0
     self.lastHint = ""
+    self.scanOffset = -20
+    self.statusIndex = 1
+    self.statusTextManual = "STANDBY"
+    self.wordFeedback = {}
     
     for i, btn in ipairs(self.wordButtons) do
         btn:setTitle("")
@@ -577,17 +836,37 @@ function MiniGameFalloutWindow:onReset()
     if self.player then
         self.player:Say("Hacking system reset")
     end
+
+    self:updateActionButtons()
+    self:updateWordButtonStyles()
+end
+
+function MiniGameFalloutWindow:playSound(soundName)
+    if self.player and soundName then
+        -- Usa el método local del jugador para reproducir sonidos
+        if self.player.playSoundLocal then
+            self.player:playSoundLocal(soundName)
+        elseif getPlayer() and getPlayer().playSoundLocal then
+            getPlayer():playSoundLocal(soundName)
+        else
+            print("[MiniGameFallout] Audio system not available for sound: " .. soundName)
+        end
+    end
 end
 
 function MiniGameFalloutWindow:clearAllTimers()
-    if self.timerId then
-        SimpleTimer:removeTimer(self.timerId)
-        self.timerId = nil
+    local fields = {"timerId", "statusTimerId", "scanTimerId", "resultTimerId"}
+    for _, field in ipairs(fields) do
+        if self[field] then
+            SimpleTimer:removeTimer(self[field])
+            self[field] = nil
+        end
     end
 end
 
 function MiniGameFalloutWindow:onClose()
     self:clearAllTimers()
+    self.scanAnimationActive = false
     self:setVisible(false)
     self:removeFromUIManager()
 end
@@ -628,7 +907,46 @@ end
 
 -- Mejorar renderizado: EFECTO CRT VERDE ESTILO ALIEN
 function MiniGameFalloutWindow:render()
+    -- Verificar que math esté disponible y proporcionar fallbacks
+    local mathLib = math
+    if not mathLib then
+        mathLib = {}
+    end
+
+    -- Proporcionar fallbacks para funciones matemáticas críticas
+    local mathRandom = mathLib.random or function() return 0.5 end
+    local mathFloor = mathLib.floor or function(x) return x end
+    local mathMax = mathLib.max or function(a, b) return a > b and a or b end
+
+    local shaking = self.shakeTicks and self.shakeTicks > 0
+    local originalX, originalY
+
+    if shaking then
+        originalX = self:getX()
+        originalY = self:getY()
+        self.baseX = self.baseX or originalX
+        self.baseY = self.baseY or originalY
+        local strength = mathMax(1, mathFloor(self.shakeTicks / 6) + 1)
+        local offsetX = mathFloor(((mathRandom() * 2) - 1) * strength)
+        local offsetY = mathFloor(((mathRandom() * 2) - 1) * strength)
+        self:setX(self.baseX + offsetX)
+        self:setY(self.baseY + offsetY)
+    else
+        self.baseX = self:getX()
+        self.baseY = self:getY()
+    end
+
     ISPanel.render(self)
+
+    if shaking then
+        self:setX(originalX)
+        self:setY(originalY)
+        self.shakeTicks = mathMax(self.shakeTicks - 1, 0)
+        if self.shakeTicks == 0 then
+            self.baseX = originalX
+            self.baseY = originalY
+        end
+    end
 
     -- EFECTO CRT
     local crtGreen = {r=0, g=0, b=0, a=0.3}
@@ -637,13 +955,33 @@ function MiniGameFalloutWindow:render()
     for y = 0, self.height, 4 do
         self:drawRect(0, y, self.width, 1, 0.1, 0, 0.3, 0)
     end
+
+    if self.scanOffset then
+        local scanY = (self.scanOffset % (self.height + 40)) - 20
+        if scanY < self.height then
+            self:drawRect(0, math.floor(scanY), self.width, 12, 0.12, 0.1, 0.8, 0.1)
+        end
+    end
     
     local borderGreen = {r=0.2, g=1, b=0.2, a=1}
     self:drawRectBorder(0, 0, self.width, self.height, borderGreen.a, borderGreen.r, borderGreen.g, borderGreen.b)
     self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
 
-    -- TÍTULO
-    local titleText = self.demoMode and "PASSWORD HACK TERMINAL [DEMO]" or "HACK TERMINAL"
+    if self.flashTicks and self.flashTicks > 0 then
+        local fc = self.flashColor or borderGreen
+        local flashAlpha = math.min(0.45, 0.1 + (self.flashTicks / 80))
+        self:drawRect(0, 0, self.width, self.height, flashAlpha, fc.r, fc.g, fc.b)
+        self:drawRectBorder(0, 0, self.width, self.height, flashAlpha + 0.15, fc.r, fc.g, fc.b)
+        self.flashTicks = math.max(self.flashTicks - 1, 0)
+    end
+
+    -- TÍTULO DINÁMICO (reemplaza el título estático)
+    local statusText = self.statusTextManual
+    if not statusText or statusText == "" then
+        statusText = self.gameActive and "HACKING..." or "STANDBY"
+    end
+
+    local titleText = self.demoMode and "PASSWORD HACK TERMINAL [DEMO]" or statusText
     local titleWidth = 220
     local textManager = getTextManager()
     if textManager and textManager.MeasureStringX then
@@ -681,16 +1019,4 @@ function MiniGameFalloutWindow:render()
         self:drawText(attemptsText, 20, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
         self:drawText(timeText, self.width - 120, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
     end
-
-    -- Estado
-    local statusText = self.gameActive and "HACKING..." or "STANDBY"
-    local statusWidth = 100
-    if textManager and textManager.MeasureStringX then
-        local success, width = pcall(function()
-            return textManager:MeasureStringX(UIFont.Small, statusText)
-        end)
-        if success and width then statusWidth = width end
-    end
-    local statusX = (self.width - statusWidth) / 2
-    self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
 end
