@@ -577,7 +577,7 @@ end
 
 function MiniGameWindow:onClose()
     -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
-    if self.playing or (self.sequence and #self.sequence > 0) then
+    if self.usbData and self.usbData.item then
         print("[CLOSE FAILURE] Sequence minigame closed while in progress - treating as failure")
 
         -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)

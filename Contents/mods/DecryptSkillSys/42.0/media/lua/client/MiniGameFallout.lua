@@ -963,7 +963,7 @@ end
 
 function MiniGameFalloutWindow:onClose()
     -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
-    if self.gameActive or self.timeRemaining < TIME_LIMIT then
+    if self.usbData and self.usbData.item then
         print("[CLOSE FAILURE] Fallout minigame closed while in progress - treating as failure")
 
         -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
