@@ -19,16 +19,74 @@ function ReloadMiniGameFallout()
     end
 end
 
--- ✅ FUNCIÓN DE PRUEBA RÁPIDA PARA DEBUG
-function TestMiniGameFallout(widthPct, heightPct)
-    widthPct = widthPct or WINDOW_WIDTH_PCT
-    heightPct = heightPct or WINDOW_HEIGHT_PCT
-    print("[DEBUG] Testing Fallout minigame with size: " .. widthPct .. "% x " .. heightPct .. "%")
-    
-    if MiniGameFallout then
-        return MiniGameFallout(widthPct, heightPct, "TestSkill", "Easy", nil, {skill="TestSkill", difficulty_english="Easy", displayName="Test USB"})
+-- ✅ FUNCIÓN DE DEBUG PARA PROBAR CONSUMO DE USB ESPECÍFICO
+function TestFalloutUSBConsumption()
+    print("[FALLOUT DEBUG] Testing USB consumption logic...")
+
+    local player = getPlayer()
+    if not player then
+        print("[ERROR] No player found for testing")
+        return
+    end
+
+    local inventory = player:getInventory()
+    if not inventory then
+        print("[ERROR] No inventory found")
+        return
+    end
+
+    -- Buscar un USB en el inventario
+    local usbItem = nil
+    local items = inventory:getItems()
+    for i = 0, items:size() - 1 do
+        local item = items:get(i)
+        if item and item:getFullType() and string.find(item:getFullType(), "SkillDrive_") then
+            usbItem = item
+            break
+        end
+    end
+
+    if not usbItem then
+        print("[ERROR] No USB found in inventory for testing")
+        return
+    end
+
+    print("[DEBUG] Found USB: " .. tostring(usbItem:getName()) .. " (" .. tostring(usbItem:getFullType()) .. ")")
+
+    -- Crear datos USB de prueba
+    local testUSBData = {
+        item = usbItem,
+        skill = "Cooking",
+        difficulty_english = "Easy",
+        displayName = "USB Cooking (Easy)"
+    }
+
+    print("[DEBUG] Created test USB data:")
+    for key, value in pairs(testUSBData) do
+        print("[DEBUG]   " .. tostring(key) .. ": " .. tostring(value))
+    end
+
+    -- Simular la lógica de consumo de USB
+    print("[DEBUG] Testing inventory:contains()...")
+    local containsUSB = inventory:contains(usbItem)
+    print("[DEBUG] inventory:contains(usbItem): " .. tostring(containsUSB))
+
+    if containsUSB then
+        print("[DEBUG] Calling inventory:Remove()...")
+        inventory:Remove(usbItem)
+        print("[SUCCESS] USB consumed from inventory: " .. tostring(usbItem:getName()))
+
+        -- Verificar que el USB ya no esté en el inventario
+        local stillContains = inventory:contains(usbItem)
+        print("[DEBUG] After removal - inventory:contains(usbItem): " .. tostring(stillContains))
+
+        if not stillContains then
+            print("[SUCCESS] USB consumption test PASSED - USB was successfully removed")
+        else
+            print("[ERROR] USB consumption test FAILED - USB still in inventory after removal")
+        end
     else
-        print("[DEBUG] MiniGameFallout function not available. Try ReloadMiniGameFallout() first.")
+        print("[WARNING] USB not found in inventory for consumption test")
     end
 end
 
@@ -776,22 +834,61 @@ function MiniGameFalloutWindow:applyResult(success)
         end
         return
     end
-    
+
+    -- ✅ DEBUG: Información detallada del estado del USB
+    print("[FALLOUT DEBUG] applyResult called with success=" .. tostring(success))
+    print("[FALLOUT DEBUG] self.usbData exists: " .. tostring(self.usbData ~= nil))
+    if self.usbData then
+        print("[FALLOUT DEBUG] self.usbData.item exists: " .. tostring(self.usbData.item ~= nil))
+        print("[FALLOUT DEBUG] self.usbData.displayName: " .. tostring(self.usbData.displayName))
+        if self.usbData.item then
+            print("[FALLOUT DEBUG] self.usbData.item type: " .. type(self.usbData.item))
+            print("[FALLOUT DEBUG] self.usbData.item name: " .. tostring(self.usbData.item:getName()))
+            print("[FALLOUT DEBUG] self.usbData.item fullType: " .. tostring(self.usbData.item:getFullType()))
+        end
+    end
+
+    print("[FALLOUT DEBUG] self.player exists: " .. tostring(self.player ~= nil))
+    print("[FALLOUT DEBUG] self.usbType: " .. tostring(self.usbType))
+    print("[FALLOUT DEBUG] self.difficulty: " .. tostring(self.difficulty))
+    print("[FALLOUT DEBUG] self.laptopItem exists: " .. tostring(self.laptopItem ~= nil))
+
     -- ✅ CONSUMIR USB CON VALIDACIONES ROBUSTAS
     if self.usbData and self.usbData.item then
         local inventory = self.player and self.player:getInventory()
-        if inventory and inventory:contains(self.usbData.item) then
-            inventory:Remove(self.usbData.item)
-            print("[SUCCESS] USB consumed from inventory: " .. tostring(self.usbData.displayName))
+        print("[FALLOUT DEBUG] inventory obtained: " .. tostring(inventory ~= nil))
+
+        if inventory then
+            print("[FALLOUT DEBUG] Checking if inventory contains USB item...")
+            local containsUSB = inventory:contains(self.usbData.item)
+            print("[FALLOUT DEBUG] inventory:contains(usbData.item): " .. tostring(containsUSB))
+
+            if containsUSB then
+                print("[FALLOUT DEBUG] Removing USB from inventory...")
+                inventory:Remove(self.usbData.item)
+                print("[SUCCESS] USB consumed from inventory: " .. tostring(self.usbData.displayName))
+            else
+                print("[WARNING] USB not found in inventory for consumption")
+            end
         else
-            print("[WARNING] USB not found in inventory or inventory not accessible")
+            print("[WARNING] Could not get player inventory")
+        end
+    else
+        print("[WARNING] usbData or usbData.item is nil - cannot consume USB")
+        if self.usbData then
+            print("[DEBUG] usbData contents:")
+            for key, value in pairs(self.usbData) do
+                print("[DEBUG]   " .. tostring(key) .. ": " .. tostring(value))
+            end
         end
     end
-    
+
     -- ✅ INTEGRACIÓN USB SEGURA
     if self.usbType and self.difficulty and self.laptopItem then
         if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+            print("[FALLOUT DEBUG] Calling GVDrive_Utils.applyMinigameResult...")
             local result = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
+            print("[FALLOUT DEBUG] applyMinigameResult returned: " .. tostring(result))
             if success then
                 if self.player then self.player:Say("Password cracked! Experience gained!") end
             else
@@ -865,8 +962,43 @@ function MiniGameFalloutWindow:clearAllTimers()
 end
 
 function MiniGameFalloutWindow:onClose()
+    -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
+    if self.gameActive or self.timeRemaining < TIME_LIMIT then
+        print("[CLOSE FAILURE] Fallout minigame closed while in progress - treating as failure")
+
+        -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
+        if self.usbData and self.usbData.item then
+            local inventory = self.player and self.player:getInventory()
+            if inventory and inventory:contains(self.usbData.item) then
+                inventory:Remove(self.usbData.item)
+                print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
+            else
+                print("[WARNING] USB not found in inventory for consumption on close")
+            end
+        end
+
+        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO por cierre)
+        if self.usbType and self.difficulty and self.laptopItem then
+            -- Verificar que GVDrive_Utils esté disponible
+            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+                if not success then
+                    self.player:Say("Laptop damaged from interrupted " .. self.usbType .. " hack!")
+                end
+            else
+                print("[ERROR] GVDrive_Utils not available for damage calculation on close")
+                self.player:Say("Hack interrupted, but damage system unavailable.")
+            end
+        end
+
+        -- Mensaje al jugador sobre el cierre prematuro
+        if self.player then
+            self.player:Say("Password hack interrupted! You gave up too early.")
+        end
+    end
+
+    -- Cerrar la ventana normalmente
     self:clearAllTimers()
-    self.scanAnimationActive = false
     self:setVisible(false)
     self:removeFromUIManager()
 end

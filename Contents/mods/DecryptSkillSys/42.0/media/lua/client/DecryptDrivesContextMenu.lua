@@ -4,11 +4,49 @@ DecryptDrivesContextMenu.MODERN_MENU_ACTIVE = true
 pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 
 -- ========== CONFIGURACIÓN DE MINIJUEGO ==========
--- Cambia esta variable para alternar entre minijuegos:
+-- Sistema de selección aleatoria entre minijuegos disponibles:
 -- "sequence" = Minijuego de secuencia (MiniGameUI.lua) - Memoria de secuencia
 -- "fallout" = Minijuego de hacking Fallout (MiniGameFallout.lua) - Hacking de contraseñas
-local ACTIVE_MINIGAME = "fallout"  -- ← CAMBIA AQUÍ: "sequence" o "fallout"
--- ================================================
+
+-- Lista de minijuegos disponibles
+local AVAILABLE_MINIGAMES = {"sequence", "fallout"}
+
+-- Función para seleccionar minijuego aleatorio (SIMPLIFICADA PARA DEBUG)
+local function selectRandomMinigame()
+    print("[DEBUG] selectRandomMinigame() called")
+    print("[DEBUG] AVAILABLE_MINIGAMES: " .. tostring(#AVAILABLE_MINIGAMES))
+    for i, game in ipairs(AVAILABLE_MINIGAMES) do
+        print("[DEBUG]   [" .. i .. "] " .. game)
+    end
+
+    if #AVAILABLE_MINIGAMES == 0 then
+        print("[DEBUG] No available minigames, returning fallback: fallout")
+        return "fallout" -- Fallback
+    end
+
+    -- ✅ MÉTODO ULTRA SIMPLE: Usar solo ZombRand si está disponible
+    if ZombRand then
+        print("[DEBUG] Using ZombRand() for true randomness...")
+        local randomIndex = ZombRand(1, #AVAILABLE_MINIGAMES + 1) -- ZombRand is 1-based
+        print("[DEBUG] ZombRand generated index: " .. randomIndex)
+        local selectedGame = AVAILABLE_MINIGAMES[randomIndex]
+        print("[DEBUG] Selected game via ZombRand: " .. selectedGame)
+        return selectedGame
+    end
+
+    -- Fallback ultra simple: usar timestamp si ZombRand no está disponible
+    print("[DEBUG] ZombRand not available, using timestamp fallback...")
+    local timestamp = os and os.time and os.time() or 1000000
+    local simpleRandom = (timestamp % #AVAILABLE_MINIGAMES) + 1
+    print("[DEBUG] Timestamp-based random index: " .. simpleRandom .. " (timestamp: " .. timestamp .. ")")
+    local selectedGame = AVAILABLE_MINIGAMES[simpleRandom]
+    print("[DEBUG] Selected game via timestamp: " .. selectedGame)
+    return selectedGame
+end
+
+-- Seleccionar minijuego aleatorio para esta sesión (ahora se hace por USB, no solo al cargar)
+-- local ACTIVE_MINIGAME = selectRandomMinigame()
+-- Eliminada la línea de debug que causaba error: print("[DEBUG] ACTIVE_MINIGAME set to: " .. ACTIVE_MINIGAME)
 
 -- Import centralized config
 pcall(require, "shared/GVDrive_Config")
@@ -23,16 +61,20 @@ end
 -- ✅ CARGAR MINIJUEGO SELECCIONADO - PATRÓN MODULAR DEL CODEBASE
 local miniGameLoaded = false
 
--- Función helper para obtener configuración del minijuego activo
+-- Función helper para obtener configuración del minijuego activo (SELECCIÓN POR USB)
 local function getActiveMinigameConfig()
-    if ACTIVE_MINIGAME == "sequence" then
+    -- ✅ NUEVO: Seleccionar minijuego aleatorio CADA VEZ que se usa un USB
+    local currentMinigame = selectRandomMinigame()
+    print("[DEBUG] Selected minigame for this USB: " .. currentMinigame)
+
+    if currentMinigame == "sequence" then
         return {
             name = "MiniGame",  -- Función global para secuencia
             module = "client.MiniGameUI",  -- Path con client/ para PZ
             reloadFunc = "ReloadMiniGame",
             displayName = "sequence"
         }
-    elseif ACTIVE_MINIGAME == "fallout" then
+    elseif currentMinigame == "fallout" then
         return {
             name = "MiniGame_Fallout",  -- Función específica para Fallout (evita conflictos)
             module = "client.MiniGameFallout",  -- Path con client/ para PZ
@@ -40,40 +82,18 @@ local function getActiveMinigameConfig()
             displayName = "fallout hacking"
         }
     else
-        debugPrint("[ERROR] Invalid ACTIVE_MINIGAME: " .. tostring(ACTIVE_MINIGAME) .. ". Using default 'fallout'")
-        ACTIVE_MINIGAME = "fallout"
-        return getActiveMinigameConfig()
+        debugPrint("[ERROR] Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
+        return {
+            name = "MiniGame_Fallout",
+            module = "client.MiniGameFallout",
+            reloadFunc = "ReloadMiniGameFallout",
+            displayName = "fallout hacking"
+        }
     end
 end
 
 local activeConfig = getActiveMinigameConfig()
-debugPrint("[INFO] Active minigame: " .. ACTIVE_MINIGAME .. " (" .. activeConfig.displayName .. ")")
-
--- Verificar si el minijuego ya está disponible
-if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
-    miniGameLoaded = true
-    debugPrint("[SUCCESS] " .. activeConfig.name .. " already available from global scope")
-else
-    debugPrint("[INFO] " .. activeConfig.name .. " not available, attempting to load from " .. activeConfig.module .. ".lua")
-    
-    -- Intentar cargar el módulo seleccionado
-    local success, result = pcall(require, activeConfig.module)
-    if success then
-        debugPrint("[SUCCESS] " .. activeConfig.module .. ".lua loaded successfully")
-        if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
-            debugPrint("[SUCCESS] " .. activeConfig.name .. " function now available in global scope")
-            miniGameLoaded = true
-        else
-            debugPrint("[WARNING] " .. activeConfig.name .. " function still not available after loading")
-            -- NO forzar registro - dejar que el módulo se cargue naturalmente
-            miniGameLoaded = true
-        end
-    else
-        debugPrint("[ERROR] Failed to load " .. activeConfig.module .. ".lua: " .. tostring(result))
-        debugPrint("[INFO] Minigame will attempt to load naturally when called")
-        miniGameLoaded = true
-    end
-end
+debugPrint("[INFO] Active minigame: " .. activeConfig.displayName .. " (" .. activeConfig.name .. ")")
 
 -- ✅ CARGAR MINIJUEGOS ADICIONALES
 local morseGameLoaded = false
@@ -646,56 +666,18 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
 end
 
 -- ============================================================================
--- MODULAR MENU SYSTEM INTEGRATION
+-- MODULAR MENU SYSTEM INTEGRATION (Simplified)
 -- ============================================================================
 
--- Import modular components
--- Import modular MenuController module safely
-local menuControllerModuleLoaded, menuControllerModuleOrErr = pcall(require, "DecryptDrivesContextMenu.MenuController")
-debugPrint("MenuController require result: loaded=" .. tostring(menuControllerModuleLoaded) .. ", value=" .. tostring(menuControllerModuleOrErr))
-
--- Initialize menu controller instance using returned module or global fallback
-local menuController = nil
-if menuControllerModuleLoaded and type(menuControllerModuleOrErr) == "table" then
-    local mod = menuControllerModuleOrErr
-    if not MenuController then MenuController = mod end
-    if mod.new and type(mod.new) == "function" then
-        menuController = mod:new()
-        debugPrint("MenuController initialized from module return value")
-    end
-end
-
--- Fallback to global MenuController if module didn't return instance
-if not menuController and MenuController and type(MenuController.new) == "function" then
-    menuController = MenuController:new()
-    debugPrint("MenuController initialized from global table fallback")
-elseif not menuController then
-    debugPrint("[WARN] MenuController not available, falling back to legacy implementation")
-end
-
-debugPrint("Final menuController state: " .. tostring(menuController))
+-- Simplified approach - just use legacy implementation for reliability
+debugPrint("DecryptDrivesContextMenu: Using simplified legacy implementation for maximum compatibility")
 
 -- Create hierarchical context menu
 function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList)
     debugPrint("createHierarchicalMenu called")
 
-    -- Try to use modular controller first
-    if menuController then
-        debugPrint("Using modular MenuController")
-        local success, result = pcall(function()
-            return menuController:createMenu(player, context, laptop, usbList, healthOption)
-        end)
-        if success then
-            debugPrint("Modular menu created successfully")
-            return result
-        else
-            debugPrint("[ERROR] Modular menu failed: " .. tostring(result))
-            debugPrint("Falling back to legacy implementation")
-        end
-    end
-
-    -- Fallback to legacy implementation
-    debugPrint("Using legacy menu implementation")
+    -- Use legacy implementation directly (more reliable)
+    debugPrint("Using legacy menu implementation for reliability")
     return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
 end
 
@@ -884,54 +866,56 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     end
 
     if usbType and difficulty then
-        debugPrint("Opening integrated minigame for USB: " .. usbType .. " (" .. difficulty .. ") using " .. ACTIVE_MINIGAME .. " minigame")
+        -- ✅ OBTENER CONFIGURACIÓN FRESCA CADA VEZ (selección aleatoria por USB)
+        local currentConfig = getActiveMinigameConfig()
+        debugPrint("Opening random minigame for USB: " .. usbType .. " (" .. difficulty .. ") using " .. currentConfig.displayName .. " minigame")
 
         -- ✅ VERIFICACIÓN Y RECARGA DEL MINIJUEGO ACTIVO
-        if not _G[activeConfig.name] or type(_G[activeConfig.name]) ~= "function" then
-            debugPrint("[WARN] _G." .. activeConfig.name .. " missing or not a function. Attempting to reload " .. activeConfig.module .. " module...")
+        if not _G[currentConfig.name] or type(_G[currentConfig.name]) ~= "function" then
+            debugPrint("[WARN] _G." .. currentConfig.name .. " missing or not a function. Attempting to reload " .. currentConfig.module .. " module...")
             if package and package.loaded then
-                package.loaded[activeConfig.module] = nil
+                package.loaded[currentConfig.module] = nil
             else
                 debugPrint("[WARN] Lua 'package.loaded' not available in this context; skipping cache clear")
             end
-            local ok, result = pcall(require, activeConfig.module)
+            local ok, result = pcall(require, currentConfig.module)
             if ok then
-                debugPrint("[INFO] " .. activeConfig.module .. " module reloaded. _G." .. activeConfig.name .. " type after reload: " .. type(_G[activeConfig.name]))
+                debugPrint("[INFO] " .. currentConfig.module .. " module reloaded. _G." .. currentConfig.name .. " type after reload: " .. type(_G[currentConfig.name]))
             else
-                debugPrint("[ERROR] Failed to reload " .. activeConfig.module .. " module: " .. tostring(result))
-                debugPrint("[WARN] Trying " .. activeConfig.reloadFunc .. "() as secondary fallback...")
+                debugPrint("[ERROR] Failed to reload " .. currentConfig.module .. " module: " .. tostring(result))
+                debugPrint("[WARN] Trying " .. currentConfig.reloadFunc .. "() as secondary fallback...")
                 local reloadOk, reloadResult = pcall(function()
-                    if _G[activeConfig.reloadFunc] then
-                        _G[activeConfig.reloadFunc]()
+                    if _G[currentConfig.reloadFunc] then
+                        _G[currentConfig.reloadFunc]()
                     else
-                        debugPrint("[ERROR] " .. activeConfig.reloadFunc .. " not available")
+                        debugPrint("[ERROR] " .. currentConfig.reloadFunc .. " not available")
                     end
                 end)
                 if not reloadOk then
-                    debugPrint("[ERROR] " .. activeConfig.reloadFunc .. "() threw an error: " .. tostring(reloadResult))
+                    debugPrint("[ERROR] " .. currentConfig.reloadFunc .. "() threw an error: " .. tostring(reloadResult))
                 else
-                    debugPrint("[INFO] " .. activeConfig.reloadFunc .. "() executed. _G." .. activeConfig.name .. " type now: " .. type(_G[activeConfig.name]))
+                    debugPrint("[INFO] " .. currentConfig.reloadFunc .. "() executed. _G." .. currentConfig.name .. " type now: " .. type(_G[currentConfig.name]))
                 end
             end
         end
 
-        debugPrint("[DEBUG] About to call _G." .. activeConfig.name)
-        debugPrint("[DEBUG] _G." .. activeConfig.name .. " type: " .. type(_G[activeConfig.name]))
-        if _G[activeConfig.name] and type(_G[activeConfig.name]) == "function" then
+        debugPrint("[DEBUG] About to call _G." .. currentConfig.name)
+        debugPrint("[DEBUG] _G." .. currentConfig.name .. " type: " .. type(_G[currentConfig.name]))
+        if _G[currentConfig.name] and type(_G[currentConfig.name]) == "function" then
             -- ✅ Permitir que el minijuego use la configuración global de ventana (widthPct/heightPct nil)
-            debugPrint("[DEBUG] Calling " .. activeConfig.name .. " with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
-            local success, minigame = pcall(_G[activeConfig.name], nil, nil, usbType, difficulty, laptopItem, usbData)
+            debugPrint("[DEBUG] Calling " .. currentConfig.name .. " with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
+            local success, minigame = pcall(_G[currentConfig.name], nil, nil, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
-                debugPrint(activeConfig.displayName .. " minigame opened successfully with USB integration")
-                player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - " .. (ACTIVE_MINIGAME == "fallout" and "Password Hacking..." or "Sequence Memory..."))
+                debugPrint(currentConfig.displayName .. " minigame opened successfully with USB integration")
+                player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - " .. (currentConfig.name == "MiniGame_Fallout" and "Password Hacking..." or "Sequence Memory..."))
             else
-                debugPrint("[ERROR] Failed to create " .. activeConfig.displayName .. " minigame: " .. tostring(minigame))
-                player:Say("Error initializing " .. (ACTIVE_MINIGAME == "fallout" and "password hacking" or "sequence decryption") .. " system.")
+                debugPrint("[ERROR] Failed to create " .. currentConfig.displayName .. " minigame: " .. tostring(minigame))
+                player:Say("Error initializing " .. (currentConfig.name == "MiniGame_Fallout" and "password hacking" or "sequence decryption") .. " system.")
             end
         else
-            debugPrint("[ERROR] " .. activeConfig.name .. " function not available in global scope")
-            debugPrint("[ERROR] _G." .. activeConfig.name .. ": " .. tostring(_G[activeConfig.name]))
-            player:Say("No " .. (ACTIVE_MINIGAME == "fallout" and "password hacking" or "decryption") .. " protocol available for this drive type.")
+            debugPrint("[ERROR] " .. currentConfig.name .. " function not available in global scope")
+            debugPrint("[ERROR] _G." .. currentConfig.name .. ": " .. tostring(_G[currentConfig.name]))
+            player:Say("No " .. (currentConfig.name == "MiniGame_Fallout" and "password hacking" or "decryption") .. " protocol available for this drive type.")
         end
     else
         debugPrint("[ERROR] Invalid USB data - skill: " .. tostring(usbType) .. ", difficulty: " .. tostring(difficulty))
@@ -1430,7 +1414,170 @@ end
 
 debugPrint("DecryptDrivesContextMenu: Cargado correctamente")
 
--- Exportar el módulo para pruebas e integración y hacer global para acceso desde estrategias
-_G.DecryptDrivesContextMenu = DecryptDrivesContextMenu
+-- ✅ FUNCIÓN DE DEBUG PARA PROBAR AMBOS MINIJUEGOS
+function TestBothMinigames()
+    local player = getPlayer()
+    if not player then
+        print("[ERROR] No player found for testing")
+        return
+    end
 
-return DecryptDrivesContextMenu
+    print("[DEBUG] Testing both minigames...")
+
+    -- Test Sequence minigame
+    print("[DEBUG] Testing Sequence minigame...")
+    local success1, result1 = pcall(function()
+        return MiniGame(nil, nil, "TestSkill", "Easy", nil, {skill="TestSkill", difficulty_english="Easy", displayName="Test USB"})
+    end)
+    if success1 and result1 then
+        print("[SUCCESS] Sequence minigame created successfully")
+        result1:setVisible(false)
+        result1:removeFromUIManager()
+    else
+        print("[ERROR] Failed to create Sequence minigame: " .. tostring(result1))
+    end
+
+    -- Test Fallout minigame
+    print("[DEBUG] Testing Fallout minigame...")
+    local success2, result2 = pcall(function()
+        return MiniGame_Fallout(nil, nil, "TestSkill", "Easy", nil, {skill="TestSkill", difficulty_english="Easy", displayName="Test USB"})
+    end)
+    if success2 and result2 then
+        print("[SUCCESS] Fallout minigame created successfully")
+        result2:setVisible(false)
+        result2:removeFromUIManager()
+    else
+        print("[ERROR] Failed to create Fallout minigame: " .. tostring(result2))
+    end
+
+    print("[DEBUG] Both minigames tested. Check console for results.")
+end
+
+-- ✅ FUNCIÓN DE DEBUG PARA PROBAR SELECCIÓN ALEATORIA
+function TestRandomSelection()
+    print("[DEBUG] Testing random selection system...")
+    local results = {sequence = 0, fallout = 0}
+
+    for i = 1, 20 do
+        local selected = selectRandomMinigame()
+        results[selected] = results[selected] + 1
+        print("[DEBUG] Test " .. i .. ": Selected " .. selected)
+    end
+
+    print("[DEBUG] Results after 20 tests:")
+    print("[DEBUG]   Sequence: " .. results.sequence .. " times (" .. math.floor((results.sequence / 20) * 100) .. "%)")
+    print("[DEBUG]   Fallout: " .. results.fallout .. " times (" .. math.floor((results.fallout / 20) * 100) .. "%)")
+
+    if results.fallout > 0 then
+        print("[SUCCESS] Random selection is working correctly!")
+    else
+        print("[WARNING] Random selection may not be working - no Fallout selections in 20 tests")
+        print("[WARNING] Try running TestMathRandom() to debug the random generation")
+    end
+end
+
+-- ✅ FUNCIÓN DE DEBUG PARA PROBAR MATH.RANDOM() DIRECTAMENTE
+function TestMathRandom()
+    print("[DEBUG] Testing math.random() directly...")
+
+    -- Test 1: Check if math exists
+    print("[DEBUG] math type: " .. type(math))
+    print("[DEBUG] math: " .. tostring(math))
+
+    -- Test 2: Check if math.random exists
+    if math and math.random then
+        print("[DEBUG] math.random type: " .. type(math.random))
+        print("[DEBUG] math.random function exists!")
+
+        -- Test 3: Try to call math.random
+        print("[DEBUG] Calling math.random(1, 10)...")
+        local success, result = pcall(function()
+            return math.random(1, 10)
+        end)
+
+        if success then
+            print("[DEBUG] math.random(1, 10) = " .. result)
+            print("[DEBUG] math.random() is working correctly!")
+        else
+            print("[DEBUG] math.random() failed: " .. tostring(result))
+        end
+    else
+        print("[DEBUG] math.random is not available!")
+    end
+
+    -- Test 4: Try alternative random generation
+    print("[DEBUG] Testing alternative random generation...")
+    local timestamp = os and os.time and os.time() or 0
+    print("[DEBUG] os.time() = " .. timestamp)
+
+    if timestamp > 0 then
+        local pseudoRandom = timestamp % 2
+        print("[DEBUG] Pseudo-random result: " .. pseudoRandom)
+        print("[DEBUG] Alternative random generation working!")
+
+        -- Test 5: Test the actual selection function
+        print("[DEBUG] Testing selectRandomMinigame() function...")
+        local selected = selectRandomMinigame()
+        print("[DEBUG] selectRandomMinigame() returned: " .. selected)
+    else
+        print("[DEBUG] os.time() not available")
+    end
+
+    -- Test 6: Check ZombRand availability
+    print("[DEBUG] Checking ZombRand...")
+    print("[DEBUG] ZombRand type: " .. type(ZombRand))
+    if ZombRand then
+        print("[DEBUG] ZombRand function exists!")
+        local success, result = pcall(function()
+            return ZombRand(1, 10)
+        end)
+        if success then
+            print("[DEBUG] ZombRand(1, 10) = " .. result)
+        else
+            print("[DEBUG] ZombRand() failed: " .. tostring(result))
+        end
+    else
+        print("[DEBUG] ZombRand is not available")
+    end
+end
+
+-- ✅ FUNCIÓN DE DEBUG PARA REINICIAR Y PROBAR EL SISTEMA
+function ResetAndTestSystem()
+    print("[DEBUG] Resetting and testing the complete system...")
+
+    -- Test 1: Test math functions
+    print("[DEBUG] === TESTING MATH FUNCTIONS ===")
+    TestMathRandom()
+
+    print("[DEBUG] === TESTING RANDOM SELECTION ===")
+    -- Test 2: Test random selection
+    TestRandomSelection()
+
+    print("[DEBUG] === SYSTEM TEST COMPLETE ===")
+    print("[DEBUG] If you see both 'sequence' and 'fallout' in the results, the system is working!")
+    print("[DEBUG] If you only see 'sequence', there might be an issue with random generation.")
+end
+
+-- ✅ FUNCIÓN DE DEBUG SIMPLIFICADA PARA PROBAR SELECCIÓN ALEATORIA
+function TestSimpleRandomSelection()
+    print("[DEBUG] === TESTING SIMPLIFIED RANDOM SELECTION ===")
+    local results = {sequence = 0, fallout = 0}
+
+    for i = 1, 10 do
+        local selected = selectRandomMinigame()
+        results[selected] = results[selected] + 1
+        print("[DEBUG] Test " .. i .. ": " .. selected)
+    end
+
+    print("[DEBUG] Final Results:")
+    print("[DEBUG]   Sequence: " .. results.sequence .. " times (" .. math.floor((results.sequence / 10) * 100) .. "%)")
+    print("[DEBUG]   Fallout: " .. results.fallout .. " times (" .. math.floor((results.fallout / 10) * 100) .. "%)")
+
+    if results.sequence > 0 and results.fallout > 0 then
+        print("[SUCCESS] ✅ Random selection is working! Both minigames are being selected.")
+    elseif results.fallout == 0 then
+        print("[ERROR] ❌ Only Sequence is being selected. Check random generation.")
+    elseif results.sequence == 0 then
+        print("[ERROR] ❌ Only Fallout is being selected. Check random generation.")
+    end
+end

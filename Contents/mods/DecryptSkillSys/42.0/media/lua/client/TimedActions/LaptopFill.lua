@@ -599,7 +599,7 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
                             local inv = playerObj:getInventory()
                             local totalUSBCount = 0
 
-{{ ... }}
+                            if inv then
                                 local items = inv:getItems()
                                 for i = 0, items:size() - 1 do
                                     local invItem = items:get(i)

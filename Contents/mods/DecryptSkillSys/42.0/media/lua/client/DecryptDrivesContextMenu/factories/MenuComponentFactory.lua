@@ -75,8 +75,6 @@ end
 
 -- Create skill category option with submenu
 function MenuComponentFactory:createSkillCategoryOption(parentMenu, skillName)
-{{ ... }}
-
     if not parentMenu or not skillName then
         debugPrint("[ERROR] MenuComponentFactory: Invalid parameters for skill category")
         return nil, nil

@@ -2,7 +2,47 @@
 -- MiniGameUI.lua - Sistema de minijuego independiente para DecryptSkillSys
 -- Basado en patrones del CODEBASE y memorias de formato perfecto
 
-print("[DecryptSkillSys] Loading MiniGameUI.lua - Independent minigame system")
+-- ✅ FUNCIÓN DE DEBUG PARA PROBAR CONSUMO DE USB
+function TestUSBConsumption()
+    print("[DEBUG] Testing USB consumption logic...")
+    local player = getPlayer()
+    if not player then
+        print("[ERROR] No player found for testing")
+        return
+    end
+
+    local inventory = player:getInventory()
+    if not inventory then
+        print("[ERROR] No inventory found")
+        return
+    end
+
+    -- Buscar un USB en el inventario
+    local usbItem = nil
+    local items = inventory:getItems()
+    for i = 0, items:size() - 1 do
+        local item = items:get(i)
+        if item and item:getFullType() and string.find(item:getFullType(), "SkillDrive_") then
+            usbItem = item
+            break
+        end
+    end
+
+    if not usbItem then
+        print("[ERROR] No USB found in inventory for testing")
+        return
+    end
+
+    print("[DEBUG] Found USB: " .. tostring(usbItem:getName()) .. " (" .. tostring(usbItem:getFullType()) .. ")")
+
+    -- Simular la lógica de consumo de USB
+    if inventory:contains(usbItem) then
+        inventory:Remove(usbItem)
+        print("[SUCCESS] USB consumed from inventory: " .. tostring(usbItem:getName()))
+    else
+        print("[WARNING] USB not found in inventory for consumption")
+    end
+end
 
 -- ✅ FUNCIÓN DE RECARGA PARA DEBUG - Permite recargar sin reiniciar el juego
 function ReloadMiniGame()
@@ -511,15 +551,39 @@ function MiniGameWindow:onResize(newW, newH)
     self:updateLayout()
 end
 
+function MiniGameWindow:processFinalResult(success)
+    -- ✅ INTEGRACIÓN USB SEGURA
+    if self.usbType and self.difficulty and self.laptopItem then
+        if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+            local result = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
+            if success then
+                if self.player then self.player:Say("Perfect! Sequence completed! Experience gained!") end
+            else
+                if self.player then self.player:Say("Wrong sequence! Laptop damaged!") end
+            end
+        else
+            print("[ERROR] GVDrive_Utils not available for result application")
+            if self.player then
+                self.player:Say(success and "Sequence completed!" or "Wrong sequence!")
+            end
+        end
+    else
+        print("[WARNING] Missing USB parameters for result application")
+        if self.player then
+            self.player:Say(success and "Sequence completed!" or "Wrong sequence!")
+        end
+    end
+end
+
 function MiniGameWindow:onClose()
     -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
-    if self.playing or (self.sequence and #self.sequence > 0 and self.currentIndex <= #self.sequence) then
-        print("[CLOSE FAILURE] Minigame closed while in progress - treating as failure")
+    if self.playing or (self.sequence and #self.sequence > 0) then
+        print("[CLOSE FAILURE] Sequence minigame closed while in progress - treating as failure")
 
         -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
         if self.usbData and self.usbData.item then
-            local inventory = self.player:getInventory()
-            if inventory:contains(self.usbData.item) then
+            local inventory = self.player and self.player:getInventory()
+            if inventory and inventory:contains(self.usbData.item) then
                 inventory:Remove(self.usbData.item)
                 print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
             else
@@ -545,18 +609,13 @@ function MiniGameWindow:onClose()
         if self.player then
             self.player:Say("Decryption sequence interrupted! You gave up too early.")
         end
+    else
+        print("[DEBUG] Minigame closed without consuming USB - not in progress")
     end
 
     -- Cerrar la ventana normalmente
     self:setVisible(false)
     self:removeFromUIManager()
-end
-
-function MiniGameWindow:clearAllTimers()
-    -- Limpiar cualquier timer activo (SimpleTimer no tiene cancelación directa)
-    -- Los timers se ejecutan una sola vez, así que solo reseteamos el estado
-    self.currentIndex = 1
-    self.playing = false
 end
 
 -- ========== ANIMACIÓN DE REVELACIÓN DEL GRID ==========
