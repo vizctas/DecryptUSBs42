@@ -962,19 +962,17 @@ function MiniGameFalloutWindow:clearAllTimers()
 end
 
 function MiniGameFalloutWindow:onClose()
-    -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
-    if self.usbData and self.usbData.item then
+    -- ✅ VERIFICACIÓN CRÍTICA: Solo aplicar penalización si el juego está realmente en progreso
+    if self.playing and self.usbData and self.usbData.item then
         print("[CLOSE FAILURE] Fallout minigame closed while in progress - treating as failure")
 
         -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
-        if self.usbData and self.usbData.item then
-            local inventory = self.player and self.player:getInventory()
-            if inventory and inventory:contains(self.usbData.item) then
-                inventory:Remove(self.usbData.item)
-                print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
-            else
-                print("[WARNING] USB not found in inventory for consumption on close")
-            end
+        local inventory = self.player and self.player:getInventory()
+        if inventory and inventory:contains(self.usbData.item) then
+            inventory:Remove(self.usbData.item)
+            print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
+        else
+            print("[WARNING] USB not found in inventory for consumption on close")
         end
 
         -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO por cierre)
@@ -995,6 +993,8 @@ function MiniGameFalloutWindow:onClose()
         if self.player then
             self.player:Say("Password hack interrupted! You gave up too early.")
         end
+    else
+        print("[DEBUG] Fallout minigame closed safely - game not in progress or already completed")
     end
 
     -- Cerrar la ventana normalmente

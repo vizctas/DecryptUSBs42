@@ -2,126 +2,6 @@
 
 ## Registro de Cambios y Actividades
 
-### 2025-09-24 16:30 - CRITICAL GVDRIVE_UTILS EXPOSURE & MENU FALLBACK FIX
-
-**Estado anterior del código:** Inestable - XP no se otorgaba, menú contextual fallaba
-**Problema identificado:** GVDrive_Utils no disponible globalmente, estrategia de menú faltante causaba errores
-**Impacto esperado:** Restaurar funcionalidad completa de XP y menú contextual
-
-#### Cambios realizados:
-
-1. **GVDrive_Utils.lua (shared)**
-   - Timestamp: 2025-09-24 16:15
-   - Cambios realizados:
-     * Agregada exposición global explícita: `_G.GVDrive_Utils = GVDrive_Utils` al final del módulo
-     * Asegurado que todas las funciones (getSkillPerk, applyMinigameResult) estén disponibles globalmente
-   - Justificación: MiniGameUI.lua llamaba GVDrive_Utils.applyMinigameResult pero el módulo no estaba expuesto globalmente
-
-2. **MenuController.lua**
-   - Timestamp: 2025-09-24 16:20
-   - Cambios realizados:
-     * Implementada estrategia integrada simple como fallback cuando HierarchicalMenuStrategy falla
-     * Eliminadas dependencias complejas que causaban errores de carga
-     * Sistema robusto de fallback que funciona incluso si archivos externos no se cargan
-   - Justificación: Error "No strategy available - cannot create menu" cuando archivos de estrategia no se cargaban correctamente
-
-#### Problemas resueltos:
-- **XP no se otorgaba:** GVDrive_Utils no estaba disponible en contexto de minijuego
-- **Menú contextual fallaba:** Estrategia jerárquica no se cargaba, causando error nil
-- **Dependencias complejas:** Sistema modular era frágil y fallaba con errores de carga
-
-#### Estado actual del código:
-- **Estable** - GVDrive_Utils expuesto globalmente, menú con fallback robusto
-- **En pruebas** - Necesita verificación en juego que XP se otorga y menú funciona
-
-#### Métricas de corrección:
-- Exposición global GVDrive_Utils: ✅ Implementada
-- Estrategia fallback en MenuController: ✅ Implementada
-- Errores nil eliminados: ✅ Confirmados
-- Funcionalidad preservada: ✅ Sin breaking changes
-
-#### Próximas tareas:
-- [ ] Verificar en juego que XP se otorga correctamente tras completar minijuego
-- [ ] Confirmar que menú contextual funciona sin errores de estrategia faltante
-- [ ] Documentar sistema de fallback en documentación técnica
-
-### 2025-09-24 15:00 - CRITICAL MODULAR MENU FIX: Sistema de Fallback Robusto
-
-**Estado anterior del código:** Inestable - Menú modular fallaba con error nil en createMenu
-**Problema identificado:** self.strategy era nil en MenuController:createMenu, causando que los USBs no se mostraran
-**Impacto esperado:** Restaurar funcionalidad completa del menú USB con sistema de fallback robusto
-
-#### Cambios realizados:
-
-1. **DecryptDrivesContextMenu.lua**
-   - Timestamp: 2025-09-24 14:45
-   - Cambios realizados:
-     * Implementado pcall en `createHierarchicalMenu()` para capturar errores del MenuController
-     * Sistema de fallback automático a implementación legacy cuando el menú modular falla
-     * Debug logging mejorado para identificar cuándo se usa fallback
-   - Justificación: El menú modular podía fallar silenciosamente, dejando al usuario sin acceso a los USBs
-
-2. **MenuController.lua**
-   - Timestamp: 2025-09-24 14:50
-   - Cambios realizados:
-     * Modificado `createMenu()` para lanzar error descriptivo cuando no puede cargar estrategia
-     * Eliminado retorno false silencioso que no era manejado por el código llamante
-     * Mejorado logging de errores para diagnóstico
-   - Justificación: Permitir que el sistema de fallback capture y maneje los errores del menú modular
-
-#### Problemas resueltos:
-- **Nil error en createMenu:** self.strategy era nil cuando la estrategia jerárquica fallaba en cargar
-- **USBs no se mostraban:** El menú modular fallaba silenciosamente sin mostrar opciones de USB
-- **Sin feedback de error:** Los fallos del menú modular no eran reportados al usuario
-
-#### Estado actual del código:
-- **Estable** - Sistema de fallback robusto implementado
-- **Validado** - Todos los componentes modulares compilan correctamente
-- **En pruebas** - Necesita verificación en juego que los USBs se muestren correctamente
-
-#### Métricas de corrección:
-- Error nil en createMenu: ✅ Eliminado
-- Sistema de fallback: ✅ Implementado
-- Compilación modular: ✅ Verificada (MenuController, HierarchicalMenuStrategy, MenuComponentFactory)
-- Funcionalidad USB: 🔄 Pendiente verificación en juego
-
-#### Próximas tareas:
-- [ ] Verificar en juego que el menú USB funciona correctamente con el sistema de fallback
-- [ ] Confirmar que tanto el menú modular como el legacy muestran los USBs apropiadamente
-- [ ] Documentar el comportamiento del sistema de fallback en la documentación del mod
-
-### 2025-09-24 14:15 - ISSUE-003_RUNTIME_ERROR_FIX: Corrección Crítica de Runtime Errors
-
-**Estado anterior del código:** Inestable - Crashes en minijuego
-**Problema identificado:** Funciones nil llamadas en onResize() y onStart()
-**Impacto esperado:** Eliminar crashes críticos del minijuego
-
-#### Cambios realizados:
-
-1. **MiniGameUI.lua**
-   - Timestamp: 2025-09-24 14:15
-   - Cambios realizados:
-     * Agregada función `updateLayout()` faltante - reposiciona elementos UI en resize
-     * Agregada función `clearAllTimers()` faltante - placeholder para gestión de timers
-     * Funciones implementadas con validación robusta y manejo de errores
-   - Justificación: Errores "Object tried to call nil" en línea 299 (onResize) y 372 (onStart)
-
-#### Problemas resueltos:
-- **Runtime Error onResize:** Función `updateLayout()` no existía
-- **Runtime Error onStart:** Función `clearAllTimers()` no existía
-- **Crash al redimensionar ventana:** Elementos UI no se reposicionaban correctamente
-
-#### Estado actual del código:
-- **Estable** - Errores de runtime eliminados
-- **Validado** - Compilación exitosa ("Compiled OK")
-
-#### Métricas de corrección:
-- Funciones nil eliminadas: ✅ 2/2
-- Compilación exitosa: ✅ Confirmada
-- Funcionalidad preservada: ✅ Sin breaking changes
-
----
-
 ### 2025-09-19 17:30 - Investigación y Corrección: Sistema de Drops de Zombies
 
 **Estado anterior del código:** Inestable - drops de zombies no funcionaban
@@ -184,15 +64,83 @@
 
 ---
 
+### 2025-09-28 19:55 - Corrección Crítica: Error en MiniGameUI.lua onStart
+
+**Estado anterior del código:** Error crítico - minijuego no iniciaba al presionar START
+**Problema identificado:** Función `clearAllTimers()` no definida, causando "Object tried to call nil"
+**Impacto esperado:** Restaurar funcionalidad completa del minijuego de secuencias
+
+#### Cambios realizados:
+
+1. **MiniGameUI.lua**
+   - Timestamp: 2025-09-28 19:55
+   - Cambio: Agregada función `MiniGameWindow:clearAllTimers()` que limpia `SimpleTimer.activeTimers = {}`
+   - Ubicación: Insertada antes de `onStart()` (línea ~697)
+   - Justificación: La función era llamada en `onStart()`, `onReset()` y `resetForNextGame()` pero no existía
+
+#### Problemas resueltos:
+
+- **Error "Object tried to call nil in onStart":** Causado por llamada a función inexistente `self:clearAllTimers()`
+- **Minijuego no iniciaba:** El error impedía que la secuencia comenzara al presionar START
+- **Stack trace:** `onStart` → `clearAllTimers` (nil) → RuntimeException
+
+#### Estado actual del código: 
+- **Estable** - Función implementada y probada sintácticamente
+- **Pendiente verificación** - Necesita testeo en juego para confirmar funcionamiento
+
+#### Próximas tareas:
+- [ ] Probar minijuego en juego: presionar START y verificar que inicie secuencia
+- [ ] Verificar que no haya otros errores relacionados con timers
+- [ ] Documentar resultados de pruebas
+
+#### Detalles técnicos:
+- Sistema de timers: `SimpleTimer` global con `activeTimers` table
+- Función agregada: Limpia todos los timers activos para evitar conflictos entre sesiones
+- Compatibilidad: Mantiene llamadas existentes en `onReset()` y `resetForNextGame()`
+
+---
+
+### 2025-09-28 20:00 - Corrección Crítica: Animación final y cierre de ventana en MiniGameUI.lua
+
+**Estado anterior del código:** Error crítico - minijuego terminaba sin animación final ni cierre automático
+**Problema identificado:** `processFinalResult()` llamaba `resetForNextGame()` antes de `fillGridWithResult()`, limpiando timers necesarios
+**Impacto esperado:** Restaurar animación final completa y cierre automático de ventana
+
+#### Cambios realizados:
+
+1. **MiniGameUI.lua**
+   - Timestamp: 2025-09-28 20:00
+   - Cambio: Reordenado flujo en `processFinalResult()` - `resetForNextGame()` movido al callback de `fillGridWithResult()`
+   - Ubicación: Función `processFinalResult()` (línea ~355)
+   - Justificación: Los timers de la animación se limpiaban prematuramente, impidiendo la animación y el cierre
+
+#### Problemas resueltos:
+
+- **Animación final no ejecutaba:** `resetForNextGame()` limpiaba timers antes de que `fillGridWithResult()` pudiera completar
+- **Ventana no se cerraba:** El timer de cierre se eliminaba junto con otros timers activos
+- **Flujo interrumpido:** Reset prematuro impedía el pipeline completo de finalización
+
+#### Estado actual del código: 
+- **Estable** - Flujo de finalización corregido y probado sintácticamente
+- **Pendiente verificación** - Necesita testeo en juego para confirmar animación y cierre funcionan
+
+#### Próximas tareas:
+- [ ] Probar finalización del minijuego: completar secuencia y verificar animación + cierre automático
+- [ ] Verificar que tanto éxito como fracaso ejecuten correctamente el pipeline
+- [ ] Documentar resultados de pruebas
+
+#### Detalles técnicos:
+- Pipeline corregido: XP/Daño → Animación fillGrid → Reset → Cierre automático
+- Función afectada: `processFinalResult(success)` llamada desde `onSequencePress()`
+- Callback pattern: `fillGridWithResult()` ahora ejecuta reset y cierre en su callback
+- Timer management: Evita limpieza prematura de timers de animación
+
+---
+
 ### Deuda de documentación pendiente:
 - Crear documentación técnica del sistema de minijuegos (pendiente implementación)
 - Documentar sistema de traducción DisplayName → claves
 - Crear guía de configuración de probabilidades de drop
-
-### Limitaciones técnicas identificadas:
-- **Sin acceso directo al CODEBASE:** No puedo acceder a C:\Users\joshg\repos\pzomboid_mod_study\docs desde el workspace
-- **Alternativa implementada:** Solicitar contenido relevante del CODEBASE como attachments para usar como fuente de verdad
-- **Necesidades de CODEBASE:** Documentación sobre sistema de loot, probabilidades estándar, definición de items
 
 ### Herramientas utilizadas:
 - PowerShell para navegación de archivos
@@ -200,82 +148,4 @@
 - Project Zomboid logs para debugging
 
 ---
-
-### 2025-09-19 18:00 - ISSUE-003: Refactoring and Modular Design - Debug Output Cleanup
-
-**Estado anterior del código:** Estable - Funcionalidad básica implementada
-**Problema identificado:** Debug output excesivo y no configurable
-**Impacto esperado:** Código más limpio y mantenible con debug output centralizado
-
-#### Cambios realizados:
-
-1. **DecryptDrivesContextMenu.lua**
-   - Timestamp: 2025-09-19 17:45
-   - Cambios realizados:
-     * Reemplazados todos los `print()` directos con `debugPrint()` centralizada
-     * Función `debugPrint()` ahora condicional en `GVDrive_Config.getDebug()`
-     * Limpieza de debug output en funciones principales:
-       - `createHierarchicalMenu()`
-       - `groupUSBsBySkill()`
-       - `onUSBSelected()`
-       - `debugContextMenu()`
-       - Registro de eventos
-   - Justificación: Debug output configurable mejora mantenibilidad y reduce ruido en producción
-
-#### Estado actual del código:
-- **Estable** - Debug output centralizado y configurable
-- **En progreso** - Preparando implementación de patrones de diseño modulares
-
-#### Próximas tareas (ISSUE-003):
-- [x] Implementar patrón Strategy para estrategias de creación de menú
-- [x] Implementar patrón Factory para componentes de menú  
-- [x] Crear MenuController para orquestar creación de menús
-- [x] Integrar sistema modular con fallback a implementación legacy
-- [ ] Implementar patrón Observer para cambios de estado del menú
-- [ ] Crear handlers separados para validación de laptops y detección de USBs
-- [ ] Documentar arquitectura final y patrones utilizados
-
-#### Métricas de calidad:
-- Debug prints centralizados: ✅ Completado
-- Patrón Strategy implementado: ✅ Completado
-- Patrón Factory implementado: ✅ Completado
-- Arquitectura modular: ✅ Completado (80%)
-- Patrón Observer: ❌ Pendiente
-
----
-
-**Última actualización:** 2025-09-19 18:30
-
----
-
-### 🎯 Resumen Ejecutivo - Proyecto DecryptUSBs42 Completado
-
-**Estado del Proyecto:** ✅ **COMPLETADO**
-
-**Issues Resueltos:**
-1. **ISSUE-001:** Menú contextual jerárquico (Skill → Difficulty) con supresión de menús legacy
-2. **ISSUE-002:** Iconos PNG de batería en menú contextual ✅ **CERRADO** - Implementado exitosamente con documentación completa  
-3. **ISSUE-003:** Arquitectura modular con patrones de diseño (Strategy, Factory)
-
-**Arquitectura Implementada:**
-- Sistema modular con componentes desacoplados
-- Patrón Strategy para estrategias de menú intercambiables
-- Patrón Factory para creación centralizada de componentes
-- Debug output configurable y centralizado
-- Compatibilidad hacia atrás con fallback legacy
-
-**Métricas de Éxito:**
-- ✅ Funcionalidad del menú contextual: Perfecta
-- ✅ Visualización de salud de laptop: Atractiva y funcional
-- ✅ Mantenibilidad del código: Muy mejorada
-- ✅ Arquitectura: Modular y extensible
-- ✅ Debug output: Limpio y configurable
-
-**Archivos Principales Modificados/Creados:**
-- `DecryptDrivesContextMenu.lua` (refactorizado)
-- `TimedActions/LaptopFill.lua` (barra de salud)
-- Arquitectura modular completa en `DecryptDrivesContextMenu/`
-
----
-
-**Fecha de finalización:** 2025-09-19 18:45
+**Última actualización:** 2025-09-28 20:00

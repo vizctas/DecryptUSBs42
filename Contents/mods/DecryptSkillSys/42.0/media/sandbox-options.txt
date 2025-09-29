@@ -164,13 +164,13 @@ option GVDrive.Facil_Laptop_Damage_Min
 
 option GVDrive.Facil_Laptop_Damage_Max
 {
-    type = integer, min = 0, max = 100, default = 5,
+    type = integer, min = 0, max = 100, default = 8,
     page = Drive_Decrypt, translation = GVDrive_Normal_Laptop_Damage_Max,
 }
 
 option GVDrive.Facil_XP_Bonus
 {
-    type = double, min = 0, max = 100, default = 0,
+    type = double, min = 0, max = 100, default = 1.5,
     page = Drive_Decrypt, translation = GVDrive_Normal_XP_Bonus,
 }
 
@@ -206,7 +206,7 @@ option GVDrive.Moderado_Laptop_Damage_Max
 
 option GVDrive.Moderado_XP_Bonus
 {
-    type = double, min = 0, max = 100, default = 0,
+    type = double, min = 0, max = 100, default = 2.8,
     page = Drive_Decrypt, translation = GVDrive_Common_XP_Bonus,
 }
 

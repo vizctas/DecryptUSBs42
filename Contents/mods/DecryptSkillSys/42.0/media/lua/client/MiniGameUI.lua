@@ -87,7 +87,7 @@ local GRID_COLS = 4           -- Número de columnas (ej: 2 para 2x2, 4 para 4x4
 local SEQUENCE_LENGTH = 5     -- Longitud de la secuencia a recordar
 local BUTTON_SIZE = 10        -- Tamaño de los botones en píxeles
 local BUTTON_SPACING = 8      -- Espaciado entre botones en píxeles
-local SEQUENCE_DELAY = 30     -- Ticks entre cada paso de secuencia (20 = 1 segundo)
+local SEQUENCE_DELAY = 40     -- Ticks entre cada paso de secuencia (20 = 1 segundo)
 local RESULT_DISPLAY_TIME = 180 -- Ticks para mostrar resultado antes de cerrar (180 = 9 segundos)
 local AUTO_CLOSE_DELAY = 60     -- Ticks para cierre automático después de llenar grid (60 = 3 segundos)
 local DIFFICULTY_PATTERNS = 2 -- Número de patrones simultáneos (1-3): 1=Solo verde, 2=Verde+Rojo, 3=Verde+Rojo+Azul
@@ -107,9 +107,9 @@ local WINDOW_HEIGHT_PCT = 35    -- Porcentaje del alto de pantalla
 local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
 local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
 -- ============== DIFFICULTY SETTINGS (de MiniGameFallout.lua) ===============
-local EASY_DELAY = 38
-local MODERATE_DELAY = 35
-local EXPERT_DELAY = 31
+local EASY_DELAY = 80           
+local MODERATE_DELAY = 90       
+local EXPERT_DELAY = 100        
 local EASY_LENGTH = 4
 local MODERATE_LENGTH = 5
 local EXPERT_LENGTH = 6
@@ -172,8 +172,9 @@ end
 -- Registrar el sistema de timers ultra simple (solo si Events existe)
 if Events and Events.OnTick and Events.OnTick.Add then
     Events.OnTick.Add(function() SimpleTimer:update() end)
+    print("[MiniGame] Timer system registered with Events.OnTick")
 else
-    print("[MiniGameUI] Events not available - timers will not be registered (expected in test environment)")
+    print("[WARNING] Events not available - timers may not work properly")
 end
 
 local MiniGameWindow = ISPanel:derive("MiniGameWindow")
@@ -225,14 +226,26 @@ function MiniGameWindow:configureFromUSB()
     -- Configuración equilibrada por dificultad
     local config = self:getDifficultyConfig(self.difficulty)
 
-    -- Aplicar configuración global
+    -- Aplicar configuración global basada en dificultad
     SEQUENCE_LENGTH = config.sequenceLength
-    SEQUENCE_DELAY = config.delay
     DIFFICULTY_PATTERNS = config.patterns
     DIFFICULTY_TEXT = config.displayText
+    
+    -- ✅ USAR DELAYS ESPECÍFICOS POR DIFICULTAD
+    if self.difficulty == "Easy" then
+        SEQUENCE_DELAY = EASY_DELAY
+    elseif self.difficulty == "Moderate" then
+        SEQUENCE_DELAY = MODERATE_DELAY
+    elseif self.difficulty == "Expert" then
+        SEQUENCE_DELAY = EXPERT_DELAY
+    else
+        SEQUENCE_DELAY = config.delay or MODERATE_DELAY -- Fallback
+    end
 
-    print(string.format("MiniGame: Configured for USB %s - Difficulty: %s - Patterns: %d, Length: %d, Delay: %d",
-        tostring(self.usbType), tostring(self.difficulty), config.patterns or 0, config.sequenceLength or 0, config.delay or 0))
+    print(string.format("MiniGame: Configured for USB %s - Difficulty: %s - Patterns: %d, Length: %d, Delay: %d ticks (%.1f seconds)",
+        tostring(self.usbType), tostring(self.difficulty), config.patterns or 0, config.sequenceLength or 0, SEQUENCE_DELAY or 0, (SEQUENCE_DELAY or 0) / 20.0))
+    print(string.format("[MiniGame DEBUG] CONFIGURATION: EASY_DELAY=%d, MODERATE_DELAY=%d, EXPERT_DELAY=%d, SEQUENCE_DELAY=%d",
+        EASY_DELAY, MODERATE_DELAY, EXPERT_DELAY, SEQUENCE_DELAY))
 end
 
 -- Configuración equilibrada por dificultad
@@ -575,49 +588,6 @@ function MiniGameWindow:processFinalResult(success)
     end
 end
 
-function MiniGameWindow:onClose()
-    -- ✅ VERIFICACIÓN CRÍTICA: Si el minijuego está en progreso al cerrar, contar como FAILURE
-    if self.usbData and self.usbData.item then
-        print("[CLOSE FAILURE] Sequence minigame closed while in progress - treating as failure")
-
-        -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
-        if self.usbData and self.usbData.item then
-            local inventory = self.player and self.player:getInventory()
-            if inventory and inventory:contains(self.usbData.item) then
-                inventory:Remove(self.usbData.item)
-                print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
-            else
-                print("[WARNING] USB not found in inventory for consumption on close")
-            end
-        end
-
-        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO por cierre)
-        if self.usbType and self.difficulty and self.laptopItem then
-            -- Verificar que GVDrive_Utils esté disponible
-            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
-                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
-                if not success then
-                    self.player:Say("Laptop damaged from interrupted " .. self.usbType .. " decryption!")
-                end
-            else
-                print("[ERROR] GVDrive_Utils not available for damage calculation on close")
-                self.player:Say("Decryption interrupted, but damage system unavailable.")
-            end
-        end
-
-        -- Mensaje al jugador sobre el cierre prematuro
-        if self.player then
-            self.player:Say("Decryption sequence interrupted! You gave up too early.")
-        end
-    else
-        print("[DEBUG] Minigame closed without consuming USB - not in progress")
-    end
-
-    -- Cerrar la ventana normalmente
-    self:setVisible(false)
-    self:removeFromUIManager()
-end
-
 -- ========== ANIMACIÓN DE REVELACIÓN DEL GRID ==========
 -- Sistema ultra fiable de revelación secuencial 1:1
 
@@ -652,8 +622,8 @@ function MiniGameWindow:revealNextButton()
         self:revealButton(button)
     end
 
-    -- Programar siguiente revelación (muy rápido pero smooth: 3-5 frames)
-    SimpleTimer:addTimer(3 + ZombRand(0, 3), function()  -- 0.15-0.3 segundos
+    -- Programar siguiente revelación (más lento para mejor visibilidad: 8-12 frames)
+    SimpleTimer:addTimer(8 + ZombRand(0, 5), function()  -- 0.4-0.6 segundos
         self:revealNextButton()
     end)
 end
@@ -690,6 +660,13 @@ function MiniGameWindow:setSafeButtonColor(button, color)
         }
     elseif button then
         button.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}
+    end
+end
+
+function MiniGameWindow:clearAllTimers()
+    -- Limpiar todos los timers activos de forma segura
+    if SimpleTimer and SimpleTimer.activeTimers then
+        SimpleTimer.activeTimers = {}
     end
 end
 
@@ -760,6 +737,49 @@ function MiniGameWindow:onStart()
     self:showMultipleSequences()
 end
 
+function MiniGameWindow:onClose()
+    -- ✅ VERIFICACIÓN CRÍTICA: Solo aplicar penalización si el juego está realmente en progreso
+    if self.playing and self.usbData and self.usbData.item then
+        print("[CLOSE FAILURE] Sequence minigame closed while in progress - treating as failure")
+
+        -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
+        local inventory = self.player and self.player:getInventory()
+        if inventory and inventory:contains(self.usbData.item) then
+            inventory:Remove(self.usbData.item)
+            print("[CLOSE FAILURE] USB consumed from inventory due to early closure: " .. tostring(self.usbData.displayName))
+        else
+            print("[WARNING] USB not found in inventory for consumption on close")
+        end
+
+        -- ✅ INTEGRACIÓN USB: Aplicar resultado del minijuego (FRACASO por cierre)
+        if self.usbType and self.difficulty and self.laptopItem then
+            -- Verificar que GVDrive_Utils esté disponible
+            if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+                if not success then
+                    self.player:Say("Laptop damaged from interrupted " .. self.usbType .. " decryption!")
+                end
+            else
+                print("[ERROR] GVDrive_Utils not available for damage calculation on close")
+                self.player:Say("Decryption interrupted, but damage system unavailable.")
+            end
+        end
+
+        -- Mensaje al jugador sobre el cierre prematuro
+        if self.player then
+            self.player:Say("Decryption sequence interrupted! You gave up too early.")
+        end
+    else
+        print("[DEBUG] Minigame closed safely - game not in progress or already completed")
+    end
+
+    -- Limpiar timers antes de cerrar
+    self:clearAllTimers()
+    -- Remover de UIManager para cerrar la ventana
+    self:removeFromUIManager()
+    print("[MiniGame] Window closed")
+end
+
 function MiniGameWindow:showMultipleSequences()
     -- VALIDACIÓN ROBUSTA: verificar estado
     if not self.greenSequence or #self.greenSequence == 0 then
@@ -774,23 +794,23 @@ function MiniGameWindow:showMultipleSequences()
     if self.currentIndex <= #self.greenSequence then
         local difficultyPatterns = tonumber(DIFFICULTY_PATTERNS) or 1
         
-        -- Mostrar patrón VERDE (correcto)
+        -- Mostrar patrón VERDE (correcto) INMEDIATAMENTE
         local greenBtnIndex = self.greenSequence[self.currentIndex]
         self:flashButtonWithColor(greenBtnIndex, {r=0.2, g=1, b=0.2, a=1}) -- Verde brillante
         
         -- Mostrar patrones distractores según dificultad
         if difficultyPatterns >= 2 and self.redSequence and #self.redSequence >= self.currentIndex then
             local redBtnIndex = self.redSequence[self.currentIndex]
-            -- Delay ligeramente el patrón rojo para no confundir
-            SimpleTimer:addTimer(5, function()
+            local redDelay = math.floor(SEQUENCE_DELAY * 0.25) -- 25% del delay = más temprano
+            SimpleTimer:addTimer(redDelay, function()
                 self:flashButtonWithColor(redBtnIndex, {r=1, g=0.2, b=0.2, a=1}) -- Rojo brillante
             end)
         end
-        
+
         if difficultyPatterns >= 3 and self.blueSequence and #self.blueSequence >= self.currentIndex then
             local blueBtnIndex = self.blueSequence[self.currentIndex]
-            -- Delay aún más el patrón azul
-            SimpleTimer:addTimer(10, function()
+            local blueDelay = math.floor(SEQUENCE_DELAY * 0.5) -- 50% del delay = medio
+            SimpleTimer:addTimer(blueDelay, function()
                 self:flashButtonWithColor(blueBtnIndex, {r=0.2, g=0.2, b=1, a=1}) -- Azul brillante
             end)
         end
@@ -1010,6 +1030,9 @@ function MiniGameWindow:onSequencePress(button)
             -- Success! Process final result with new pipeline
             self.playing = false
             
+            -- ✅ MOSTRAR ANIMACIÓN DE ÉXITO
+            self:setAllButtonsColorSafe({r=0.2, g=1, b=0.2, a=1}, "OK")
+            
             -- ✅ CONSUMIR USB DEL INVENTARIO
             if self.usbData and self.usbData.item then
                 local inventory = self.player:getInventory()
@@ -1027,10 +1050,18 @@ function MiniGameWindow:onSequencePress(button)
             if self.player then
                 self.player:Say("Perfect! Sequence completed!")
             end
+            
+            -- ✅ CIERRE AUTOMÁTICO DESPUÉS DE MOSTRAR ÉXITO
+            SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
+                self:onClose()
+            end)
         end
     else
         -- Failure: Process final result with new pipeline
         self.playing = false
+        
+        -- ✅ MOSTRAR ANIMACIÓN DE ERROR
+        self:setAllButtonsColorSafe({r=1, g=0.2, b=0.2, a=1}, "ERR")
         
         -- ✅ CONSUMIR USB DEL INVENTARIO
         if self.usbData and self.usbData.item then
@@ -1049,6 +1080,12 @@ function MiniGameWindow:onSequencePress(button)
         if self.player then
             self.player:Say("Wrong! You lost. Resetting for retry.")
         end
+        
+        -- ✅ CIERRE AUTOMÁTICO DESPUÉS DE MOSTRAR ERROR
+        SimpleTimer:addTimer(RESULT_DISPLAY_TIME, function()
+            self:clearAllButtonColors()
+            self:onClose()
+        end)
     end
 end
 
@@ -1131,24 +1168,6 @@ end
 
 -- FUNCIÓN PARA ESTABLECER COLOR DE UN BOTÓN ESPECÍFICO
 function MiniGameWindow:setButtonColor(btnIndex, color)
-    local gridRows = tonumber(GRID_ROWS) or 4
-    local gridCols = tonumber(GRID_COLS) or 4
-    local row = math.ceil(btnIndex / gridCols)
-    local col = ((btnIndex - 1) % gridCols) + 1
-    
-    if self.sequenceButtons and self.sequenceButtons[row] and self.sequenceButtons[row][col] then
-        local btn = self.sequenceButtons[row][col]
-        if btn and color and type(color) == 'table' then
-            local r = tonumber(color.r) or 0.5
-            local g = tonumber(color.g) or 0.5
-            local b = tonumber(color.b) or 0.5
-            local a = tonumber(color.a) or 1
-            btn.backgroundColor = {r=r, g=g, b=b, a=a}
-        end
-    end
-end
-
-function MiniGameWindow:setButtonColor(btnIndex, color)
     if type(btnIndex) ~= "number" or btnIndex < 1 then
         return
     end
@@ -1175,6 +1194,156 @@ function MiniGameWindow:setButtonColor(btnIndex, color)
     local b = tonumber(color.b) or 0.5
     local a = tonumber(color.a) or 1
     btn.backgroundColor = {r=r, g=g, b=b, a=a}
+end
+
+-- FUNCIÓN PARA LIMPIAR COLORES DE FORMA SEGURA
+function MiniGameWindow:clearAllButtonColors()
+    local gridRows = tonumber(GRID_ROWS) or 4
+    local gridCols = tonumber(GRID_COLS) or 4
+    gridRows = math.max(1, gridRows)
+    gridCols = math.max(1, gridCols)
+    
+    for row = 1, gridRows do
+        for col = 1, gridCols do
+            if self.sequenceButtons and self.sequenceButtons[row] and self.sequenceButtons[row][col] then
+                local btn = self.sequenceButtons[row][col]
+                if btn then
+                    -- Color transparente en lugar de nil
+                    btn.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}
+                    btn:setTitle("")
+                end
+            end
+        end
+    end
+end
+
+-- FUNCIÓN SEGURA PARA ESTABLECER COLORES - NUNCA USA nil
+function MiniGameWindow:setAllButtonsColorSafe(color, text)
+    local gridRows = tonumber(GRID_ROWS) or 4
+    local gridCols = tonumber(GRID_COLS) or 4
+    gridRows = math.max(1, gridRows)
+    gridCols = math.max(1, gridCols)
+    
+    for row = 1, gridRows do
+        for col = 1, gridCols do
+            if self.sequenceButtons and self.sequenceButtons[row] and self.sequenceButtons[row][col] then
+                local btn = self.sequenceButtons[row][col]
+                if btn then
+                    -- SIEMPRE establecer un color válido, NUNCA nil
+                    if color and type(color) == 'table' then
+                        local r = tonumber(color.r) or 0.5
+                        local g = tonumber(color.g) or 0.5
+                        local b = tonumber(color.b) or 0.5
+                        local a = tonumber(color.a) or 1
+                        btn.backgroundColor = {r=r, g=g, b=b, a=a}
+                    else
+                        -- Color por defecto transparente en lugar de nil
+                        btn.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}
+                    end
+                    
+                    -- Establecer texto
+                    if text and type(text) == 'string' then
+                        btn:setTitle(text)
+                    else
+                        btn:setTitle("")
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- FUNCIÓN PARA ESTABLECER COLOR DE UN BOTÓN ESPECÍFICO
+function MiniGameWindow:flashButtonWithColor(btnIndex, color)
+    -- VALIDACIÓN ROBUSTA: verificar parámetros
+    if not btnIndex or type(btnIndex) ~= 'number' or btnIndex < 1 then
+        print("MiniGame: Invalid btnIndex:", btnIndex)
+        return
+    end
+    
+    if not color or type(color) ~= 'table' then
+        print("MiniGame: Invalid color")
+        return
+    end
+    
+    -- Usar valores seguros para grid
+    local gridRows = tonumber(GRID_ROWS) or 4
+    local gridCols = tonumber(GRID_COLS) or 4
+    gridRows = math.max(1, gridRows)
+    gridCols = math.max(1, gridCols)
+    
+    -- Convertir índice lineal a coordenadas de grid
+    local row = math.ceil(btnIndex / gridCols)
+    local col = ((btnIndex - 1) % gridCols) + 1
+    
+    -- Verificar que el botón existe
+    if row > gridRows or col > gridCols or not self.sequenceButtons or 
+       not self.sequenceButtons[row] or not self.sequenceButtons[row][col] then
+        print("MiniGame: Button not found at row:", row, "col:", col)
+        return
+    end
+    
+    local btn = self.sequenceButtons[row][col]
+    if not btn then
+        print("MiniGame: Button is nil")
+        return
+    end
+    
+    -- Guardar color original de forma segura
+    local origBg = btn.backgroundColor
+    
+    -- Flash con el color especificado
+    btn.backgroundColor = {r=color.r, g=color.g, b=color.b, a=color.a}
+    
+    -- Restaurar color usando sistema de timers ultra simple
+    SimpleTimer:addTimer(15, function()  -- 0.75 seconds
+        if btn then  -- Verificar que el botón aún existe
+            if origBg and type(origBg) == 'table' then
+                -- Restaurar color original con validación
+                local r = tonumber(origBg.r) or 0.5
+                local g = tonumber(origBg.g) or 0.5
+                local b = tonumber(origBg.b) or 0.5
+                local a = tonumber(origBg.a) or 1
+                btn.backgroundColor = {r=r, g=g, b=b, a=a}
+            else
+                -- Color transparente en lugar de nil
+                btn.backgroundColor = {r=0.5, g=0.5, b=0.5, a=0}
+            end
+        end
+    end)
+    
+    -- Play sound de forma ULTRA SEGURA
+    local success = false
+    if self.player and type(self.player) == 'table' then
+        if self.player.getCurrentSquare and type(self.player.getCurrentSquare) == 'function' then
+            local square = self.player:getCurrentSquare()
+            if square then
+                local soundManager = getSoundManager()
+                if soundManager and type(soundManager) == 'table' then
+                    if soundManager.playWorldSound and type(soundManager.playWorldSound) == 'function' then
+                        local status, err = pcall(function()
+                            soundManager:playWorldSound("ButtonClick", square, 0, 10, 1, false)
+                        end)
+                        if status then
+                            success = true
+                        else
+                            print("MiniGame: Sound error:", err)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    -- Si no funcionó el sonido normal, intentar alternativa
+    if not success then
+        local soundManager = getSoundManager()
+        if soundManager and soundManager.playUISound then
+            pcall(function()
+                soundManager:playUISound("ButtonClick")
+            end)
+        end
+    end
 end
 
 -- MANTENER LA FUNCIÓN ORIGINAL PARA COMPATIBILIDAD
@@ -1309,4 +1478,9 @@ function MiniGameWindow:render()
         end
     end
     self:drawText(statusText, statusX, self.height - 35, 0.2, 1, 0.2, blinkAlpha, UIFont.Small)
+    
+    -- ✅ ACTUALIZAR TIMERS EN CADA FRAME - Garantiza que los timers se ejecuten
+    SimpleTimer:update()
 end
+
+-- End of file
