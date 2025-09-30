@@ -1059,6 +1059,11 @@ function MiniGameWindow:onSequencePress(button)
     else
         -- Failure: Process final result with new pipeline
         self.playing = false
+
+        -- Notify server of failure to increment counter
+        if isClient() and self.laptopItem then
+            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+        end
         
         -- ✅ MOSTRAR ANIMACIÓN DE ERROR
         self:setAllButtonsColorSafe({r=1, g=0.2, b=0.2, a=1}, "ERR")

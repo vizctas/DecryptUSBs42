@@ -839,6 +839,12 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
         laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
     end
 
+    -- Get failure count
+    local failureCount = 0
+    if LaptopSystem then
+        failureCount = LaptopSystem.getFailureCount(laptopItem)
+    end
+
     -- Ensure laptopHealth is valid
     if type(laptopHealth) ~= "number" then
         debugPrint("CRITICAL", "Laptop health is not a number")
@@ -862,8 +868,8 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
         healthStatus = "Critical"
     end
 
-    -- Display format: Health: percentage (status)
-    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ")"
+    -- Display format: Health: percentage (status) - Fails: count
+    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ") - " .. failureCount .. " Fails"
 
     -- Create a custom option with texture icon
     local healthOption = context:addOptionOnTop(healthDisplay, player, function()

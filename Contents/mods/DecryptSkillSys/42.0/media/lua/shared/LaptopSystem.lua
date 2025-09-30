@@ -164,6 +164,32 @@ function LaptopSystem.setLaptopHealth(item, health)
     end
 end
 
+-- Get failure count from laptop
+function LaptopSystem.getFailureCount(item)
+    item = normalizeItem(item)
+    if not item then return 0 end
+    local modData = item:getModData()
+    if not modData then return 0 end
+
+    if not modData.GVDrive_Failures then
+        modData.GVDrive_Failures = 0
+    end
+    return modData.GVDrive_Failures
+end
+
+-- Increment failure count on a laptop
+function LaptopSystem.incrementFailureCount(item)
+    item = normalizeItem(item)
+    if not item then return end
+    
+    local currentFails = LaptopSystem.getFailureCount(item)
+    local modData = item:getModData()
+    if not modData then return end
+
+    modData.GVDrive_Failures = currentFails + 1
+    return modData.GVDrive_Failures
+end
+
 -- Damage laptop (normal use)
 function LaptopSystem.damageLaptop(item, damage)
     item = normalizeItem(item)

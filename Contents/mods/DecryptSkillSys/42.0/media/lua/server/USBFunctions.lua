@@ -122,3 +122,21 @@ function OnUse_AntivirusPremium(items, result, player)
         end
     end
 end
+
+local function handleClientCommand(module, command, args)
+    if module ~= "GVDrive" then
+        return
+    end
+
+    if command == "IncrementFailureCount" and args and args.laptop then
+        local laptopItem = args.laptop
+        if laptopItem and LaptopSystem and LaptopSystem.incrementFailureCount then
+            local newCount = LaptopSystem.incrementFailureCount(laptopItem)
+            debugPrint("Laptop failure count incremented to: " .. tostring(newCount))
+        end
+    end
+end
+
+if Events and Events.OnClientCommand and Events.OnClientCommand.Add then
+    Events.OnClientCommand.Add(handleClientCommand)
+end

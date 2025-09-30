@@ -724,6 +724,11 @@ function MiniGameFalloutWindow:onTimeUp()
     self:updateWordButtonStyles()
     self:showResult(false, "TIME UP")
     self:applyResult(false)
+
+    -- Notify server of failure to increment counter
+    if isClient() and self.laptopItem then
+        sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+    end
 end
 
 function MiniGameFalloutWindow:onWordSelect(button)
@@ -1150,5 +1155,7 @@ function MiniGameFalloutWindow:render()
         
         self:drawText(attemptsText, 20, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
         self:drawText(timeText, self.width - 120, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
+    end
+endall)
     end
 end
