@@ -11,29 +11,36 @@ pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 -- Lista de minijuegos disponibles
 local AVAILABLE_MINIGAMES = {"sequence", "fallout"}
 
--- Función para seleccionar minijuego aleatorio
+-- Función para seleccionar minijuego aleatorio (SIMPLIFICADA PARA DEBUG)
 local function selectRandomMinigame()
-    debugPrint("MINIGAME_SELECTION", "selectRandomMinigame() called")
-    debugPrint("MINIGAME_SELECTION", "AVAILABLE_MINIGAMES: " .. tostring(#AVAILABLE_MINIGAMES))
+    print("[DEBUG] selectRandomMinigame() called")
+    print("[DEBUG] AVAILABLE_MINIGAMES: " .. tostring(#AVAILABLE_MINIGAMES))
+    for i, game in ipairs(AVAILABLE_MINIGAMES) do
+        print("[DEBUG]   [" .. i .. "] " .. game)
+    end
 
     if #AVAILABLE_MINIGAMES == 0 then
-        debugPrint("CRITICAL", "No available minigames, returning fallback: fallout")
+        print("[DEBUG] No available minigames, returning fallback: fallout")
         return "fallout" -- Fallback
     end
 
-    -- Usar ZombRand si está disponible
+    -- ✅ MÉTODO ULTRA SIMPLE: Usar solo ZombRand si está disponible
     if ZombRand then
-        local randomIndex = ZombRand(1, #AVAILABLE_MINIGAMES + 1)
+        print("[DEBUG] Using ZombRand() for true randomness...")
+        local randomIndex = ZombRand(1, #AVAILABLE_MINIGAMES + 1) -- ZombRand is 1-based
+        print("[DEBUG] ZombRand generated index: " .. randomIndex)
         local selectedGame = AVAILABLE_MINIGAMES[randomIndex]
-        debugPrint("MINIGAME_SELECTION", "Selected game via ZombRand: " .. selectedGame)
+        print("[DEBUG] Selected game via ZombRand: " .. selectedGame)
         return selectedGame
     end
 
-    -- Fallback: usar timestamp
+    -- Fallback ultra simple: usar timestamp si ZombRand no está disponible
+    print("[DEBUG] ZombRand not available, using timestamp fallback...")
     local timestamp = os and os.time and os.time() or 1000000
     local simpleRandom = (timestamp % #AVAILABLE_MINIGAMES) + 1
+    print("[DEBUG] Timestamp-based random index: " .. simpleRandom .. " (timestamp: " .. timestamp .. ")")
     local selectedGame = AVAILABLE_MINIGAMES[simpleRandom]
-    debugPrint("MINIGAME_SELECTION", "Selected game via timestamp: " .. selectedGame)
+    print("[DEBUG] Selected game via timestamp: " .. selectedGame)
     return selectedGame
 end
 
@@ -41,35 +48,13 @@ end
 -- local ACTIVE_MINIGAME = selectRandomMinigame()
 -- Eliminada la línea de debug que causaba error: print("[DEBUG] ACTIVE_MINIGAME set to: " .. ACTIVE_MINIGAME)
 
--- ========== SISTEMA DE DEBUG CONFIGURABLE ==========
--- Interruptor maestro de debug: true = debug activo, false = debug silencioso
-local DEBUG_ENABLED = false
-
--- Categorías de debug (para control granular)
-local DEBUG_CATEGORIES = {
-    MINIGAME_SELECTION = false,  -- Selección aleatoria de minijuegos
-    USB_SCANNING = false,        -- Escaneo de USBs en inventario
-    LAPTOP_VALIDATION = false,   -- Validación de laptops
-    MENU_CREATION = false,       -- Creación de menús contextuales
-    USB_SELECTION = false,       -- Selección y uso de USBs
-    EVENT_SYSTEM = false,        -- Sistema de eventos
-    CRITICAL_ONLY = true         -- Solo errores críticos (siempre activo)
-}
--- =====================================================
-
 -- Import centralized config
 pcall(require, "shared/GVDrive_Config")
 
--- Debug print function con categorías
-local function debugPrint(category, ...)
-    -- Si DEBUG_ENABLED está desactivado, solo mostrar errores críticos
-    if not DEBUG_ENABLED and category ~= "CRITICAL" then
-        return
-    end
-    
-    -- Verificar si la categoría está habilitada
-    if category == "CRITICAL" or (DEBUG_CATEGORIES[category] == true) then
-        print("[DecryptSkillSys][" .. category .. "]", ...)
+-- Debug print function - DEFINIR PRIMERO
+local function debugPrint(...)
+    if GVDrive_Config and GVDrive_Config.getDebug and GVDrive_Config.getDebug() then
+        print("[DecryptSkillSys][DEBUG]", ...)
     end
 end
 
@@ -97,7 +82,7 @@ local function getActiveMinigameConfig()
             displayName = "fallout hacking"
         }
     else
-        debugPrint("CRITICAL", "Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
+        debugPrint("[ERROR] Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
         return {
             name = "MiniGame_Fallout",
             module = "client.MiniGameFallout",
@@ -108,40 +93,57 @@ local function getActiveMinigameConfig()
 end
 
 local activeConfig = getActiveMinigameConfig()
-debugPrint("MINIGAME_SELECTION", "Active minigame: " .. activeConfig.displayName .. " (" .. activeConfig.name .. ")")
+debugPrint("[INFO] Active minigame: " .. activeConfig.displayName .. " (" .. activeConfig.name .. ")")
 
 -- ✅ CARGAR MINIJUEGOS ADICIONALES
--- Carga de minijuegos adicionales (silencioso)
 local morseGameLoaded = false
 if _G.MiniGameMorse and type(_G.MiniGameMorse) == "function" then
     morseGameLoaded = true
+    debugPrint("[SUCCESS] MiniGameMorse already available")
 else
+    debugPrint("[INFO] Loading MiniGameMorse.lua")
     local success, result = pcall(require, "client/MiniGameMorse")
     if success then
+        debugPrint("[SUCCESS] MiniGameMorse.lua loaded successfully")
         morseGameLoaded = true
+        if _G.MiniGameMorse and type(_G.MiniGameMorse) == "function" then
+            debugPrint("[SUCCESS] MiniGameMorse function available")
+        else
+            debugPrint("[WARNING] MiniGameMorse function not available after loading")
+        end
+    else
+        debugPrint("[WARNING] Failed to load MiniGameMorse.lua: " .. tostring(result))
     end
 end
 
 local falloutGameLoaded = false
 if _G.MiniGame_Fallout and type(_G.MiniGame_Fallout) == "function" then
     falloutGameLoaded = true
+    debugPrint("[SUCCESS] MiniGame_Fallout already available")
 elseif _G.MiniGameFallout and type(_G.MiniGameFallout) == "function" then
     falloutGameLoaded = true
+    debugPrint("[SUCCESS] MiniGameFallout (legacy) already available")
+else
+    debugPrint("[INFO] MiniGame_Fallout not available, will load when needed")
 end
 
--- Verificar que Events esté disponible
+-- Verificar que Events esté disponible inmediatamente
 if not Events then
-    debugPrint("CRITICAL", "Events is nil at module load time - creating fallback")
+    debugPrint("[ERROR] DecryptDrivesContextMenu: Events is nil at module load time")
+    debugPrint("[ERROR] DecryptDrivesContextMenu: This indicates Events is not available in this game version")
+    -- Crear un Events falso para evitar errores
     Events = { OnFillWorldObjectContextMenu = { Add = function() end } }
+else
+    debugPrint("DecryptDrivesContextMenu: Events is available at load time")
 end
 
 -- Create hierarchical context menu
 function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList, healthOption)
-    debugPrint("MENU_CREATION", "createHierarchicalMenu called")
+    debugPrint("DecryptDrivesContextMenu.createHierarchicalMenu called")
 
     -- Try to use modular controller first
     if menuController then
-        debugPrint("MENU_CREATION", "Using modular MenuController")
+        debugPrint("DecryptDrivesContextMenu: Using modular MenuController")
         local ok, result = pcall(function()
             return menuController:createMenu(player, context, laptop, usbList, healthOption)
         end)
@@ -158,17 +160,17 @@ function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop
             end
 
             if type(option) ~= "table" then
-                debugPrint("CRITICAL", "MenuController returned without table option; falling back to legacy")
+                debugPrint("[WARN] MenuController returned without table option; falling back to legacy")
             else
                 return option
             end
         else
-            debugPrint("CRITICAL", "MenuController:createMenu failed: " .. tostring(result))
+            debugPrint("[ERROR] MenuController:createMenu failed: " .. tostring(result))
         end
     end
 
     -- Fallback to legacy implementation
-    debugPrint("MENU_CREATION", "Using legacy menu implementation - MenuController not available")
+    debugPrint("DecryptDrivesContextMenu: Using legacy menu implementation - MenuController not available")
     return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList, healthOption)
 end
 
@@ -176,7 +178,7 @@ end
 -- MODULE INITIALIZATION
 -- ============================================================================
 
-debugPrint("EVENT_SYSTEM", "DecryptDrivesContextMenu.lua starting to load...")
+debugPrint("DecryptDrivesContextMenu.lua starting to load...")
 local DECRYPT_CONFIG = {
     LAPTOP_TYPES = {
         "AsusZephLaptopOpened",    -- ASUS Zephyrus M (Opened)
@@ -196,7 +198,7 @@ local DECRYPT_CONFIG = {
     }
 }
 
--- Módulo cargado (mensaje inicial removido para limpieza)
+print("[DecryptSkillSys] Loading DecryptDrivesContextMenu (DEBUG MODE)...")
 
 -- =========================================================================
 -- UI HELPERS
@@ -208,8 +210,10 @@ local usbIconCache = false -- false = not yet attempted, nil = attempted but mis
 function DecryptDrivesContextMenu.getUSBIconTexture()
     if usbIconCache == false then
         usbIconCache = getTexture(USB_ICON_PATH)
-        if not usbIconCache then
-            debugPrint("CRITICAL", "USB icon texture could not be loaded: " .. USB_ICON_PATH)
+        if usbIconCache then
+            debugPrint("USB icon texture loaded successfully: " .. USB_ICON_PATH)
+        else
+            debugPrint("[WARN] USB icon texture could not be loaded: " .. USB_ICON_PATH)
         end
     end
     return usbIconCache or nil
@@ -266,7 +270,7 @@ function DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, he
     end
 
     if not mainOption or type(mainOption) ~= "table" then
-        debugPrint("MENU_CREATION", "applyUSBMenuFormatting: No main option table available; skipping formatting")
+        debugPrint("[WARN] applyUSBMenuFormatting: No main option table available; skipping formatting")
         return
     end
 
@@ -299,11 +303,11 @@ end
 
 -- Validate if worldObject is a valid laptop for decryption
 function DecryptDrivesContextMenu.isValidLaptop(worldObject)
-    debugPrint("LAPTOP_VALIDATION", "isValidLaptop called")
+    debugPrint("=== isValidLaptop called ===")
     
     -- Verificación básica del objeto
     if not worldObject then
-        debugPrint("LAPTOP_VALIDATION", "worldObject es nil")
+        debugPrint("❌ worldObject es nil")
         return false, "No se proporcionó ningún objeto"
     end
     
@@ -313,13 +317,13 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
         if worldObject.getClass and worldObject:getClass() then
             objType = tostring(worldObject:getClass():getName())
         end
-        debugPrint("LAPTOP_VALIDATION", "No es un IsoObject, tipo: " .. objType)
+        debugPrint("❌ No es un IsoObject, tipo: " .. objType)
         return false, "No es un objeto del mundo válido"
     end
     
     -- Verificar si es un IsoWorldInventoryObject (objetos con inventario como laptops)
     if not instanceof(worldObject, "IsoWorldInventoryObject") then
-        debugPrint("LAPTOP_VALIDATION", "No es un IsoWorldInventoryObject")
+        debugPrint("❌ No es un IsoWorldInventoryObject (no es un objeto con inventario)")
         return false, "No es un objeto con inventario"
     end
     
@@ -331,11 +335,11 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
         item = result
     else
         itemErr = result
-        debugPrint("LAPTOP_VALIDATION", "Error al obtener el ítem: " .. tostring(itemErr))
+        debugPrint("❌ Error al obtener el ítem: " .. tostring(itemErr))
     end
     
     if not item then
-        debugPrint("LAPTOP_VALIDATION", "No se pudo obtener el ítem del objeto")
+        debugPrint("❌ No se pudo obtener el ítem del objeto")
         return false, "No se pudo obtener el ítem del objeto"
     end
     
@@ -360,7 +364,7 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
         itemType = tostring(typeResult)
     end
     
-    debugPrint("LAPTOP_VALIDATION", string.format("Analizando objeto: %s (Tipo: %s, FullType: %s)", 
+    debugPrint(string.format("🔍 Analizando objeto: %s (Tipo: %s, FullType: %s)", 
         itemName, itemType, itemFullType))
     
     -- Verificar si es un tipo de laptop válido
@@ -370,7 +374,7 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
     local typeCheckSuccess, typeCheckResult = pcall(function()
         for _, laptopType in ipairs(DECRYPT_CONFIG.LAPTOP_TYPES) do
             if itemFullType:find(laptopType, 1, true) or itemType:find(laptopType, 1, true) then
-                debugPrint("LAPTOP_VALIDATION", "Coincidencia de tipo de laptop: " .. laptopType)
+                debugPrint("✅ Coincidencia de tipo de laptop: " .. laptopType)
                 return true
             end
         end
@@ -380,7 +384,7 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
     if typeCheckSuccess then
         isLaptop = typeCheckResult
     else
-        debugPrint("CRITICAL", "Error al verificar tipos de laptop: " .. tostring(typeCheckResult))
+        debugPrint("⚠️ Error al verificar tipos de laptop: " .. tostring(typeCheckResult))
     end
     
     -- Para depuración: verificar si contiene "Laptop" en el nombre o tipo
@@ -389,11 +393,11 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
         local laptopInType = itemType:lower():find("laptop") ~= nil or itemFullType:lower():find("laptop") ~= nil
         
         if laptopInName or laptopInType then
-            debugPrint("LAPTOP_VALIDATION", "Se encontró 'Laptop' en el nombre o tipo, pero no en LAPTOP_TYPES")
-            debugPrint("LAPTOP_VALIDATION", "Considere agregar este tipo a DECRYPT_CONFIG.LAPTOP_TYPES:")
-            debugPrint("LAPTOP_VALIDATION", "Nombre: " .. itemName)
-            debugPrint("LAPTOP_VALIDATION", "Tipo: " .. itemType)
-            debugPrint("LAPTOP_VALIDATION", "FullType: " .. itemFullType)
+            debugPrint("ℹ️  Se encontró 'Laptop' en el nombre o tipo, pero no en LAPTOP_TYPES")
+            debugPrint("ℹ️  Considere agregar este tipo a DECRYPT_CONFIG.LAPTOP_TYPES:")
+            debugPrint("ℹ️  Nombre: " .. itemName)
+            debugPrint("ℹ️  Tipo: " .. itemType)
+            debugPrint("ℹ️  FullType: " .. itemFullType)
             -- Aceptar temporalmente laptops que contengan "laptop" en el nombre/tipo
             isLaptop = true
         end
@@ -401,10 +405,10 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
     
     -- Resultado final
     if isLaptop then
-        debugPrint("LAPTOP_VALIDATION", "Laptop válida detectada: " .. itemName)
+        debugPrint("✅ Laptop válida detectada: " .. itemName)
         return true, "Laptop válida: " .. itemName
     else
-        debugPrint("LAPTOP_VALIDATION", "No es una laptop válida: " .. itemName .. " (Tipo: " .. itemType .. ")")
+        debugPrint("❌ No es una laptop válida: " .. itemName .. " (Tipo: " .. itemType .. ")")
         return false, "No es una laptop compatible"
     end
 end
@@ -415,10 +419,10 @@ end
 
 -- Scan player inventory for USB drives
 function DecryptDrivesContextMenu.scanPlayerUSBs(player)
-    debugPrint("USB_SCANNING", "scanPlayerUSBs called")
+    debugPrint("scanPlayerUSBs called")
 
     if not player then
-        debugPrint("USB_SCANNING", "Player is nil")
+        debugPrint("Player is nil")
         return {}
     end
 
@@ -427,12 +431,12 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
     if success and result then
         inventory = result
     else
-        debugPrint("USB_SCANNING", "Error getting inventory: " .. tostring(result))
+        debugPrint("Error getting inventory: " .. tostring(result))
         return {}
     end
 
     if not inventory then
-        debugPrint("USB_SCANNING", "No inventory found")
+        debugPrint("No inventory found")
         return {}
     end
 
@@ -441,7 +445,7 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
     if itemsSuccess and itemsResult then
         items = itemsResult
     else
-        debugPrint("USB_SCANNING", "Error getting items: " .. tostring(itemsResult))
+        debugPrint("Error getting items: " .. tostring(itemsResult))
         return {}
     end
 
@@ -450,7 +454,7 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
     if sizeSuccess then
         itemCount = sizeResult or 0
     end
-    debugPrint("USB_SCANNING", "Inventory items count: " .. itemCount)
+    debugPrint("Inventory items count: " .. itemCount)
 
     local usbList = {}
     local haveUtils = pcall(require, "shared/GVDrive_Utils") and GVDrive_Utils and GVDrive_Utils.getDriveInfo
@@ -480,7 +484,16 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
                         difficulty_english = (DECRYPT_CONFIG.DIFFICULTY_MAP[rarityEs] or "Easy"),
                         displayName = DECRYPT_CONFIG.MENU_TEXT.USB_PREFIX .. tostring(info.skillName) .. " (" .. rarityEs .. ")"
                     }
-                    debugPrint("USB_SCANNING", "USB entry created via GVDrive_Utils: " .. tostring(info.skillName))
+                    debugPrint("✅ USB entry created via GVDrive_Utils:")
+                    -- Usar pcall para evitar errores si pairs falla
+                    local success, err = pcall(function()
+                        for k, v in pairs(usbEntry) do
+                            debugPrint("✅   " .. tostring(k) .. ": " .. tostring(v))
+                        end
+                    end)
+                    if not success then
+                        debugPrint("[ERROR] Could not iterate usbEntry: " .. tostring(err))
+                    end
                     table.insert(usbList, usbEntry)
                     handled = true
                 end
@@ -496,13 +509,13 @@ function DecryptDrivesContextMenu.scanPlayerUSBs(player)
         end
     end
 
-    debugPrint("USB_SCANNING", "USB scan completed, found " .. tostring(#usbList) .. " USBs")
+    debugPrint("USB scan completed, found " .. tostring(#usbList) .. " USBs")
     return usbList
 end
 
 -- Parse USB data from item and fullType
 function DecryptDrivesContextMenu.parseUSBData(item, fullType)
-    debugPrint("USB_SCANNING", "parseUSBData called with: " .. tostring(fullType))
+    debugPrint("parseUSBData called with: " .. tostring(fullType))
 
     local parts = {}
     for part in fullType:gmatch("([^_]+)") do
@@ -534,7 +547,16 @@ function DecryptDrivesContextMenu.parseUSBData(item, fullType)
             difficulty_english = DECRYPT_CONFIG.DIFFICULTY_MAP[difficulty] or "Easy",
             displayName = DECRYPT_CONFIG.MENU_TEXT.USB_PREFIX .. skillName .. " (" .. difficulty .. ")"
         }
-        debugPrint("USB_SCANNING", "USB entry created via parseUSBData: " .. skillName)
+        debugPrint("✅ USB entry created via parseUSBData:")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for k, v in pairs(usbEntry) do
+                debugPrint("✅   " .. tostring(k) .. ": " .. tostring(v))
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate parseUSBData usbEntry: " .. tostring(err))
+        end
         return usbEntry
     end
 
@@ -571,7 +593,7 @@ end
 
 -- Main context menu handler
 function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobjects, test)
-    debugPrint("MENU_CREATION", "addContextMenuOption STARTED")
+    debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption STARTED ===")
 
     -- Normalize player (events may pass player index rather than IsoPlayer)
     local playerObj = player
@@ -580,19 +602,25 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
         if ok and res then playerObj = res end
     end
 
+    debugPrint("DecryptDrivesContextMenu: player: " .. tostring(playerObj))
+    debugPrint("DecryptDrivesContextMenu: context: " .. tostring(context))
+    debugPrint("DecryptDrivesContextMenu: worldobjects count: " .. tostring(worldobjects and #worldobjects or 0))
+    debugPrint("DecryptDrivesContextMenu: test mode: " .. tostring(test))
+
     -- Skip if test mode or missing params
     if test or not playerObj or not context or not worldobjects then
-        debugPrint("MENU_CREATION", "Skipping (test or missing parameters)")
+        debugPrint("DecryptDrivesContextMenu: Skipping (test or missing parameters)")
+        debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (skipped) ===")
         return
     end
 
     -- Check each world object for valid laptops
     for i, worldObject in ipairs(worldobjects) do
-        debugPrint("MENU_CREATION", "Checking worldObject " .. tostring(i))
+        debugPrint("DecryptDrivesContextMenu: Checking worldObject " .. tostring(i))
         local isValid, reason = DecryptDrivesContextMenu.isValidLaptop(worldObject)
 
         if isValid then
-            debugPrint("MENU_CREATION", "Valid laptop found!")
+            debugPrint("DecryptDrivesContextMenu: Valid laptop found!")
 
             -- Get laptop item for health and other operations
             local laptopItem = worldObject:getItem()
@@ -600,37 +628,41 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
             if laptopItem then
                 -- Add laptop health status at the top with battery icon
                 healthOption = DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
-                debugPrint("MENU_CREATION", "Health status added to menu")
+                debugPrint("DecryptDrivesContextMenu: Health status added to menu")
             end
 
             -- Scan for USBs in player inventory
             local usbList = DecryptDrivesContextMenu.scanPlayerUSBs(playerObj)
 
             if #usbList > 0 then
-                debugPrint("MENU_CREATION", "USBs found: " .. #usbList)
+                debugPrint("DecryptDrivesContextMenu: USBs found: " .. #usbList)
                 -- Create hierarchical menu
                 local mainOption = DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, worldObject, usbList, healthOption)
                 DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, healthOption)
-                debugPrint("MENU_CREATION", "USB menu created")
+                debugPrint("DecryptDrivesContextMenu: USB menu created")
             else
-                debugPrint("MENU_CREATION", "No USBs found in player inventory")
+                debugPrint("DecryptDrivesContextMenu: No USBs found in player inventory")
             end
 
             -- Add antivirus options
             DecryptDrivesContextMenu.addAntivirusOptions(context, playerObj, worldObject)
+            debugPrint("DecryptDrivesContextMenu: Antivirus options added")
 
             -- Add elite drive options
             DecryptDrivesContextMenu.addEliteDriveOptions(context, playerObj)
+            debugPrint("DecryptDrivesContextMenu: Elite drive options added")
 
             -- Mark context to indicate modern menu has been attached (defensive against other handlers)
             context._DecryptDrives_ModernMenu = true
+            debugPrint("DecryptDrivesContextMenu: Context marked as modern menu active")
 
-            debugPrint("MENU_CREATION", "addContextMenuOption ENDED (complete menu created)")
+            debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (complete menu created) ===")
             break -- Only need one laptop
         else
-            debugPrint("MENU_CREATION", "Invalid laptop: " .. tostring(reason))
+            debugPrint("DecryptDrivesContextMenu: Invalid laptop: " .. tostring(reason))
         end
     end
+    debugPrint("=== DecryptDrivesContextMenu.addContextMenuOption ENDED (no valid laptop found) ===")
 end
 
 -- ============================================================================
@@ -638,22 +670,35 @@ end
 -- ============================================================================
 
 -- Simplified approach - just use legacy implementation for reliability
+debugPrint("DecryptDrivesContextMenu: Using simplified legacy implementation for maximum compatibility")
 
 -- Create hierarchical context menu
 function DecryptDrivesContextMenu.createHierarchicalMenu(player, context, laptop, usbList)
-    debugPrint("MENU_CREATION", "createHierarchicalMenu called")
+    debugPrint("createHierarchicalMenu called")
 
     -- Use legacy implementation directly (more reliable)
-    debugPrint("MENU_CREATION", "Using legacy menu implementation for reliability")
+    debugPrint("Using legacy menu implementation for reliability")
     return DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList)
 end
 
 -- Legacy implementation (kept for compatibility)
 function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, laptop, usbList, healthOption)
-    debugPrint("MENU_CREATION", "createHierarchicalMenuLegacy called with " .. #usbList .. " USBs")
+    debugPrint("createHierarchicalMenuLegacy called")
+    debugPrint("USB count: " .. #usbList)
 
     -- Group USBs by skill
     local groupedUSBs = DecryptDrivesContextMenu.groupUSBsBySkill(usbList)
+
+    debugPrint("Grouped USBs:")
+    -- Usar pcall para evitar errores si pairs falla
+    local success, err = pcall(function()
+        for skill, usbs in pairs(groupedUSBs) do
+            debugPrint("  Skill: " .. skill .. " - Count: " .. #usbs)
+        end
+    end)
+    if not success then
+        debugPrint("[ERROR] Could not iterate groupedUSBs: " .. tostring(err))
+    end
 
     -- Create main menu option
     local mainOption = context:addOption(DECRYPT_CONFIG.MENU_TEXT.MAIN, nil, nil)
@@ -672,10 +717,22 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
         local difficulties = {}
         for _, usbData in ipairs(usbs) do
             local diff = usbData.difficulty_spanish
+            debugPrint("LEGACY: Processing USB: skill=" .. skill .. ", difficulty=" .. tostring(diff))
             if not difficulties[diff] then
                 difficulties[diff] = {}
             end
             table.insert(difficulties[diff], usbData)
+        end
+
+        debugPrint("LEGACY: Difficulties for skill " .. skill .. ":")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for diffName, diffList in pairs(difficulties) do
+                debugPrint("LEGACY:   " .. diffName .. ": " .. #diffList .. " USBs")
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate difficulties: " .. tostring(err))
         end
 
         -- Create difficulty submenus with proper order
@@ -685,9 +742,13 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
                 local count = #difficulties[difficultyName]
                 local firstUSB = difficulties[difficultyName][1]
                 
-                -- Validación crítica: Verificar que el primer USB sea válido
+                -- ✅ VALIDACIÓN CRÍTICA: Verificar que el primer USB sea válido
                 if firstUSB and firstUSB.displayName then
+                    debugPrint("LEGACY: Adding difficulty option: " .. difficultyName .. " x" .. count .. " for skill " .. skill)
+                    debugPrint("LEGACY: First USB data: " .. tostring(firstUSB.displayName))
+                    
                     -- Add difficulty option that directly triggers action with the first USB
+                    -- ✅ CORRECCIÓN CRÍTICA: Usar wrapper function para garantizar parámetros correctos
                     skillSubMenu:addOption(
                         difficultyName .. " x" .. count,
                         player,
@@ -696,14 +757,21 @@ function DecryptDrivesContextMenu.createHierarchicalMenuLegacy(player, context, 
                             DecryptDrivesContextMenu.onUSBSelected(playerObj, laptop, firstUSB)
                         end
                     )
+                    debugPrint("LEGACY: Difficulty option added to skill submenu")
                 else
-                    debugPrint("CRITICAL", "Invalid first USB data for difficulty: " .. difficultyName .. " in skill " .. skill)
+                    debugPrint("[ERROR] LEGACY: Invalid first USB data for difficulty: " .. difficultyName .. " in skill " .. skill)
+                    debugPrint("[ERROR] LEGACY: firstUSB: " .. tostring(firstUSB))
+                    if firstUSB then
+                        debugPrint("[ERROR] LEGACY: firstUSB.displayName: " .. tostring(firstUSB.displayName))
+                    end
                 end
+            else
+                debugPrint("LEGACY: No USBs found for difficulty: " .. difficultyName .. " in skill " .. skill)
             end
         end
     end
 
-    debugPrint("MENU_CREATION", "Context menu created with " .. #usbList .. " USB options")
+    debugPrint("Context menu created with " .. #usbList .. " USB options")
     return mainOption
 end
 
@@ -713,27 +781,57 @@ end
 
 -- Handle USB selection from context menu
 function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
-    debugPrint("USB_SELECTION", "onUSBSelected called")
+    debugPrint("✅ onUSBSelected called with parameters:")
+    debugPrint("✅   player: " .. tostring(player) .. " (type: " .. type(player) .. ")")
+    debugPrint("✅   laptop: " .. tostring(laptop) .. " (type: " .. type(laptop) .. ")")
+    debugPrint("✅   usbData: " .. tostring(usbData) .. " (type: " .. type(usbData) .. ")")
     
-    -- Validación mejorada
+    -- ✅ VALIDACIÓN MEJORADA: Información detallada de debugging
     if not usbData then
-        debugPrint("CRITICAL", "onUSBSelected called with nil usbData")
+        debugPrint("[ERROR] onUSBSelected called with nil usbData")
+        debugPrint("[ERROR] Parameters received:")
+        debugPrint("[ERROR]   player: " .. tostring(player))
+        debugPrint("[ERROR]   laptop: " .. tostring(laptop))
+        debugPrint("[ERROR]   usbData: nil")
         return
     end
     
-    -- Validación crítica: Verificar que usbData sea una tabla válida
+    -- ✅ VALIDACIÓN CRÍTICA: Verificar que usbData sea una tabla válida
     if type(usbData) ~= "table" then
-        debugPrint("CRITICAL", "onUSBSelected called with usbData that is not a table")
-        debugPrint("CRITICAL", "usbData type: " .. type(usbData))
+        debugPrint("[ERROR] onUSBSelected called with usbData that is not a table")
+        debugPrint("[ERROR] usbData type: " .. type(usbData))
+        debugPrint("[ERROR] usbData value: " .. tostring(usbData))
+        debugPrint("[ERROR] This suggests parameter order is incorrect in addOption call")
         return
     end
     
     if not usbData.displayName then
-        debugPrint("CRITICAL", "onUSBSelected called with usbData missing displayName")
+        debugPrint("[ERROR] onUSBSelected called with usbData missing displayName")
+        debugPrint("[ERROR] usbData contents:")
+        -- Usar pcall para evitar errores si pairs falla
+        local success, err = pcall(function()
+            for key, value in pairs(usbData) do
+                debugPrint("[ERROR]   " .. tostring(key) .. ": " .. tostring(value))
+            end
+        end)
+        if not success then
+            debugPrint("[ERROR] Could not iterate usbData: " .. tostring(err))
+        end
         return
     end
 
-    debugPrint("USB_SELECTION", "USB selected: " .. usbData.displayName)
+    debugPrint("✅ USB selected successfully: " .. usbData.displayName)
+    debugPrint("✅ Skill: " .. (usbData.skill or "Unknown") .. ", Difficulty: " .. (usbData.difficulty_spanish or "Unknown") .. " -> " .. (usbData.difficulty_english or "Unknown"))
+    debugPrint("✅ Full usbData:")
+    -- Usar pcall para evitar errores si pairs falla
+    local success, err = pcall(function()
+        for key, value in pairs(usbData) do
+            debugPrint("✅   " .. tostring(key) .. ": " .. tostring(value))
+        end
+    end)
+    if not success then
+        debugPrint("[ERROR] Could not iterate successful usbData: " .. tostring(err))
+    end
 
     -- Obtener laptop item para integración
     local laptopItem = nil
@@ -741,11 +839,11 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         laptopItem = laptop:getItem()
     end
 
-    -- Verificación crítica: Verificar salud de la laptop antes de iniciar minijuego
+    -- ✅ VERIFICACIÓN CRÍTICA: Verificar salud de la laptop antes de iniciar minijuego
     if laptopItem and LaptopSystem then
         local laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
         if type(laptopHealth) == "number" and laptopHealth <= 0 then
-            debugPrint("CRITICAL", "Laptop health is 0% or less, cannot start minigame")
+            debugPrint("[ERROR] Laptop health is 0% or less, cannot start minigame")
             player:Say("This laptop is completely dead. It cannot run any decryption software.")
             return
         end
@@ -755,46 +853,72 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
     local usbType = usbData.skill
     local difficulty = usbData.difficulty_english
 
-    -- Validación crítica: Verificar que usbType sea válido antes de proceder
+    -- ✅ VALIDACIÓN CRÍTICA: Verificar que usbType sea válido antes de proceder
     if not usbType or usbType == "" then
-        debugPrint("CRITICAL", "usbData.skill is nil or empty")
+        debugPrint("[ERROR] usbData.skill is nil or empty. usbData contents:")
+        if usbData then
+            for key, value in pairs(usbData) do
+                debugPrint("[ERROR]   " .. tostring(key) .. ": " .. tostring(value))
+            end
+        end
         player:Say("Invalid USB skill data. Cannot proceed with decryption.")
         return
     end
 
     if usbType and difficulty then
-        -- Obtener configuración fresca cada vez (selección aleatoria por USB)
+        -- ✅ OBTENER CONFIGURACIÓN FRESCA CADA VEZ (selección aleatoria por USB)
         local currentConfig = getActiveMinigameConfig()
-        debugPrint("USB_SELECTION", "Opening minigame: " .. currentConfig.displayName)
+        debugPrint("Opening random minigame for USB: " .. usbType .. " (" .. difficulty .. ") using " .. currentConfig.displayName .. " minigame")
 
-        -- Verificación y recarga del minijuego activo
+        -- ✅ VERIFICACIÓN Y RECARGA DEL MINIJUEGO ACTIVO
         if not _G[currentConfig.name] or type(_G[currentConfig.name]) ~= "function" then
-            debugPrint("USB_SELECTION", "Reloading " .. currentConfig.module .. " module...")
+            debugPrint("[WARN] _G." .. currentConfig.name .. " missing or not a function. Attempting to reload " .. currentConfig.module .. " module...")
             if package and package.loaded then
                 package.loaded[currentConfig.module] = nil
+            else
+                debugPrint("[WARN] Lua 'package.loaded' not available in this context; skipping cache clear")
             end
             local ok, result = pcall(require, currentConfig.module)
-            if not ok then
-                debugPrint("CRITICAL", "Failed to reload " .. currentConfig.module .. " module: " .. tostring(result))
+            if ok then
+                debugPrint("[INFO] " .. currentConfig.module .. " module reloaded. _G." .. currentConfig.name .. " type after reload: " .. type(_G[currentConfig.name]))
+            else
+                debugPrint("[ERROR] Failed to reload " .. currentConfig.module .. " module: " .. tostring(result))
+                debugPrint("[WARN] Trying " .. currentConfig.reloadFunc .. "() as secondary fallback...")
+                local reloadOk, reloadResult = pcall(function()
+                    if _G[currentConfig.reloadFunc] then
+                        _G[currentConfig.reloadFunc]()
+                    else
+                        debugPrint("[ERROR] " .. currentConfig.reloadFunc .. " not available")
+                    end
+                end)
+                if not reloadOk then
+                    debugPrint("[ERROR] " .. currentConfig.reloadFunc .. "() threw an error: " .. tostring(reloadResult))
+                else
+                    debugPrint("[INFO] " .. currentConfig.reloadFunc .. "() executed. _G." .. currentConfig.name .. " type now: " .. type(_G[currentConfig.name]))
+                end
             end
         end
 
+        debugPrint("[DEBUG] About to call _G." .. currentConfig.name)
+        debugPrint("[DEBUG] _G." .. currentConfig.name .. " type: " .. type(_G[currentConfig.name]))
         if _G[currentConfig.name] and type(_G[currentConfig.name]) == "function" then
-            -- Permitir que el minijuego use la configuración global de ventana
+            -- ✅ Permitir que el minijuego use la configuración global de ventana (widthPct/heightPct nil)
+            debugPrint("[DEBUG] Calling " .. currentConfig.name .. " with default window sizing, usbType=" .. usbType .. ", difficulty=" .. difficulty)
             local success, minigame = pcall(_G[currentConfig.name], nil, nil, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
-                debugPrint("USB_SELECTION", currentConfig.displayName .. " minigame opened successfully")
+                debugPrint(currentConfig.displayName .. " minigame opened successfully with USB integration")
                 player:Say("Initializing " .. usbType .. " decryption protocol (" .. difficulty .. " level) - " .. (currentConfig.name == "MiniGame_Fallout" and "Password Hacking..." or "Sequence Memory..."))
             else
-                debugPrint("CRITICAL", "Failed to create " .. currentConfig.displayName .. " minigame: " .. tostring(minigame))
+                debugPrint("[ERROR] Failed to create " .. currentConfig.displayName .. " minigame: " .. tostring(minigame))
                 player:Say("Error initializing " .. (currentConfig.name == "MiniGame_Fallout" and "password hacking" or "sequence decryption") .. " system.")
             end
         else
-            debugPrint("CRITICAL", currentConfig.name .. " function not available in global scope")
+            debugPrint("[ERROR] " .. currentConfig.name .. " function not available in global scope")
+            debugPrint("[ERROR] _G." .. currentConfig.name .. ": " .. tostring(_G[currentConfig.name]))
             player:Say("No " .. (currentConfig.name == "MiniGame_Fallout" and "password hacking" or "decryption") .. " protocol available for this drive type.")
         end
     else
-        debugPrint("CRITICAL", "Invalid USB data - skill: " .. tostring(usbType) .. ", difficulty: " .. tostring(difficulty))
+        debugPrint("[ERROR] Invalid USB data - skill: " .. tostring(usbType) .. ", difficulty: " .. tostring(difficulty))
         player:Say("Invalid drive data. Cannot proceed with decryption.")
     end
 end
@@ -807,7 +931,7 @@ end
 function DecryptDrivesContextMenu.getBatteryTextureForHealth(healthPercent)
     -- Ensure healthPercent is a valid number
     if type(healthPercent) ~= "number" then
-        debugPrint("CRITICAL", "getBatteryTextureForHealth: healthPercent is not a number")
+        debugPrint("getBatteryTextureForHealth: healthPercent is not a number, type=" .. type(healthPercent) .. ", value=" .. tostring(healthPercent))
         healthPercent = 0 -- Default to 0 if invalid
     end
 
@@ -837,11 +961,14 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     local laptopHealth = 0
     if LaptopSystem then
         laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
+        debugPrint("Laptop health retrieved: " .. tostring(laptopHealth))
+    else
+        debugPrint("LaptopSystem not available for health check")
     end
 
     -- Ensure laptopHealth is valid
     if type(laptopHealth) ~= "number" then
-        debugPrint("CRITICAL", "Laptop health is not a number")
+        debugPrint("Laptop health is not a number, type=" .. type(laptopHealth) .. ", value=" .. tostring(laptopHealth))
         laptopHealth = 0 -- Default to 0 if invalid
     end
 
@@ -894,6 +1021,9 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     -- Assign battery texture as icon to the context menu option
     if batteryTexture then
         healthOption.iconTexture = batteryTexture
+        debugPrint("Battery texture assigned to menu option iconTexture successfully")
+    else
+        debugPrint("Failed to load battery texture - no icon will be displayed")
     end
 
     return healthOption
