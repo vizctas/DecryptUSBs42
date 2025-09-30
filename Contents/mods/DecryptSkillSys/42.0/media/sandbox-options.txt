@@ -8,49 +8,49 @@ option GVDrive.EnableWorldLoot
 
 option GVDrive.USB_WorldLoot_Chance
 {
-    type = double, min = 0, max = 5, default = 0.1,
+    type = double, min = 0, max = 100, default = 0.1,
     page = Drive_Decrypt, translation = GVDrive_USB_WorldLoot,
 }
 
 option GVDrive.Laptop_WorldLoot_Chance
 {
-    type = double, min = 0, max = 5, default = 0.8,
+    type = double, min = 0, max = 100, default = 0.8,
     page = Drive_Decrypt, translation = GVDrive_Laptop_WorldLoot,
 }
 
 option GVDrive.EliteDrive_WorldLoot_Chance
 {
-    type = double, min = 0, max = 5, default = 0.08,
+    type = double, min = 0, max = 100, default = 0.08,
     page = Drive_Decrypt, translation = GVDrive_EliteDrive_WorldLoot_Chance,
 }
 
 option GVDrive.SkillUSB_WorldLoot_Chance
 {
-    type = double, min = 0, max = 5, default = 0.2,
+    type = double, min = 0, max = 100, default = 0.2,
     page = Drive_Decrypt, translation = GVDrive_SkillUSB_WorldLoot_Chance,
 }
 
 option GVDrive.USB_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 50, default = 10.0,
+    type = double, min = 0, max = 100, default = 10.0,
     page = Drive_Decrypt, translation = GVDrive_USB_ZombieDrop,
 }
 
 option GVDrive.Laptop_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 25, default = 5.0,
+    type = double, min = 0, max = 100, default = 5.0,
     page = Drive_Decrypt, translation = GVDrive_Laptop_ZombieDrop,
 }
 
 option GVDrive.EliteDrive_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 10, default = 2.0,
+    type = double, min = 0, max = 100, default = 2.0,
     page = Drive_Decrypt, translation = GVDrive_EliteDrive_ZombieDrop,
 }
 
 option GVDrive.Antivirus_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 25, default = 8.0,
+    type = double, min = 0, max = 100, default = 2.2,
     page = Drive_Decrypt, translation = GVDrive_Antivirus_ZombieDrop_Chance,
 }
 
@@ -275,3 +275,4 @@ option GVDrive.Antivirus_MalwareBytes_Drop_Rate
     type = double, min = 0, max = 5, default = 0.01,
     page = Drive_Decrypt, translation = GVDrive_Antivirus_MalwareBytes_Drop_Rate,
 }
+

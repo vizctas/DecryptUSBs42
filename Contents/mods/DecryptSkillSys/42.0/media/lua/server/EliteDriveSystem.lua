@@ -13,9 +13,6 @@ end
 -- Ensure table exists (shared file provides a simplified table)
 EliteDriveSystem = EliteDriveSystem or {}
 
--- Elite drive drop chances (very rare)
-local ELITE_DROP_CHANCE = 0.05 -- 0.05% chance per zombie
-
 -- Track player enhancements in ModData
 function EliteDriveSystem.getPlayerEnhancements(player)
     local data = player:getModData()
@@ -174,82 +171,6 @@ function EliteDriveSystem.applyRuntimeBonuses(player)
     -- Strength and endurance bonuses are reserved for future implementation
 end
 
--- Handle elite drive drops from zombies
-function onZombieDeath(zombie)
-    GVDebug.testPrint("onZombieDeath called with zombie:", tostring(zombie))
-    if not zombie then 
-    GVDebug.testPrint("Elite: zombie is nil, returning")
-        return 
-    end
-    
-    -- Check if it's actually a zombie (not a player)
-    if instanceof(zombie, "IsoPlayer") then 
-    GVDebug.testPrint("Elite: zombie is IsoPlayer, returning")
-        return 
-    end
-    
-    -- Get elite drop chance from sandbox (convert to 0-1 range)
-    local eliteDropChance = ELITE_DROP_CHANCE
-    GVDebug.testPrint("Getting elite drop chance from sandbox...")
-    if GVDrive_Utils and GVDrive_Utils.getSandboxPercent then
-        local pct = GVDrive_Utils.getSandboxPercent("EliteDrive_ZombieDrop_Chance", 1.0)  -- 0.05 * 100 / 5 = 1%
-    GVDebug.testPrint("getSandboxPercent returned:", tostring(pct))
-        -- getSandboxPercent now returns 0..100 scale always
-        eliteDropChance = pct / 100.0
-    GVDebug.testPrint("Final eliteDropChance:", tostring(eliteDropChance))
-    else
-        local raw = ELITE_DROP_CHANCE
-        if GVDrive_Utils and GVDrive_Utils.getSandboxNumber then
-            raw = GVDrive_Utils.getSandboxNumber('EliteDrive_ZombieDrop_Chance', ELITE_DROP_CHANCE)
-        else
-            local gv = (SandboxVars and SandboxVars.GVDrive) or {}
-            raw = gv.EliteDrive_ZombieDrop_Chance or ELITE_DROP_CHANCE
-        end
-        if type(raw) == 'number' and raw > 1 then
-            eliteDropChance = raw / 100.0
-        else
-            eliteDropChance = raw
-        end
-    end
-
-        -- Ensure eliteDropChance is a numeric value and normalized to 0..1
-        if type(eliteDropChance) ~= 'number' then
-            eliteDropChance = tonumber(eliteDropChance) or ELITE_DROP_CHANCE
-        end
-        -- If someone configured percent as 0..100, normalize to 0..1
-        if eliteDropChance > 1 then
-            eliteDropChance = eliteDropChance / 100.0
-        end
-
-    -- Check for elite drive drop using high-resolution roll
-    local chance = ZombRand(0, 10000) / 100.0
-    local threshold = eliteDropChance * 100.0
-    GVDebug.testPrint(string.format("Elite drive roll: %.2f vs threshold: %.4f (eliteDropChance=%s) - %s", chance, threshold, tostring(eliteDropChance), chance < threshold and "SUCCESS" or "FAILED"))
-    if chance < threshold then
-        local driveTypes = {
-            "GValley.EliteDrive_Strength",
-            "GValley.EliteDrive_Endurance", 
-            "GValley.EliteDrive_Capacity",
-            "GValley.EliteDrive_Speed",
-            "GValley.EliteDrive_Luck"
-        }
-        
-        local randomDrive = driveTypes[ZombRand(1, #driveTypes + 1)]
-    zombie:getCurrentSquare():AddWorldInventoryItem(randomDrive, 0, 0, 0)
-    GVDebug.debugPrint("Spawned elite drive:", randomDrive)
-        
-        -- Rare message for nearby players
-        local players = getOnlinePlayers()
-        for i = 0, players:size() - 1 do
-            local player = players:get(i)
-            local distance = IsoUtils.DistanceTo(player, zombie)
-            if distance <= 10 then
-                player:Say(getText("GVDrive_Msg_Elite_Found") or "Found something unusual...")
-            end
-        end
-    end
-end
-
 -- Recipe callback for creating elite token
 function OnCreateEliteToken(items, result, player)
     -- Remove the used elite drives from result (they're already consumed by recipe)
@@ -263,21 +184,7 @@ function OnUseEliteEnhancement(items, result, player)
     applyPermanentEnhancement(player)
 end
 
--- Register events (server-only for persistent world spawns)
-do
-    local canRegister = false
-    pcall(function()
-        canRegister = isServer() or not isClient()
-    end)
-    if canRegister then
-        if Events and Events.OnZombieDead and Events.OnZombieDead.Add then
-            Events.OnZombieDead.Add(onZombieDeath)
-            GVDebug.debugPrint("EliteDriveSystem registered OnZombieDead handler (server/SP)")
-        end
-    else
-    GVDebug.debugPrint("Skipping EliteDriveSystem OnZombieDead registration: not server or SP")
-    end
-end
+
 
 if Events and Events.OnPlayerUpdate and Events.OnPlayerUpdate.Add then
     Events.OnPlayerUpdate.Add(function(player)

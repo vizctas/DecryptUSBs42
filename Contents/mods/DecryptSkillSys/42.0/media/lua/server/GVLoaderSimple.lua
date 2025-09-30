@@ -8,17 +8,6 @@ GVDebug.debugPrint("[LOADER] Starting simplified mod loading...")
 
 GVDebug.debugPrint("[LOADER] Items loading from scripts/ folder...")
 
-local function loadDistributions()
-    local ok, err = pcall(function()
-        require "server/Items/GVDistributions"
-    end)
-    if ok then
-        GVDebug.debugPrint("[LOADER] ✅ Native distributions loaded")
-    else
-        GVDebug.debugPrint("[LOADER] ❌ Distribution loading failed:", err)
-    end
-end
-
 local function loadZombieDrops()
     local ok, err = pcall(function()
         require "server/GVZombieDropsSimple"
@@ -85,7 +74,6 @@ local function loadModSystems()
     
     -- Cargar en orden
     loadAuxiliarySystems()
-    loadDistributions()
     loadZombieDrops()
     
     -- Verificar después de un delay para asegurar que todo está cargado
@@ -116,6 +104,5 @@ GVDebug.debugPrint("[LOADER] Simplified loader initialized")
 -- EXPORTAR funciones para debugging
 GVLoader = {
     verifyItems = verifyItemsSimple,
-    loadDistributions = loadDistributions,
     loadZombieDrops = loadZombieDrops
 }
