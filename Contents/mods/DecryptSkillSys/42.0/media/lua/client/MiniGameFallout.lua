@@ -725,9 +725,18 @@ function MiniGameFalloutWindow:onTimeUp()
     self:showResult(false, "TIME UP")
     self:applyResult(false)
 
-    -- Notify server of failure to increment counter
-    if isClient() and self.laptopItem then
-        sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+    -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
+    if self.laptopItem then
+        if isClient() then
+            -- Multiplayer: enviar comando al servidor
+            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+        else
+            -- Singleplayer: incrementar directamente
+            if LaptopSystem and LaptopSystem.incrementFailureCount then
+                local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)
+                print("[MiniGameFallout] Failure count incremented to: " .. tostring(newCount))
+            end
+        end
     end
 end
 
@@ -793,6 +802,18 @@ function MiniGameFalloutWindow:onTry()
         self:triggerShake(40)
         self:showResult(false, "LOCKOUT")
         self:applyResult(false)
+        
+        -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
+        if self.laptopItem then
+            if isClient() then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+            else
+                if LaptopSystem and LaptopSystem.incrementFailureCount then
+                    local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)
+                    print("[MiniGameFallout] Failure count incremented to: " .. tostring(newCount))
+                end
+            end
+        end
     else
         self:triggerFlash(20, {r=1, g=0.6, b=0.2})
         if self.playSound then

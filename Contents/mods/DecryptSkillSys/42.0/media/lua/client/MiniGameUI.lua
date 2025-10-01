@@ -1060,9 +1060,16 @@ function MiniGameWindow:onSequencePress(button)
         -- Failure: Process final result with new pipeline
         self.playing = false
 
-        -- Notify server of failure to increment counter
-        if isClient() and self.laptopItem then
-            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+        -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
+        if self.laptopItem then
+            if isClient() then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+            else
+                if LaptopSystem and LaptopSystem.incrementFailureCount then
+                    local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)
+                    print("[MiniGameUI] Failure count incremented to: " .. tostring(newCount))
+                end
+            end
         end
         
         -- ✅ MOSTRAR ANIMACIÓN DE ERROR

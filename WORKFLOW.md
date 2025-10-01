@@ -2,11 +2,11 @@
 
 ## Registro de Cambios y Actividades
 
-### 2025-09-19 17:30 - Investigación y Corrección: Sistema de Drops de Zombies
+### 2025-09-30 20:45 - Sistema de Contador de Fallos - INTEGRACIÓN COMPLETA
 
-**Estado anterior del código:** Inestable - drops de zombies no funcionaban
-**Problema identificado:** Probabilidades extremadamente bajas en sandbox-options.txt
-**Impacto esperado:** Restaurar funcionalidad de drops de zombies del mod
+**Estado anterior del código:** Contador de fallos no funcionaba en singleplayer
+**Problema identificado:** `isClient()` devuelve `false` en singleplayer, bloqueando incremento
+**Impacto esperado:** Contador funcional en SP y MP, base para eventos aleatorios futuros
 
 #### Cambios realizados:
 

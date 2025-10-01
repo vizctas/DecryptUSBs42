@@ -242,10 +242,21 @@ function MiniGameCircuitWindow:processFinalResult(success)
     self.gameActive = false
     self:clearAllTimers()
 
-    if isClient() and self.laptopItem and not success then
-        sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+    -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
+    if not success and self.laptopItem then
+        if isClient() then
+            -- Multiplayer: enviar comando al servidor
+            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+        else
+            -- Singleplayer: incrementar directamente
+            if LaptopSystem and LaptopSystem.incrementFailureCount then
+                local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)
+                print("[MiniGameCircuit] Failure count incremented to: " .. tostring(newCount))
+            end
+        end
     end
 
+    -- Aplicar resultado del minijuego (daño, XP, etc.)
     if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
         GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
     end
