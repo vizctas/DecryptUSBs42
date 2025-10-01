@@ -20,6 +20,32 @@ local function initMod()
     if LaptopEvents then
         print("[Server] LaptopEvents system loaded successfully")
     end
+    
+    -- Cargar nuevos sistemas de mejora
+    pcall(require, "shared/LaptopThermalSystem")
+    if LaptopThermalSystem then
+        print("[Server] LaptopThermalSystem loaded successfully")
+    end
+    
+    pcall(require, "shared/USBSurpriseSystem")
+    if USBSurpriseSystem then
+        print("[Server] USBSurpriseSystem loaded successfully")
+    end
+    
+    pcall(require, "shared/ContextualMessages")
+    if ContextualMessages then
+        print("[Server] ContextualMessages loaded successfully")
+    end
+    
+    pcall(require, "shared/NeuralBoostSystem")
+    if NeuralBoostSystem then
+        print("[Server] NeuralBoostSystem loaded successfully")
+    end
+    
+    pcall(require, "shared/DynamicSoundSystem")
+    if DynamicSoundSystem then
+        print("[Server] DynamicSoundSystem loaded successfully")
+    end
 end
 
 -- Register simplified init

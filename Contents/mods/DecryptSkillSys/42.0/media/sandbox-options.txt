@@ -330,3 +330,33 @@ option GVDrive.Event_SecurityAlarm_Volume
     page = Drive_Decrypt, translation = GVDrive_Event_SecurityAlarm_Volume,
 }
 
+option GVDrive.USB_Surprise_Chance_Modifier
+{
+    type = double, min = 0, max = 5.0, default = 1.0,
+    page = Drive_Decrypt, translation = GVDrive_USB_Surprise_Chance_Modifier,
+}
+
+option GVDrive.NeuralBoost_Chance_Modifier
+{
+    type = double, min = 0, max = 5.0, default = 1.0,
+    page = Drive_Decrypt, translation = GVDrive_NeuralBoost_Chance_Modifier,
+}
+
+option GVDrive.Thermal_System_Enabled
+{
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_Thermal_System_Enabled,
+}
+
+option GVDrive.Contextual_Messages_Enabled
+{
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_Contextual_Messages_Enabled,
+}
+
+option GVDrive.Dynamic_Sounds_Enabled
+{
+    type = boolean, default = true,
+    page = Drive_Decrypt, translation = GVDrive_Dynamic_Sounds_Enabled,
+}
+

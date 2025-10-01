@@ -626,8 +626,42 @@ function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, diffic
     if success then
         -- ✅ ÉXITO: Otorgar experiencia
         local xp = GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
+        
+        -- 🎯 NEURAL BOOST: Aplicar multiplicador de XP si está activo
+        if NeuralBoostSystem and NeuralBoostSystem.modifyXPGain then
+            xp = NeuralBoostSystem.modifyXPGain(player, skillType, xp)
+        end
+        
         player:getXp():AddXP(perk, xp)
         print("GVDrive_Utils: Awarded " .. xp .. " XP in " .. skillType)
+        
+        -- 🎁 USB SURPRISE: Verificar si hay sorpresa
+        if USBSurpriseSystem and USBSurpriseSystem.triggerSurprise then
+            local hasSurprise = USBSurpriseSystem.triggerSurprise(player, difficulty)
+            if hasSurprise then
+                -- Mensaje contextual de sorpresa
+                if ContextualMessages and ContextualMessages.onSpecialEvent then
+                    ContextualMessages.onSpecialEvent(player, laptopItem, "surprise_found")
+                end
+            end
+        end
+        
+        -- ⚡ NEURAL BOOST: Verificar si este USB otorga buff temporal
+        if NeuralBoostSystem and NeuralBoostSystem.activateBoost then
+            NeuralBoostSystem.activateBoost(player, difficulty)
+        end
+        
+        -- 🔊 SONIDO: Reproducir sonido de éxito
+        if DynamicSoundSystem and DynamicSoundSystem.playSuccessSound then
+            local isEpic = (difficulty == "Expert" or difficulty == "Elite")
+            DynamicSoundSystem.playSuccessSound(player, isEpic)
+        end
+        
+        -- 💬 MENSAJE CONTEXTUAL: Éxito
+        if ContextualMessages and ContextualMessages.onMinigameSuccess then
+            ContextualMessages.onMinigameSuccess(player, laptopItem)
+        end
+        
         return true
     else
         -- ❌ FALLO: Aplicar daño a laptop
@@ -640,6 +674,28 @@ function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, diffic
                 currentHealth = LaptopSystem.getLaptopHealth(laptopItem)
                 LaptopSystem.damageLaptop(laptopItem, damage)
                 print("GVDrive_Utils: Laptop damaged by " .. damage .. "% (" .. currentHealth .. "% -> " .. (currentHealth - damage) .. "%)")
+            end
+            
+            -- 🌡️ THERMAL SYSTEM: Agregar calor por usar el minijuego
+            if LaptopThermalSystem and LaptopThermalSystem.addHeat then
+                local newTemp = LaptopThermalSystem.addHeat(laptopItem, difficulty)
+                
+                -- Verificar sobrecalentamiento
+                if LaptopThermalSystem.checkOverheat then
+                    local isOverheated = LaptopThermalSystem.checkOverheat(player, laptopItem)
+                    
+                    if isOverheated then
+                        -- Mensaje contextual de sobrecalentamiento
+                        if ContextualMessages and ContextualMessages.onSpecialEvent then
+                            ContextualMessages.onSpecialEvent(player, laptopItem, "overheat_warning")
+                        end
+                        
+                        -- Sonido de alarma
+                        if DynamicSoundSystem and DynamicSoundSystem.playOverheatAlarm then
+                            DynamicSoundSystem.playOverheatAlarm(player)
+                        end
+                    end
+                end
             end
             
             -- ⚠️ VERIFICAR Y EJECUTAR EVENTOS ALEATORIOS POR FALLOS
@@ -666,6 +722,16 @@ function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, diffic
                 else
                     print("GVDrive_Utils: Could not determine laptop square for event trigger")
                 end
+            end
+            
+            -- 🔊 SONIDO: Reproducir sonido de fallo
+            if DynamicSoundSystem and DynamicSoundSystem.playFailureSound then
+                DynamicSoundSystem.playFailureSound(player)
+            end
+            
+            -- 💬 MENSAJE CONTEXTUAL: Fallo
+            if ContextualMessages and ContextualMessages.onMinigameFailure then
+                ContextualMessages.onMinigameFailure(player, laptopItem)
             end
         end
         return false

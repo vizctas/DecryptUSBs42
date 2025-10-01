@@ -677,6 +677,16 @@ function MiniGameWindow:onStart()
     -- ✅ RESET ANIMACIÓN DE TIPEO
     self.typingIndex = 0
     
+    -- 🔊 SONIDO: Iniciar minijuego
+    if DynamicSoundSystem and DynamicSoundSystem.onMinigameStart then
+        DynamicSoundSystem.onMinigameStart(self.player, self.difficulty)
+    end
+    
+    -- 💬 MENSAJE CONTEXTUAL: Inicio
+    if ContextualMessages and ContextualMessages.onMinigameStart then
+        ContextualMessages.onMinigameStart(self.player, self.laptopItem)
+    end
+    
     -- VALIDACIÓN ROBUSTA: usar valores seguros
     local gridRows = tonumber(GRID_ROWS) or 4
     local gridCols = tonumber(GRID_COLS) or 4

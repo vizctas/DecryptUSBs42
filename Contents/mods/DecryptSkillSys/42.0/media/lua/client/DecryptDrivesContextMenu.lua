@@ -7,9 +7,26 @@ pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 -- Sistema de selección aleatoria entre minijuegos disponibles:
 -- "sequence" = Minijuego de secuencia (MiniGameUI.lua) - Memoria de secuencia
 -- "fallout" = Minijuego de hacking Fallout (MiniGameFallout.lua) - Hacking de contraseñas
+-- "circuit" = Minijuego de circuitos (MiniGameCircuit.lua) - Trazar circuitos
+-- "packet" = Packet Interceptor (MiniGamePacket.lua) - Ritmo/acción
+-- "encryption" = Encryption Cracker (MiniGameEncryption.lua) - Deducción
+-- "laser" = Laser Grid Deflector (MiniGameLaser.lua) - Puzzle espacial
+-- "hexflood" = Hex Memory Flood (MiniGameHexFlood.lua) - Match-3
+-- "bitshift" = Bit Shift Cipher (MiniGameBitShift.lua) - Lógica binaria
+-- "buffer" = Buffer Overflow Defender (MiniGameBufferDefense.lua) - Torre defensa
+-- -- Testing individual
+-- ReloadMiniGamePacket(); TestPacketInterceptor("Expert")
+-- ReloadMiniGameEncryption(); TestEncryptionCracker("Moderate")
+-- ReloadMiniGameLaser(); TestLaserDeflector("Easy")
+-- ReloadMiniGameHexFlood(); TestHexFlood("Expert")
+-- ReloadMiniGameBitShift(); TestBitShift("Moderate")
+-- ReloadMiniGameBufferDefense(); TestBufferDefense("Easy")
+
+-- -- Testing del sistema de selección aleatoria
+-- TestRandomSelection()  -- Muestra distribución en 20 intentos
 
 -- Lista de minijuegos disponibles
-local AVAILABLE_MINIGAMES = {"sequence", "fallout", "circuit"}
+local AVAILABLE_MINIGAMES = {"sequence", "fallout", "circuit", "packet", "encryption", "laser", "hexflood", "bitshift", "buffer"}
 
 -- Función para seleccionar minijuego aleatorio
 local function selectRandomMinigame()
@@ -102,6 +119,48 @@ local function getActiveMinigameConfig()
             module = "client/MiniGameCircuit",
             reloadFunc = "ReloadMiniGameCircuit",
             displayName = "circuit tracer"
+        }
+    elseif currentMinigame == "packet" then
+        return {
+            name = "MiniGame_PacketInterceptor",
+            module = "client/MiniGamePacket",
+            reloadFunc = "ReloadMiniGamePacket",
+            displayName = "packet interceptor"
+        }
+    elseif currentMinigame == "encryption" then
+        return {
+            name = "MiniGame_EncryptionCracker",
+            module = "client/MiniGameEncryption",
+            reloadFunc = "ReloadMiniGameEncryption",
+            displayName = "encryption cracker"
+        }
+    elseif currentMinigame == "laser" then
+        return {
+            name = "MiniGame_LaserDeflector",
+            module = "client/MiniGameLaser",
+            reloadFunc = "ReloadMiniGameLaser",
+            displayName = "laser grid deflector"
+        }
+    elseif currentMinigame == "hexflood" then
+        return {
+            name = "MiniGame_HexFlood",
+            module = "client/MiniGameHexFlood",
+            reloadFunc = "ReloadMiniGameHexFlood",
+            displayName = "hex memory flood"
+        }
+    elseif currentMinigame == "bitshift" then
+        return {
+            name = "MiniGame_BitShift",
+            module = "client/MiniGameBitShift",
+            reloadFunc = "ReloadMiniGameBitShift",
+            displayName = "bit shift cipher"
+        }
+    elseif currentMinigame == "buffer" then
+        return {
+            name = "MiniGame_BufferDefense",
+            module = "client/MiniGameBufferDefense",
+            reloadFunc = "ReloadMiniGameBufferDefense",
+            displayName = "buffer overflow defender"
         }
     else
         debugPrint("CRITICAL", "Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
@@ -851,6 +910,15 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     if LaptopSystem then
         failureCount = LaptopSystem.getFailureCount(laptopItem)
     end
+    
+    -- 🌡️ Get temperature
+    local temperature = 20
+    local tempLevel = "Cool"
+    local tempColor = {r=0.3, g=0.7, b=1, a=1}
+    if LaptopThermalSystem then
+        temperature = LaptopThermalSystem.getTemperature(laptopItem)
+        tempLevel, tempColor = LaptopThermalSystem.getTemperatureLevel(temperature)
+    end
 
     -- Ensure laptopHealth is valid
     if type(laptopHealth) ~= "number" then
@@ -875,8 +943,8 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
         healthStatus = "Critical"
     end
 
-    -- Display format: Health: percentage (status) - Fails: count
-    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ") - " .. failureCount .. " Fails"
+    -- Display format: Health: percentage (status) - Temp: temp°C (level) - Fails: count
+    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ") - " .. math.floor(temperature) .. "°C (" .. tempLevel .. ") - " .. failureCount .. " Fails"
 
     -- Create a custom option with texture icon
     local healthOption = context:addOptionOnTop(healthDisplay, player, function()
@@ -901,6 +969,13 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
         else
             local randomMsg = messages[ZombRand(#messages) + 1]
             player:Say(randomMsg)
+        end
+        
+        -- Información de temperatura adicional
+        if temperature >= 85 then
+            player:Say("Warning: The laptop is critically hot! Let it cool down.")
+        elseif temperature >= 70 then
+            player:Say("The laptop is running quite warm. Be careful.")
         end
     end)
 
