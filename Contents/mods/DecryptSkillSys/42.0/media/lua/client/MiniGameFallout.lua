@@ -943,18 +943,6 @@ function MiniGameFalloutWindow:onReset()
     self:updateWordButtonStyles()
 end
 
-function MiniGameFalloutWindow:playSound(soundName)
-    if self.player and soundName then
-        -- Usa el método local del jugador para reproducir sonidos
-        if self.player.playSoundLocal then
-            self.player:playSoundLocal(soundName)
-        elseif getPlayer() and getPlayer().playSoundLocal then
-            getPlayer():playSoundLocal(soundName)
-        else
-            print("[MiniGameFallout] Audio system not available for sound: " .. soundName)
-        end
-    end
-end
 
 function MiniGameFalloutWindow:clearAllTimers()
     local fields = {"timerId", "statusTimerId", "scanTimerId", "resultTimerId"}
@@ -968,7 +956,7 @@ end
 
 function MiniGameFalloutWindow:onClose()
     -- ✅ VERIFICACIÓN CRÍTICA: Solo aplicar penalización si el juego está realmente en progreso
-    if self.playing and self.usbData and self.usbData.item then
+    if self.gameActive and self.usbData and self.usbData.item then
         print("[CLOSE FAILURE] Fallout minigame closed while in progress - treating as failure")
 
         -- ✅ CONSUMIR USB DEL INVENTARIO (cierre = fracaso)
@@ -1155,7 +1143,5 @@ function MiniGameFalloutWindow:render()
         
         self:drawText(attemptsText, 20, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
         self:drawText(timeText, self.width - 120, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
-    end
-endall)
     end
 end

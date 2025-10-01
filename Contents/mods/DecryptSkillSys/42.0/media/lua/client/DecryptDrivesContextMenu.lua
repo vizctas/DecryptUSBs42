@@ -85,21 +85,21 @@ local function getActiveMinigameConfig()
     if currentMinigame == "sequence" then
         return {
             name = "MiniGame",  -- Función global para secuencia
-            module = "client.MiniGameUI",  -- Path con client/ para PZ
+            module = "client/MiniGameUI",  -- Path con client/ para PZ
             reloadFunc = "ReloadMiniGame",
             displayName = "sequence"
         }
     elseif currentMinigame == "fallout" then
         return {
             name = "MiniGame_Fallout",  -- Función específica para Fallout (evita conflictos)
-            module = "client.MiniGameFallout",  -- Path con client/ para PZ
+            module = "client/MiniGameFallout",  -- Path con client/ para PZ
             reloadFunc = "ReloadMiniGameFallout",
             displayName = "fallout hacking"
         }
     elseif currentMinigame == "circuit" then
         return {
             name = "MiniGame_Circuit",
-            module = "client.MiniGameCircuit",
+            module = "client/MiniGameCircuit",
             reloadFunc = "ReloadMiniGameCircuit",
             displayName = "circuit tracer"
         }
@@ -107,7 +107,7 @@ local function getActiveMinigameConfig()
         debugPrint("CRITICAL", "Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
         return {
             name = "MiniGame_Fallout",
-            module = "client.MiniGameFallout",
+            module = "client/MiniGameFallout",
             reloadFunc = "ReloadMiniGameFallout",
             displayName = "fallout hacking"
         }

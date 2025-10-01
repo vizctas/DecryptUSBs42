@@ -30,13 +30,20 @@ end
 -- CONFIGURATION
 -- ============================================================================
 
+-- ========== CONFIGURACIÓN DE VENTANA Y GRID ==========
+-- Ajusta estos valores para cambiar el tamaño de la ventana y el grid
+local WINDOW_WIDTH_PERCENT = 20      -- % del ancho de pantalla (20-60 recomendado)
+local WINDOW_HEIGHT_PERCENT = 45     -- % del alto de pantalla (30-70 recomendado)
+local GRID_FILL_PERCENT = 100         -- % de la ventana que ocupa el grid (50-85 recomendado)
+-- ======================================================
+
 -- Game Settings
 local GRID_SIZES = { Easy = 5, Moderate = 6, Expert = 7 }
 local TIME_LIMITS = { Easy = 45, Moderate = 40, Expert = 35 }
 
 -- Cyberpunk Theme Colors
 local THEME = {
-    background = {r=0.05, g=0.05, b=0.15, a=0.95}, -- Azul oscuro/púrpura
+    background = {r=0.05, g=0.05, b=0.15, a=0.5}, -- Azul oscuro/púrpura
     border = {r=0.8, g=0.1, b=0.8, a=1}, -- Magenta/neón
     grid_background = {r=0.1, g=0.1, b=0.25, a=0.5},
     pipe_idle = {r=0.3, g=0.3, b=0.5, a=0.8},
@@ -75,7 +82,7 @@ function SimpleTimer:update()
 end
 if Events and Events.OnTick and Events.OnTick.Add then
     Events.OnTick.Add(function() SimpleTimer:update() end)
-}
+end
 
 -- ============================================================================
 -- MAIN MINIGAME WINDOW
@@ -103,8 +110,13 @@ function MiniGameCircuitWindow:new(x, y, width, height, player, usbType, difficu
     o.gameActive = false
     o.grid = {}
     o.buttons = {}
-    o.startNode = {}
-    o.endNode = {}
+    o.startNode = {x=1, y=1}
+    o.endNode = {x=1, y=1}
+    o.resultProcessed = false
+    o.flashTick = 0
+    o.scanLineY = 0
+    o.pulsePhase = 0
+    o.victoryFlash = 0
     
     o:generateGrid()
     return o
@@ -115,13 +127,32 @@ function MiniGameCircuitWindow:createChildren()
     self.closeButton:initialise()
     self:addChild(self.closeButton)
 
-    self.startButton = ISButton:new((self.width - 100) / 2, self.height - 40, 100, 30, "START", self, self.onStart)
+    self.startButton = ISButton:new((self.width - 120) / 2, self.height - 55, 120, 45, "START", self, self.onStart)
+    self.startButton.borderColor = {r=0.8, g=0.1, b=0.8, a=1}
+    self.startButton.backgroundColor = {r=0.2, g=0.05, b=0.2, a=0.9}
+    self.startButton.backgroundColorMouseOver = {r=0.8, g=0.1, b=0.8, a=0.9}
     self.startButton:initialise()
     self:addChild(self.startButton)
 
-    local buttonSize = math.floor((math.min(self.width, self.height) - 100) / self.gridSize)
-    local gridStartX = (self.width - (self.gridSize * buttonSize)) / 2
-    local gridStartY = 60
+    -- Calcular espacio disponible para el grid usando GRID_FILL_PERCENT
+    local titleSpace = 50       -- Espacio reservado para el título
+    local startButtonSpace = 60 -- Espacio reservado para el botón START
+    local availableHeight = self.height - titleSpace - startButtonSpace
+    local availableWidth = self.width - 40
+    
+    -- Aplicar el porcentaje de llenado del grid
+    local gridFillPercent = tonumber(GRID_FILL_PERCENT) or 70
+    gridFillPercent = math.max(50, math.min(90, gridFillPercent))  -- Límites: 50-90%
+    
+    local targetGridSize = math.min(availableWidth, availableHeight) * (gridFillPercent / 100)
+    local buttonSize = math.floor(targetGridSize / self.gridSize)
+    
+    local gridWidth = self.gridSize * buttonSize
+    local gridHeight = self.gridSize * buttonSize
+    local gridStartX = (self.width - gridWidth) / 2
+    
+    -- Centrar verticalmente el grid en el espacio disponible
+    local gridStartY = titleSpace + ((availableHeight - gridHeight) / 2)
 
     for y = 1, self.gridSize do
         self.buttons[y] = {}
@@ -142,6 +173,15 @@ function MiniGameCircuitWindow:onStart()
     self.startButton:setVisible(false)
     self:startTimer()
     self:playSound("UI_Menu_OS_Start")
+end
+
+function MiniGameCircuitWindow:cancelTimer(fieldName)
+    if not fieldName then return end
+    local timerId = self[fieldName]
+    if timerId then
+        SimpleTimer:removeTimer(timerId)
+        self[fieldName] = nil
+    end
 end
 
 function MiniGameCircuitWindow:startTimer()
@@ -349,6 +389,7 @@ function MiniGameCircuitWindow:checkWinCondition()
     end
 
     if self.grid[self.endNode.y][self.endNode.x].powered then
+        self.victoryFlash = 60  -- Start victory animation
         self:processFinalResult(true)
     end
 end
@@ -383,9 +424,28 @@ end
 function MiniGameCircuitWindow:render()
     ISPanel.render(self)
     
+    -- Update animation counters
+    self.pulsePhase = (self.pulsePhase + 0.05) % (2 * math.pi)
+    self.scanLineY = (self.scanLineY + 2) % (self.height + 40)
+    if self.victoryFlash > 0 then self.victoryFlash = self.victoryFlash - 1 end
+    
     -- Draw background and border
     self:drawRect(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+    
+    -- Cyberpunk scan line effect
+    local scanY = self.scanLineY - 20
+    if scanY >= 0 and scanY < self.height then
+        self:drawRect(0, scanY, self.width, 3, 0.15, 0.8, 0.1, 0.8)
+    end
+    
+    -- Victory flash overlay
+    if self.victoryFlash > 0 then
+        local flashAlpha = (self.victoryFlash / 60) * 0.3
+        self:drawRect(0, 0, self.width, self.height, flashAlpha, 0.2, 1, 0.2)
+    end
+    
     self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawRectBorder(2, 2, self.width-4, self.height-4, self.borderColor.a * 0.5, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
     -- Title
     local title = "CIRCUIT TRACER"
@@ -393,7 +453,7 @@ function MiniGameCircuitWindow:render()
 
     -- Timer
     if self.gameActive then
-        local timeText = string.format("TIME: %.1fs", self.timeLeft)
+        local timeText = string.format("TIME: %ds", math.ceil(self.timeLeft))
         self:drawTextRight(timeText, self.width - 10, 35, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
     end
 
@@ -411,7 +471,19 @@ end
 function MiniGameCircuitWindow:drawTile(button, tile)
     local x, y, w, h = button:getX(), button:getY(), button:getWidth(), button:getHeight()
     local cx, cy = x + w / 2, y + h / 2
-    local pipeColor = tile.powered and THEME.pipe_powered or THEME.pipe_idle
+    
+    -- Animated pulse effect for powered pipes
+    local pipeColor = THEME.pipe_idle
+    if tile.powered then
+        local pulse = 0.7 + 0.3 * math.sin(self.pulsePhase)
+        pipeColor = {
+            r = THEME.pipe_powered.r * pulse,
+            g = THEME.pipe_powered.g * pulse,
+            b = THEME.pipe_powered.b,
+            a = THEME.pipe_powered.a
+        }
+    end
+    
     local thickness = math.max(2, w / 8)
 
     if tile.type == TILE_TYPES.LINE then
@@ -437,11 +509,15 @@ function MiniGameCircuitWindow:drawTile(button, tile)
         end
     end
     
-    -- Draw start/end nodes
+    -- Draw start/end nodes with glow effect
     if self.startNode.x == button.gridX and self.startNode.y == button.gridY then
-        self:drawRect(x, y, w, h, 0.5, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
+        local glow = 0.3 + 0.2 * math.sin(self.pulsePhase * 2)
+        self:drawRect(x, y, w, h, glow, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
+        self:drawRectBorder(x, y, w, h, 0.8, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
     elseif self.endNode.x == button.gridX and self.endNode.y == button.gridY then
-        self:drawRect(x, y, w, h, 0.5, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
+        local glow = 0.3 + 0.2 * math.sin(self.pulsePhase * 2)
+        self:drawRect(x, y, w, h, glow, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
+        self:drawRectBorder(x, y, w, h, 0.8, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
     end
 end
 
@@ -452,9 +528,17 @@ function MiniGame_Circuit(widthPct, heightPct, usbType, difficulty, laptopItem, 
     local player = getPlayer()
     if not player then return end
 
+    -- Usar configuración de porcentajes
+    local windowWidthPct = tonumber(WINDOW_WIDTH_PERCENT) or 35
+    local windowHeightPct = tonumber(WINDOW_HEIGHT_PERCENT) or 55
+    
+    -- Validar rangos
+    windowWidthPct = math.max(20, math.min(80, windowWidthPct))
+    windowHeightPct = math.max(30, math.min(90, windowHeightPct))
+    
     local screenW, screenH = getCore():getScreenWidth(), getCore():getScreenHeight()
-    local width = math.floor(screenW * 0.3) -- 30% of screen width
-    local height = math.floor(screenH * 0.5) -- 50% of screen height
+    local width = math.floor(screenW * (windowWidthPct / 100))
+    local height = math.floor(screenH * (windowHeightPct / 100))
     local x = (screenW - width) / 2
     local y = (screenH - height) / 2
 
