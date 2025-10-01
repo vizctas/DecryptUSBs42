@@ -641,6 +641,32 @@ function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, diffic
                 LaptopSystem.damageLaptop(laptopItem, damage)
                 print("GVDrive_Utils: Laptop damaged by " .. damage .. "% (" .. currentHealth .. "% -> " .. (currentHealth - damage) .. "%)")
             end
+            
+            -- ⚠️ VERIFICAR Y EJECUTAR EVENTOS ALEATORIOS POR FALLOS
+            if LaptopEvents and LaptopEvents.checkAndTriggerEvent then
+                -- Obtener square de la laptop
+                local laptopSquare = nil
+                
+                -- Intentar obtener square del worldItem
+                if laptopItem.getWorldItem and type(laptopItem.getWorldItem) == "function" then
+                    local worldItem = laptopItem:getWorldItem()
+                    if worldItem and worldItem.getSquare then
+                        laptopSquare = worldItem:getSquare()
+                    end
+                end
+                
+                -- Fallback: usar square del jugador
+                if not laptopSquare and player and player.getCurrentSquare then
+                    laptopSquare = player:getCurrentSquare()
+                end
+                
+                -- Ejecutar verificación de eventos
+                if laptopSquare then
+                    LaptopEvents.checkAndTriggerEvent(player, laptopItem, laptopSquare)
+                else
+                    print("GVDrive_Utils: Could not determine laptop square for event trigger")
+                end
+            end
         end
         return false
     end

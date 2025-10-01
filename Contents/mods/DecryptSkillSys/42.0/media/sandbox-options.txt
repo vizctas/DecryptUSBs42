@@ -276,3 +276,57 @@ option GVDrive.Antivirus_MalwareBytes_Drop_Rate
     page = Drive_Decrypt, translation = GVDrive_Antivirus_MalwareBytes_Drop_Rate,
 }
 
+option GVDrive.Event_Trigger_Chance
+{
+    type = integer, min = 0, max = 100, default = 25,
+    page = Drive_Decrypt, translation = GVDrive_Event_Trigger_Chance,
+}
+
+option GVDrive.Event_Threshold_Low
+{
+    type = integer, min = 1, max = 10, default = 3,
+    page = Drive_Decrypt, translation = GVDrive_Event_Threshold_Low,
+}
+
+option GVDrive.Event_Threshold_High
+{
+    type = integer, min = 5, max = 20, default = 7,
+    page = Drive_Decrypt, translation = GVDrive_Event_Threshold_High,
+}
+
+option GVDrive.Event_DistressSignal_ZombieCount
+{
+    type = integer, min = 3, max = 15, default = 5,
+    page = Drive_Decrypt, translation = GVDrive_Event_DistressSignal_ZombieCount,
+}
+
+option GVDrive.Event_DistressSignal_SpawnRadius
+{
+    type = integer, min = 15, max = 40, default = 20,
+    page = Drive_Decrypt, translation = GVDrive_Event_DistressSignal_SpawnRadius,
+}
+
+option GVDrive.Event_AcceleratedDamage_Amount
+{
+    type = integer, min = 10, max = 50, default = 20,
+    page = Drive_Decrypt, translation = GVDrive_Event_AcceleratedDamage_Amount,
+}
+
+option GVDrive.Event_SecurityAlarm_Duration
+{
+    type = integer, min = 30, max = 120, default = 45,
+    page = Drive_Decrypt, translation = GVDrive_Event_SecurityAlarm_Duration,
+}
+
+option GVDrive.Event_SecurityAlarm_Radius
+{
+    type = integer, min = 30, max = 150, default = 50,
+    page = Drive_Decrypt, translation = GVDrive_Event_SecurityAlarm_Radius,
+}
+
+option GVDrive.Event_SecurityAlarm_Volume
+{
+    type = integer, min = 50, max = 200, default = 100,
+    page = Drive_Decrypt, translation = GVDrive_Event_SecurityAlarm_Volume,
+}
+

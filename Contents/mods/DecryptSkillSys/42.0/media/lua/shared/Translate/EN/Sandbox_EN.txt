@@ -44,9 +44,8 @@ Sandbox_EN = {
 
     -- Rarity: Dificil (Hard)
     Sandbox_GVDrive_Advanced_Success_Bonus = "Hard Drives: Success Bonus (%)",
-    Sandbox_GVDrive_Advanced_Malware_Chance = "Hard Drives: Malware Chance (%)",
     Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Hard Drives: Laptop Damage Min",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Hard Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Hard Drives: laptop Damage Max",
     Sandbox_GVDrive_Advanced_XP_Bonus = "Hard Drives: XP Bonus (%)",
     Sandbox_GVDrive_Advanced_Loot_Chance = "Hard Drives: Loot Weight (%)",
 
@@ -55,4 +54,15 @@ Sandbox_EN = {
     Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Kaspersky Antivirus Drop Rate (%)",
     Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "McAfee Antivirus Drop Rate (%)",
     Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "MalwareBytes Antivirus Drop Rate (%)",
+
+    -- Laptop Events System
+    Sandbox_GVDrive_Event_Trigger_Chance = "Event Trigger Chance (%) - When failures >= threshold",
+    Sandbox_GVDrive_Event_Threshold_Low = "Low Failure Threshold - Minimum failures to trigger events",
+    Sandbox_GVDrive_Event_Threshold_High = "High Failure Threshold - Increased event chance",
+    Sandbox_GVDrive_Event_DistressSignal_ZombieCount = "Distress Signal: Zombie Count (3-15)",
+    Sandbox_GVDrive_Event_DistressSignal_SpawnRadius = "Distress Signal: Spawn Radius (tiles)",
+    Sandbox_GVDrive_Event_AcceleratedDamage_Amount = "Accelerated Damage: Amount (%)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Duration = "Security Alarm: Duration (seconds)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Radius = "Security Alarm: Sound Radius (tiles)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Volume = "Security Alarm: Volume (50-200)",
 }

@@ -13,7 +13,13 @@ if not ok_debug or not GVDebug then
 end
 
 local function initMod()
-    GVDebug.debugPrint("🚀 Starting simplified mod initialization...")
+    GVDebug.debugPrint("Starting simplified mod initialization...")
+
+    -- Cargar sistema de eventos de laptop
+    pcall(require, "shared/LaptopEvents")
+    if LaptopEvents then
+        print("[Server] LaptopEvents system loaded successfully")
+    end
 end
 
 -- Register simplified init

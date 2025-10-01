@@ -8,4 +8,12 @@ module Base
 	            file = media/sound/USBkeyboard.ogg,         
 	        }
 	}
-}	
+	sound alarm
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/alarm.ogg,
+	        }
+	}
+}

@@ -2,6 +2,107 @@
 
 ## Registro de Cambios y Actividades
 
+### 2025-09-30 21:40 - Sistema de Eventos Aleatorios por Fallos - IMPLEMENTACIÓN COMPLETA
+
+**Estado anterior del código:** Contador de fallos funcional pero sin consecuencias
+**Problema identificado:** Faltaba sistema de eventos que reaccionara a fallos acumulados
+**Impacto esperado:** Gameplay dinámico con consecuencias emocionantes por mal uso de laptops
+
+#### Cambios realizados:
+
+1. **LaptopEvents.lua** (shared/)
+   - Timestamp: 2025-09-30 21:35
+   - Archivo: Nuevo sistema completo de eventos aleatorios
+   - Eventos implementados:
+     * Señal de Socorro Falsa (40%): Spawns 3-10 zombies en perímetro exterior
+     * Daño Acelerado (35%): Laptop pierde 10-40% salud instantáneamente
+     * Alarma de Seguridad (25%): Sonido fuerte 30-90 segundos atrae zombies
+   - Justificación: Añade tensión y consecuencias por acumular fallos
+
+2. **sandbox-options.txt**
+   - Timestamp: 2025-09-30 21:38
+   - Cambios: Agregadas 9 opciones configurables para eventos
+   - Opciones añadidas:
+     * Event_Trigger_Chance (0-100%, default 25%)
+     * Event_Threshold_Low (1-10, default 3 fallos)
+     * Event_Threshold_High (5-20, default 7 fallos)
+     * Event_DistressSignal_ZombieCount (3-15, default 5)
+     * Event_DistressSignal_SpawnRadius (15-40 tiles, default 20)
+     * Event_AcceleratedDamage_Amount (10-50%, default 20%)
+     * Event_SecurityAlarm_Duration (30-120s, default 45s)
+     * Event_SecurityAlarm_Radius (30-150 tiles, default 50)
+     * Event_SecurityAlarm_Volume (50-200, default 100)
+   - Justificación: Permitir ajuste fino del balance de eventos
+
+3. **Sandbox_EN.txt** (Translate/EN/)
+   - Timestamp: 2025-09-30 21:39
+   - Cambios: Agregadas 9 traducciones para opciones de eventos
+   - Justificación: Interfaz de usuario clara para configuración
+
+4. **ClientInit.lua y server/Init.lua**
+   - Timestamp: 2025-09-30 21:36
+   - Cambios: Agregada carga automática de LaptopEvents.lua
+   - Justificación: Asegurar que el sistema esté disponible en cliente y servidor
+
+#### Integración pendiente (MANUAL):
+
+**Acción requerida:** Agregar llamada a `LaptopEvents.checkAndTriggerEvent()` después del daño a laptop
+
+```lua
+-- Después de línea 642: laptopSystem.damageLaptop(laptopItem, damage)
+-- Agregar:
+if laptopSystem and laptopSystem.incrementFailureCount then
+    local newFailCount = laptopSystem.incrementFailureCount(laptopItem)
+    print("GVDrive_Utils: Failure count incremented to " .. newFailCount)
+end
+
+if laptopEvents and laptopEvents.checkAndTriggerEvent then
+    local laptopSquare = nil
+    if laptopItem.getWorldItem and type(laptopItem.getWorldItem) == "function" then
+        local worldItem = laptopItem:getWorldItem()
+        if worldItem and worldItem.getSquare then
+            laptopSquare = worldItem:getSquare()
+        end
+    end
+    if not laptopSquare and player and player.getCurrentSquare then
+        laptopSquare = player:getCurrentSquare()
+    end
+    if laptopSquare then
+        local success = laptopEvents.checkAndTriggerEvent(player, laptopItem, laptopSquare)
+        if success then
+            if laptopSystem and laptopSystem.setFailureCount then
+                laptopSystem.setFailureCount(laptopItem, 0)
+            end
+        else
+            print("GVDrive_Utils: Could not determine laptop square for event trigger")
+        end
+    end
+end
+- ✅ Eventos se activan cuando laptop tiene 3+ fallos
+- ✅ 25% probabilidad base (+15% si fallos >= 7)
+- ✅ Eventos respetan safehouse (zombies spawns afuera)
+- ✅ Sistema completamente configurable vía sandbox
+- ✅ Balance entre tensión y jugabilidad
+- ✅ Base para expansión futura de eventos
+
+#### Comandos de testing:
+
+```lua
+-- Recargar sistema
+ReloadLaptopEvents()
+
+-- Forzar evento específico
+local player = getPlayer()
+local laptop = player:getInventory():getItemFromType("AsusZephLaptopOpened")
+local square = player:getCurrentSquare()
+
+LaptopEvents.triggerDistressSignal(player, laptop, square)
+LaptopEvents.triggerAcceleratedDamage(player, laptop, square)
+LaptopEvents.triggerSecurityAlarm(player, laptop, square)
+```
+
+---
+
 ### 2025-09-30 20:45 - Sistema de Contador de Fallos - INTEGRACIÓN COMPLETA
 
 **Estado anterior del código:** Contador de fallos no funcionaba en singleplayer

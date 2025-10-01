@@ -39,15 +39,37 @@ local DROP_DISTRIBUTIONS = {
 }
 
 -- Function to get drop chance for a category from sandbox
-local function getDropChance(category)
+local function getDropChance(category, specificItem)
     local sandboxKey = category .. "_ZombieDrop_Chance"
     local gv = SandboxVars and SandboxVars.GVDrive
+    local baseChance = 0
+    
     if gv and gv[sandboxKey] then
-        return gv[sandboxKey]
+        baseChance = gv[sandboxKey]
+    else
+        -- Defaults if not found
+        local defaults = {USB = 2.86, Laptop = 1.0, Elite = 0.25, Antivirus = 2.2}
+        baseChance = defaults[category] or 0
     end
-    -- Defaults if not found
-    local defaults = {USB = 2.86, Laptop = 1.0, Elite = 0.25, Antivirus = 2.2}
-    return defaults[category] or 0
+    
+    -- Apply hardcoded modifiers for specific antivirus types
+    if category == "Antivirus" and specificItem then
+        if specificItem == "GValley.Antivirus_Norton" then
+            -- Norton mantiene el porcentaje del sandbox (0% reducción)
+            return baseChance
+        elseif specificItem == "GValley.Antivirus_Kaspersky" then
+            -- Kaspersky reduce 0.3%
+            return math.max(0, baseChance - 0.3)
+        elseif specificItem == "GValley.Antivirus_McAfee" then
+            -- McAfee reduce 0.5%
+            return math.max(0, baseChance - 0.5)
+        elseif specificItem == "GValley.Antivirus_MalwareBytes" then
+            -- MalwareBytes reduce 0.8% (más difícil de conseguir)
+            return math.max(0, baseChance - 0.8)
+        end
+    end
+    
+    return baseChance
 end
 
 -- Function to spawn an item of the given type
@@ -92,12 +114,37 @@ local function onZombieDead(zombie)
     if not zombie or instanceof(zombie, "IsoPlayer") then return end
 
     -- Check drops for each category independently
-    local categories = {"USB", "Laptop", "Elite", "Antivirus"}
+    local categories = {"USB", "Laptop", "Elite"}
     for _, category in ipairs(categories) do
         local chance = getDropChance(category)
         local roll = ZombRand(0, 100)
         if roll < chance then
             spawnItem(zombie, category)
+        end
+    end
+    
+    -- Special handling for antivirus - each type has its own chance
+    for _, antivirusItem in ipairs(DROP_DISTRIBUTIONS.antivirusTypes) do
+        local chance = getDropChance("Antivirus", antivirusItem)
+        local roll = ZombRand(0, 100)
+        if roll < chance then
+            -- Spawn the specific antivirus item
+            local spawned = false
+            if zombie and zombie.getInventory then
+                local inv = zombie:getInventory()
+                if inv and inv.AddItem then
+                    inv:AddItem(antivirusItem)
+                    spawned = true
+                end
+            end
+            
+            if not spawned then
+                local sq = zombie and zombie:getCurrentSquare()
+                if sq then
+                    sq:AddWorldInventoryItem(antivirusItem, 0, 0, 0)
+                end
+            end
+            break -- Only drop one antivirus per zombie
         end
     end
 end

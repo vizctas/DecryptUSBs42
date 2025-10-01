@@ -26,4 +26,10 @@ require("client/MiniGameUI")
 require("client/MiniGameFallout")
 require("client/MiniGameCircuit")
 
+-- Load Laptop Events System
+pcall(require, "shared/LaptopEvents")
+if LaptopEvents then
+    print("[Client] LaptopEvents system loaded successfully")
+end
+
 if GVDebug then GVDebug.debugPrint("ClientInit.lua loaded - all client modules should be active") end

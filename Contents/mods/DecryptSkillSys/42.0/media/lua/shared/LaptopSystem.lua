@@ -190,6 +190,18 @@ function LaptopSystem.incrementFailureCount(item)
     return modData.GVDrive_Failures
 end
 
+-- Set failure count on a laptop
+function LaptopSystem.setFailureCount(item, count)
+    item = normalizeItem(item)
+    if not item then return end
+    
+    local modData = item:getModData()
+    if not modData then return end
+
+    modData.GVDrive_Failures = math.max(0, count or 0)
+    return modData.GVDrive_Failures
+end
+
 -- Damage laptop (normal use)
 function LaptopSystem.damageLaptop(item, damage)
     item = normalizeItem(item)
