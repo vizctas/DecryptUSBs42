@@ -96,6 +96,13 @@ local function getActiveMinigameConfig()
             reloadFunc = "ReloadMiniGameFallout",
             displayName = "fallout hacking"
         }
+    elseif currentMinigame == "circuit" then
+        return {
+            name = "MiniGame_Circuit",
+            module = "client.MiniGameCircuit",
+            reloadFunc = "ReloadMiniGameCircuit",
+            displayName = "circuit tracer"
+        }
     else
         debugPrint("CRITICAL", "Invalid currentMinigame: " .. tostring(currentMinigame) .. ". Using default 'fallout'")
         return {
