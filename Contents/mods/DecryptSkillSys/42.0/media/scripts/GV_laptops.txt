@@ -1,0 +1,67 @@
+module GValley
+{
+	// ============ LAPTOP ITEMS ============
+	item AsusZephLaptopOpened
+	{
+		DisplayCategory		= Electronics,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Asus Zephyrus M (Opened),
+		Icon            	= Asus,
+		WorldStaticModel 	= AsusLaptop_Open,
+		Tooltip	= Tooltip_LPAsus,
+	}
+	item AsusZephLaptopClosed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Asus Zephyrus M (Closed),
+		Icon            = Asus,
+		WorldStaticModel = AsusLaptop_Close,
+		Tooltip = Tooltip_LPAsus,
+	}
+	item Laptop90sClosed
+	{
+		DisplayCategory		= Electronics,
+		Weight          	= 2,
+		Type            	= Container,
+		Capacity			= 1,
+		DisplayName     	= Toshiba Satellite Pro (Closed),
+		Icon            	= 90sLaptopClosed,
+		WorldStaticModel 	= Laptop90Closed,
+		Tooltip			 	= Tooltip_Generic90,
+	}
+	item Laptop90sOpened
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = Toshiba Satellite Pro (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = Laptop90Opened,
+		Tooltip			 = Tooltip_Generic90,
+	}
+
+	item IBM_LP90Opened
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Opened),
+		Icon            = 90sLaptopOpened,
+		WorldStaticModel = IBM_LP90Opened,
+		Tooltip = Tooltip_IBMPlm,
+	}
+	item PBIBM_LP90Closed
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 2,
+		Type            = Normal,
+		DisplayName     = IBM Palm Top PC 110 (Closed),
+		Icon            = 90sLaptopClosed,
+		WorldStaticModel = PBIBM_LP90Closed,
+		Tooltip = Tooltip_IBMPlm,
+	}
+}

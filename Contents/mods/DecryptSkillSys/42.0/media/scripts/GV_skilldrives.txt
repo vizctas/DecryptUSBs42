@@ -6,6 +6,18 @@ module GValley
 	// DisplayName usa claves de traducción (no hardcodeadas)
 
 	// ============ WOODWORK DRIVES ============
+	item SkillDrive_Woodwork_Facil
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = USB Woodwork - Working with chairs - Easy,
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_USB_Woodwork_Facil,
+		Tags			= SkillDrive;Woodwork;Facil,
+	}
+
 	item SkillDrive_Woodwork_Moderado
 	{
 		DisplayCategory	= Electronics,

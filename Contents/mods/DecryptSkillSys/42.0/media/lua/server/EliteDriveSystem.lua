@@ -235,68 +235,9 @@ local function handleClientCommand(playerIndexOrModule, moduleOrCommand, command
     if cmd == "ApplyEliteEnhancement" and enhancement and targetIndex ~= nil then
         local player = getSpecificPlayer(targetIndex)
         if player then
-            EliteDriveSystem.applySpecificEnhancement(player, enhancement)
+            eliteDriveSystem.applySpecificEnhancement(player, enhancement)
         end
     end
-end
-
--- Try to register server-side command listener if available
-if Events and Events.OnClientCommand and Events.OnClientCommand.Add then
-    Events.OnClientCommand.Add(handleClientCommand)
-elseif Events and Events.OnServerCommand and Events.OnServerCommand.Add then
-    Events.OnServerCommand.Add(handleClientCommand)
-else
-    -- No event exposed on this build; server will still accept direct calls via recipe callbacks.
-    GVDebug.debugPrint("RPC handler not available: OnClientCommand/OnServerCommand missing")
-end
-
--- Defensive RPC: handle direct UseEliteDrive requests from client (driveType, playerIndex)
-local function handleUseEliteDrive(playerIndexOrModule, moduleOrCommand, commandOrArgs, argsMaybe)
-    local playerIndex
-    local moduleName
-    local cmd
-    local payload
-
-    if type(playerIndexOrModule) == 'number' then
-        playerIndex = playerIndexOrModule
-        moduleName = moduleOrCommand
-        cmd = commandOrArgs
-        payload = argsMaybe
-    else
-        moduleName = playerIndexOrModule
-        cmd = moduleOrCommand
-        payload = commandOrArgs
-    end
-
-    local driveType = nil
-    local claimedIndex = nil
-    if type(payload) == 'table' then
-        driveType = payload.driveType or payload[1]
-        claimedIndex = payload.playerIndex or payload[2]
-    end
-
-    local targetIndex = claimedIndex or playerIndex
-    if cmd == "UseEliteDrive" and driveType and targetIndex ~= nil then
-        local player = getSpecificPlayer(targetIndex)
-        if player then
-            -- Apply shared logic if available
-            if EliteDriveSystem and EliteDriveSystem.useEliteDrive then
-                local ok = EliteDriveSystem.useEliteDrive(player, driveType)
-                if ok and player.getInventory then
-                    -- remove two item instances if present (require 2 items to apply)
-                    local fullname = "GValley.EliteDrive_" .. driveType
-                    local inv = player:getInventory()
-                    local cnt = inv:getItemCount(fullname)
-                    if cnt and cnt >= 2 then
-                        -- remove two copies
-                        inv:RemoveOneOf(fullname)
-                        inv:RemoveOneOf(fullname)
-                    elseif cnt and cnt == 1 then
-                        -- Only one present: remove it and inform player (shouldn't happen because client checks for 2)
-                        inv:RemoveOneOf(fullname)
-                    end
-                end
-            else
                 -- Fallback: try the applySpecificEnhancement path if tokens are used
                 if EliteDriveSystem and EliteDriveSystem.applySpecificEnhancement then
                     EliteDriveSystem.applySpecificEnhancement(player, driveType)

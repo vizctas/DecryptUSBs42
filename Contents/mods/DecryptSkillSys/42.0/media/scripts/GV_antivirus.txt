@@ -1,0 +1,81 @@
+module GValley
+{
+	// ============ ANTIVIRUS ITEMS ============
+	item Antivirus_Norton
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Norton Security Disk (5% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Norton,
+	}
+
+	item Antivirus_Kaspersky
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Kaspersky Rescue Disk (8% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_Kaspersky,
+	}
+
+	item Antivirus_McAfee
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = McAfee Stinger USB (10% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_McAfee,
+	}
+
+	item Antivirus_MalwareBytes
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Malwarebytes Premium USB (12% Recovery),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip			= Tooltip_Antivirus_MalwareBytes,
+	}
+
+	// Compatibility aliases: recipes reference these IDs (AntivirusDisk_Basic/Advanced/Premium)
+	item AntivirusDisk_Basic
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Basic),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Basic,
+	}
+
+	item AntivirusDisk_Advanced
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Advanced),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Advanced,
+	}
+
+	item AntivirusDisk_Premium
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Antivirus Disk (Premium),
+		Icon            = USBOpened,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_Antivirus_Premium,
+	}
+}
