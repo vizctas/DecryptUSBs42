@@ -9,7 +9,7 @@ pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 -- "fallout" = Minijuego de hacking Fallout (MiniGameFallout.lua) - Hacking de contraseñas
 
 -- Lista de minijuegos disponibles
-local AVAILABLE_MINIGAMES = {"sequence", "fallout"}
+local AVAILABLE_MINIGAMES = {"sequence", "fallout", "circuit"}
 
 -- Función para seleccionar minijuego aleatorio
 local function selectRandomMinigame()

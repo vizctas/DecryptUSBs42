@@ -35,6 +35,7 @@ end
 local WINDOW_WIDTH_PERCENT = 20      -- % del ancho de pantalla (20-60 recomendado)
 local WINDOW_HEIGHT_PERCENT = 45     -- % del alto de pantalla (30-70 recomendado)
 local GRID_FILL_PERCENT = 100         -- % de la ventana que ocupa el grid (50-85 recomendado)
+local TITLE_TYPEWRITER_DELAY = 4      -- Ticks entre cada letra del título (menor = más rápido)
 -- ======================================================
 
 -- Game Settings
@@ -43,15 +44,16 @@ local TIME_LIMITS = { Easy = 45, Moderate = 40, Expert = 35 }
 
 -- Cyberpunk Theme Colors
 local THEME = {
-    background = {r=0.05, g=0.05, b=0.15, a=0.5}, -- Azul oscuro/púrpura
+    background = {r=0.05, g=0.05, b=0.15, a=0.85}, -- Azul oscuro/púrpura (más opaco)
     border = {r=0.8, g=0.1, b=0.8, a=1}, -- Magenta/neón
-    grid_background = {r=0.1, g=0.1, b=0.25, a=0.5},
-    pipe_idle = {r=0.3, g=0.3, b=0.5, a=0.8},
+    grid_background = {r=0.1, g=0.1, b=0.25, a=0.6},
+    pipe_idle = {r=0.3, g=0.3, b=0.5, a=0.7},
     pipe_powered = {r=0.2, g=0.8, b=1.0, a=1}, -- Cyan brillante
     start_node = {r=0.1, g=1.0, b=0.1, a=1}, -- Verde
     end_node = {r=1.0, g=0.2, b=0.2, a=1}, -- Rojo
     text_title = {r=1, g=1, b=1, a=1},
     text_info = {r=0.8, g=0.8, b=1.0, a=0.9},
+    click_feedback = {r=1, g=1, b=0, a=0.7}, -- Amarillo para feedback
 }
 
 -- Tile Types: 1=line, 2=corner
@@ -111,13 +113,20 @@ function MiniGameCircuitWindow:new(x, y, width, height, player, usbType, difficu
     o.grid = {}
     o.buttons = {}
     o.startNode = {x=1, y=1}
-    o.endNode = {x=1, y=1}
     o.resultProcessed = false
-    o.flashTick = 0
-    o.scanLineY = 0
-    o.pulsePhase = 0
-    o.victoryFlash = 0
     
+    -- Animation state
+    o.scanLineY = 0
+    o.globalPulse = 0
+    o.victoryFlash = 0
+    o.entryAnim = 1.0 -- 1.0 (invisible) to 0.0 (fully visible)
+    o.flicker = 0
+
+    o.titleText = "CIRCUIT TRACER"
+    o.titleCharsShown = 0
+    o.titleAccumulator = 0
+    o.titleTypewriterDelay = TITLE_TYPEWRITER_DELAY
+
     o:generateGrid()
     return o
 end
@@ -134,24 +143,18 @@ function MiniGameCircuitWindow:createChildren()
     self.startButton:initialise()
     self:addChild(self.startButton)
 
-    -- Calcular espacio disponible para el grid usando GRID_FILL_PERCENT
-    local titleSpace = 50       -- Espacio reservado para el título
-    local startButtonSpace = 60 -- Espacio reservado para el botón START
+    local titleSpace = 50
+    local startButtonSpace = 60
     local availableHeight = self.height - titleSpace - startButtonSpace
     local availableWidth = self.width - 40
     
-    -- Aplicar el porcentaje de llenado del grid
-    local gridFillPercent = tonumber(GRID_FILL_PERCENT) or 70
-    gridFillPercent = math.max(50, math.min(90, gridFillPercent))  -- Límites: 50-90%
-    
+    local gridFillPercent = math.max(50, math.min(90, tonumber(GRID_FILL_PERCENT) or 70))
     local targetGridSize = math.min(availableWidth, availableHeight) * (gridFillPercent / 100)
     local buttonSize = math.floor(targetGridSize / self.gridSize)
     
     local gridWidth = self.gridSize * buttonSize
     local gridHeight = self.gridSize * buttonSize
     local gridStartX = (self.width - gridWidth) / 2
-    
-    -- Centrar verticalmente el grid en el espacio disponible
     local gridStartY = titleSpace + ((availableHeight - gridHeight) / 2)
 
     for y = 1, self.gridSize do
@@ -208,6 +211,8 @@ function MiniGameCircuitWindow:onTileClick(button)
     local x, y = button.gridX, button.gridY
     local tile = self.grid[y][x]
     
+    tile.clickAnim = 1.0 -- Start click animation
+    
     if tile.type == TILE_TYPES.LINE then
         tile.rotation = (tile.rotation + 1) % 2
     elseif tile.type == TILE_TYPES.CORNER then
@@ -246,6 +251,7 @@ function MiniGameCircuitWindow:processFinalResult(success)
     end
 
     if success then
+        self.victoryFlash = 60
         self:playSound("UI_Menu_OS_Success")
     else
         self:playSound("UI_Menu_OS_Failure")
@@ -272,11 +278,11 @@ end
 -- ============================================================================
 
 function MiniGameCircuitWindow:generateGrid()
-    -- 1. Initialize grid with empty data
+    -- 1. Initialize grid
     for y = 1, self.gridSize do
         self.grid[y] = {}
         for x = 1, self.gridSize do
-            self.grid[y][x] = { type = 0, rotation = 0, powered = false }
+            self.grid[y][x] = { type = 0, rotation = 0, powered = false, clickAnim = 0 }
         end
     end
 
@@ -295,7 +301,7 @@ function MiniGameCircuitWindow:generateGrid()
             return true
         end
 
-        local directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}} -- Up, Down, Left, Right
+        local directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
         for i = #directions, 2, -1 do
             local j = ZombRand(i + 1)
             directions[i], directions[j] = directions[j], directions[i]
@@ -304,9 +310,7 @@ function MiniGameCircuitWindow:generateGrid()
         for _, dir in ipairs(directions) do
             local nx, ny = x + dir[1], y + dir[2]
             if nx >= 1 and nx <= self.gridSize and ny >= 1 and ny <= self.gridSize and not visited[ny .. "," .. nx] then
-                if carvePath(nx, ny) then
-                    return true
-                end
+                if carvePath(nx, ny) then return true end
             end
         end
 
@@ -316,48 +320,50 @@ function MiniGameCircuitWindow:generateGrid()
 
     carvePath(self.startNode.x, self.startNode.y)
 
-    -- 4. Convert the path into tiles and rotations
+    -- 4. Convert the path into tiles with correct rotations
     for i = 1, #path do
         local p = path[i]
         local prev = path[i-1]
         local next = path[i+1]
         local tile = self.grid[p.y][p.x]
 
-        if not prev or not next then -- Start or End node
+        if not prev or not next then
             tile.type = TILE_TYPES.LINE
             if p.x == 1 or p.x == self.gridSize then tile.rotation = 1 else tile.rotation = 0 end
         else
             local dx1, dy1 = p.x - prev.x, p.y - prev.y
             local dx2, dy2 = next.x - p.x, next.y - p.y
 
-            if dx1 == dx2 and dy1 == dy2 then -- Straight line
+            if dx1 == dx2 and dy1 == dy2 then
                 tile.type = TILE_TYPES.LINE
                 tile.rotation = (dy1 ~= 0) and 0 or 1
-            else -- Corner
+            else
                 tile.type = TILE_TYPES.CORNER
-                if (dx1 == 0 and dy1 == -1 and dx2 == 1 and dy2 == 0) or (dx1 == -1 and dy1 == 0 and dx2 == 0 and dy2 == 1) then tile.rotation = 1
-                elseif (dx1 == 1 and dy1 == 0 and dx2 == 0 and dy2 == 1) or (dx1 == 0 and dy1 == -1 and dx2 == -1 and dy2 == 0) then tile.rotation = 2
-                elseif (dx1 == 0 and dy1 == 1 and dx2 == -1 and dy2 == 0) or (dx1 == 1 and dy1 == 0 and dx2 == 0 and dy2 == -1) then tile.rotation = 3
-                else tile.rotation = 0
-                end
+                if (dx1==0 and dy1==-1 and dx2==1 and dy2==0) or (dx1==-1 and dy1==0 and dx2==0 and dy2==1) then tile.rotation = 1
+                elseif (dx1==1 and dy1==0 and dx2==0 and dy2==1) or (dx1==0 and dy1==-1 and dx2==-1 and dy2==0) then tile.rotation = 2
+                elseif (dx1==0 and dy1==1 and dx2==-1 and dy2==0) or (dx1==1 and dy1==0 and dx2==0 and dy2==-1) then tile.rotation = 3
+                else tile.rotation = 0 end
             end
         end
     end
 
-    -- 5. Fill remaining empty cells and randomize all rotations
+    -- 5. Fill empty cells and randomize ONLY THEIR rotations
     for y = 1, self.gridSize do
         for x = 1, self.gridSize do
             local tile = self.grid[y][x]
-            if tile.type == 0 then
+            if tile.type == 0 then -- Only modify non-path tiles
                 tile.type = ZombRand(2) == 1 and TILE_TYPES.LINE or TILE_TYPES.CORNER
+                if tile.type == TILE_TYPES.LINE then
+                    tile.rotation = ZombRand(2)
+                else
+                    tile.rotation = ZombRand(4)
+                end
             end
-            tile.rotation = ZombRand(4)
         end
     end
 end
 
 function MiniGameCircuitWindow:checkWinCondition()
-    -- Pathfinding (BFS) to check for a complete circuit
     for y = 1, self.gridSize do
         for x = 1, self.gridSize do
             self.grid[y][x].powered = false
@@ -369,9 +375,7 @@ function MiniGameCircuitWindow:checkWinCondition()
     local head = 1
 
     while head <= #q do
-        local curr = q[head]
-        head = head + 1
-
+        local curr = q[head]; head = head + 1
         local connections = self:getConnections(curr.x, curr.y)
         for _, conn in ipairs(connections) do
             local nx, ny = conn.x, conn.y
@@ -389,7 +393,6 @@ function MiniGameCircuitWindow:checkWinCondition()
     end
 
     if self.grid[self.endNode.y][self.endNode.x].powered then
-        self.victoryFlash = 60  -- Start victory animation
         self:processFinalResult(true)
     end
 end
@@ -404,15 +407,10 @@ function MiniGameCircuitWindow:getConnections(x, y)
             table.insert(connections, {x=x-1, y=y}); table.insert(connections, {x=x+1, y=y})
         end
     elseif tile.type == TILE_TYPES.CORNER then
-        if tile.rotation == 0 then -- Up-Right
-            table.insert(connections, {x=x, y=y-1}); table.insert(connections, {x=x+1, y=y})
-        elseif tile.rotation == 1 then -- Right-Down
-            table.insert(connections, {x=x+1, y=y}); table.insert(connections, {x=x, y=y+1})
-        elseif tile.rotation == 2 then -- Down-Left
-            table.insert(connections, {x=x, y=y+1}); table.insert(connections, {x=x-1, y=y})
-        else -- Left-Up
-            table.insert(connections, {x=x-1, y=y}); table.insert(connections, {x=x, y=y-1})
-        end
+        if tile.rotation == 0 then table.insert(connections, {x=x, y=y-1}); table.insert(connections, {x=x+1, y=y}) -- Up-Right
+        elseif tile.rotation == 1 then table.insert(connections, {x=x+1, y=y}); table.insert(connections, {x=x, y=y+1}) -- Right-Down
+        elseif tile.rotation == 2 then table.insert(connections, {x=x, y=y+1}); table.insert(connections, {x=x-1, y=y}) -- Down-Left
+        else table.insert(connections, {x=x-1, y=y}); table.insert(connections, {x=x, y=y-1}) end -- Left-Up
     end
     return connections
 end
@@ -424,100 +422,144 @@ end
 function MiniGameCircuitWindow:render()
     ISPanel.render(self)
     
-    -- Update animation counters
-    self.pulsePhase = (self.pulsePhase + 0.05) % (2 * math.pi)
-    self.scanLineY = (self.scanLineY + 2) % (self.height + 40)
+    -- Update animation states
+    self.globalPulse = (self.globalPulse + 0.05) % (2 * math.pi)
+    self.scanLineY = (self.scanLineY + 2.5) % (self.height + 40)
     if self.victoryFlash > 0 then self.victoryFlash = self.victoryFlash - 1 end
-    
+    if self.entryAnim > 0 then self.entryAnim = math.max(0, self.entryAnim - 0.08) end
+    if ZombRand(100) < 5 then self.flicker = 10 end
+    if self.flicker > 0 then self.flicker = self.flicker - 1 end
+
+    -- Entry animation: scale and fade
+    local scale = 1.0 - (self.entryAnim * 0.1)
+    local alpha_mult = 1.0 - self.entryAnim
+    local w, h = self.width * scale, self.height * scale
+    local x, y = (self.width - w) / 2, (self.height - h) / 2
+
     -- Draw background and border
-    self:drawRect(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+    self:drawRect(x, y, w, h, self.backgroundColor.a * alpha_mult, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
     
     -- Cyberpunk scan line effect
     local scanY = self.scanLineY - 20
-    if scanY >= 0 and scanY < self.height then
-        self:drawRect(0, scanY, self.width, 3, 0.15, 0.8, 0.1, 0.8)
+    if scanY >= 0 and scanY < h then
+        self:drawRect(x, y + scanY, w, 4, 0.15 * alpha_mult, 0.8, 0.1, 0.8)
     end
     
     -- Victory flash overlay
     if self.victoryFlash > 0 then
-        local flashAlpha = (self.victoryFlash / 60) * 0.3
-        self:drawRect(0, 0, self.width, self.height, flashAlpha, 0.2, 1, 0.2)
+        local flashAlpha = (self.victoryFlash / 60) * 0.4
+        self:drawRect(x, y, w, h, flashAlpha * alpha_mult, 0.2, 1, 0.2)
     end
     
-    self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
-    self:drawRectBorder(2, 2, self.width-4, self.height-4, self.borderColor.a * 0.5, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    local borderAlpha = self.borderColor.a * alpha_mult
+    if self.flicker > 0 then borderAlpha = borderAlpha * (self.flicker / 10) end
+    self:drawRectBorder(x, y, w, h, borderAlpha, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawRectBorder(x + 2, y + 2, w - 4, h - 4, borderAlpha * 0.5, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
-    -- Title
-    local title = "CIRCUIT TRACER"
-    self:drawTextCentre(title, self.width / 2, 10, THEME.text_title.r, THEME.text_title.g, THEME.text_title.b, THEME.text_title.a, UIFont.Large)
+    -- Title (typewriter effect)
+    if self.gameActive and self.titleCharsShown < #(self.titleText or "") then
+        self.titleAccumulator = self.titleAccumulator + 1
+        if self.titleAccumulator >= (self.titleTypewriterDelay or TITLE_TYPEWRITER_DELAY) then
+            self.titleAccumulator = 0
+            self.titleCharsShown = self.titleCharsShown + 1
+        end
+    elseif not self.gameActive then
+        self.titleCharsShown = #(self.titleText or "")
+    end
+    local titleToRender = string.sub(self.titleText or "CIRCUIT TRACER", 1, self.titleCharsShown)
+    self:drawTextCentre(titleToRender, self.width / 2, y + 10, THEME.text_title.r, THEME.text_title.g, THEME.text_title.b, THEME.text_title.a * alpha_mult, UIFont.Large)
 
     -- Timer
     if self.gameActive then
         local timeText = string.format("TIME: %ds", math.ceil(self.timeLeft))
-        self:drawTextRight(timeText, self.width - 10, 35, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
+        self:drawTextRight(timeText, x + w - 10, y + 35, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a * alpha_mult, UIFont.Small)
     end
 
     -- Draw Grid
-    for y = 1, self.gridSize do
-        for x = 1, self.gridSize do
-            local btn = self.buttons[y][x]
-            local tile = self.grid[y][x]
-            self:drawRect(btn:getX(), btn:getY(), btn:getWidth(), btn:getHeight(), THEME.grid_background.a, THEME.grid_background.r, THEME.grid_background.g, THEME.grid_background.b)
-            self:drawTile(btn, tile)
+    for y_grid = 1, self.gridSize do
+        for x_grid = 1, self.gridSize do
+            local btn = self.buttons[y_grid][x_grid]
+            local tile = self.grid[y_grid][x_grid]
+            if tile.clickAnim > 0 then tile.clickAnim = math.max(0, tile.clickAnim - 0.1) end
+            
+            local bx, by = btn:getX(), btn:getY()
+            local bw, bh = btn:getWidth(), btn:getHeight()
+            
+            -- Apply entry animation to grid components
+            bx = x + bx * scale
+            by = y + by * scale
+            bw = bw * scale
+            bh = bh * scale
+
+            self:drawRect(bx, by, bw, bh, THEME.grid_background.a * alpha_mult, THEME.grid_background.r, THEME.grid_background.g, THEME.grid_background.b)
+            self:drawTile(bx, by, bw, bh, tile, x_grid, y_grid)
         end
     end
 end
 
-function MiniGameCircuitWindow:drawTile(button, tile)
-    local x, y, w, h = button:getX(), button:getY(), button:getWidth(), button:getHeight()
+function MiniGameCircuitWindow:drawTile(x, y, w, h, tile, gridX, gridY)
     local cx, cy = x + w / 2, y + h / 2
+    local alpha_mult = 1.0 - self.entryAnim
     
-    -- Animated pulse effect for powered pipes
+    -- Click feedback animation
+    if tile.clickAnim > 0 then
+        local click_alpha = THEME.click_feedback.a * tile.clickAnim
+        self:drawRect(x, y, w, h, click_alpha, THEME.click_feedback.r, THEME.click_feedback.g, THEME.click_feedback.b)
+    end
+
     local pipeColor = THEME.pipe_idle
+    local thickness = math.max(2, w / 8)
+    local bloom = thickness * 1.5
+
     if tile.powered then
-        local pulse = 0.7 + 0.3 * math.sin(self.pulsePhase)
+        local pulse = 0.7 + 0.3 * math.sin(self.globalPulse * 2)
         pipeColor = {
             r = THEME.pipe_powered.r * pulse,
             g = THEME.pipe_powered.g * pulse,
-            b = THEME.pipe_powered.b,
+            b = THEME.pipe_powered.b * pulse,
             a = THEME.pipe_powered.a
         }
     end
     
-    local thickness = math.max(2, w / 8)
+    local function drawPipeSegment(px, py, pw, ph, color)
+        -- Bloom effect
+        self:drawRect(px - (bloom-pw)/2, py - (bloom-ph)/2, bloom, bloom, color.a * 0.2 * alpha_mult, color.r, color.g, color.b)
+        -- Core pipe
+        self:drawRect(px, py, pw, ph, color.a * alpha_mult, color.r, color.g, color.b)
+    end
 
     if tile.type == TILE_TYPES.LINE then
         if tile.rotation == 0 then -- Vertical
-            self:drawRect(cx - thickness / 2, y, thickness, h, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(cx - thickness / 2, y, thickness, h, pipeColor)
         else -- Horizontal
-            self:drawRect(x, cy - thickness / 2, w, thickness, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(x, cy - thickness / 2, w, thickness, pipeColor)
         end
     elseif tile.type == TILE_TYPES.CORNER then
         local halfW, halfH = w / 2, h / 2
         if tile.rotation == 0 then -- Up-Right
-            self:drawRect(cx - thickness / 2, y, thickness, halfH + thickness/2, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
-            self:drawRect(cx - thickness/2, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(cx - thickness / 2, y, thickness, halfH + thickness/2, pipeColor)
+            drawPipeSegment(cx - thickness/2, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor)
         elseif tile.rotation == 1 then -- Right-Down
-            self:drawRect(cx - thickness / 2, cy - thickness/2, halfW + thickness/2, thickness, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
-            self:drawRect(cx - thickness / 2, cy - thickness/2, thickness, halfH + thickness/2, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(cx - thickness / 2, cy - thickness/2, halfW + thickness/2, thickness, pipeColor)
+            drawPipeSegment(cx - thickness / 2, cy - thickness/2, thickness, halfH + thickness/2, pipeColor)
         elseif tile.rotation == 2 then -- Down-Left
-            self:drawRect(x, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
-            self:drawRect(cx - thickness / 2, cy - thickness/2, thickness, halfH + thickness/2, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(x, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor)
+            drawPipeSegment(cx - thickness / 2, cy - thickness/2, thickness, halfH + thickness/2, pipeColor)
         else -- Left-Up
-            self:drawRect(x, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
-            self:drawRect(cx - thickness / 2, y, thickness, halfH + thickness/2, pipeColor.a, pipeColor.r, pipeColor.g, pipeColor.b)
+            drawPipeSegment(x, cy - thickness / 2, halfW + thickness/2, thickness, pipeColor)
+            drawPipeSegment(cx - thickness / 2, y, thickness, halfH + thickness/2, pipeColor)
         end
     end
     
-    -- Draw start/end nodes with glow effect
-    if self.startNode.x == button.gridX and self.startNode.y == button.gridY then
-        local glow = 0.3 + 0.2 * math.sin(self.pulsePhase * 2)
-        self:drawRect(x, y, w, h, glow, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
-        self:drawRectBorder(x, y, w, h, 0.8, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
-    elseif self.endNode.x == button.gridX and self.endNode.y == button.gridY then
-        local glow = 0.3 + 0.2 * math.sin(self.pulsePhase * 2)
-        self:drawRect(x, y, w, h, glow, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
-        self:drawRectBorder(x, y, w, h, 0.8, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
+    -- Draw start/end nodes with enhanced glow
+    if self.startNode.x == gridX and self.startNode.y == gridY then
+        local glow = 0.4 + 0.3 * math.sin(self.globalPulse * 3)
+        self:drawRect(x, y, w, h, glow * alpha_mult, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
+        self:drawRectBorder(x, y, w, h, 0.8 * alpha_mult, THEME.start_node.r, THEME.start_node.g, THEME.start_node.b)
+    elseif self.endNode.x == gridX and self.endNode.y == gridY then
+        local glow = 0.4 + 0.3 * math.sin(self.globalPulse * 3 + math.pi)
+        self:drawRect(x, y, w, h, glow * alpha_mult, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
+        self:drawRectBorder(x, y, w, h, 0.8 * alpha_mult, THEME.end_node.r, THEME.end_node.g, THEME.end_node.b)
     end
 end
 
@@ -528,13 +570,8 @@ function MiniGame_Circuit(widthPct, heightPct, usbType, difficulty, laptopItem, 
     local player = getPlayer()
     if not player then return end
 
-    -- Usar configuración de porcentajes
-    local windowWidthPct = tonumber(WINDOW_WIDTH_PERCENT) or 35
-    local windowHeightPct = tonumber(WINDOW_HEIGHT_PERCENT) or 55
-    
-    -- Validar rangos
-    windowWidthPct = math.max(20, math.min(80, windowWidthPct))
-    windowHeightPct = math.max(30, math.min(90, windowHeightPct))
+    local windowWidthPct = math.max(20, math.min(80, tonumber(WINDOW_WIDTH_PERCENT) or 35))
+    local windowHeightPct = math.max(30, math.min(90, tonumber(WINDOW_HEIGHT_PERCENT) or 55))
     
     local screenW, screenH = getCore():getScreenWidth(), getCore():getScreenHeight()
     local width = math.floor(screenW * (windowWidthPct / 100))
