@@ -420,29 +420,42 @@ function MiniGameFalloutWindow:createChildren()
     local configuredMinSize = tonumber(BUTTON_SIZE) or 30
     buttonSize = math.max(buttonSize, math.min(configuredMinSize, maxButtonSize))
 
-    -- Crear botones para palabras candidatas
+    -- v1.5.14: LAYOUT DE 2 COLUMNAS
     self.wordButtons = {}
     local buttonHeight = buttonSize
     local startY = 100
     
+    local COLUMN_COUNT = 2
+    local wordsPerColumn = math.ceil(wordCount / COLUMN_COUNT)
+    local columnWidth = (self.width - 60) / 2
+    local columnSpacing = 20
+    
     for i = 1, wordCount do
-        local btn = ISButton:new(20, startY + (i-1) * (buttonHeight + buttonSpacing), 
-                                self.width - 40, buttonHeight, "", self, self.onWordSelect)
+        local column = math.ceil(i / wordsPerColumn)  -- 1 o 2
+        local rowInColumn = ((i - 1) % wordsPerColumn) + 1
+        
+        local x = column == 1 
+            and 20  -- Columna izquierda
+            or (self.width / 2 + columnSpacing / 2)  -- Columna derecha
+        
+        local y = startY + (rowInColumn - 1) * (buttonHeight + buttonSpacing)
+        
+        local btn = ISButton:new(x, y, columnWidth - columnSpacing, buttonHeight, "", self, self.onWordSelect)
         btn.wordIndex = i
         btn:initialise()
         self:addChild(btn)
         self.wordButtons[i] = btn
     end
 
-    -- ✅ BOTÓN DECODE - ALINEADO A LA IZQUIERDA
-    self.tryButton = ISButton:new(20, self.height - 70, 100, 30, "DECODE", self, self.onTry)
-    self.tryButton:initialise()
-    self:addChild(self.tryButton)
-
-    -- ✅ BOTÓN START - AL LADO DE DECODE
-    self.startButton = ISButton:new(130, self.height - 70, 100, 30, "START", self, self.onStart)
+    -- v1.5.14: BOTÓN START - CENTRADO IZQUIERDA
+    self.startButton = ISButton:new((self.width / 2 - 110), self.height - 70, 100, 40, "START", self, self.onStart)
     self.startButton:initialise()
     self:addChild(self.startButton)
+
+    -- v1.5.14: BOTÓN DECODE - CENTRADO DERECHA
+    self.tryButton = ISButton:new((self.width / 2 + 10), self.height - 70, 100, 40, "DECODE", self, self.onTry)
+    self.tryButton:initialise()
+    self:addChild(self.tryButton)
 
     -- ✅ BOTÓN RESET - COMENTADO: Un usuario no debe poder resetear el desafío
     -- self.resetButton = ISButton:new(self.width - 120, self.height - 120, 100, 30, "RESET", self, self.onReset)
@@ -743,6 +756,13 @@ end
 function MiniGameFalloutWindow:onWordSelect(button)
     if not self.gameActive then return end
 
+    -- ✨ Efecto de sonido al seleccionar (nuevo sonido)
+    if DynamicSoundSystem and DynamicSoundSystem.playButtonClick then
+        DynamicSoundSystem.playButtonClick(self.player, 0.4)
+    else
+        self:playSound("UI_Menu_OS_Select")
+    end
+
     if self.wordButtons then
         for i, btn in ipairs(self.wordButtons) do
             if btn == button then
@@ -768,9 +788,14 @@ function MiniGameFalloutWindow:onTry()
     local success = (selectedWord == self.correctPassword)
 
     if success then
+        -- ✨ ÉXITO: Flash verde + sonido + shake suave
         self:triggerFlash(35, {r=0.2, g=1, b=0.2})
+        self:triggerShake(15) -- Shake leve celebratorio
         if self.playSound then
             self:playSound("UIUnlock")
+        end
+        if DynamicSoundSystem and DynamicSoundSystem.playSuccessSound then
+            DynamicSoundSystem.playSuccessSound(self.player, 0.8)
         end
         self.gameActive = false
         self:clearAllTimers()
@@ -791,15 +816,19 @@ function MiniGameFalloutWindow:onTry()
     self:updateWordButtonStyles()
 
     if self.attemptsRemaining <= 0 then
+        -- ✨ FALLO CRÍTICO: Flash rojo + sonido + shake fuerte
         self:triggerFlash(40, {r=1, g=0.2, b=0.2})
+        self:triggerShake(40) -- Shake fuerte al fallar
         if self.playSound then
             self:playSound("UIObjectiveFailed")
+        end
+        if DynamicSoundSystem and DynamicSoundSystem.playFailureSound then
+            DynamicSoundSystem.playFailureSound(self.player, 1.0)
         end
         self.gameActive = false
         self:clearAllTimers()
         self:cancelTimer("statusTimerId")
         self.statusTextManual = "LOCKOUT"
-        self:triggerShake(40)
         self:showResult(false, "LOCKOUT")
         self:applyResult(false)
         
@@ -815,9 +844,14 @@ function MiniGameFalloutWindow:onTry()
             end
         end
     else
+        -- ✨ INTENTO INCORRECTO: Flash naranja + shake leve + sonido
         self:triggerFlash(20, {r=1, g=0.6, b=0.2})
+        self:triggerShake(10) -- Shake leve al intentar
         if self.playSound then
             self:playSound("UIError")
+        end
+        if DynamicSoundSystem and DynamicSoundSystem.playWarningBeep then
+            DynamicSoundSystem.playWarningBeep(self.player, 0.5)
         end
         self.statusTextManual = string.format("FIREWALL: %s", self.lastHint)
         self:startStatusCycle()
@@ -976,6 +1010,12 @@ function MiniGameFalloutWindow:clearAllTimers()
 end
 
 function MiniGameFalloutWindow:onClose()
+    -- ✅ REPRODUCIR SONIDO LAPTOP SHUTDOWN AL CERRAR
+    if self.player and DynamicSoundSystem and DynamicSoundSystem.playLaptopShutdown then
+        DynamicSoundSystem.playLaptopShutdown(self.player, 0.4)
+        print("[MiniGameFallout] Playing laptop_shutdown.ogg")
+    end
+    
     -- ✅ VERIFICACIÓN CRÍTICA: Solo aplicar penalización si el juego está realmente en progreso
     if self.gameActive and self.usbData and self.usbData.item then
         print("[CLOSE FAILURE] Fallout minigame closed while in progress - treating as failure")

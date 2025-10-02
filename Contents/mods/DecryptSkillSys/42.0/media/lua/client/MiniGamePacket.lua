@@ -33,17 +33,17 @@ end
 -- ============================================================================
 
 -- ========== WINDOW CONFIGURATION ==========
-local WINDOW_WIDTH_PERCENT = 30      -- % of screen width (20-60 recommended)
-local WINDOW_HEIGHT_PERCENT = 60     -- % of screen height (40-80 recommended)
+local WINDOW_WIDTH_PERCENT = 25      -- % of screen width (20-60 recommended)
+local WINDOW_HEIGHT_PERCENT = 50     -- % of screen height (40-80 recommended)
 local TITLE_TYPEWRITER_DELAY = 3     -- Ticks between title letters
 
 -- ========== GAME SETTINGS ==========
 local LANE_COUNTS = { Easy = 3, Moderate = 4, Expert = 5 }
-local TIME_LIMITS = { Easy = 60, Moderate = 50, Expert = 40 }
-local PACKET_SPEEDS = { Easy = 1.5, Moderate = 2.5, Expert = 3.5 } -- pixels/tick
-local SPAWN_RATES = { Easy = 90, Moderate = 60, Expert = 40 } -- ticks between spawns
-local HIT_WINDOWS = { Easy = 20, Moderate = 12, Expert = 6 } -- pixels tolerance
-local MISS_PENALTIES = { Easy = 0, Moderate = -1, Expert = -2 } -- seconds
+local TIME_LIMITS = { Easy = 15, Moderate = 18, Expert = 20 } -- ⚡ Reducido significativamente
+local PACKET_SPEEDS = { Easy = 7, Moderate = 9, Expert = 11 } -- pixels/tick (6-8x más rápido)
+local SPAWN_RATES = { Easy = 50, Moderate = 45, Expert = 40 } -- ⚡ Ligeramente más espaciado
+local HIT_WINDOWS = { Easy = 25, Moderate = 18, Expert = 15 } -- pixels tolerance (más generoso)
+local MISS_PENALTIES = { Easy = 0, Moderate = -1, Expert = -1 } -- seconds
 local PERFECT_BONUSES = { Easy = 0, Moderate = 2, Expert = 3 } -- seconds
 local COMBO_MULTIPLIERS = { Easy = false, Moderate = true, Expert = true }
 local SHOW_TIMING = { Easy = true, Moderate = true, Expert = false }
@@ -87,10 +87,14 @@ function SimpleTimer:removeTimer(id) self.activeTimers[id] = nil end
 function SimpleTimer:update()
     local toRemove = {}
     for id, timer in pairs(self.activeTimers) do
-        timer.elapsed = timer.elapsed + 1
-        if timer.elapsed >= timer.duration then
-            if timer.callback then pcall(timer.callback) end
-            toRemove[id] = true
+        if timer and timer.elapsed then  -- ✅ Validación nil-safe
+            timer.elapsed = timer.elapsed + 1
+            if timer.elapsed >= timer.duration then
+                if timer.callback then pcall(timer.callback) end
+                toRemove[id] = true
+            end
+        else
+            toRemove[id] = true  -- Remover timers corruptos
         end
     end
     for id in pairs(toRemove) do self.activeTimers[id] = nil end
@@ -121,6 +125,7 @@ function MiniGamePacketWindow:new(x, y, width, height, player, usbType, difficul
     
     -- Game state
     o.laneCount = LANE_COUNTS[difficulty] or 3
+    o.laneWidth = (width - 40) / o.laneCount  -- ✅ Calcular ancho de lane
     o.timeLimit = TIME_LIMITS[difficulty] or 60
     o.packetSpeed = PACKET_SPEEDS[difficulty] or 1.5
     o.spawnRate = SPAWN_RATES[difficulty] or 90
@@ -142,9 +147,16 @@ function MiniGamePacketWindow:new(x, y, width, height, player, usbType, difficul
     o.misses = 0
     o.resultProcessed = false
     
+    -- ✅ PROPIEDADES PARA FEEDBACK DE RESULTADO
+    o.showResult = false
+    o.resultSuccess = false
+    o.resultMessage = ""
+    o.resultColor = THEME.hit_perfect
+    
     -- Animation state
     o.scanLineY = 0
     o.flashFeedback = {} -- {lane, color, duration}
+    o.hitParticles = {} -- ✨ {x, y, alpha, scale, isPerfect, lifetime}
     o.titleText = "PACKET INTERCEPTOR"
     o.titleCharsShown = 0
     o.titleAccumulator = 0
@@ -296,11 +308,36 @@ function MiniGamePacketWindow:onKeyPress(key)
             self.timeLeft = self.timeLeft + self.perfectBonus
         end
         
+        -- ✨ ANIMACIÓN: Crear partícula visual al interceptar
+        table.insert(self.hitParticles, {
+            x = 100 + (pressedLane - 1) * self.laneWidth,
+            y = self.hitZoneY,
+            alpha = 1.0,
+            scale = 1.0,
+            isPerfect = isPerfect,
+            lifetime = 0
+        })
+        
         -- Visual feedback
         local feedbackColor = isPerfect and THEME.hit_perfect or THEME.hit_good
         table.insert(self.flashFeedback, {lane = pressedLane, color = feedbackColor, duration = 15})
         
-        self:playSound("UI_Menu_OS_Select")
+        -- 🔊 SONIDO: Reproducir sonido de intercepción
+        if DynamicSoundSystem then
+            if isPerfect then
+                -- Sonido especial para perfect hit
+                if DynamicSoundSystem.playButtonClick then
+                    DynamicSoundSystem.playButtonClick(self.player, 0.8)
+                end
+            else
+                -- Sonido normal para hit
+                if DynamicSoundSystem.playButtonClick then
+                    DynamicSoundSystem.playButtonClick(self.player, 0.5)
+                end
+            end
+        else
+            self:playSound("UI_Menu_OS_Select")
+        end
     else
         -- MISS!
         if self.comboEnabled then
@@ -320,6 +357,12 @@ function MiniGamePacketWindow:onKeyPress(key)
 end
 
 function MiniGamePacketWindow:onClose()
+    -- ✅ REPRODUCIR SONIDO LAPTOP SHUTDOWN AL CERRAR
+    if self.player and DynamicSoundSystem and DynamicSoundSystem.playLaptopShutdown then
+        DynamicSoundSystem.playLaptopShutdown(self.player, 0.4)
+        print("[MiniGamePacket] Playing laptop_shutdown.ogg")
+    end
+    
     if self.gameActive then
         self:processFinalResult(false)
     end
@@ -338,6 +381,21 @@ function MiniGamePacketWindow:processFinalResult(success)
     self.resultProcessed = true
     self.gameActive = false
     self:clearAllTimers()
+    
+    -- ✅ FEEDBACK VISUAL CLARO: Mostrar resultado grande
+    self.showResult = true
+    self.resultSuccess = success
+    self.resultMessage = success and "DECRYPTION SUCCESS!" or "DECRYPTION FAILED!"
+    self.resultColor = success and THEME.hit_perfect or THEME.miss
+    
+    -- ✅ MENSAJE AL JUGADOR
+    if self.player then
+        if success then
+            self.player:Say("Packet interception successful! Score: " .. self.score)
+        else
+            self.player:Say("Failed to intercept packets in time.")
+        end
+    end
     
     -- Increment failure count if failed
     if not success and self.laptopItem then
@@ -421,6 +479,19 @@ function MiniGamePacketWindow:update()
             table.remove(self.flashFeedback, i)
         end
     end
+    
+    -- ✨ UPDATE HIT PARTICLES
+    for i = #self.hitParticles, 1, -1 do
+        local p = self.hitParticles[i]
+        p.lifetime = p.lifetime + 1
+        p.alpha = 1.0 - (p.lifetime / 30)  -- Fade out over 30 ticks
+        p.scale = 1.0 + (p.lifetime / 15)  -- Grow slightly
+        p.y = p.y - 2  -- Float upward
+        
+        if p.lifetime > 30 then
+            table.remove(self.hitParticles, i)
+        end
+    end
 end
 
 function MiniGamePacketWindow:render()
@@ -497,16 +568,53 @@ function MiniGamePacketWindow:render()
             self:drawTextCentre(packetType.symbol, laneX + laneWidth / 2, packet.y - 10, THEME.packet_text.r, THEME.packet_text.g, THEME.packet_text.b, THEME.packet_text.a, UIFont.Small)
         end
         
+        -- ✨ DRAW HIT PARTICLES (animación al interceptar)
+        for _, p in ipairs(self.hitParticles) do
+            local color = p.isPerfect and THEME.hit_perfect or THEME.hit_good
+            local size = 20 * p.scale
+            local halfSize = size / 2
+            
+            -- Círculo brillante que crece y se desvanece
+            self:drawRect(p.x - halfSize, p.y - halfSize, size, size, 
+                p.alpha * 0.7, color.r, color.g, color.b)
+            
+            -- Borde del círculo
+            self:drawRectBorder(p.x - halfSize, p.y - halfSize, size, size, 
+                p.alpha, color.r * 1.5, color.g * 1.5, color.b * 1.5)
+            
+            -- Texto flotante
+            if p.isPerfect then
+                self:drawTextCentre("PERFECT!", p.x, p.y - halfSize - 10, 
+                    color.r, color.g, color.b, p.alpha, UIFont.Small)
+            end
+        end
+        
         -- Draw scan line effect
         if self.scanLineY >= 60 and self.scanLineY < self.height - 60 then
             self:drawRect(20, self.scanLineY, self.width - 40, 2, 0.2, THEME.border.r, THEME.border.g, THEME.border.b)
         end
     else
+        -- ✅ MENSAJE GRANDE DE VICTORIA/DERROTA
+        if self.showResult and self.resultMessage then
+            local centerY = self.height / 2 - 80
+            
+            -- Background semitransparente para el mensaje
+            self:drawRect(10, centerY - 10, self.width - 20, 100, 0.8, 0.05, 0.05, 0.15)
+            
+            -- Mensaje grande de resultado
+            self:drawTextCentre(self.resultMessage, self.width / 2, centerY + 5, 
+                self.resultColor.r, self.resultColor.g, self.resultColor.b, 1, UIFont.Large)
+            
+            -- Línea de separación
+            self:drawRect(30, centerY + 35, self.width - 60, 2, 0.5, 
+                self.resultColor.r, self.resultColor.g, self.resultColor.b)
+        end
+        
         -- Game over stats
         if self.hits > 0 or self.misses > 0 then
             local totalAttempts = self.hits + self.misses
             local accuracy = (self.hits / totalAttempts) * 100
-            local centerY = self.height / 2 - 40
+            local centerY = self.height / 2
             
             self:drawTextCentre("FINAL STATS", self.width / 2, centerY, THEME.text_title.r, THEME.text_title.g, THEME.text_title.b, THEME.text_title.a, UIFont.Large)
             self:drawTextCentre("Score: " .. self.score, self.width / 2, centerY + 30, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Medium)
@@ -538,3 +646,7 @@ function MiniGame_Packet(widthPct, heightPct, usbType, difficulty, laptopItem, u
     window:bringToTop()
     return window
 end
+
+-- ✅ ALIAS para compatibilidad con DecryptDrivesContextMenu
+MiniGame_PacketInterceptor = MiniGame_Packet
+_G.MiniGame_PacketInterceptor = MiniGame_Packet

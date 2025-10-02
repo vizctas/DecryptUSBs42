@@ -34,15 +34,8 @@ function DynamicSoundSystem.playTypingSound(player, intensity)
     local volume = DynamicSoundSystem.VOLUMES.typing * intensity
     
     -- Usar sonido de teclado USB existente
-    local square = player:getCurrentSquare()
-    if square then
-        local emitter = getSoundManager():PlaySound("USBkeyboard", square, 0, volume)
-        
-        if emitter then
-            print("[DynamicSound] Playing typing sound (volume: " .. volume .. ")")
-            return emitter
-        end
-    end
+    getSoundManager():PlaySound("USBkeyboard", false, volume)
+    print("[DynamicSound] Playing typing sound (volume: " .. volume .. ")")
 end
 
 -- Sonido de éxito
@@ -56,13 +49,11 @@ function DynamicSoundSystem.playSuccessSound(player, isEpic)
         volume = volume * 1.5
     end
     
-    local square = player:getCurrentSquare()
-    if square then
-        -- Usar sonido de teclado como "beep" de éxito
-        getSoundManager():PlaySound("USBkeyboard", square, 0, volume)
-        
-        print("[DynamicSound] Playing success sound " .. (isEpic and "(EPIC)" or ""))
-    end
+    -- ✨ Usar sonido dedicado si existe, fallback a USBkeyboard
+    local sm = getSoundManager()
+    local soundName = "button_click" -- ✨ Sonido click para éxito
+    sm:PlaySound(soundName, false, volume)
+    print("[DynamicSound] Playing success sound " .. (isEpic and "(EPIC)" or "") .. " (" .. soundName .. ")")
 end
 
 -- Sonido de fallo
@@ -70,14 +61,8 @@ function DynamicSoundSystem.playFailureSound(player)
     if not player or not getSoundManager() then return end
     
     local volume = DynamicSoundSystem.VOLUMES.failure
-    local square = player:getCurrentSquare()
-    
-    if square then
-        -- Usar alarm.ogg existente a bajo volumen como sonido de error
-        getSoundManager():PlaySound("alarm", square, 0, volume * 0.3)
-        
-        print("[DynamicSound] Playing failure sound")
-    end
+    getSoundManager():PlaySound("alarm", false, volume * 0.3)
+    print("[DynamicSound] Playing failure sound")
 end
 
 -- ============================================================================
@@ -99,14 +84,8 @@ function DynamicSoundSystem.playWarningBeep(player, urgent)
     DynamicSoundSystem.lastSoundTime["warning_beep"] = currentTime
     
     local volume = urgent and DynamicSoundSystem.VOLUMES.warning * 1.5 or DynamicSoundSystem.VOLUMES.warning
-    local square = player:getCurrentSquare()
-    
-    if square then
-        -- Beep corto usando alarm
-        getSoundManager():PlaySound("alarm", square, 0, volume * 0.2)
-        
-        print("[DynamicSound] Playing warning beep " .. (urgent and "(URGENT)" or ""))
-    end
+    getSoundManager():PlaySound("alarm", false, volume * 0.2)
+    print("[DynamicSound] Playing warning beep " .. (urgent and "(URGENT)" or ""))
 end
 
 -- Sonido de alarma de sobrecalentamiento
@@ -114,18 +93,45 @@ function DynamicSoundSystem.playOverheatAlarm(player)
     if not player or not getSoundManager() then return end
     
     local volume = DynamicSoundSystem.VOLUMES.alarm
-    local square = player:getCurrentSquare()
-    
-    if square then
-        getSoundManager():PlaySound("alarm", square, 0, volume * 0.5)
-        
-        print("[DynamicSound] Playing overheat alarm")
-    end
+    getSoundManager():PlaySound("alarm", false, volume * 0.5)
+    print("[DynamicSound] Playing overheat alarm")
 end
 
 -- ============================================================================
 -- SONIDOS AMBIENTALES
 -- ============================================================================
+
+-- ✨ NUEVOS SONIDOS AGREGADOS
+
+-- Sonido de click de botón (interacciones UI)
+function DynamicSoundSystem.playButtonClick(player, volume)
+    if not player or not getSoundManager() then return end
+    volume = volume or 0.3
+    getSoundManager():PlaySound("button_click", false, volume)
+end
+
+-- Sonido de acceso a disco (procesamiento)
+function DynamicSoundSystem.playHDDAccess(player, volume)
+    if not player or not getSoundManager() then return end
+    volume = volume or 0.4
+    getSoundManager():PlaySound("hdd_access", false, volume)
+end
+
+-- Sonido de inicio de laptop
+function DynamicSoundSystem.playLaptopStartup(player, volume)
+    if not player or not getSoundManager() then return end
+    volume = volume or 0.5
+    getSoundManager():PlaySound("laptop_startup", false, volume)
+    print("[DynamicSound] Playing laptop startup sound")
+end
+
+-- Sonido de apagado de laptop
+function DynamicSoundSystem.playLaptopShutdown(player, volume)
+    if not player or not getSoundManager() then return end
+    volume = volume or 0.5
+    getSoundManager():PlaySound("laptop_shutdown", false, volume)
+    print("[DynamicSound] Playing laptop shutdown sound")
+end
 
 -- Sonido de ventilador (cuando laptop está caliente)
 function DynamicSoundSystem.playFanSound(player, temperature)
@@ -138,14 +144,8 @@ function DynamicSoundSystem.playFanSound(player, temperature)
     local tempRatio = (temperature - 60) / 40  -- 0.0 a 1.0
     local volume = DynamicSoundSystem.VOLUMES.fan + (tempRatio * 0.3)
     
-    local square = player:getCurrentSquare()
-    if square then
-        -- Usar alarm.ogg muy bajo como "hum" de ventilador
-        -- En un mod real, usarías un sonido de ventilador dedicado
-        getSoundManager():PlaySound("alarm", square, 0, volume * 0.15)
-        
-        print("[DynamicSound] Playing fan sound (temp: " .. temperature .. "°C, volume: " .. volume .. ")")
-    end
+    getSoundManager():PlaySound("alarm", false, volume * 0.15)
+    print("[DynamicSound] Playing fan sound (temp: " .. temperature .. "°C, volume: " .. volume .. ")")
 end
 
 -- ============================================================================

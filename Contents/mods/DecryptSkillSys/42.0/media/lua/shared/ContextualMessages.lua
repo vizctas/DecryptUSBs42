@@ -100,24 +100,27 @@ function ContextualMessages.analyzeContext(player, laptop)
     -- Verificar estado del jugador
     local bodyDamage = player:getBodyDamage()
     if bodyDamage then
-        if bodyDamage:getStressLevel() > 50 then
+        -- ✅ PROTECCIÓN: Verificar que los métodos existan antes de llamarlos
+        local stressLevel = bodyDamage.getStressLevel and bodyDamage:getStressLevel() or 0
+        if stressLevel > 50 then
             context.stressed = true
         end
         
-        if bodyDamage:getOverallBodyHealth() < 50 then
+        local bodyHealth = bodyDamage.getOverallBodyHealth and bodyDamage:getOverallBodyHealth() or 100
+        if bodyHealth < 50 then
             context.injured = true
         end
         
-        if bodyDamage:getOverallBodyHealth() < 30 then
+        if bodyHealth < 30 then
             context.lowHealth = true
         end
     end
     
-    -- Verificar hora del día
+    -- Verificar hora del día con protección robusta
     local gameTime = getGameTime()
-    if gameTime then
-        local hour = gameTime:getHour()
-        if hour >= 21 or hour <= 5 then
+    if gameTime and gameTime.getHour then
+        local success, hour = pcall(function() return gameTime:getHour() end)
+        if success and hour and (hour >= 21 or hour <= 5) then
             context.night = true
         end
     end
@@ -352,12 +355,40 @@ end
 
 -- Mensaje al completar minijuego con éxito
 function ContextualMessages.onMinigameSuccess(player, laptop)
+    -- ✅ VALIDACIÓN CRÍTICA
+    if not player then 
+        print("[ContextualMessages] ERROR: player is nil in onMinigameSuccess")
+        return false
+    end
+    
+    -- ✅ PROTECCIÓN: analyzeContext puede ser nil si no está cargado
+    if not ContextualMessages.analyzeContext then
+        print("[ContextualMessages] ERROR: analyzeContext function is nil")
+        -- Usar contexto básico como fallback
+        local basicContext = {normal = true}
+        return ContextualMessages.sendMessage(player, "success", basicContext)
+    end
+    
     local context = ContextualMessages.analyzeContext(player, laptop)
     return ContextualMessages.sendMessage(player, "success", context)
 end
 
 -- Mensaje al fallar minijuego
 function ContextualMessages.onMinigameFailure(player, laptop)
+    -- ✅ VALIDACIÓN CRÍTICA
+    if not player then 
+        print("[ContextualMessages] ERROR: player is nil in onMinigameFailure")
+        return false
+    end
+    
+    -- ✅ PROTECCIÓN: analyzeContext puede ser nil si no está cargado
+    if not ContextualMessages.analyzeContext then
+        print("[ContextualMessages] ERROR: analyzeContext function is nil")
+        -- Usar contexto básico como fallback
+        local basicContext = {normal = true}
+        return ContextualMessages.sendMessage(player, "failure", basicContext)
+    end
+    
     local context = ContextualMessages.analyzeContext(player, laptop)
     return ContextualMessages.sendMessage(player, "failure", context)
 end

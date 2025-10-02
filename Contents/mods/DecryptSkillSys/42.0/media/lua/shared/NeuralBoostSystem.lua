@@ -102,14 +102,37 @@ function NeuralBoostSystem.addBoost(player, boostType)
     local activeBoosts = NeuralBoostSystem.getActiveBoosts(player)
     local duration = NeuralBoostSystem.BUFF_DURATIONS[boostType] or 30
     
-    -- Calcular tiempo de expiración
+    -- Calcular tiempo de expiración con validación robusta
     local gameTime = getGameTime()
-    local expirationMinute = gameTime:getTimeInMillis() + (duration * 60 * 1000)  -- Convertir a milisegundos
+    if not gameTime then
+        if shouldPrintWarning() then
+            print("[NeuralBoost] WARNING: getGameTime() not available, boost activation delayed")
+        end
+        return
+    end
+    
+    if not gameTime.getTimeInMillis then
+        if shouldPrintWarning() then
+            print("[NeuralBoost] WARNING: GameTime not fully initialized, boost activation delayed")
+        end
+        return
+    end
+    
+    -- Usar pcall para proteger contra errores
+    local success, currentTime = pcall(function() return gameTime:getTimeInMillis() end)
+    if not success then
+        if shouldPrintWarning() then
+            print("[NeuralBoost] WARNING: Failed to get current time, boost activation delayed")
+        end
+        return
+    end
+    
+    local expirationMinute = currentTime + (duration * 60 * 1000)  -- Convertir a milisegundos
     
     -- Agregar boost
     activeBoosts[boostType] = {
         expiration = expirationMinute,
-        startTime = gameTime:getTimeInMillis(),
+        startTime = currentTime,
         duration = duration
     }
     
@@ -158,13 +181,28 @@ function NeuralBoostSystem.updateBoosts(player)
     if not player then return end
     
     local activeBoosts = NeuralBoostSystem.getActiveBoosts(player)
+    
+    -- Validación robusta de gameTime (sin spam de logs)
     local gameTime = getGameTime()
-    local currentTime = gameTime:getTimeInMillis()
+    if not gameTime then
+        return  -- Silencioso, no spamear logs
+    end
+    
+    -- Verificar que el método getTimeInMillis existe
+    if not gameTime.getTimeInMillis then
+        return  -- Silencioso, no spamear logs
+    end
+    
+    -- Usar pcall para proteger contra errores
+    local success, currentTime = pcall(function() return gameTime:getTimeInMillis() end)
+    if not success then
+        return  -- Silencioso, no spamear logs
+    end
     
     -- Revisar cada boost activo
     local toRemove = {}
     for boostType, boostInfo in pairs(activeBoosts) do
-        if currentTime >= boostInfo.expiration then
+        if boostInfo and boostInfo.expiration and currentTime >= boostInfo.expiration then
             table.insert(toRemove, boostType)
         end
     end
@@ -361,7 +399,20 @@ end
 -- EVENTOS Y ACTUALIZACIÓN
 -- ============================================================================
 
--- Actualizar buffs cada 10 segundos
+-- Sistema de throttling para logs (evitar spam)
+local lastWarningTime = 0
+local WARNING_COOLDOWN = 300  -- 5 minutos en ticks (300 ticks = 5 segundos aprox)
+
+local function shouldPrintWarning()
+    local currentTick = getTimestamp()
+    if currentTick - lastWarningTime > WARNING_COOLDOWN then
+        lastWarningTime = currentTick
+        return true
+    end
+    return false
+end
+
+-- Actualizar buffs cada 10 minutos
 local function onEveryTenMinutes()
     local players = getOnlinePlayers()
     if not players then return end
@@ -379,33 +430,37 @@ local function onEveryTenMinutes()
     end
 end
 
--- Restaurar boosts al cargar jugador (para persistencia en reinicio de servidor)
-local function onPlayerLoad(playerIndex, player)
+-- Restaurar boosts al cargar jugador (UNA VEZ, no cada tick)
+local hasInitialized = false
+
+local function onGameStart()
+    if hasInitialized then return end
+    hasInitialized = true
+    
+    local player = getPlayer()
     if not player then return end
     
-    print("[NeuralBoost] Player loaded, checking for active boosts...")
+    print("[NeuralBoost] Initializing Neural Boost System...")
     
     local activeBoosts = NeuralBoostSystem.getActiveBoosts(player)
     
     -- Re-aplicar efectos de Pack Mule si está activo
-    if activeBoosts.pack_mule then
-        print("[NeuralBoost] Restoring Pack Mule boost after server restart")
+    if activeBoosts and activeBoosts.pack_mule then
+        print("[NeuralBoost] Restoring Pack Mule boost from save")
         NeuralBoostSystem.applyPackMuleBoost(player, true)
     end
     
-    -- Actualizar y limpiar buffs expirados
+    -- Limpiar buffs expirados
     NeuralBoostSystem.updateBoosts(player)
+    
+    print("[NeuralBoost] System initialized successfully")
 end
 
--- Registrar eventos
+-- Registrar eventos (CORREGIDO: sin OnPlayerUpdate)
 Events.EveryTenMinutes.Add(onEveryTenMinutes)
-Events.OnPlayerUpdate.Add(onPlayerLoad)  -- Se ejecuta al cargar jugador
+Events.OnGameStart.Add(onGameStart)  -- ✅ Se ejecuta UNA vez al iniciar
 Events.OnLoad.Add(function()
-    -- Restaurar boosts al cargar partida guardada
-    local player = getPlayer()
-    if player then
-        onPlayerLoad(0, player)
-    end
+    hasInitialized = false  -- Reset flag para permitir reinicialización
 end)
 
 -- ============================================================================
@@ -420,7 +475,18 @@ function NeuralBoostSystem.getActiveBoostsString(player)
     local boostStrings = {}
     
     local gameTime = getGameTime()
-    local currentTime = gameTime:getTimeInMillis()
+    if not gameTime then
+        return "[Neural Boosts: Loading...]"
+    end
+    
+    if not gameTime.getTimeInMillis then
+        return "[Neural Boosts: Initializing...]"
+    end
+    
+    local success, currentTime = pcall(function() return gameTime:getTimeInMillis() end)
+    if not success then
+        return "[Neural Boosts: Error reading time]"
+    end
     
     for boostType, boostInfo in pairs(activeBoosts) do
         local boostData = NeuralBoostSystem.BOOST_TYPES[boostType]

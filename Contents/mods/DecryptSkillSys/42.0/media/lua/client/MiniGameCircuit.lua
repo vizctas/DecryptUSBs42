@@ -219,11 +219,26 @@ function MiniGameCircuitWindow:onTileClick(button)
         tile.rotation = (tile.rotation + 1) % 4
     end
     
-    self:playSound("UI_Menu_OS_Select")
+    -- ✨ Efectos al rotar circuito (nuevo sonido)
+    if DynamicSoundSystem and DynamicSoundSystem.playButtonClick then
+        DynamicSoundSystem.playButtonClick(self.player, 0.3)
+    else
+        self:playSound("UI_Menu_OS_Select")
+    end
+    if DynamicSoundSystem and DynamicSoundSystem.playTypingSound then
+        DynamicSoundSystem.playTypingSound(self.player, 0.2)
+    end
+    
     self:checkWinCondition()
 end
 
 function MiniGameCircuitWindow:onClose()
+    -- ✅ REPRODUCIR SONIDO LAPTOP SHUTDOWN AL CERRAR
+    if self.player and DynamicSoundSystem and DynamicSoundSystem.playLaptopShutdown then
+        DynamicSoundSystem.playLaptopShutdown(self.player, 0.4)
+        print("[MiniGameCircuit] Playing laptop_shutdown.ogg")
+    end
+    
     if self.gameActive then
         self:processFinalResult(false)
     end
@@ -262,10 +277,24 @@ function MiniGameCircuitWindow:processFinalResult(success)
     end
 
     if success then
+        -- ✨ VICTORIA: Flash + sonidos + feedback
         self.victoryFlash = 60
         self:playSound("UI_Menu_OS_Success")
+        if DynamicSoundSystem and DynamicSoundSystem.playSuccessSound then
+            DynamicSoundSystem.playSuccessSound(self.player, 0.9)
+        end
+        if self.player then
+            self.player:Say("Circuit completed! Access granted.")
+        end
     else
+        -- ✨ DERROTA: Sonidos + feedback
         self:playSound("UI_Menu_OS_Failure")
+        if DynamicSoundSystem and DynamicSoundSystem.playFailureSound then
+            DynamicSoundSystem.playFailureSound(self.player, 0.8)
+        end
+        if self.player then
+            self.player:Say("Circuit tracing failed. Time's up.")
+        end
     end
 
     SimpleTimer:addTimer(120, function() self:onClose() end)
@@ -358,7 +387,7 @@ function MiniGameCircuitWindow:generateGrid()
         end
     end
 
-    -- 5. Fill empty cells and randomize ONLY THEIR rotations
+    -- 5. Fill empty cells with random tiles
     for y = 1, self.gridSize do
         for x = 1, self.gridSize do
             local tile = self.grid[y][x]
@@ -369,6 +398,19 @@ function MiniGameCircuitWindow:generateGrid()
                 else
                     tile.rotation = ZombRand(4)
                 end
+            end
+        end
+    end
+    
+    -- ✅ 6. RANDOMIZAR TODAS LAS ROTACIONES (incluido el camino solución)
+    --    Esto garantiza que el puzzle NO inicie resuelto o casi resuelto
+    for y = 1, self.gridSize do
+        for x = 1, self.gridSize do
+            local tile = self.grid[y][x]
+            if tile.type == TILE_TYPES.LINE then
+                tile.rotation = ZombRand(2)  -- 0 o 1
+            elseif tile.type == TILE_TYPES.CORNER then
+                tile.rotation = ZombRand(4)  -- 0, 1, 2, 3
             end
         end
     end

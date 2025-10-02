@@ -228,27 +228,20 @@ local function handleClientCommand(playerIndexOrModule, moduleOrCommand, command
 
     -- Authorization: if handler received a numeric playerIndex, ensure it matches claimedPlayerIndex if provided
     if playerIndex and claimedPlayerIndex and playerIndex ~= claimedPlayerIndex then
-    GVDebug.debugPrint('[Unauthorized client command] playerIndex mismatch', tostring(playerIndex), tostring(claimedPlayerIndex))
+        GVDebug.debugPrint('[Unauthorized client command] playerIndex mismatch', tostring(playerIndex), tostring(claimedPlayerIndex))
         return
     end
 
     if cmd == "ApplyEliteEnhancement" and enhancement and targetIndex ~= nil then
         local player = getSpecificPlayer(targetIndex)
         if player then
-            eliteDriveSystem.applySpecificEnhancement(player, enhancement)
-        end
-    end
-                -- Fallback: try the applySpecificEnhancement path if tokens are used
-                if EliteDriveSystem and EliteDriveSystem.applySpecificEnhancement then
-                    EliteDriveSystem.applySpecificEnhancement(player, driveType)
-                end
-            end
+            EliteDriveSystem.applySpecificEnhancement(player, enhancement)
         end
     end
 end
 
 if Events and Events.OnClientCommand and Events.OnClientCommand.Add then
-    Events.OnClientCommand.Add(handleUseEliteDrive)
+    Events.OnClientCommand.Add(handleClientCommand)
 elseif Events and Events.OnServerCommand and Events.OnServerCommand.Add then
-    Events.OnServerCommand.Add(handleUseEliteDrive)
+    Events.OnServerCommand.Add(handleClientCommand)
 end

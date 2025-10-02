@@ -846,6 +846,21 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
         end
 
         if _G[currentConfig.name] and type(_G[currentConfig.name]) == "function" then
+            -- ✅ DETENER SONIDO USBSys ANTES DE ABRIR MINIJUEGO
+            if player and player.getEmitter and player:getEmitter() then
+                local emitter = player:getEmitter()
+                if emitter and emitter.stopSoundByName then
+                    emitter:stopSoundByName("USBSys")
+                    debugPrint("USB_SELECTION", "Stopped USBSys sound before opening minigame")
+                end
+            end
+            
+            -- ✅ REPRODUCIR SONIDO LAPTOP STARTUP AL ABRIR MINIJUEGO
+            if DynamicSoundSystem and DynamicSoundSystem.playLaptopStartup then
+                DynamicSoundSystem.playLaptopStartup(player, 0.4)
+                debugPrint("USB_SELECTION", "Playing laptop_startup.ogg")
+            end
+            
             -- Permitir que el minijuego use la configuración global de ventana
             local success, minigame = pcall(_G[currentConfig.name], nil, nil, usbType, difficulty, laptopItem, usbData)
             if success and minigame then
