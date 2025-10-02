@@ -48,6 +48,18 @@ function LaptopEvents.triggerDistressSignal(player, laptop, laptopSquare)
     local y = laptopSquare:getY()
     local z = laptopSquare:getZ()
     
+    -- ✅ VERIFICAR SI ESTÁ EN SAFEHOUSE
+    local isInSafehouse = false
+    if SafeHouse and SafeHouse.isSafeHouse then
+        isInSafehouse = SafeHouse.isSafeHouse(laptopSquare, player:getUsername(), false)
+    end
+    
+    if isInSafehouse then
+        print("[LaptopEvents] Player is in safehouse - spawning zombies OUTSIDE safehouse")
+        -- Aumentar radio de spawn para estar fuera del safehouse
+        spawnRadius = spawnRadius + 15
+    end
+    
     -- Generar puntos de spawn en círculo alrededor de la laptop
     local spawnedCount = 0
     for i = 1, zombieCount do
@@ -62,16 +74,30 @@ function LaptopEvents.triggerDistressSignal(player, laptop, laptopSquare)
         local spawnSquare = getCell():getGridSquare(spawnX, spawnY, z)
         
         if spawnSquare then
-            -- Verificar que el square sea válido para spawn
-            if not spawnSquare:isVehicleIntersecting() and spawnSquare:isFree(false) then
-                -- Spawn zombie
-                local zombie = addZombiesInOutfit(spawnX, spawnY, z, 1, "Crawler", 0)
-                if zombie then
-                    spawnedCount = spawnedCount + 1
-                    print("[LaptopEvents] Spawned zombie " .. i .. " at (" .. spawnX .. ", " .. spawnY .. ")")
+            -- ✅ VERIFICAR QUE NO SEA SAFEHOUSE
+            local spawnInSafehouse = false
+            if SafeHouse and SafeHouse.isSafeHouse then
+                spawnInSafehouse = SafeHouse.isSafeHouse(spawnSquare, player:getUsername(), false)
+            end
+            
+            -- Verificar que el square sea válido para spawn Y no esté en safehouse
+            if not spawnInSafehouse and not spawnSquare:isVehicleIntersecting() and spawnSquare:isFree(false) then
+                -- ✅ SPAWN ZOMBIE CORRECTAMENTE usando createZombieInOutfit
+                if createZombieInOutfit then
+                    local zombie = createZombieInOutfit("Crawler", 0, spawnX, spawnY, z)
+                    if zombie then
+                        spawnedCount = spawnedCount + 1
+                        print("[LaptopEvents] Spawned zombie " .. i .. " at (" .. spawnX .. ", " .. spawnY .. ")")
+                        
+                        -- Hacer que el zombie sea atraído hacia la laptop
+                        if zombie.setX and zombie.setY then
+                            zombie:setX(spawnX)
+                            zombie:setY(spawnY)
+                        end
+                    end
                 end
             else
-                print("[LaptopEvents] Invalid spawn square at (" .. spawnX .. ", " .. spawnY .. "), skipping")
+                print("[LaptopEvents] Invalid spawn square at (" .. spawnX .. ", " .. spawnY .. ") - safehouse or blocked")
             end
         end
     end
@@ -169,9 +195,11 @@ function LaptopEvents.triggerSecurityAlarm(player, laptop, laptopSquare)
         player:Say("The laptop's security alarm is blaring!")
     end
     
-    -- Emitir sonido inicial
+    -- Emitir sonido inicial que ATRAE ZOMBIES
     if getSoundManager() then
-        getSoundManager():PlayWorldSound("alarm", laptopSquare, 0, soundVolume, soundRadius, true)
+        -- PlayWorldSound con parámetros correctos para atraer zombies
+        getSoundManager():PlayWorldSound("alarm", laptopSquare, 0, soundVolume / 100, soundRadius, true)
+        print("[LaptopEvents] Security alarm started - volume: " .. soundVolume .. ", radius: " .. soundRadius)
     end
     
     -- Crear sonidos repetidos durante la duración
@@ -189,9 +217,9 @@ function LaptopEvents.triggerSecurityAlarm(player, laptop, laptopSquare)
             return
         end
         
-        -- Emitir sonido
+        -- Emitir sonido que ATRAE ZOMBIES
         if getSoundManager() and laptopSquare then
-            getSoundManager():PlayWorldSound("alarm", laptopSquare, 0, soundVolume, soundRadius, true)
+            getSoundManager():PlayWorldSound("alarm", laptopSquare, 0, soundVolume / 100, soundRadius, true)
             print("[LaptopEvents] Alarm sound emitted, " .. math.floor(ticksRemaining / ticksPerSecond) .. " seconds remaining")
         end
         

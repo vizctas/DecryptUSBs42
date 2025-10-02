@@ -7,7 +7,7 @@
 -- ✅ Animaciones de submit (shake + flash)
 -- ✅ Sound feedback con pitch variable
 
-print("[DecryptSkillSys] Loading MiniGameEncryption.lua v1.5.14 - Enhanced Encryption Cracker")
+print("[DecryptSkillSys] Loading MiniGameEncryption.lua v1.5.15 - FUN & BALANCED Encryption Cracker")
 
 -- ============================================================================
 -- DEBUG & RELOAD FUNCTIONS
@@ -48,32 +48,42 @@ local TITLE_SPACING = 30      -- Después de títulos principales
 local SECTION_SPACING = 36    -- Entre secciones completas
 local SYMBOL_SPACING = 20     -- Entre símbolos de feedback
 
--- ========== GAME SETTINGS (v1.5.14 - +3 INTENTOS) ==========
-local KEY_LENGTHS = { Easy = 3, Moderate = 4, Expert = 5 }
-local MAX_ATTEMPTS = { Easy = 15, Moderate = 12, Expert = 9 }  -- +3 en Easy/Moderate
-local TIME_LIMITS = { Easy = 120, Moderate = 90, Expert = 60 }
+-- ========== GAME SETTINGS (v1.5.15 - BALANCED FOR FUN) ==========
+local KEY_LENGTHS = { Easy = 4, Moderate = 5, Expert = 6 }  -- +1 dígito en todas
+local MAX_ATTEMPTS = { Easy = 18, Moderate = 15, Expert = 12 }  -- +3 intentos para balance
+local TIME_LIMITS = { Easy = 150, Moderate = 120, Expert = 90 }  -- +30s más tiempo
 local ALLOW_DUPLICATES = { Easy = false, Moderate = false, Expert = true }
 local FEEDBACK_DETAIL = { Easy = "full", Moderate = "partial", Expert = "minimal" }
+local HINT_THRESHOLDS = { Easy = {5, 10}, Moderate = {8, 13}, Expert = {} }  -- Intentos para hints
 
--- ========== THEME COLORS ==========
+-- ========== THEME COLORS (Tema CRT Verde Consistente con Fallout/UI) ==========
 local THEME = {
-    background = {r=0.08, g=0.08, b=0.08, a=0.92},
-    border = {r=0.9, g=0.7, b=0.1, a=1}, -- Gold
-    input_bg = {r=0.15, g=0.15, b=0.15, a=0.9},
-    input_border = {r=0.5, g=0.5, b=0.5, a=1},
-    button_hex = {r=0.2, g=0.2, b=0.25, a=0.9},
-    button_hex_hover = {r=0.3, g=0.3, b=0.4, a=1},
-    correct_pos = {r=0.2, g=1.0, b=0.2, a=1}, -- ✓ Green
-    correct_char = {r=1.0, g=0.8, b=0.2, a=1}, -- ○ Gold
-    incorrect = {r=0.5, g=0.5, b=0.5, a=1}, -- ✗ Gray
-    text_title = {r=1, g=1, b=1, a=1},
-    text_info = {r=0.9, g=0.9, b=0.9, a=0.9},
-    text_highlight = {r=1, g=1, b=0.2, a=1}, -- Yellow for highlights
-    -- v1.5.14: Color gradients por cercanía
-    gradient_excellent = {r=0.2, g=1, b=0.2, a=1},   -- 75%+ Verde
-    gradient_good = {r=1, g=1, b=0.2, a=1},          -- 50-75% Amarillo
-    gradient_fair = {r=1, g=0.6, b=0.2, a=1},        -- 25-50% Naranja
-    gradient_poor = {r=1, g=0.2, b=0.2, a=1},        -- 0-25% Rojo
+    -- Colores principales (CRT Verde)
+    background = {r=0.05, g=0.2, b=0.05, a=0.9}, -- Verde oscuro como Fallout
+    border = {r=0.2, g=1, b=0.2, a=1}, -- Verde brillante como Fallout
+    flash = {r=0.2, g=1, b=0.2}, -- Verde para flash effects
+    
+    -- UI Components
+    input_bg = {r=0.1, g=0.3, b=0.1, a=0.8}, -- Verde más claro para inputs
+    input_border = {r=0.2, g=0.6, b=0.2, a=1},
+    button_hex = {r=0.05, g=0.25, b=0.05, a=0.9}, -- Botones hex verde oscuro
+    button_hex_hover = {r=0.1, g=0.5, b=0.1, a=1}, -- Hover verde más brillante
+    
+    -- Feedback colors (manteniendo la lógica existente pero ajustando tonos)
+    correct_pos = {r=0.2, g=1.0, b=0.2, a=1}, -- ✓ Verde brillante
+    correct_char = {r=0.2, g=0.8, b=1.0, a=1}, -- ○ Cian para contraste
+    incorrect = {r=0.6, g=0.3, b=0.3, a=1}, -- ✗ Rojo tenue
+    
+    -- Text colors (verde compatible)
+    text_title = {r=0.2, g=1, b=0.2, a=1}, -- Verde brillante para títulos
+    text_info = {r=0.7, g=0.9, b=0.7, a=0.9}, -- Verde claro para info
+    text_highlight = {r=0.8, g=1, b=0.8, a=1}, -- Verde muy claro para highlights
+    
+    -- Color gradients por cercanía (verdes)
+    gradient_excellent = {r=0.2, g=1, b=0.2, a=1},   -- 75%+ Verde brillante
+    gradient_good = {r=0.5, g=1, b=0.2, a=1},        -- 50-75% Verde-amarillo
+    gradient_fair = {r=0.8, g=0.8, b=0.2, a=1},      -- 25-50% Amarillo tenue
+    gradient_poor = {r=0.8, g=0.4, b=0.2, a=1},      -- 0-25% Naranja tenue
 }
 
 -- ========== HEX CHARACTERS ==========
@@ -141,6 +151,11 @@ function MiniGameEncryptionWindow:new(x, y, width, height, player, usbType, diff
     o.gameActive = false
     o.resultProcessed = false
     
+    -- v1.5.15: Hint system y tracking
+    o.hintsRevealed = {}  -- Posiciones reveladas como hint
+    o.bestAttempt = nil   -- Mejor intento hasta ahora
+    o.bestScore = 0       -- Score del mejor intento (chars correctos)
+    
     -- UI state
     o.hexButtons = {}
     o.inputDisplay = {}
@@ -148,9 +163,17 @@ function MiniGameEncryptionWindow:new(x, y, width, height, player, usbType, diff
     o.titleCharsShown = 0
     o.titleAccumulator = 0
     o.titleTypewriterDelay = TITLE_TYPEWRITER_DELAY
-    o.scanLineY = 0
     
-    -- v1.5.14: Animaciones de submit
+    -- ✨ CRT Effects (optimizados para rendimiento)
+    o.scanLineY = 0
+    o.scanLineSpeed = 1.5 -- Velocidad optimizada
+    o.flashTicks = 0
+    o.flashColor = THEME.flash
+    o.shakeTicks = 0
+    o.baseX = x
+    o.baseY = y
+    
+    -- v1.5.14: Animaciones de submit (optimizadas)
     o.submitShake = 0
     o.submitFlash = 0
     o.submitSuccess = false
@@ -160,6 +183,7 @@ end
 
 function MiniGameEncryptionWindow:generateSecretKey()
     self.secretKey = {}
+    self.hintsRevealed = {}  -- Reset hints
     local used = {}
     
     for i = 1, self.keyLength do
@@ -208,6 +232,56 @@ function MiniGameEncryptionWindow:calculateFeedback(guess)
     return feedback
 end
 
+-- v1.5.15: Sistema de hints progresivos
+function MiniGameEncryptionWindow:checkAndRevealHint()
+    local thresholds = HINT_THRESHOLDS[self.difficulty] or {}
+    local attemptsUsed = self.maxAttempts - self.attemptsRemaining
+    
+    for _, threshold in ipairs(thresholds) do
+        if attemptsUsed == threshold and #self.hintsRevealed < math.floor(self.keyLength / 2) then
+            -- Revelar una posición que no haya sido revelada
+            local availablePositions = {}
+            for i = 1, self.keyLength do
+                local alreadyRevealed = false
+                for _, revealed in ipairs(self.hintsRevealed) do
+                    if revealed == i then
+                        alreadyRevealed = true
+                        break
+                    end
+                end
+                if not alreadyRevealed then
+                    table.insert(availablePositions, i)
+                end
+            end
+            
+            if #availablePositions > 0 then
+                local randomIndex = ZombRand(1, #availablePositions + 1)
+                local posToReveal = availablePositions[randomIndex]
+                table.insert(self.hintsRevealed, posToReveal)
+                
+                -- Notificación visual
+                if self.player and self.player.Say then
+                    self.player:Say("💡 HINT: Position " .. posToReveal .. " = " .. self.secretKey[posToReveal])
+                end
+                
+                self:triggerFlash(25, {r=1, g=0.8, b=0.2})
+                self:playSound("UI_Menu_OS_Success", 1.2)
+                
+                print("[Encryption] Hint revealed: Position " .. posToReveal .. " = " .. self.secretKey[posToReveal])
+                break
+            end
+        end
+    end
+end
+
+-- v1.5.15: Trackear mejor intento
+function MiniGameEncryptionWindow:updateBestAttempt(attempt, score)
+    if score > self.bestScore then
+        self.bestScore = score
+        self.bestAttempt = attempt
+    end
+end
+
 -- v1.5.14: Color gradient basado en cercanía
 function MiniGameEncryptionWindow:getColorByCorrectness(correctCount, totalLength)
     local ratio = correctCount / totalLength
@@ -223,28 +297,28 @@ function MiniGameEncryptionWindow:createChildren()
     self.closeButton:initialise()
     self:addChild(self.closeButton)
     
-    -- Start button
+    -- Start button (tema CRT verde)
     self.startButton = ISButton:new((self.width - 120) / 2, self.height - 55, 120, 45, "START", self, self.onStart)
-    self.startButton.borderColor = {r=0.9, g=0.7, b=0.1, a=1}
-    self.startButton.backgroundColor = {r=0.15, g=0.12, b=0.05, a=0.9}
-    self.startButton.backgroundColorMouseOver = {r=0.9, g=0.7, b=0.1, a=0.9}
+    self.startButton.borderColor = THEME.border
+    self.startButton.backgroundColor = {r=0.05, g=0.15, b=0.05, a=0.9}
+    self.startButton.backgroundColorMouseOver = {r=0.1, g=0.5, b=0.1, a=0.9}
     self.startButton:initialise()
     self:addChild(self.startButton)
     
-    -- Submit button
+    -- Submit button (verde brillante)
     self.submitButton = ISButton:new((self.width - 120) / 2, self.height - 110, 120, 35, "SUBMIT", self, self.onSubmit)
-    self.submitButton.borderColor = {r=0.2, g=1.0, b=0.2, a=1}
-    self.submitButton.backgroundColor = {r=0.05, g=0.15, b=0.05, a=0.9}
+    self.submitButton.borderColor = THEME.correct_pos
+    self.submitButton.backgroundColor = {r=0.05, g=0.2, b=0.05, a=0.9}
     self.submitButton.backgroundColorMouseOver = {r=0.2, g=1.0, b=0.2, a=0.9}
     self.submitButton:initialise()
     self.submitButton:setVisible(false)
     self:addChild(self.submitButton)
     
-    -- Clear button
+    -- Clear button (rojo tenue para contraste)
     self.clearButton = ISButton:new((self.width - 120) / 2 - 70, self.height - 110, 60, 35, "CLEAR", self, self.onClear)
-    self.clearButton.borderColor = {r=1.0, g=0.2, b=0.2, a=1}
-    self.clearButton.backgroundColor = {r=0.15, g=0.05, b=0.05, a=0.9}
-    self.clearButton.backgroundColorMouseOver = {r=1.0, g=0.2, b=0.2, a=0.9}
+    self.clearButton.borderColor = {r=0.8, g=0.3, b=0.3, a=1}
+    self.clearButton.backgroundColor = {r=0.2, g=0.05, b=0.05, a=0.9}
+    self.clearButton.backgroundColorMouseOver = {r=0.6, g=0.2, b=0.2, a=0.9}
     self.clearButton:initialise()
     self.clearButton:setVisible(false)
     self:addChild(self.clearButton)
@@ -265,7 +339,7 @@ function MiniGameEncryptionWindow:createChildren()
         
         local btn = ISButton:new(x, y, buttonW, buttonH, char, self, self.onHexButton)
         btn.hexChar = char
-        btn.borderColor = {r=0.5, g=0.5, b=0.5, a=1}
+        btn.borderColor = THEME.input_border
         btn.backgroundColor = THEME.button_hex
         btn.backgroundColorMouseOver = THEME.button_hex_hover
         btn:initialise()
@@ -292,12 +366,18 @@ function MiniGameEncryptionWindow:onStart()
     end
     
     self:startTimer()
+    
+    -- ✨ FLASH Y SONIDO INICIAL (como en Fallout)
+    self:triggerFlash(30, THEME.correct_pos)
     self:playSound("UI_Menu_OS_Start", 1.0)
 end
 
 function MiniGameEncryptionWindow:onHexButton(button)
     if not self.gameActive or #self.currentInput >= self.keyLength then return end
     table.insert(self.currentInput, button.hexChar)
+    
+    -- ✨ EFECTO VISUAL EN BOTÓN (como en Fallout)
+    self:triggerFlash(5, THEME.button_hex_hover)
     self:playSound("UI_Menu_OS_Select", 1.0)
 end
 
@@ -326,6 +406,13 @@ function MiniGameEncryptionWindow:onSubmit()
     self.submitFlash = 20  -- Ticks de flash
     self.submitSuccess = allCorrect
     
+    -- ✨ TRIGGER FLASH EFFECT (como en Fallout)
+    if allCorrect then
+        self:triggerFlash(30, THEME.correct_pos)
+    else
+        self:triggerFlash(20, THEME.gradient_poor)
+    end
+    
     -- v1.5.14: Sound feedback con pitch variable
     local correctCount = 0
     for _, fb in ipairs(feedback) do
@@ -344,8 +431,22 @@ function MiniGameEncryptionWindow:onSubmit()
     self.attemptsRemaining = self.attemptsRemaining - 1
     self.currentInput = {}
     
+    -- v1.5.15: Trackear mejor intento
+    self:updateBestAttempt(#self.attempts, correctCount)
+    
+    -- v1.5.15: Verificar si debe revelar hint
+    self:checkAndRevealHint()
+    
     if self.attemptsRemaining <= 0 then
         SimpleTimer:addTimer(30, function() self:processFinalResult(false) end)
+    end
+end
+
+-- ✨ TRIGGER FLASH EFFECT (como en Fallout)
+function MiniGameEncryptionWindow:triggerFlash(ticks, color)
+    self.flashTicks = math.max(self.flashTicks or 0, ticks or 20)
+    if color then
+        self.flashColor = color
     end
 end
 
@@ -394,6 +495,10 @@ end
 
 function MiniGameEncryptionWindow:clearAllTimers()
     self:cancelTimer("timerId")
+    -- Reset effects
+    self.flashTicks = 0
+    self.submitShake = 0
+    self.submitFlash = 0
 end
 
 function MiniGameEncryptionWindow:processFinalResult(success)
@@ -452,6 +557,9 @@ end
 function MiniGameEncryptionWindow:update()
     ISPanel.update(self)
     
+    -- ✨ CRT Effects optimization
+    self.scanLineY = (self.scanLineY + self.scanLineSpeed) % (self.height + 20)
+    
     -- v1.5.14: Update shake animation
     if self.submitShake and self.submitShake > 0 then
         self.submitShake = self.submitShake - 1
@@ -461,10 +569,72 @@ function MiniGameEncryptionWindow:update()
     if self.submitFlash and self.submitFlash > 0 then
         self.submitFlash = self.submitFlash - 1
     end
+    
+    -- Flash effects decay
+    if self.flashTicks and self.flashTicks > 0 then
+        self.flashTicks = self.flashTicks - 1
+    end
 end
 
 function MiniGameEncryptionWindow:render()
+    -- ✨ SHAKE EFFECT (optimizado como en Fallout)
+    local shaking = self.submitShake and self.submitShake > 0
+    local originalX, originalY
+    
+    if shaking then
+        originalX = self:getX()
+        originalY = self:getY()
+        self.baseX = self.baseX or originalX
+        self.baseY = self.baseY or originalY
+        local strength = math.max(1, math.floor(self.submitShake / 6) + 1)
+        local offsetX = math.floor(((ZombRand(0, 3) - 1)) * strength)
+        local offsetY = math.floor(((ZombRand(0, 3) - 1)) * strength)
+        self:setX(self.baseX + offsetX)
+        self:setY(self.baseY + offsetY)
+    end
+    
     ISPanel.render(self)
+    
+    -- Restaurar posición después del shake
+    if shaking then
+        self:setX(originalX)
+        self:setY(originalY)
+        if self.submitShake == 0 then
+            self.baseX = originalX
+            self.baseY = originalY
+        end
+    end
+    
+    -- ✨ EFECTO CRT VERDE (como en Fallout)
+    -- Overlay verde translúcido
+    local crtGreen = {r=0, g=0.2, b=0, a=0.1}
+    self:drawRect(0, 0, self.width, self.height, crtGreen.a, crtGreen.r, crtGreen.g, crtGreen.b)
+    
+    -- Líneas de escaneo horizontales (optimizadas)
+    for y = 0, self.height, 4 do
+        self:drawRect(0, y, self.width, 1, 0.08, 0, 0.3, 0)
+    end
+    
+    -- Scan line animado (como en Fallout)
+    if self.scanLineY then
+        local scanY = math.floor(self.scanLineY)
+        if scanY >= 0 and scanY < self.height then
+            self:drawRect(0, scanY, self.width, 8, 0.15, 0.1, 0.8, 0.1)
+        end
+    end
+    
+    -- ✨ BORDES CRT VERDES (doble borde como Fallout)
+    local borderGreen = THEME.border
+    self:drawRectBorder(0, 0, self.width, self.height, borderGreen.a, borderGreen.r, borderGreen.g, borderGreen.b)
+    self:drawRectBorder(1, 1, self.width-2, self.height-2, borderGreen.a * 0.5, borderGreen.r, borderGreen.g, borderGreen.b)
+    
+    -- ✨ FLASH EFFECTS (optimizados)
+    if self.flashTicks and self.flashTicks > 0 then
+        local fc = self.flashColor or THEME.flash
+        local flashAlpha = math.min(0.3, 0.1 + (self.flashTicks / 40))
+        self:drawRect(0, 0, self.width, self.height, flashAlpha, fc.r, fc.g, fc.b)
+        self:drawRectBorder(0, 0, self.width, self.height, flashAlpha + 0.1, fc.r, fc.g, fc.b)
+    end
     
     -- v1.5.14: Aplicar shake effect al offset de renderizado
     local shakeOffsetX = 0
@@ -474,27 +644,9 @@ function MiniGameEncryptionWindow:render()
         shakeOffsetY = (ZombRand(0, 3) - 1) * 2
     end
     
-    -- Update animations
-    self.scanLineY = (self.scanLineY + 1.5) % (self.height + 20)
-    
-    -- Typewriter effect
-    if self.gameActive and self.titleCharsShown < #self.titleText then
-        self.titleAccumulator = self.titleAccumulator + 1
-        if self.titleAccumulator >= self.titleTypewriterDelay then
-            self.titleAccumulator = 0
-            self.titleCharsShown = self.titleCharsShown + 1
-        end
-    elseif not self.gameActive then
-        self.titleCharsShown = #self.titleText
-    end
-    
-    -- Draw title
-    local titleToRender = string.sub(self.titleText, 1, self.titleCharsShown)
-    self:drawTextCentre(titleToRender, self.width / 2 + shakeOffsetX, 10 + shakeOffsetY, THEME.text_title.r, THEME.text_title.g, THEME.text_title.b, THEME.text_title.a, UIFont.Large)
-    
-    -- v1.5.14: Flash overlay
+    -- v1.5.14: Flash overlay (submit feedback)
     if self.submitFlash and self.submitFlash > 0 then
-        local alpha = self.submitFlash / 20 * 0.3
+        local alpha = self.submitFlash / 20 * 0.2
         if self.submitSuccess then
             self:drawRect(0, 0, self.width, self.height, alpha, THEME.correct_pos.r, THEME.correct_pos.g, THEME.correct_pos.b)
         else
@@ -542,43 +694,93 @@ function MiniGameEncryptionWindow:render()
         end
         self:drawTextCentre(inputStr, self.width / 2 + shakeOffsetX, 70 + shakeOffsetY, 1, 1, 1, 1, UIFont.Large)
         
-        -- Draw attempts history
+        -- Draw attempts history (v1.5.15: MEJORADO con feedback individual)
         local historyY = 100
-        self:drawText("HISTORY:", 20, historyY, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
+        local headerText = "HISTORY (click to copy):"
+        if self.bestAttempt then
+            headerText = "HISTORY - Best: " .. self.bestScore .. "/" .. self.keyLength .. " correct"
+        end
+        self:drawText(headerText, 20, historyY, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
         historyY = historyY + 20
         
-        for i, attempt in ipairs(self.attempts) do
-            -- v1.5.14: Calcular cercanía para color gradient
+        -- Limitar a últimos 8 intentos para no llenar pantalla
+        local startIdx = math.max(1, #self.attempts - 7)
+        
+        for i = startIdx, #self.attempts do
+            local attempt = self.attempts[i]
             local correctCount = 0
             for _, fb in ipairs(attempt.feedback) do
                 if fb == "correct_pos" then correctCount = correctCount + 1 end
             end
-            local attemptColor = self:getColorByCorrectness(correctCount, self.keyLength)
             
-            local guessStr = table.concat(attempt.guess, " ")
-            self:drawText(guessStr, 30, historyY, attemptColor.r, attemptColor.g, attemptColor.b, attemptColor.a, UIFont.Medium)
+            -- v1.5.15: Indicador de "best attempt"
+            local isBest = (i == self.bestAttempt)
+            local prefix = isBest and "★ " or "  "
+            self:drawText(prefix .. "#" .. i, 10, historyY, 0.7, 0.7, 0.7, 1, UIFont.Small)
             
-            -- Draw feedback symbols
-            local feedbackX = 30 + 120
-            for j, fb in ipairs(attempt.feedback) do
-                local symbol = ""
+            -- v1.5.15: DIBUJAR CADA CARÁCTER CON SU COLOR INDIVIDUAL
+            local charX = 45
+            for j, char in ipairs(attempt.guess) do
+                local fb = attempt.feedback[j]
                 local color = THEME.incorrect
+                local bgAlpha = 0
                 
                 if fb == "correct_pos" then
-                    symbol = "✓"
                     color = THEME.correct_pos
+                    bgAlpha = 0.3  -- Fondo verde para correctos
                 elseif fb == "correct_char" then
-                    symbol = "○"
                     color = THEME.correct_char
+                    bgAlpha = 0.2  -- Fondo cian para "casi"
                 else
-                    symbol = "✗"
                     color = THEME.incorrect
                 end
                 
-                self:drawText(symbol, feedbackX + (j - 1) * 20, historyY, color.r, color.g, color.b, color.a, UIFont.Medium)
+                -- Dibujar fondo detrás del carácter
+                if bgAlpha > 0 then
+                    self:drawRect(charX - 2, historyY - 2, 18, 18, bgAlpha, color.r, color.g, color.b)
+                end
+                
+                -- Dibujar carácter con su color
+                self:drawText(char, charX, historyY, color.r, color.g, color.b, color.a, UIFont.Medium)
+                
+                charX = charX + 20
             end
             
-            historyY = historyY + 20
+            -- Dibujar símbolos de feedback ENCIMA (más pequeños)
+            local symbolX = 45
+            local symbolY = historyY - 10
+            for j, fb in ipairs(attempt.feedback) do
+                local symbol = ""
+                if fb == "correct_pos" then
+                    symbol = "✓"
+                elseif fb == "correct_char" then
+                    symbol = "○"
+                else
+                    symbol = "·"  -- Punto pequeño en vez de X
+                end
+                
+                self:drawText(symbol, symbolX + 3, symbolY, 0.9, 0.9, 0.9, 0.7, UIFont.Small)
+                symbolX = symbolX + 20
+            end
+            
+            -- Score del intento
+            local scoreText = correctCount .. "/" .. self.keyLength
+            self:drawText(scoreText, charX + 10, historyY, 0.6, 0.6, 0.6, 1, UIFont.Small)
+            
+            historyY = historyY + 25  -- Más espacio entre líneas
+        end
+        
+        -- v1.5.15: Mostrar hints revelados
+        if #self.hintsRevealed > 0 then
+            historyY = historyY + 10
+            self:drawText("💡 HINTS:", 20, historyY, 1, 0.8, 0.2, 1, UIFont.Small)
+            historyY = historyY + 18
+            
+            for _, pos in ipairs(self.hintsRevealed) do
+                local hintText = "Position " .. pos .. " = " .. self.secretKey[pos]
+                self:drawText(hintText, 30, historyY, 0.2, 1, 0.2, 1, UIFont.Small)
+                historyY = historyY + 16
+            end
         end
         
         -- Draw scan line
@@ -634,5 +836,5 @@ end
 -- ✅ ALIAS DE COMPATIBILIDAD para DecryptDrivesContextMenu
 MiniGame_EncryptionCracker = MiniGame_Encryption
 _G.MiniGame_EncryptionCracker = MiniGame_Encryption
-print("[DecryptSkillSys] MiniGame_EncryptionCracker v1.5.14 alias registered")
-print("[DecryptSkillSys] v1.5.14 Improvements: Interlineado 2.0x, +3 attempts, color gradients, animations")
+print("[DecryptSkillSys] MiniGame_EncryptionCracker v1.5.15 alias registered")
+print("[DecryptSkillSys] v1.5.15 FUN UPDATE: Individual char feedback, hint system, better balance, best attempt tracker!")

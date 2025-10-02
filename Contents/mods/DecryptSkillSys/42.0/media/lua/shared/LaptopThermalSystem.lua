@@ -18,9 +18,10 @@ LaptopThermalSystem.HEAT_PER_MINIGAME = {
     Expert = 35       -- +35% temperatura
 }
 
--- Velocidad de enfriamiento natural (% por segundo)
-LaptopThermalSystem.COOLING_RATE = 2       -- 2% por segundo cuando no se usa
-LaptopThermalSystem.COOLING_RATE_IDLE = 5  -- 5% por segundo si laptop está cerrada
+-- Velocidad de enfriamiento natural (°C por minuto in-game)
+-- Objetivo: 20°C en 30 minutos = 0.667°C por minuto
+-- ⚠️ NOTA: Sistema de cerrar/abrir laptop DESHABILITADO (buggy)
+LaptopThermalSystem.COOLING_RATE_PER_MINUTE = 0.667  -- Tasa única para todas las laptops
 
 -- ============================================================================
 -- FUNCIONES DE TEMPERATURA
@@ -58,6 +59,12 @@ function LaptopThermalSystem.addHeat(laptop, difficulty)
         heatIncrease = heatIncrease * 0.5  -- -50% calor si tiene cooling
     end
     
+    -- ✨ BONUS: Pasta térmica reduce calentamiento en 50%
+    if LaptopThermalSystem.hasThermalPasteBonus(laptop) then
+        heatIncrease = heatIncrease * 0.5
+        print("[ThermalSystem] Thermal paste bonus active - heat reduced by 50%")
+    end
+    
     local newTemp = LaptopThermalSystem.setTemperature(laptop, currentTemp + heatIncrease)
     
     print("[ThermalSystem] Laptop heated: " .. currentTemp .. "°C -> " .. newTemp .. "°C (+" .. heatIncrease .. ")")
@@ -65,7 +72,7 @@ function LaptopThermalSystem.addHeat(laptop, difficulty)
     return newTemp
 end
 
--- Enfriar laptop pasivamente
+-- Enfriar laptop pasivamente (deltaTime en MINUTOS in-game)
 function LaptopThermalSystem.coolDown(laptop, deltaTime)
     if not laptop then return end
     
@@ -73,19 +80,17 @@ function LaptopThermalSystem.coolDown(laptop, deltaTime)
     if currentTemp <= 20 then return 20 end  -- Ya está a temperatura ambiente
     
     local modData = laptop:getModData()
-    local coolingRate = LaptopThermalSystem.COOLING_RATE
+    local coolingRate = LaptopThermalSystem.COOLING_RATE_PER_MINUTE
     
-    -- Enfriar más rápido si está cerrada
-    local laptopType = laptop:getType()
-    if laptopType and laptopType:find("Closed") then
-        coolingRate = LaptopThermalSystem.COOLING_RATE_IDLE
-    end
+    -- ⚠️ SISTEMA DE CERRAR/ABRIR LAPTOP DESHABILITADO (buggy)
+    -- Todas las laptops enfrían a la misma velocidad independientemente del estado
     
     -- Aplicar modificadores
     if modData.GVDrive_HasLiquidCooling then
         coolingRate = coolingRate * 2  -- Enfría 2x más rápido
     end
     
+    -- deltaTime debe ser en MINUTOS in-game para que funcione correctamente
     local tempDecrease = coolingRate * deltaTime
     local newTemp = LaptopThermalSystem.setTemperature(laptop, currentTemp - tempDecrease)
     
@@ -143,11 +148,13 @@ function LaptopThermalSystem.checkOverheat(player, laptop)
             LaptopThermalSystem.setTemperature(laptop, LaptopThermalSystem.CRITICAL_TEMP)
         end
         
-        -- Emitir sonido de advertencia si está disponible
+        -- Emitir sonido de advertencia que ATRAE ZOMBIES
         if getSoundManager() and player then
             local square = player:getCurrentSquare()
             if square then
-                getSoundManager():PlaySound("alarm", false, 0.3)
+                -- PlayWorldSound para que los zombies lo escuchen y sean atraídos
+                getSoundManager():PlayWorldSound("alarm", square, 0, 80, 60, true)
+                print("[ThermalSystem] Overheat alarm triggered - zombies attracted!")
             end
         end
         
@@ -189,6 +196,63 @@ function LaptopThermalSystem.getOverheatPenalty(laptop)
         -- Más de 95°C: penalización máxima
         return 25  -- 25% de penalización
     end
+end
+
+-- ============================================================================
+-- SISTEMA DE PASTA TÉRMICA
+-- ============================================================================
+
+-- Aplicar pasta térmica a la laptop (enfriamiento instantáneo)
+function LaptopThermalSystem.applyThermalPaste(laptop)
+    if not laptop then return false end
+    
+    local currentTemp = LaptopThermalSystem.getTemperature(laptop)
+    
+    -- Enfriar laptop a temperatura ambiente (20°C) + bonus de enfriamiento temporal
+    LaptopThermalSystem.setTemperature(laptop, 20)
+    
+    -- Aplicar bonus de enfriamiento mejorado temporal (30 minutos de juego)
+    local modData = laptop:getModData()
+    modData.GVDrive_ThermalPasteActive = true
+    modData.GVDrive_ThermalPasteExpiry = os.time() + (30 * 60)  -- 30 minutos reales
+    
+    print("[ThermalSystem] Thermal paste applied: " .. currentTemp .. "°C -> 20°C (bonus active for 30 minutes)")
+    
+    return true
+end
+
+-- Verificar si tiene bonus de pasta térmica activo
+function LaptopThermalSystem.hasThermalPasteBonus(laptop)
+    if not laptop then return false end
+    
+    local modData = laptop:getModData()
+    if not modData.GVDrive_ThermalPasteActive then
+        return false
+    end
+    
+    -- Verificar si expiró
+    local currentTime = os.time()
+    if currentTime >= (modData.GVDrive_ThermalPasteExpiry or 0) then
+        -- Expiró, limpiar
+        modData.GVDrive_ThermalPasteActive = nil
+        modData.GVDrive_ThermalPasteExpiry = nil
+        return false
+    end
+    
+    return true
+end
+
+-- Obtener tiempo restante de bonus (en minutos)
+function LaptopThermalSystem.getThermalPasteBonusRemaining(laptop)
+    if not laptop or not LaptopThermalSystem.hasThermalPasteBonus(laptop) then
+        return 0
+    end
+    
+    local modData = laptop:getModData()
+    local currentTime = os.time()
+    local remaining = (modData.GVDrive_ThermalPasteExpiry or 0) - currentTime
+    
+    return math.max(0, math.floor(remaining / 60))  -- Convertir a minutos
 end
 
 -- Verificar si hay penalización activa de sobrecalentamiento previo
@@ -317,6 +381,44 @@ function SetLaptopTemp(temperature)
     end
     
     print("❌ No laptop found")
+end
+
+-- ============================================================================
+-- SISTEMA DE ENFRIAMIENTO AUTOMÁTICO (Cada 10 minutos in-game)
+-- ============================================================================
+
+-- Enfriar todas las laptops del jugador pasivamente cada 10 minutos
+local function onEveryTenMinutes()
+    local players = getOnlinePlayers()
+    if not players then return end
+    
+    for i = 0, players:size() - 1 do
+        local player = players:get(i)
+        if player then
+            local inventory = player:getInventory()
+            if inventory then
+                local items = inventory:getItems()
+                for j = 0, items:size() - 1 do
+                    local item = items:get(j)
+                    if item and item:getType() and item:getType():find("Laptop") then
+                        -- Enfriar 10 minutos (deltaTime = 10)
+                        local oldTemp = LaptopThermalSystem.getTemperature(item)
+                        local newTemp = LaptopThermalSystem.coolDown(item, 10)
+                        
+                        if oldTemp ~= newTemp then
+                            print("[ThermalSystem] Laptop cooled: " .. oldTemp .. "°C -> " .. newTemp .. "°C")
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Registrar evento de enfriamiento
+if Events and Events.EveryTenMinutes then
+    Events.EveryTenMinutes.Add(onEveryTenMinutes)
+    print("[ThermalSystem] Auto-cooling system registered (every 10 minutes)")
 end
 
 print("[LaptopThermalSystem] Module loaded successfully")

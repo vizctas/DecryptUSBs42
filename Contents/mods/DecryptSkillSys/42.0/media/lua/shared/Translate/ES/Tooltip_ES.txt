@@ -60,4 +60,7 @@ Tooltip_USB_Doctor_Dificil = "Advanced Medical USB<br>Elite-level medical progra
 Tooltip_USB_Survivalist_Facil = "Survival USB Drive<br>Contains focused survival training modules.<br>Improves success and experience gain.",
 Tooltip_USB_Survivalist_Moderado = "Survival USB Drive<br>Contains focused survival training modules.<br>Improves success and experience gain.",
 Tooltip_USB_Survivalist_Dificil = "Advanced Survival USB<br>Elite-level survival programs for rapid mastery.<br>Very high success chance and rewards.",
+
+Tooltip_ThermalPaste = "Thermal Paste to low laptop temperature<br>Can be used to repair laptops.",
+
 }

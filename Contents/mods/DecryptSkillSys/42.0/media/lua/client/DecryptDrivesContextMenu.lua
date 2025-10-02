@@ -685,6 +685,9 @@ function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobj
             -- Add antivirus options
             DecryptDrivesContextMenu.addAntivirusOptions(context, playerObj, worldObject)
 
+            -- Add thermal paste options
+            DecryptDrivesContextMenu.addThermalPasteOptions(context, playerObj, worldObject)
+
             -- Add elite drive options
             DecryptDrivesContextMenu.addEliteDriveOptions(context, playerObj)
 
@@ -930,9 +933,16 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     local temperature = 20
     local tempLevel = "Cool"
     local tempColor = {r=0.3, g=0.7, b=1, a=1}
+    local thermalPasteBonus = false
+    local bonusMinutes = 0
+    
     if LaptopThermalSystem then
         temperature = LaptopThermalSystem.getTemperature(laptopItem)
         tempLevel, tempColor = LaptopThermalSystem.getTemperatureLevel(temperature)
+        thermalPasteBonus = LaptopThermalSystem.hasThermalPasteBonus(laptopItem)
+        if thermalPasteBonus then
+            bonusMinutes = LaptopThermalSystem.getThermalPasteBonusRemaining(laptopItem)
+        end
     end
 
     -- Ensure laptopHealth is valid
@@ -959,7 +969,14 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     end
 
     -- Display format: Health: percentage (status) - Temp: temp°C (level) - Fails: count
-    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ") - " .. math.floor(temperature) .. "°C (" .. tempLevel .. ") - " .. failureCount .. " Fails"
+    local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ") - " .. math.floor(temperature) .. "°C (" .. tempLevel .. ")"
+    
+    -- Add thermal paste bonus indicator if active
+    if thermalPasteBonus then
+        healthDisplay = healthDisplay .. " [🧊" .. bonusMinutes .. "m]"
+    end
+    
+    healthDisplay = healthDisplay .. " - " .. failureCount .. " Fails"
 
     -- Create a custom option with texture icon
     local healthOption = context:addOptionOnTop(healthDisplay, player, function()
@@ -1000,6 +1017,109 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
     end
 
     return healthOption
+end
+
+-- ============================================================================
+-- THERMAL PASTE SYSTEM
+-- ============================================================================
+
+-- Add thermal paste options to context menu
+function DecryptDrivesContextMenu.addThermalPasteOptions(context, player, worldObject)
+    if not player or not worldObject then return end
+
+    local inv = player:getInventory()
+    if not inv then return end
+
+    -- Check for thermal paste
+    local thermalPasteCount = inv:getItemCount("GValley.ThermalPasteTube")
+
+    if thermalPasteCount > 0 then
+        -- Get laptop temperature
+        local laptopItem = worldObject:getItem()
+        local temp = 20
+        local tempLevel = "Cool"
+        local bonusActive = false
+        local bonusMinutes = 0
+        
+        if laptopItem and LaptopThermalSystem then
+            temp = LaptopThermalSystem.getTemperature(laptopItem)
+            tempLevel = LaptopThermalSystem.getTemperatureLevel(temp)
+            bonusActive = LaptopThermalSystem.hasThermalPasteBonus(laptopItem)
+            if bonusActive then
+                bonusMinutes = LaptopThermalSystem.getThermalPasteBonusRemaining(laptopItem)
+            end
+        end
+
+        -- Create thermal paste option with temperature info
+        local optionText = "Apply Thermal Paste (" .. thermalPasteCount .. ") - Current: " .. math.floor(temp) .. "°C"
+        if bonusActive then
+            optionText = optionText .. " [BONUS ACTIVE: " .. bonusMinutes .. "m]"
+        end
+        
+        local thermalOption = context:addOption(optionText, player, function()
+            DecryptDrivesContextMenu.useThermalPaste(player, worldObject)
+        end)
+
+        -- Add icon if available (will be created)
+        local pasteIcon = getTexture("media/textures/Item_ThermalPaste.png")
+        if pasteIcon then
+            thermalOption.iconTexture = pasteIcon
+        end
+    end
+end
+
+-- Use thermal paste on laptop
+function DecryptDrivesContextMenu.useThermalPaste(player, worldObject)
+    local inv = player:getInventory()
+    if not inv then
+        player:Say("Cannot access inventory.")
+        return
+    end
+
+    -- Find thermal paste
+    local thermalPasteItem = nil
+    local items = inv:getItems()
+    for i = 0, items:size() - 1 do
+        local checkItem = items:get(i)
+        if checkItem and checkItem:getFullType() == "GValley.ThermalPasteTube" then
+            thermalPasteItem = checkItem
+            break
+        end
+    end
+
+    if thermalPasteItem then
+        -- Apply thermal paste to laptop
+        local laptopItem = worldObject:getItem()
+        if laptopItem and LaptopThermalSystem then
+            local beforeTemp = LaptopThermalSystem.getTemperature(laptopItem)
+            
+            -- Apply thermal paste
+            local success = LaptopThermalSystem.applyThermalPaste(laptopItem)
+            
+            if success then
+                local afterTemp = LaptopThermalSystem.getTemperature(laptopItem)
+                
+                -- Consume thermal paste
+                inv:DoRemoveItem(thermalPasteItem)
+                
+                -- Visual feedback
+                player:Say("Thermal paste applied! Temperature: " .. math.floor(beforeTemp) .. "°C -> " .. math.floor(afterTemp) .. "°C. Cooling bonus active for 30 minutes.")
+                
+                -- Sound effect
+                if player.playSoundLocal then
+                    player:playSoundLocal("UI_Menu_OS_Success")
+                end
+                
+                print("[ThermalPaste] Successfully applied to laptop. Temp reduced from " .. beforeTemp .. "°C to " .. afterTemp .. "°C")
+            else
+                player:Say("Failed to apply thermal paste.")
+            end
+        else
+            player:Say("Cannot access laptop thermal system.")
+        end
+    else
+        player:Say("No thermal paste found in inventory.")
+    end
 end
 
 -- ============================================================================

@@ -360,9 +360,9 @@ function NeuralBoostSystem.activateBoost(player, difficulty)
     
     if success then
         -- Efecto visual/sonido
-        if getSoundManager() then
-            getSoundManager():PlaySound("USBkeyboard", false, 0.7)
-        end
+        -- if getSoundManager() then
+        --     getSoundManager():PlaySound("USBkeyboard", false, 0.7)
+        -- end
         
         print("[NeuralBoost] Neural Boost activated: " .. boostType)
     end

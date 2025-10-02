@@ -88,5 +88,7 @@ Tooltip_SkillFloppy_Electricity = "Electronics Floppy Disk<br>Introductory lesso
 Tooltip_SkillFloppy_Farming = "Farming Floppy Disk<br>Introductory lessons in farming.<br>Easy to decrypt for early gains.",
 Tooltip_SkillFloppy_Cooking = "Cooking Floppy Disk<br>Introductory lessons in cooking.<br>Easy to decrypt for early gains.",
 
+Tooltip_ThermalPaste = "Thermal Paste to low laptop temperature<br>Can be used to repair laptops.",
+
 }
 

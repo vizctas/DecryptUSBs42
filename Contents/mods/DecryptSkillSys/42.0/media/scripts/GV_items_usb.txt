@@ -278,4 +278,15 @@ module GValley
 		WorldStaticModel = USB_Opened,
 		Tooltip		= Tooltip_Antivirus_Premium,
 	}
+
+	item ThermalPasteTube
+	{
+		DisplayCategory	= Electronics,
+		Weight          = 0.1,
+		Type            = Normal,
+		DisplayName     = Thermal Paste,
+		Icon            = ThermalPaste,
+		WorldStaticModel = USB_Opened,
+		Tooltip		= Tooltip_ThermalPaste,
+	}
 }
