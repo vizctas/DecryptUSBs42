@@ -14,13 +14,8 @@ local function debugPrint(...)
     if DEBUG_ENABLED then
         print("[BitShift DEBUG]", ...)
     end
-end
-
-function ReloadMiniGameBitShift() print("[DEBUG] Reloading BitShift..."); package.loaded["client/MiniGameBitShift"]=nil; pcall(require,"client/MiniGameBitShift") end
-function TestBitShift(diff) diff=diff or "Easy"; if _G.MiniGame_BitShift then return _G.MiniGame_BitShift(nil,nil,"TestBit",diff,nil,{skill="TestBit"}) end end
-
 -- CONFIG
-local W_PCT, H_PCT = 28, 50
+local W_PCT, H_PCT = 26, 48
 local GRID_SIZES = {Easy=4, Moderate=5, Expert=6}
 local MOVE_LIMITS = {Easy=20, Moderate=15, Expert=10}
 local TIME_LIMITS = {Easy=90, Moderate=75, Expert=60}
@@ -108,7 +103,6 @@ function MiniGameBitShiftWindow:new(x, y, w, h, player, usbType, diff, laptop, u
     o.statusCycleDelay = 180
     o.statusIndex = 1
     o.statusPulseTick = 0
-
     o.statusTimerId = nil
     o.scanTimerId = nil
     o.closeTimerId = nil
@@ -116,14 +110,16 @@ function MiniGameBitShiftWindow:new(x, y, w, h, player, usbType, diff, laptop, u
     o.titleText = "BIT SHIFTER"
     o.titleShown = 0
     o.titleAcc = 0
-    
-    o.showTutorial = true
+
+    o.tutorialActive = true
+    o.tutorialAlpha = 0.95
     o.particles = {}
     
     o:generatePuzzle()
     return o
 end
 
+{{ ... }}
 function MiniGameBitShiftWindow:generatePuzzle()
     -- Start with all 1s (target state)
     for y = 1, self.gridSize do 
@@ -235,37 +231,53 @@ function MiniGameBitShiftWindow:createChildren()
     self.closeButton = ISButton:new(self.width - 25, 5, 20, 20, "X", self, self.onClose)
     self.closeButton:initialise()
     self:addChild(self.closeButton)
-    
-    self.startButton = ISButton:new((self.width - 120) / 2, self.height - 55, 120, 45, "START", self, self.onStart)
+
+    local startWidth,startHeight=140,42
+    local bottomY=self.height-58
+    self.startButton = ISButton:new((self.width - startWidth) / 2, bottomY, startWidth, startHeight, "START", self, self.onStart)
     self.startButton.borderColor = THEME.border
-    self.startButton.backgroundColor = {r=0.05, g=0.15, b=0.05, a=0.9}
-    self.startButton.backgroundColorMouseOver = {r=0.2, g=1, b=0.2, a=0.9}
+    self.startButton.backgroundColor = {r=0.05, g=0.18, b=0.08, a=0.95}
+    self.startButton.backgroundColorMouseOver = {r=0.2, g=1, b=0.2, a=0.95}
     self.startButton:initialise()
     self:addChild(self.startButton)
-    
+
+    local gridSizePx = math.min(self.width - 80, self.height - 220)
+    local cellSize = math.floor(gridSizePx / self.gridSize)
+    local gridWidth = cellSize * self.gridSize
+    local gridHeight = gridWidth
+    local gx = (self.width - gridWidth) / 2
+    local gy = 110
+
     self.buttons = {}
-    local cellSize = math.floor(math.min(self.width - 60, self.height - 180) / self.gridSize)
-    local gx = (self.width - cellSize * self.gridSize) / 2
-    local gy = 80
-    
-    for y = 1, self.gridSize do 
+    for y = 1, self.gridSize do
         self.buttons[y] = {}
-        for x = 1, self.gridSize do 
+        for x = 1, self.gridSize do
             local btn = ISButton:new(
-                gx + (x - 1) * cellSize, 
-                gy + (y - 1) * cellSize, 
-                cellSize, 
-                cellSize, 
-                "", 
-                self, 
-                self.onCellClick
+                gx + (x - 1) * cellSize,
+                gy + (y - 1) * cellSize,
+                cellSize,
+                cellSize,
+                "",
+                self,
+                MiniGameBitShiftWindow.onCellClick
             )
             btn.gridX = x
             btn.gridY = y
             btn:initialise()
+            btn.enable = true
             self:addChild(btn)
             self.buttons[y][x] = btn
         end
+    end
+
+    self.gridOrigin = {x=gx,y=gy,size=cellSize}
+
+    if self.gridSize >= 6 then
+        self.countdownY = gy - 40
+        self.progressY = gy + gridHeight + 12
+    else
+        self.countdownY = gy - 32
+        self.progressY = gy + gridHeight + 20
     end
 
     self:startScanAnimation()
@@ -276,9 +288,9 @@ function MiniGameBitShiftWindow:onStart()
     self.gameActive = true
     self.timeLeft = self.timeLimit
     self.movesLeft = self.moveLimit
-    self.showTutorial = false
+    self.tutorialActive = false
     self.startButton:setVisible(false)
-    
+
     self:startTimer()
     self:triggerFlash(30, {r=0.2, g=1, b=0.2})
     self.statusTextManual = "LINK ESTABLISHED"
@@ -471,7 +483,7 @@ function MiniGameBitShiftWindow:render()
     self:drawCRTOverlay()
     
     -- Tutorial
-    if self.showTutorial then
+    if self.tutorialActive then
         self:renderTutorial()
         return
     end

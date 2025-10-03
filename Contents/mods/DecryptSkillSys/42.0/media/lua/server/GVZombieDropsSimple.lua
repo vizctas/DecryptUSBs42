@@ -21,9 +21,9 @@ local DROP_DISTRIBUTIONS = {
 
     -- Laptops: uniform distribution
     laptops = {
-        "GValley.AsusZephLaptopClosed",
-        "GValley.Laptop90sClosed",
-        "GValley.PBIBM_LP90Closed"
+        "GValley.AsusZephLaptopOpened",
+        "GValley.Laptop90sOpened",
+        "GValley.PBIBM_LP90Opened"
     },
 
     -- Elite drives: uniform distribution
@@ -36,6 +36,12 @@ local DROP_DISTRIBUTIONS = {
         "GValley.Antivirus_McAfee",
         "GValley.Antivirus_MalwareBytes"
     }
+}
+
+local RARITY_CHANCE_OFFSETS = {
+    Facil = 0.3,
+    Moderado = 0.6,
+    Dificil = 0.9,
 }
 
 -- Function to get drop chance for a category from sandbox
@@ -52,6 +58,14 @@ local function getDropChance(category, specificItem)
         baseChance = defaults[category] or 0
     end
     
+    -- Apply hardcoded modifiers for USB rarities
+    if category == "USB" and specificItem then
+        local offset = RARITY_CHANCE_OFFSETS[specificItem]
+        if offset then
+            return math.max(0, baseChance - offset)
+        end
+    end
+
     -- Apply hardcoded modifiers for specific antivirus types
     if category == "Antivirus" and specificItem then
         if specificItem == "GValley.Antivirus_Norton" then
@@ -73,12 +87,12 @@ local function getDropChance(category, specificItem)
 end
 
 -- Function to spawn an item of the given type
-local function spawnItem(zombie, itemType)
+local function spawnItem(zombie, itemType, rarityOverride)
     local itemToSpawn = nil
 
     if itemType == "USB" then
         local skill = DROP_DISTRIBUTIONS.skills[ZombRand(#DROP_DISTRIBUTIONS.skills) + 1]
-        local rarity = DROP_DISTRIBUTIONS.rarities[ZombRand(#DROP_DISTRIBUTIONS.rarities) + 1]
+        local rarity = rarityOverride or DROP_DISTRIBUTIONS.rarities[ZombRand(#DROP_DISTRIBUTIONS.rarities) + 1]
         itemToSpawn = string.format("GValley.SkillDrive_%s_%s", skill, rarity)
     elseif itemType == "Laptop" then
         itemToSpawn = DROP_DISTRIBUTIONS.laptops[ZombRand(#DROP_DISTRIBUTIONS.laptops) + 1]
@@ -113,8 +127,20 @@ end
 local function onZombieDead(zombie)
     if not zombie or instanceof(zombie, "IsoPlayer") then return end
 
-    -- Check drops for each category independently
-    local categories = {"USB", "Laptop", "Elite"}
+    -- Handle USB drops with rarity-specific offsets
+    local usbDropped = false
+    for _, rarity in ipairs(DROP_DISTRIBUTIONS.rarities) do
+        local chance = getDropChance("USB", rarity)
+        local roll = ZombRand(0, 100)
+        if roll < chance then
+            spawnItem(zombie, "USB", rarity)
+            usbDropped = true
+            break
+        end
+    end
+
+    -- Check drops for other categories independently
+    local categories = {"Laptop", "Elite"}
     for _, category in ipairs(categories) do
         local chance = getDropChance(category)
         local roll = ZombRand(0, 100)

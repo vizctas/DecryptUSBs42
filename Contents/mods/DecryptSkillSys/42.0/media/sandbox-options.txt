@@ -32,25 +32,25 @@ option GVDrive.SkillUSB_WorldLoot_Chance
 
 option GVDrive.USB_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 100, default = 10.0,
+    type = double, min = 0, max = 100, default = 3.0,
     page = Drive_Decrypt, translation = GVDrive_USB_ZombieDrop,
 }
 
 option GVDrive.Laptop_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 100, default = 5.0,
+    type = double, min = 0, max = 100, default = 0.8,
     page = Drive_Decrypt, translation = GVDrive_Laptop_ZombieDrop,
 }
 
 option GVDrive.EliteDrive_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 100, default = 2.0,
+    type = double, min = 0, max = 100, default = 0.3,
     page = Drive_Decrypt, translation = GVDrive_EliteDrive_ZombieDrop,
 }
 
 option GVDrive.Antivirus_ZombieDrop_Chance
 {
-    type = double, min = 0, max = 100, default = 2.2,
+    type = double, min = 0, max = 100, default = 1.0,
     page = Drive_Decrypt, translation = GVDrive_Antivirus_ZombieDrop_Chance,
 }
 
@@ -80,19 +80,19 @@ option GVDrive.Malware_Damage_Per_Use
 
 option GVDrive.USB_Min_Experience
 {
-    type = double, min = 1, max = 500, default = 25,
+    type = double, min = 1, max = 500, default = 20,
     page = Drive_Decrypt, translation = GVDrive_USB_Min_Exp,
 }
 
 option GVDrive.USB_Max_Experience
 {
-    type = double, min = 1, max = 1000, default = 150,
+    type = double, min = 1, max = 1000, default = 60,
     page = Drive_Decrypt, translation = GVDrive_USB_Max_Exp,
 }
 
 option GVDrive.Laptop_Initial_Health
 {
-    type = integer, min = 10, max = 200, default = 80,
+    type = integer, min = 10, max = 200, default = 90,
     page = Drive_Decrypt, translation = GVDrive_Laptop_Initial_Health,
 }
 
@@ -104,7 +104,7 @@ option GVDrive.Laptop_Random_Health_Min
 
 option GVDrive.Laptop_Random_Health_Max
 {
-    type = integer, min = 10, max = 100, default = 85,
+    type = integer, min = 10, max = 100, default = 100,
     page = Drive_Decrypt, translation = GVDrive_Laptop_Random_Health_Max,
 }
 
@@ -128,7 +128,7 @@ option GVDrive.EliteBonus_Endurance
 
 option GVDrive.EliteBonus_Capacity
 {
-    type = integer, min = 1, max = 20, default = 4,
+    type = integer, min = 1, max = 20, default = 3,
     page = Drive_Decrypt, translation = GVDrive_EliteBonus_Capacity,
 }
 
@@ -170,7 +170,7 @@ option GVDrive.Facil_Laptop_Damage_Max
 
 option GVDrive.Facil_XP_Bonus
 {
-    type = double, min = 0, max = 100, default = 1.5,
+    type = double, min = 0, max = 100, default = 1.55,
     page = Drive_Decrypt, translation = GVDrive_Normal_XP_Bonus,
 }
 
@@ -206,7 +206,7 @@ option GVDrive.Moderado_Laptop_Damage_Max
 
 option GVDrive.Moderado_XP_Bonus
 {
-    type = double, min = 0, max = 100, default = 2.8,
+    type = double, min = 0, max = 100, default = 2.89,
     page = Drive_Decrypt, translation = GVDrive_Common_XP_Bonus,
 }
 

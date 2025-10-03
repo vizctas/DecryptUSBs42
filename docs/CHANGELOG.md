@@ -135,24 +135,23 @@ end
   - Easy: +15°C
   - Moderate: +25°C
   - Expert: +35°C
-
 #### **Cómo se Enfría:**
 
 **1. Enfriamiento Pasivo (Automático):**
 ```
 Laptop ABIERTA: -2°C por segundo
-Laptop CERRADA: -5°C por segundo (2.5x más rápido)
-```
-
-**2. Tiempo de Enfriamiento:**
-90°C → 20°C (temperatura ambiente):
-- Con laptop ABIERTA: ~35 segundos
-- Con laptop CERRADA: ~14 segundos
+Laptop CERRADA: - **USB Recipe Cleanup** (2025-10-03)
+  - Eliminadas recetas duplicadas `GValley.RecycleDriveUsed` y `GValley.RecycleDriveDamaged` en `media/scripts/GV_usb_recipes.txt`, manteniendo solo `RecycleUSBUsed` y `RecycleUSBDamaged` específicas por estado.
+  - Consolidada la definición de items USB/laptops en `media/scripts/GV_items_usb.txt`; `GV_skilldrives_recipes_new.txt` ahora solo documenta la migración para prevenir overrides dobles.
+- **Zombie Drop Rarity Balance** (2025-10-03)
+  - `media/lua/server/GVZombieDropsSimple.lua` ajusta chances por rareza de USB (`Facil -0.3`, `Moderado -0.6`, `Dificil -0.9`) usando offsets dedicados.
+  - El flujo de drop de USB ahora evalúa cada rareza por separado antes de intentar laptops o elites, manteniendo coherencia con los ajustes previos de antivirus.
+  - **Log Zombie Drop Balance Change** (2025-10-03)
+    - Agregado log de depuración en `GVZombieDropsSimple.lua` para mostrar el cambio de rareza en la consola al cambiar la configuración de drops de zombies.
 
 ## [1.5.11] - 2025-10-01 - "ContextualMessages & Circuit Puzzle Fix"
 
 ### 🔥 **ERROR CRÍTICO: CRASH EN analyzeContext**
-
 #### ❌ **Problema Identificado**
 ```
 RuntimeException: Object tried to call nil in analyzeContext

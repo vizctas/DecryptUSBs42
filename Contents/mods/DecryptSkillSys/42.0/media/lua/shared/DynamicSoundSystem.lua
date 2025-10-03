@@ -61,8 +61,8 @@ function DynamicSoundSystem.playFailureSound(player)
     if not player or not getSoundManager() then return end
     
     local volume = DynamicSoundSystem.VOLUMES.failure
-    getSoundManager():PlaySound("alarm", false, volume * 0.3)
-    print("[DynamicSound] Playing failure sound")
+    getSoundManager():PlaySound("failure", false, volume)
+    print("[DynamicSound] Playing failure sound (failure.ogg)")
 end
 
 -- ============================================================================

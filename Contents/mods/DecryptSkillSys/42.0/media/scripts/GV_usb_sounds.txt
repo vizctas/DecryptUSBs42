@@ -45,9 +45,18 @@ module Base
 	sound laptop_shutdown
 	{
 			category = Object,
-        	clip
+	        clip
 	        {
 	            file = media/sound/laptop_shutdown.ogg,
 	        }
 	}
+	sound failure
+	{
+			category = Object,
+	        clip
+	        {
+	            file = media/sound/failure.ogg,
+	        }
+	}
+}
 }

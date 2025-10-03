@@ -34,7 +34,7 @@ end
 
 -- ========== WINDOW CONFIGURATION ==========
 local WINDOW_WIDTH_PERCENT = 25      -- % of screen width (20-60 recommended)
-local WINDOW_HEIGHT_PERCENT = 50     -- % of screen height (40-80 recommended)
+local WINDOW_HEIGHT_PERCENT = 40     -- % of screen height (40-80 recommended)
 local TITLE_TYPEWRITER_DELAY = 3     -- Ticks between title letters
 
 -- ========== GAME SETTINGS ==========
