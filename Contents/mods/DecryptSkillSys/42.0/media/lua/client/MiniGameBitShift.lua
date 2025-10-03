@@ -1,4 +1,3 @@
--- MiniGameBitShift.lua v1.5.15 - OPTIMIZED VERSION
 -- Binary logic puzzle inspired by Lights Out where clicks affect neighbors
 --
 -- 🆕 v1.5.15 IMPROVEMENTS:
@@ -9,6 +8,13 @@
 -- ✅ Mejor performance
 
 print("[DecryptSkillSys] Loading MiniGameBitShift.lua v1.5.15 - OPTIMIZED Bit Shifter system")
+
+local DEBUG_ENABLED = false
+local function debugPrint(...)
+    if DEBUG_ENABLED then
+        print("[BitShift DEBUG]", ...)
+    end
+end
 
 function ReloadMiniGameBitShift() print("[DEBUG] Reloading BitShift..."); package.loaded["client/MiniGameBitShift"]=nil; pcall(require,"client/MiniGameBitShift") end
 function TestBitShift(diff) diff=diff or "Easy"; if _G.MiniGame_BitShift then return _G.MiniGame_BitShift(nil,nil,"TestBit",diff,nil,{skill="TestBit"}) end end
@@ -86,6 +92,26 @@ function MiniGameBitShiftWindow:new(x, y, w, h, player, usbType, diff, laptop, u
     o.timeLeft = o.timeLimit
     o.gameActive = false
     o.resultProcessed = false
+
+    o.flashTicks = 0
+    o.flashColor = {r=0.2, g=1, b=0.2}
+    o.scanOffset = -20
+    o.scanDelay = 4
+    o.scanStep = 6
+    o.statusMessages = {
+        "BITSTREAM STABLE",
+        "SHIFT REGISTER ALIGNMENT",
+        "ANALYZING TOPOLOGY",
+        "MAINTAIN INPUT FOCUS"
+    }
+    o.statusTextManual = "SYSTEM IDLE"
+    o.statusCycleDelay = 180
+    o.statusIndex = 1
+    o.statusPulseTick = 0
+
+    o.statusTimerId = nil
+    o.scanTimerId = nil
+    o.closeTimerId = nil
     
     o.titleText = "BIT SHIFTER"
     o.titleShown = 0
@@ -241,6 +267,9 @@ function MiniGameBitShiftWindow:createChildren()
             self.buttons[y][x] = btn
         end
     end
+
+    self:startScanAnimation()
+    self:startStatusCycle(true)
 end
 
 function MiniGameBitShiftWindow:onStart()
@@ -251,28 +280,89 @@ function MiniGameBitShiftWindow:onStart()
     self.startButton:setVisible(false)
     
     self:startTimer()
+    self:triggerFlash(30, {r=0.2, g=1, b=0.2})
+    self.statusTextManual = "LINK ESTABLISHED"
+    self.statusIndex = 1
+    self.statusPulseTick = 0
+    self:startStatusCycle()
     self:playSound("UI_Menu_OS_Start")
-end
-
-function MiniGameBitShiftWindow:onCellClick(btn)
-    if not self.gameActive or self.movesLeft <= 0 then return end
-    
-    self:applyClick(btn.gridX, btn.gridY, self.grid, false)
-    self.movesLeft = self.movesLeft - 1
-    
-    if self:checkWin() then 
-        self:processFinalResult(true)
-    elseif self.movesLeft <= 0 then 
-        self:processFinalResult(false)
-    end
-    
-    self:playSound("UI_Menu_OS_Select")
 end
 
 function MiniGameBitShiftWindow:cancelTimer(field)
     if field and self[field] then 
         SimpleTimer:removeTimer(self[field])
         self[field] = nil
+    end
+end
+
+function MiniGameBitShiftWindow:startScanAnimation()
+    self:cancelTimer("scanTimerId")
+    local delay = math.max(1, self.scanDelay or 4)
+    self.scanTimerId = SimpleTimer:addTimer(delay, function()
+        if not self:getIsVisible() then
+            self:cancelTimer("scanTimerId")
+            return
+        end
+
+        local height = self.height or 0
+        self.scanOffset = (self.scanOffset or -20) + (self.scanStep or 6)
+        if self.scanOffset > height + 20 then
+            self.scanOffset = -20
+        end
+
+        self:startScanAnimation()
+    end)
+end
+
+function MiniGameBitShiftWindow:startStatusCycle(force)
+    self:cancelTimer("statusTimerId")
+    if not self.gameActive and not force then return end
+
+    local messages = self.statusMessages or {}
+    if #messages == 0 then return end
+
+    local delay = math.max(30, self.statusCycleDelay or 180)
+    self.statusTimerId = SimpleTimer:addTimer(delay, function()
+        if not self.gameActive then
+            self.statusTextManual = "SYSTEM IDLE"
+            self:cancelTimer("statusTimerId")
+            return
+        end
+
+        self.statusIndex = (self.statusIndex or 1) + 1
+        if self.statusIndex > #messages then
+            self.statusIndex = 1
+        end
+        self.statusTextManual = messages[self.statusIndex]
+        self:startStatusCycle()
+    end)
+end
+
+function MiniGameBitShiftWindow:triggerFlash(ticks, color)
+    self.flashTicks = math.max(self.flashTicks or 0, ticks or 20)
+    if color then
+        self.flashColor = color
+    end
+end
+
+function MiniGameBitShiftWindow:drawCRTOverlay()
+    -- Outer and inner borders
+    local border = THEME.border
+    self:drawRectBorder(0, 0, self.width, self.height, border.a, border.r, border.g, border.b)
+    self:drawRectBorder(2, 2, self.width - 4, self.height - 4, 0.4, border.r, border.g, border.b)
+
+    -- Scan lines
+    local offset = self.scanOffset or 0
+    for y = -20, self.height + 20, 4 do
+        local drawY = y + (offset % 4)
+        self:drawRect(0, drawY, self.width, 1, 0.08, 0, 0.4, 0)
+    end
+
+    -- Flash overlay
+    if self.flashTicks and self.flashTicks > 0 then
+        local flashAlpha = math.max(0.05, math.min(0.35, self.flashTicks / 60))
+        local fc = self.flashColor or {r=0.2, g=1, b=0.2}
+        self:drawRect(0, 0, self.width, self.height, flashAlpha, fc.r, fc.g, fc.b)
     end
 end
 
@@ -300,6 +390,9 @@ function MiniGameBitShiftWindow:onClose()
         self:processFinalResult(false)
     end
     self:cancelTimer("timerId")
+    self:cancelTimer("statusTimerId")
+    self:cancelTimer("scanTimerId")
+    self:cancelTimer("closeTimerId")
     self:setVisible(false)
     self:removeFromUIManager()
 end
@@ -310,6 +403,9 @@ function MiniGameBitShiftWindow:processFinalResult(success)
     self.gameActive = false
     
     self:cancelTimer("timerId")
+    self:cancelTimer("statusTimerId")
+    self:cancelTimer("scanTimerId")
+    self:cancelTimer("closeTimerId")
     
     -- Incrementar contador de fallos en laptop
     if not success and self.laptopItem then
@@ -326,6 +422,14 @@ function MiniGameBitShiftWindow:processFinalResult(success)
     end
     
     -- ✨ SONIDOS SIN ALARMA
+    if success then
+        self:triggerFlash(45, {r=0.2, g=1, b=0.2})
+        self.statusTextManual = "DECRYPT SUCCESS"
+    else
+        self:triggerFlash(45, {r=1, g=0.3, b=0.3})
+        self.statusTextManual = "DECRYPT FAILED"
+    end
+
     self:playSound(success and "UI_Menu_OS_Success" or "UI_Menu_OS_Failure")
     if success and DynamicSoundSystem and DynamicSoundSystem.playSuccessSound then
         DynamicSoundSystem.playSuccessSound(self.player, 1.0)
@@ -333,7 +437,11 @@ function MiniGameBitShiftWindow:processFinalResult(success)
     -- ⚠️ NO usar playFailureSound - Solo se dispara con evento de alarma por % de fallos
     
     -- Cerrar ventana después de 2 segundos
-    SimpleTimer:addTimer(120, function() self:onClose() end)
+    self:cancelTimer("closeTimerId")
+    self.closeTimerId = SimpleTimer:addTimer(120, function()
+        self.closeTimerId = nil
+        self:onClose()
+    end)
 end
 
 function MiniGameBitShiftWindow:playSound(snd)
@@ -349,14 +457,18 @@ end
 function MiniGameBitShiftWindow:prerender()
     ISPanel.prerender(self)
     
-    if not self.gameActive then return end
-    
-    -- Actualizar partículas
-    self:updateParticles()
+    if self.flashTicks and self.flashTicks > 0 then
+        self.flashTicks = self.flashTicks - 1
+    end
+
+    if self.gameActive then
+        self:updateParticles()
+    end
 end
 
 function MiniGameBitShiftWindow:render()
     ISPanel.render(self)
+    self:drawCRTOverlay()
     
     -- Tutorial
     if self.showTutorial then
@@ -481,9 +593,17 @@ function MiniGameBitShiftWindow:render()
         self:drawTextCentre(msg, self.width / 2, self.height / 2 - 20, 
             color.r, color.g, color.b, 1, UIFont.Large)
     end
+
+    -- Status text (bottom center)
+    local status = self.statusTextManual or "SYSTEM IDLE"
+    local pulse = (self.statusPulseTick or 0) / 40
+    local alpha = 0.7 + 0.25 * math.sin(pulse)
+    self.statusPulseTick = (self.statusPulseTick or 0) + 1
+    self:drawTextCentre(status, self.width / 2, self.height - 30, 0.2, 1, 0.2, alpha, UIFont.Small)
 end
 
 function MiniGameBitShiftWindow:renderTutorial()
+    self.statusTextManual = "AWAITING INPUT"
     local tutY = 40
     local lineHeight = 24
     

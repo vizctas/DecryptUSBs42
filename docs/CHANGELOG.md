@@ -158,14 +158,6 @@ Laptop CERRADA: -5°C por segundo (2.5x más rápido)
 - ✅ **Evita Expert mode** si laptop ya está caliente
 
 **4. Liquid Cooling (Opcional - Futuro):**
-```
-Si laptop tiene "Liquid Cooling":
-- Calor reducido 50%
-- Enfriamiento 2x más rápido
-```
-
----
-
 ## [1.5.11] - 2025-10-01 - "ContextualMessages & Circuit Puzzle Fix"
 
 ### 🔥 **ERROR CRÍTICO: CRASH EN analyzeContext**
