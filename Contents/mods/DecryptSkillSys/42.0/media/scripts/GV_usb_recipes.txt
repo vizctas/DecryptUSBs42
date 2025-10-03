@@ -19,42 +19,6 @@ module Base
         }
     }
 
-    craftRecipe GValley.RecycleDriveUsed
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.USBOpened_Used;GValley.USBOpened_Damaged] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
-
-    craftRecipe GValley.RecycleDriveDamaged
-    {
-        timedAction = MakingElectrical,
-        time = 50,
-        Tags = InHandCraft,
-        category = Electrical,
-
-        inputs
-        {
-            item 1 [GValley.USBOpened_Damaged;GValley.USBOpened_Used] mode:destroy,
-            item 1 tags[Screwdriver] mode:keep,
-        }
-        outputs
-        {
-            item 1 Base.ElectronicsScrap,
-        }
-    }
-
     craftRecipe GValley.RecycleUSBUsed
     {
         timedAction = MakingElectrical,

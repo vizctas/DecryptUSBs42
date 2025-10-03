@@ -145,19 +145,10 @@ Laptop CERRADA: -5°C por segundo (2.5x más rápido)
 ```
 
 **2. Tiempo de Enfriamiento:**
-```
 90°C → 20°C (temperatura ambiente):
 - Con laptop ABIERTA: ~35 segundos
 - Con laptop CERRADA: ~14 segundos
-```
 
-**3. Tips para Evitar Sobrecalentamiento:**
-- ✅ **No uses minijuegos seguidos** (espera 10-15 segundos)
-- ✅ **Cierra la laptop** entre usos (enfría 2.5x más rápido)
-- ✅ **Monitorea la temperatura** en el menú contextual
-- ✅ **Evita Expert mode** si laptop ya está caliente
-
-**4. Liquid Cooling (Opcional - Futuro):**
 ## [1.5.11] - 2025-10-01 - "ContextualMessages & Circuit Puzzle Fix"
 
 ### 🔥 **ERROR CRÍTICO: CRASH EN analyzeContext**
