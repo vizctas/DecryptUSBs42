@@ -557,3 +557,4 @@ end
 MiniGame_LaserDeflector = MiniGame_Laser
 _G.MiniGame_LaserDeflector = MiniGame_Laser
 print("[DecryptSkillSys] MiniGame_LaserDeflector v1.5.14 IMPROVED alias registered")
+]]

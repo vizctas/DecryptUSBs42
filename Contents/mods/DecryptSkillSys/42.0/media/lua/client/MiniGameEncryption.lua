@@ -517,11 +517,17 @@ function MiniGameEncryptionWindow:render()
         
         self:drawText("FEEDBACK SYMBOLS:", 15, tutY, THEME.text_highlight.r, THEME.text_highlight.g, THEME.text_highlight.b, 1, UIFont.Small)
         tutY = tutY + LINE_HEIGHT
-        self:drawText("  ✓ = Correct digit, correct position", 20, tutY, THEME.correct_pos.r, THEME.correct_pos.g, THEME.correct_pos.b, 1, UIFont.Small)
+        self:drawText("  'O' below a digit means:", 20, tutY, THEME.correct_pos.r, THEME.correct_pos.g, THEME.correct_pos.b, 1, UIFont.Small)
         tutY = tutY + SYMBOL_SPACING
-        self:drawText("  ○ = Correct digit, wrong position", 20, tutY, THEME.correct_char.r, THEME.correct_char.g, THEME.correct_char.b, 1, UIFont.Small)
+        self:drawText("      Correct digit, correct position.", 25, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
+        tutY = tutY + LINE_HEIGHT
+        self:drawText("  'X' below a digit means:", 20, tutY, THEME.correct_char.r, THEME.correct_char.g, THEME.correct_char.b, 1, UIFont.Small)
         tutY = tutY + SYMBOL_SPACING
-        self:drawText("  ✗ = Incorrect digit", 20, tutY, THEME.incorrect.r, THEME.incorrect.g, THEME.incorrect.b, 1, UIFont.Small)
+        self:drawText("      Correct digit, wrong position.", 25, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
+        tutY = tutY + LINE_HEIGHT
+        self:drawText("  '-' below a digit means:", 20, tutY, THEME.incorrect.r, THEME.incorrect.g, THEME.incorrect.b, 1, UIFont.Small)
+        tutY = tutY + SYMBOL_SPACING
+        self:drawText("      Incorrect digit.", 25, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
         tutY = tutY + SECTION_SPACING
         
         self:drawTextCentre("Strategy: Use feedback to eliminate", self.width / 2, tutY, 0.7, 0.7, 1, 1, UIFont.Small)
@@ -545,8 +551,11 @@ function MiniGameEncryptionWindow:render()
         -- Draw attempts history
         local historyY = 100
         self:drawText("HISTORY:", 20, historyY, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
-        historyY = historyY + 20
-        
+        historyY = historyY + 25
+
+        local attemptSpacing = 35 -- Vertical space between attempts
+        local charSpacing = 25 -- Horizontal space between characters
+
         for i, attempt in ipairs(self.attempts) do
             -- v1.5.14: Calcular cercanía para color gradient
             local correctCount = 0
@@ -554,31 +563,32 @@ function MiniGameEncryptionWindow:render()
                 if fb == "correct_pos" then correctCount = correctCount + 1 end
             end
             local attemptColor = self:getColorByCorrectness(correctCount, self.keyLength)
-            
-            local guessStr = table.concat(attempt.guess, " ")
-            self:drawText(guessStr, 30, historyY, attemptColor.r, attemptColor.g, attemptColor.b, attemptColor.a, UIFont.Medium)
-            
-            -- Draw feedback symbols
-            local feedbackX = 30 + 120
-            for j, fb in ipairs(attempt.feedback) do
+
+            local startX = 30
+            for j, char in ipairs(attempt.guess) do
+                local charX = startX + (j - 1) * charSpacing
+                self:drawText(char, charX, historyY, attemptColor.r, attemptColor.g, attemptColor.b, attemptColor.a, UIFont.Medium)
+
+                -- Draw feedback symbol below
                 local symbol = ""
                 local color = THEME.incorrect
-                
+                local fb = attempt.feedback[j]
+
                 if fb == "correct_pos" then
-                    symbol = "✓"
+                    symbol = "O"
                     color = THEME.correct_pos
                 elseif fb == "correct_char" then
-                    symbol = "○"
+                    symbol = "X"
                     color = THEME.correct_char
                 else
-                    symbol = "✗"
+                    symbol = "-"
                     color = THEME.incorrect
                 end
                 
-                self:drawText(symbol, feedbackX + (j - 1) * 20, historyY, color.r, color.g, color.b, color.a, UIFont.Medium)
+                self:drawText(symbol, charX, historyY + 15, color.r, color.g, color.b, color.a, UIFont.Small)
             end
             
-            historyY = historyY + 20
+            historyY = historyY + attemptSpacing
         end
         
         -- Draw scan line

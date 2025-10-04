@@ -94,7 +94,7 @@ end
 -- Configuraciones principales del hacking de contraseñas
 local TIME_LIMIT = 180         -- Tiempo límite en segundos
 local PASSWORD_LENGTH = 6       -- Longitud de la contraseña
-local WORD_COUNT = 8            -- Número de palabras candidatas
+local WORD_COUNT = 16            -- Número de palabras candidatas
 local MAX_ATTEMPTS = 4          -- Máximo número de intentos
 local DIFFICULTY_TEXT = ""
 -- ========== CONFIGURACIÓN DE ESCALADO ADAPTATIVO ==========
@@ -106,28 +106,29 @@ local BUTTON_SIZE = 25          -- Tamaño preferido de botones
 local BUTTON_SPACING = 15       -- Espaciado entre botones
 -- ========== CONFIGURACIÓN DE VENTANA ==========
 local WINDOW_WIDTH_PCT = 18     -- Porcentaje del ancho de pantalla
-local WINDOW_HEIGHT_PCT = 39    -- Porcentaje del alto de pantalla
+local WINDOW_HEIGHT_PCT = 45    -- Porcentaje del alto de pantalla
 local WINDOW_WIDTH = 400        -- Ancho fallback en píxeles
 local WINDOW_HEIGHT = 500       -- Alto fallback en píxeles
 -- ============== DIFFICULTY SETTINGS==============================
-local EASY_TIME = 240           -- Tiempo para dificultad fácil
-local MODERATE_TIME = 180       -- Tiempo para dificultad moderada
-local EXPERT_TIME = 120         -- Tiempo para dificultad experta
+local EASY_TIME = 120           -- Tiempo para dificultad fácil
+local MODERATE_TIME = 110       -- Tiempo para dificultad moderada
+local EXPERT_TIME = 100         -- Tiempo para dificultad experta
 local EASY_LENGTH = 5           -- Longitud de contraseña fácil
 local MODERATE_LENGTH = 6       -- Longitud de contraseña moderada
 local EXPERT_LENGTH = 7         -- Longitud de contraseña experta
-local EASY_WORDS = 8            -- Número de palabras fáciles
-local MODERATE_WORDS = 8        -- Número de palabras moderadas
-local EXPERT_WORDS = 10         -- Número de palabras expertas
-local EASY_ATTEMPTS = 5         -- Intentos para dificultad fácil
-local MODERATE_ATTEMPTS = 4     -- Intentos para dificultad moderada
-local EXPERT_ATTEMPTS = 4       -- Intentos para dificultad experta
+local EASY_WORDS = 12            -- Número de palabras fáciles
+local MODERATE_WORDS = 15        -- Número de palabras moderadas
+local EXPERT_WORDS = 16       -- Número de palabras expertas
+local EASY_ATTEMPTS = 8         -- Intentos para dificultad fácil
+local MODERATE_ATTEMPTS = 8     -- Intentos para dificultad moderada
+local EXPERT_ATTEMPTS = 7       -- Intentos para dificultad experta
 -- ============== RESULTADO Y TIEMPOS =============================
 local RESULT_DISPLAY_TIME = 180 -- Ticks para mostrar resultado antes de cerrar (180 = 9 segundos)
 local AUTO_CLOSE_DELAY = 60     -- Ticks para cierre automático después de resultado (60 = 3 segundos)
 -- =============================================
 
 -- Lista de palabras para hacking (estilo Fallout)
+-- Lista de palabras para hacking (estilo Fallout) - EXPANDIDA
 local HACKING_WORDS = {
     "ACCESS", "ALERT", "ARMORY", "BLAST", "BREACH", "BRIDGE", "BYPASS",
     "CIPHER", "CIRCUIT", "CLEAR", "CODE", "COMMAND", "CONTROL", "CORE",
@@ -161,9 +162,21 @@ local HACKING_WORDS = {
     "DEMO","INOSUKE","OCZY","KAMADO","ANKUI","BOO","SHIORY","JULY","JULS",
     "JOZH","BETTA","NODRIZA","MELOW","SUSHI","BOQT","BRRTE","JOEY",
     "BOOSY","HALLOWEEN","JERRY","IOUL","GHOUL","KIRARA","KATO","SHADOW",
-    "LUCKY","BATMAN","JENJI","BREE","GINGERSNAP","SNAP","KENSHI","ALICE"
+    "LUCKY","BATMAN","JENJI","BREE","GINGERSNAP","SNAP","KENSHI","ALICE",
+    -- Nuevas palabras agregadas (40 total)
+    -- Bokurano (10 palabras)
+    "KANA", "USHIRO", "KOKOPELLI", "ZETSUBOU", "BOKURANO", "DAICHI", "CHIZURU",
+    "AKI", "MASAMUNE", "YOKO",
+    -- To Be Hero X (10 palabras)
+    "HERO", "MIN", "PANDA", "X", "OSSAN", "KID", "ALIEN", "TRANSFORM",
+    "HEROX", "BATTLE",
+    -- Aves (10 palabras)
+    "EAGLE", "SPARROW", "OWL", "RAVEN", "ROBIN", "PENGUIN", "PARROT", "FALCON",
+    "HERON", "CANARY",
+    -- Peces (10 palabras)
+    "SALMON", "TUNA", "SHARK", "CLOWNFISH", "GOLDFISH", "BASS", "PIKE", "EEL",
+    "CARP", "MARLIN"
 }
-
 -- Función para generar palabras candidatas y contraseña correcta
 local function generateHackingSetup(length, wordCount)
     -- Seleccionar contraseña correcta
@@ -371,24 +384,24 @@ end
 function MiniGameFalloutWindow:getDifficultyConfig(difficulty)
     local configs = {
         ["Easy"] = {
-            timeLimit = 45,      -- 45 segundos
-            passwordLength = 5,   -- 5 letras
-            wordCount = 6,        -- 6 palabras
-            maxAttempts = 4,      -- 5 intentos
+            timeLimit = EASY_TIME,
+            passwordLength = EASY_LENGTH,
+            wordCount = EASY_WORDS,
+            maxAttempts = EASY_ATTEMPTS,
             displayText = ""
         },
         ["Moderate"] = {
-            timeLimit = 35,      -- 35 segundos
-            passwordLength = 6,   -- 6 letras
-            wordCount = 8,        -- 8 palabras
-            maxAttempts = 3,      -- 4 intentos
+            timeLimit = MODERATE_TIME,
+            passwordLength = MODERATE_LENGTH,
+            wordCount = MODERATE_WORDS,
+            maxAttempts = MODERATE_ATTEMPTS,
             displayText = ""
         },
         ["Expert"] = {
-            timeLimit = 30,      -- 30 segundos
-            passwordLength = 7,   -- 7 letras
-            wordCount = 10,       -- 10 palabras
-            maxAttempts = 3,      -- 3 intentos
+            timeLimit = EXPERT_TIME,
+            passwordLength = EXPERT_LENGTH,
+            wordCount = EXPERT_WORDS,
+            maxAttempts = EXPERT_ATTEMPTS,
             displayText = ""
         }
     }

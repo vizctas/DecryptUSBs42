@@ -1,21 +1,22 @@
 -- Binary logic puzzle inspired by Lights Out where clicks affect neighbors
 --
--- 🆕 v1.5.15 IMPROVEMENTS:
--- ✅ Animaciones más suaves y rápidas (5 ticks vs 10)
--- ✅ Tema verde CRT (copiado de Fallout/MiniGameUI)
--- ✅ Sin sonido de alarma al perder (solo evento de alarma)
--- ✅ Partículas más fluidas
--- ✅ Mejor performance
+-- v1.5.15 - RESTORED VERSION WITH FIXES:
+-- Sistema de timers ultra simple (sin closures problemáticos)
+-- Variables locales corregidas (tablas para estado)
+-- Estética ALIEN CRT completa con tema verde
+-- Manejo de errores robusto con pcall
+-- Configuración dinámica completa
+-- Layout optimizado con grid centrado
+-- Tutorial overlay mejorado con fondo negro alfa 0.45
+-- HUD ajustado para evitar overlap
+-- Función onCellClick agregada para interacción de cuadros
+-- Partículas y efectos visuales mejorados
 
-print("[DecryptSkillSys] Loading MiniGameBitShift.lua v1.5.15 - OPTIMIZED Bit Shifter system")
+function ReloadMiniGameBitShift() print("[DEBUG] Reloading BitShift..."); package.loaded["client/MiniGameBitShift"]=nil; pcall(require,"client/MiniGameBitShift") end
+function TestBitShift(diff) diff=diff or "Easy"; if _G.MiniGame_BitShift then return _G.MiniGame_BitShift(nil,nil,"TestBit",diff,nil,{skill="TestBit"}) end end
 
-local DEBUG_ENABLED = false
-local function debugPrint(...)
-    if DEBUG_ENABLED then
-        print("[BitShift DEBUG]", ...)
-    end
 -- CONFIG
-local W_PCT, H_PCT = 26, 48
+local W_PCT, H_PCT = 28, 45
 local GRID_SIZES = {Easy=4, Moderate=5, Expert=6}
 local MOVE_LIMITS = {Easy=20, Moderate=15, Expert=10}
 local TIME_LIMITS = {Easy=90, Moderate=75, Expert=60}
@@ -103,6 +104,7 @@ function MiniGameBitShiftWindow:new(x, y, w, h, player, usbType, diff, laptop, u
     o.statusCycleDelay = 180
     o.statusIndex = 1
     o.statusPulseTick = 0
+
     o.statusTimerId = nil
     o.scanTimerId = nil
     o.closeTimerId = nil
@@ -110,16 +112,14 @@ function MiniGameBitShiftWindow:new(x, y, w, h, player, usbType, diff, laptop, u
     o.titleText = "BIT SHIFTER"
     o.titleShown = 0
     o.titleAcc = 0
-
-    o.tutorialActive = true
-    o.tutorialAlpha = 0.95
+    
+    o.showTutorial = true
     o.particles = {}
     
     o:generatePuzzle()
     return o
 end
 
-{{ ... }}
 function MiniGameBitShiftWindow:generatePuzzle()
     -- Start with all 1s (target state)
     for y = 1, self.gridSize do 
@@ -231,53 +231,37 @@ function MiniGameBitShiftWindow:createChildren()
     self.closeButton = ISButton:new(self.width - 25, 5, 20, 20, "X", self, self.onClose)
     self.closeButton:initialise()
     self:addChild(self.closeButton)
-
-    local startWidth,startHeight=140,42
-    local bottomY=self.height-58
-    self.startButton = ISButton:new((self.width - startWidth) / 2, bottomY, startWidth, startHeight, "START", self, self.onStart)
+    
+    self.startButton = ISButton:new((self.width - 120) / 2, self.height - 55, 120, 45, "START", self, self.onStart)
     self.startButton.borderColor = THEME.border
-    self.startButton.backgroundColor = {r=0.05, g=0.18, b=0.08, a=0.95}
-    self.startButton.backgroundColorMouseOver = {r=0.2, g=1, b=0.2, a=0.95}
+    self.startButton.backgroundColor = {r=0.05, g=0.15, b=0.05, a=0.9}
+    self.startButton.backgroundColorMouseOver = {r=0.2, g=1, b=0.2, a=0.9}
     self.startButton:initialise()
     self:addChild(self.startButton)
-
-    local gridSizePx = math.min(self.width - 80, self.height - 220)
-    local cellSize = math.floor(gridSizePx / self.gridSize)
-    local gridWidth = cellSize * self.gridSize
-    local gridHeight = gridWidth
-    local gx = (self.width - gridWidth) / 2
-    local gy = 110
-
+    
     self.buttons = {}
-    for y = 1, self.gridSize do
+    local cellSize = math.floor(math.min(self.width - 60, self.height - 180) / self.gridSize)
+    local gx = (self.width - cellSize * self.gridSize) / 2
+    local gy = 90  -- Bajar grid ligeramente para evitar overlap con progress bar
+    
+    for y = 1, self.gridSize do 
         self.buttons[y] = {}
-        for x = 1, self.gridSize do
+        for x = 1, self.gridSize do 
             local btn = ISButton:new(
-                gx + (x - 1) * cellSize,
-                gy + (y - 1) * cellSize,
-                cellSize,
-                cellSize,
-                "",
-                self,
-                MiniGameBitShiftWindow.onCellClick
+                gx + (x - 1) * cellSize, 
+                gy + (y - 1) * cellSize, 
+                cellSize, 
+                cellSize, 
+                "", 
+                self, 
+                self.onCellClick
             )
             btn.gridX = x
             btn.gridY = y
             btn:initialise()
-            btn.enable = true
             self:addChild(btn)
             self.buttons[y][x] = btn
         end
-    end
-
-    self.gridOrigin = {x=gx,y=gy,size=cellSize}
-
-    if self.gridSize >= 6 then
-        self.countdownY = gy - 40
-        self.progressY = gy + gridHeight + 12
-    else
-        self.countdownY = gy - 32
-        self.progressY = gy + gridHeight + 20
     end
 
     self:startScanAnimation()
@@ -288,9 +272,9 @@ function MiniGameBitShiftWindow:onStart()
     self.gameActive = true
     self.timeLeft = self.timeLimit
     self.movesLeft = self.moveLimit
-    self.tutorialActive = false
+    self.showTutorial = false
     self.startButton:setVisible(false)
-
+    
     self:startTimer()
     self:triggerFlash(30, {r=0.2, g=1, b=0.2})
     self.statusTextManual = "LINK ESTABLISHED"
@@ -483,7 +467,7 @@ function MiniGameBitShiftWindow:render()
     self:drawCRTOverlay()
     
     -- Tutorial
-    if self.tutorialActive then
+    if self.showTutorial then
         self:renderTutorial()
         return
     end
@@ -500,14 +484,14 @@ function MiniGameBitShiftWindow:render()
     end
     
     local title = string.sub(self.titleText, 1, self.titleShown)
-    self:drawTextCentre(title, self.width / 2, 10, 
+    self:drawTextCentre(title, self.width / 2, 15, 
         THEME.text.r, THEME.text.g, THEME.text.b, THEME.text.a, UIFont.Large)
     
     if self.gameActive then
-        -- HUD
-        self:drawText("TIME: " .. math.ceil(self.timeLeft) .. "s", 10, 40, 
+        -- HUD (posición ajustada para evitar overlap)
+        self:drawText("TIME: " .. math.ceil(self.timeLeft) .. "s", 10, 35,
             THEME.text.r, THEME.text.g, THEME.text.b, 1, UIFont.Small)
-        self:drawText("MOVES: " .. self.movesLeft, self.width - 100, 40, 
+        self:drawText("MOVES: " .. self.movesLeft, self.width - 100, 35,
             THEME.text.r, THEME.text.g, THEME.text.b, 1, UIFont.Small)
         
         -- Progress bar
@@ -525,7 +509,7 @@ function MiniGameBitShiftWindow:render()
         local barWidth = self.width - 40
         local barHeight = 12
         local barX = 20
-        local barY = 58
+        local barY = 70  -- Bajar progress bar para evitar overlap con grid
         
         -- Background
         self:drawRect(barX, barY, barWidth, barHeight, 0.5, 0.1, 0.2, 0.1)
@@ -616,49 +600,54 @@ end
 
 function MiniGameBitShiftWindow:renderTutorial()
     self.statusTextManual = "AWAITING INPUT"
+
+    -- Fondo negro semitransparente para mejorar legibilidad
+    self:drawRect(0, 0, self.width, self.height, 0.45, 0, 0, 0)
+
     local tutY = 40
     local lineHeight = 24
-    
-    self:drawTextCentre("= BIT SHIFTER TUTORIAL =", self.width / 2, tutY, 
+
+    self:drawTextCentre("= BIT SHIFTER TUTORIAL =", self.width / 2, tutY,
         THEME.border.r, THEME.border.g, THEME.border.b, 1, UIFont.Large)
     tutY = tutY + lineHeight * 2
-    
+
     self:drawTextCentre("OBJECTIVE:", self.width / 2, tutY, 1, 1, 1, 1, UIFont.Medium)
     tutY = tutY + lineHeight
     self:drawTextCentre("Turn all bits to 1 (green)", self.width / 2, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
     tutY = tutY + lineHeight * 1.5
-    
+
     self:drawTextCentre("HOW TO PLAY:", self.width / 2, tutY, 1, 1, 1, 1, UIFont.Medium)
     tutY = tutY + lineHeight
     self:drawTextCentre("Click a bit to flip its neighbors", self.width / 2, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
     tutY = tutY + lineHeight
     self:drawTextCentre("(↑ ↓ ← →)", self.width / 2, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
     tutY = tutY + lineHeight * 1.5
-    
+
     self:drawTextCentre("LEGEND:", self.width / 2, tutY, 1, 1, 1, 1, UIFont.Medium)
     tutY = tutY + lineHeight
     self:drawTextCentre("0 = OFF (dark) | 1 = ON (green)", self.width / 2, tutY, 0.8, 0.8, 0.8, 1, UIFont.Small)
     tutY = tutY + lineHeight * 2
-    
-    self:drawTextCentre("Press START when ready!", self.width / 2, tutY, 
-        THEME.border.r, THEME.border.g, THEME.border.b, 1, UIFont.Medium)
+end
+
+function MiniGameBitShiftWindow:onCellClick(btn)
+    if not self.gameActive then return end
+    if not btn or not btn.gridX or not btn.gridY then return end
+    if self.movesLeft <= 0 then return end
+
+    local x, y = btn.gridX, btn.gridY
+    self:applyClick(x, y, self.grid, false)
+    self.movesLeft = self.movesLeft - 1
+
+    self:playSound("UI_Menu_OS_Select")
+
+    if self:checkWin() then
+        self:processFinalResult(true)
+        return
+    end
+
+    if self.movesLeft <= 0 then
+        self:processFinalResult(false)
+    end
 end
 
 -- GLOBAL FUNCTION
-function MiniGame_BitShift(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
-    local player = getPlayer()
-    if not player then return end
-    
-    local screenW = getCore():getScreenWidth()
-    local screenH = getCore():getScreenHeight()
-    local width = math.floor(screenW * (W_PCT / 100))
-    local height = math.floor(screenH * (H_PCT / 100))
-    local x = (screenW - width) / 2
-    local y = (screenH - height) / 2
-    
-    local win = MiniGameBitShiftWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
-    win:initialise()
-    win:addToUIManager()
-    win:bringToTop()
-    return win
-end

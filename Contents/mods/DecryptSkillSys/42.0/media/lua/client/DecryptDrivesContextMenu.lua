@@ -26,7 +26,7 @@ pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 -- TestRandomSelection()  -- Muestra distribución en 20 intentos
 
 -- Lista de minijuegos disponibles
-local AVAILABLE_MINIGAMES = {"sequence", "fallout", "circuit", "packet", "encryption", "laser", "hexflood", "bitshift", "buffer"}
+local AVAILABLE_MINIGAMES = {"sequence", "fallout", "circuit", "packet", "encryption", "bitshift", "buffer"}
 
 -- Función para seleccionar minijuego aleatorio
 local function selectRandomMinigame()
@@ -134,20 +134,6 @@ local function getActiveMinigameConfig()
             reloadFunc = "ReloadMiniGameEncryption",
             displayName = "encryption cracker"
         }
-    elseif currentMinigame == "laser" then
-        return {
-            name = "MiniGame_LaserDeflector",
-            module = "client/MiniGameLaser",
-            reloadFunc = "ReloadMiniGameLaser",
-            displayName = "laser grid deflector"
-        }
-    elseif currentMinigame == "hexflood" then
-        return {
-            name = "MiniGame_HexFlood",
-            module = "client/MiniGameHexFlood",
-            reloadFunc = "ReloadMiniGameHexFlood",
-            displayName = "hex memory flood"
-        }
     elseif currentMinigame == "bitshift" then
         return {
             name = "MiniGame_BitShift",
@@ -173,20 +159,6 @@ local function getActiveMinigameConfig()
     end
 end
 
-local activeConfig = getActiveMinigameConfig()
-debugPrint("MINIGAME_SELECTION", "Active minigame: " .. activeConfig.displayName .. " (" .. activeConfig.name .. ")")
-
--- ✅ CARGAR MINIJUEGOS ADICIONALES
--- Carga de minijuegos adicionales (silencioso)
-local morseGameLoaded = false
-if _G.MiniGameMorse and type(_G.MiniGameMorse) == "function" then
-    morseGameLoaded = true
-else
-    local success, result = pcall(require, "client/MiniGameMorse")
-    if success then
-        morseGameLoaded = true
-    end
-end
 
 local falloutGameLoaded = false
 if _G.MiniGame_Fallout and type(_G.MiniGame_Fallout) == "function" then
