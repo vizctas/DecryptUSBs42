@@ -541,15 +541,13 @@ function MiniGameFalloutWindow:updateActionButtons()
     if self.tryButton then
         local canTry = self.gameActive and self.selectedWordIndex and self.selectedWordIndex > 0
         self.tryButton:setEnable(canTry)
-        self.tryButton:setVisible(true)
+        self.tryButton:setVisible(self.gameActive)
     end
 
     if self.startButton then
         local canStart = not self.gameActive
         self.startButton:setEnable(canStart)
-        if not canStart then
-            self.startButton:setVisible(false)
-        end
+        self.startButton:setVisible(canStart)
     end
 end
 
@@ -666,6 +664,11 @@ function MiniGameFalloutWindow:onStart()
     -- ✅ OCULTAR BOTÓN START para evitar re-roll
     if self.startButton then
         self.startButton:setVisible(false)
+    end
+    if self.tryButton then
+        -- Mostrar DECODE sobre START; habilita cuando haya selección
+        self.tryButton:setVisible(true)
+        self.tryButton:setEnable(false)
     end
 
     -- ✅ FEEDBACK AUDIO/VISUAL
@@ -960,8 +963,14 @@ function MiniGameFalloutWindow:applyResult(success)
     if self.usbType and self.difficulty and self.laptopItem then
         if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
             print("[FALLOUT DEBUG] Calling GVDrive_Utils.applyMinigameResult...")
-            local result = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
-            print("[FALLOUT DEBUG] applyMinigameResult returned: " .. tostring(result))
+            local ok, resultOrErr = pcall(function()
+                return GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
+            end)
+            if ok then
+                print("[FALLOUT DEBUG] applyMinigameResult returned: " .. tostring(resultOrErr))
+            else
+                print("[FALLOUT ERROR] applyMinigameResult failed: " .. tostring(resultOrErr))
+            end
             if success then
                 if self.player then self.player:Say("Password cracked! Experience gained!") end
             else
@@ -1046,8 +1055,10 @@ function MiniGameFalloutWindow:onClose()
         if self.usbType and self.difficulty and self.laptopItem then
             -- Verificar que GVDrive_Utils esté disponible
             if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
-                local success = GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
-                if not success then
+                local ok, success = pcall(function()
+                    return GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, false)
+                end)
+                if not ok or not success then
                     self.player:Say("Laptop damaged from interrupted " .. self.usbType .. " hack!")
                 end
             else
@@ -1137,6 +1148,14 @@ function MiniGameFalloutWindow:render()
 
     ISPanel.render(self)
 
+    -- Ajuste de layout una sola vez tras inicializar
+    if not self._layoutAdjusted then
+        if self.layoutWordButtons then
+            self:layoutWordButtons()
+        end
+        self._layoutAdjusted = true
+    end
+
     if shaking then
         self:setX(originalX)
         self:setY(originalY)
@@ -1217,5 +1236,85 @@ function MiniGameFalloutWindow:render()
         
         self:drawText(attemptsText, 20, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
         self:drawText(timeText, self.width - 120, self.height - 35, 0.2, 1, 0.2, 1, UIFont.Small)
+    end
+end
+
+-- Calcula posiciones y tamaños de los botones de palabras para usar TODO el alto disponible
+function MiniGameFalloutWindow:layoutWordButtons()
+    if not self.wordButtons or #self.wordButtons == 0 then return end
+
+    local sideMargin = 20
+    local columnSpacing = 20
+    local topReserved = 95
+    local bottomReserved = 90
+
+    local wordCount = tonumber(WORD_COUNT) or #self.wordButtons
+    local COLUMN_COUNT = 2
+    local wordsPerColumn = math.ceil(wordCount / COLUMN_COUNT)
+
+    local availableHeight = math.max(80, self.height - topReserved - bottomReserved)
+    local availableWidth = math.max(100, self.width - sideMargin * 2 - columnSpacing)
+    local columnWidth = math.floor(availableWidth / 2)
+
+    local minButtonSize = tonumber(MIN_BUTTON_SIZE) or 18
+    local maxButtonSize = tonumber(MAX_BUTTON_SIZE) or 35
+    local buttonSpacing = tonumber(BUTTON_SPACING) or 8
+
+    local rows = math.max(1, wordsPerColumn)
+    local buttonHeight = math.floor((availableHeight - (rows - 1) * buttonSpacing) / rows)
+
+    if buttonHeight < minButtonSize then
+        buttonSpacing = math.max(4, math.floor(buttonSpacing * 0.6))
+        buttonHeight = math.floor((availableHeight - (rows - 1) * buttonSpacing) / rows)
+        if buttonHeight < minButtonSize then
+            buttonHeight = minButtonSize
+        end
+    end
+    if buttonHeight > maxButtonSize then
+        buttonHeight = maxButtonSize
+        local used = rows * buttonHeight
+        local extra = math.max(0, availableHeight - used)
+        buttonSpacing = rows > 1 and math.floor(extra / (rows - 1)) or buttonSpacing
+    end
+
+    local startY = topReserved
+
+    for i = 1, #self.wordButtons do
+        local column = math.ceil(i / wordsPerColumn)
+        local rowInColumn = ((i - 1) % wordsPerColumn) + 1
+
+        local x = (column == 1) and sideMargin or (sideMargin + columnWidth + columnSpacing)
+        local y = startY + (rowInColumn - 1) * (buttonHeight + buttonSpacing)
+
+        local btn = self.wordButtons[i]
+        if btn then
+            btn:setX(x)
+            btn:setY(y)
+            btn:setWidth(columnWidth)
+            btn:setHeight(buttonHeight)
+            btn:setVisible(i <= wordCount)
+        end
+    end
+
+    -- Reposicionar botones de acción al borde inferior reservado
+    local actionY = self.height - math.floor(bottomReserved * 0.6)
+    local actionWidth = 100
+    local actionX = math.floor((self.width - actionWidth) / 2)
+    if self.startButton then
+        self.startButton:setX(actionX)
+        self.startButton:setY(actionY)
+        self.startButton:setWidth(actionWidth)
+        -- START visible solo si el juego aún no inició
+        self.startButton:setVisible(not self.gameActive)
+    end
+    if self.tryButton then
+        self.tryButton:setX(actionX)
+        self.tryButton:setY(actionY)
+        self.tryButton:setWidth(actionWidth)
+        -- DECODE oculto hasta que el juego esté activo
+        if not self.gameActive then
+            self.tryButton:setVisible(false)
+            self.tryButton:setEnable(false)
+        end
     end
 end

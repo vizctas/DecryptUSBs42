@@ -3,6 +3,26 @@
 
 NeuralBoostSystem = NeuralBoostSystem or {}
 
+--
+-- Early helper: warning throttle used by addBoost()
+-- Define it BEFORE any call sites to avoid "call nil" during early invokes.
+--
+local lastWarningTime = 0
+local WARNING_COOLDOWN = 300  -- ticks (engine tick, ~5s window)
+local function shouldPrintWarning()
+    local getTs = _G.getTimestamp
+    local now = 0
+    if type(getTs) == 'function' then
+        local ok, v = pcall(getTs)
+        if ok and type(v) == 'number' then now = v end
+    end
+    if (now - lastWarningTime) > WARNING_COOLDOWN then
+        lastWarningTime = now
+        return true
+    end
+    return false
+end
+
 -- ============================================================================
 -- CONFIGURACIÓN
 -- ============================================================================
@@ -149,8 +169,10 @@ function NeuralBoostSystem.addBoost(player, boostType)
     
     -- Notificación visual con HaloText
     if HaloTextHelper and HaloTextHelper.addText then
-        HaloTextHelper.addText(player, boostData.name .. " (" .. duration .. "min)", false, 
-            HaloTextHelper.getColorGreen())
+        pcall(function()
+            HaloTextHelper.addText(player, boostData.name .. " (" .. duration .. "min)", false,
+                HaloTextHelper.getColorGreen())
+        end)
     end
     
     return true
@@ -387,8 +409,9 @@ function NeuralBoostSystem.modifyXPGain(player, skill, baseXP)
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
             local bonus = modifiedXP - baseXP
-            HaloTextHelper.addText(player, "Focus Bonus: +" .. math.floor(bonus) .. " XP", false, 
-                HaloTextHelper.getColorYellow())
+            pcall(function()
+                HaloTextHelper.addText(player, "Focus Bonus: +" .. math.floor(bonus) .. " XP", false, HaloTextHelper.getColorYellow())
+            end)
         end
     end
     
@@ -400,17 +423,8 @@ end
 -- ============================================================================
 
 -- Sistema de throttling para logs (evitar spam)
-local lastWarningTime = 0
-local WARNING_COOLDOWN = 300  -- 5 minutos en ticks (300 ticks = 5 segundos aprox)
-
-local function shouldPrintWarning()
-    local currentTick = getTimestamp()
-    if currentTick - lastWarningTime > WARNING_COOLDOWN then
-        lastWarningTime = currentTick
-        return true
-    end
-    return false
-end
+-- Nota: La implementación se movió al inicio del archivo para evitar
+-- llamadas tempranas desde addBoost() cuando aún no estaba definido.
 
 -- Actualizar buffs cada 10 minutos
 local function onEveryTenMinutes()

@@ -651,3 +651,34 @@ function MiniGameBitShiftWindow:onCellClick(btn)
 end
 
 -- GLOBAL FUNCTION
+function MiniGame_BitShift(widthPct, heightPct, usbType, difficulty, laptopItem, usbData)
+    local player = getPlayer()
+    if not player then 
+        print("[BitShift] No player found")
+        return 
+    end
+
+    widthPct = tonumber(widthPct) or W_PCT
+    heightPct = tonumber(heightPct) or H_PCT
+
+    local screenW = getCore():getScreenWidth()
+    local screenH = getCore():getScreenHeight()
+    local width = math.max(300, math.floor(screenW * (widthPct / 100)))
+    local height = math.max(300, math.floor(screenH * (heightPct / 100)))
+    local x = math.floor((screenW - width) / 2)
+    local y = math.floor((screenH - height) / 2)
+
+    local window = MiniGameBitShiftWindow:new(x, y, width, height, player, usbType, difficulty, laptopItem, usbData)
+    window:initialise()
+    window:addToUIManager()
+    window:bringToTop()
+    window:setVisible(true)
+    
+    print("[BitShift] Window created successfully")
+    return window
+end
+
+-- Registrar función global
+_G.MiniGame_BitShift = MiniGame_BitShift
+
+print("[DecryptSkillSys] MiniGameBitShift.lua loaded successfully - BitShift minigame system ready")

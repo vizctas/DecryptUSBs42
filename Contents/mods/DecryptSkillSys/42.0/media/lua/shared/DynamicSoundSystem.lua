@@ -58,11 +58,8 @@ end
 
 -- Sonido de fallo
 function DynamicSoundSystem.playFailureSound(player)
-    if not player or not getSoundManager() then return end
-    
-    local volume = DynamicSoundSystem.VOLUMES.failure
-    getSoundManager():PlaySound("failure", false, volume)
-    print("[DynamicSound] Playing failure sound (failure.ogg)")
+    -- Deshabilitado a petición: no reproducir failure.ogg
+    return
 end
 
 -- ============================================================================
@@ -84,8 +81,8 @@ function DynamicSoundSystem.playWarningBeep(player, urgent)
     DynamicSoundSystem.lastSoundTime["warning_beep"] = currentTime
     
     local volume = urgent and DynamicSoundSystem.VOLUMES.warning * 1.5 or DynamicSoundSystem.VOLUMES.warning
-    getSoundManager():PlaySound("alarm", false, volume * 0.2)
-    print("[DynamicSound] Playing warning beep " .. (urgent and "(URGENT)" or ""))
+    --getSoundManager():PlaySound("alarm", false, volume * 0.2)
+    --print("[DynamicSound] Playing warning beep " .. (urgent and "(URGENT)" or ""))
 end
 
 -- Sonido de alarma de sobrecalentamiento
@@ -93,8 +90,8 @@ function DynamicSoundSystem.playOverheatAlarm(player)
     if not player or not getSoundManager() then return end
     
     local volume = DynamicSoundSystem.VOLUMES.alarm
-    getSoundManager():PlaySound("alarm", false, volume * 0.5)
-    print("[DynamicSound] Playing overheat alarm")
+    --getSoundManager():PlaySound("alarm", false, volume * 0.5)
+    --print("[DynamicSound] Playing overheat alarm")
 end
 
 -- ============================================================================
@@ -144,8 +141,8 @@ function DynamicSoundSystem.playFanSound(player, temperature)
     local tempRatio = (temperature - 60) / 40  -- 0.0 a 1.0
     local volume = DynamicSoundSystem.VOLUMES.fan + (tempRatio * 0.3)
     
-    getSoundManager():PlaySound("alarm", false, volume * 0.15)
-    print("[DynamicSound] Playing fan sound (temp: " .. temperature .. "°C, volume: " .. volume .. ")")
+    --getSoundManager():PlaySound("alarm", false, volume * 0.15)
+    --print("[DynamicSound] Playing fan sound (temp: " .. temperature .. "°C, volume: " .. volume .. ")")
 end
 
 -- ============================================================================
@@ -175,7 +172,7 @@ function DynamicSoundSystem.playMinigameEndSequence(player, success, isEpic)
             print("[DynamicSound] Epic success sequence")
         end
     else
-        DynamicSoundSystem.playFailureSound(player)
+        -- Failure sound deshabilitado
     end
 end
 

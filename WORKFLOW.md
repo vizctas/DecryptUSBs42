@@ -2,6 +2,57 @@
 
 ## Registro de Cambios y Actividades
 
+### 2025-10-04 01:15 - Fix global HaloText y muteo failure.ogg
+
+Estado actual del código: estable
+Resumen: Evitado crash por HaloTextHelper en sorpresas/bonos y deshabilitado sonido de fallo.
+Impacto esperado: Ventanas de minijuegos cierran correctamente, XP se otorga; no suena failure.ogg.
+
+Detalles:
+- USBSurpriseSystem: agregado `SafeHaloText()` y reemplazadas llamadas `HaloTextHelper.addText(...)` por versión protegida.
+- MiniGameEncryption/MiniGameFallout: `applyMinigameResult` ahora se ejecuta con `pcall` para no interrumpir cierre/XP si una integración falla.
+- DynamicSoundSystem: `playFailureSound()` ahora no reproduce `failure.ogg` y la secuencia de fin no lo invoca.
+- MiniGameEncryption: mayor separación en HISTORY (`attemptSpacing = 50`, símbolo en `+22`).
+
+Docs actualizadas:
+- `docs/GLOBAL_SAFE_HALO_TEXT_FIX_2025-10-04.md`
+
+### 2025-10-04 00:45 - Fix addBoost nil y espaciado HISTORY
+
+Estado actual del código: estable
+Resumen: Evitado error "Object tried to call nil in addBoost" moviendo utilidades de logging arriba; mejorada separación vertical en HISTORY del minijuego de Encryption.
+Impacto esperado: Sin crash al terminar minijuegos con NeuralBoost; mejor legibilidad de intentos en Encryption.
+
+Detalles:
+- NeuralBoostSystem: `shouldPrintWarning()` y estados se movieron al inicio del archivo para estar definidos antes de `addBoost()`.
+- MiniGameEncryption: `attemptSpacing = 45`, símbolo dibujado a `historyY + 18`.
+- Documentación añadida:
+  - `docs/NEURAL_BOOST_FIX_addBoost_INIT_2025-10-04.md`
+  - `docs/ENCRYPTION_MINIGAME_HISTORY_SPACING_2025-10-04.md`
+
+### 2025-10-04 00:20 - MiniGameFallout: Separación y flujo START→DECODE
+
+Estado actual del código: estable
+Resumen: Reducida separación vertical de palabras, mayor margen superior del área jugable para evitar overlap con título/Hint; START ahora se transforma en DECODE en la misma posición centrada.
+Impacto esperado: UI más limpia y flujo de interacción más claro; afecta solo `MiniGameFallout.lua` (layout y visibilidad de botones).
+
+Detalles:
+- `layoutWordButtons()` ajusta `topReserved` y `buttonSpacing`, distribuye filas y centra START/DECODE.
+- `updateActionButtons()` ahora muestra DECODE solo cuando el juego está activo y START solo cuando no lo está.
+- `onStart()` oculta START y hace visible DECODE deshabilitado hasta que haya selección.
+- Documentación en `docs/MINIGAME_FALLOUT_UI_TWEAKS_2025-10-04.md`.
+
+### 2025-10-04 00:00 - MiniGameFallout: Ajuste dinámico de layout de palabras
+
+Estado actual del código: estable
+Resumen: Se distribuyen los botones de palabras para ocupar el alto disponible de la ventana y se reubican START/DECODE.
+Impacto esperado: Mejora visual del minijuego Fallout; afecta solo `MiniGameFallout.lua` (layout UI), sin cambios en lógica de juego.
+
+Detalles:
+- Se añadió `layoutWordButtons()` para calcular posiciones y tamaños basados en `wordsPerColumn`, márgenes y área útil.
+- Se invoca una sola vez desde `render()` tras inicialización para evitar problemas de codificación al editar `createChildren()`.
+- Documentación agregada en `docs/MINIGAME_FALLOUT_LAYOUT_FIX_2025-10-04.md`.
+
 ### 2025-09-30 21:40 - Sistema de Eventos Aleatorios por Fallos - IMPLEMENTACIÓN COMPLETA
 
 **Estado anterior del código:** Contador de fallos funcional pero sin consecuencias

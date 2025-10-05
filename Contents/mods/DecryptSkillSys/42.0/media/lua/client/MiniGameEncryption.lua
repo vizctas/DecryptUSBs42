@@ -414,9 +414,14 @@ function MiniGameEncryptionWindow:processFinalResult(success)
         end
     end
     
-    -- Apply minigame result
+    -- Apply minigame result (protegido)
     if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
-        GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
+        local ok, err = pcall(function()
+            GVDrive_Utils.applyMinigameResult(self.player, self.laptopItem, self.usbType, self.difficulty, success)
+        end)
+        if not ok then
+            print("[MiniGameEncryption] applyMinigameResult error:", tostring(err))
+        end
     end
     
     if success then
@@ -553,7 +558,8 @@ function MiniGameEncryptionWindow:render()
         self:drawText("HISTORY:", 20, historyY, THEME.text_info.r, THEME.text_info.g, THEME.text_info.b, THEME.text_info.a, UIFont.Small)
         historyY = historyY + 25
 
-        local attemptSpacing = 35 -- Vertical space between attempts
+        -- Más separación vertical para que los símbolos O/X no colisionen
+        local attemptSpacing = 50 -- Vertical space between attempts (antes 35)
         local charSpacing = 25 -- Horizontal space between characters
 
         for i, attempt in ipairs(self.attempts) do
@@ -585,7 +591,8 @@ function MiniGameEncryptionWindow:render()
                     color = THEME.incorrect
                 end
                 
-                self:drawText(symbol, charX, historyY + 15, color.r, color.g, color.b, color.a, UIFont.Small)
+                -- Colocar símbolo un poco más abajo para dejar aire con la línea siguiente
+                self:drawText(symbol, charX, historyY + 22, color.r, color.g, color.b, color.a, UIFont.Small)
             end
             
             historyY = historyY + attemptSpacing

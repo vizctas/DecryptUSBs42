@@ -3,6 +3,30 @@
 
 USBSurpriseSystem = USBSurpriseSystem or {}
 
+-- Safe HaloText wrapper: avoids crashes if API signature changed or missing
+local function SafeHaloText(player, text, color)
+    local ok = false
+    if HaloTextHelper then
+        local col = color
+        if not col and HaloTextHelper.getColorGreen then
+            col = HaloTextHelper.getColorGreen()
+        end
+        if HaloTextHelper.addText then
+            local s = pcall(function() HaloTextHelper.addText(player, tostring(text), false, col) end)
+            if s then ok = true end
+        end
+        if (not ok) and HaloTextHelper.AddText then
+            local s = pcall(function() HaloTextHelper:AddText(player, tostring(text), false, col) end)
+            if s then ok = true end
+        end
+    end
+    if not ok and player and player.Say then
+        pcall(function() player:Say(tostring(text)) end)
+        ok = true
+    end
+    return ok
+end
+
 -- ============================================================================
 -- CONFIGURACIÓN
 -- ============================================================================
@@ -103,8 +127,7 @@ function USBSurpriseSystem.giveDigitalSchematic(player)
         
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
-            HaloTextHelper.addText(player, "New Recipe Unlocked!", false, 
-                HaloTextHelper.getColorGreen())
+            SafeHaloText(player, "New Recipe Unlocked!", HaloTextHelper and HaloTextHelper.getColorGreen and HaloTextHelper.getColorGreen() or nil)
         end
         
         return true, "recipe"
@@ -178,8 +201,7 @@ function USBSurpriseSystem.giveSurvivalTip(player)
     
     -- Notificación visual
     if HaloTextHelper and HaloTextHelper.addText then
-        HaloTextHelper.addText(player, "Survival Tip Received!", false, 
-            HaloTextHelper.getColorGreen())
+        SafeHaloText(player, "Survival Tip Received!", HaloTextHelper and HaloTextHelper.getColorGreen and HaloTextHelper.getColorGreen() or nil)
     end
     
     return true, "buff"
@@ -222,16 +244,14 @@ function USBSurpriseSystem.giveMapFragment(player)
         
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
-            HaloTextHelper.addText(player, "TREASURE MAP COMPLETE!", false, 
-                HaloTextHelper.getColorOrange())
+            SafeHaloText(player, "TREASURE MAP COMPLETE!", HaloTextHelper and HaloTextHelper.getColorOrange and HaloTextHelper.getColorOrange() or nil)
         end
         
         return true, "map_complete"
     else
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
-            HaloTextHelper.addText(player, "Map Fragment +" .. fragmentCount .. "/5", false, 
-                HaloTextHelper.getColorYellow())
+            SafeHaloText(player, "Map Fragment +" .. fragmentCount .. "/5", HaloTextHelper and HaloTextHelper.getColorYellow and HaloTextHelper.getColorYellow() or nil)
         end
         
         return true, "map_fragment"
@@ -261,8 +281,7 @@ function USBSurpriseSystem.giveBonusXP(player)
         
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
-            HaloTextHelper.addText(player, "Bonus XP +" .. bonusXP, false, 
-                HaloTextHelper.getColorGreen())
+            SafeHaloText(player, "Bonus XP +" .. bonusXP, HaloTextHelper and HaloTextHelper.getColorGreen and HaloTextHelper.getColorGreen() or nil)
         end
         
         return true, "bonus_xp"
@@ -313,8 +332,7 @@ function USBSurpriseSystem.giveRareItem(player)
         
         -- Notificación visual
         if HaloTextHelper and HaloTextHelper.addText then
-            HaloTextHelper.addText(player, "RARE: " .. selectedItem.name, false, 
-                HaloTextHelper.getColorOrange())
+            SafeHaloText(player, "RARE: " .. selectedItem.name, HaloTextHelper and HaloTextHelper.getColorOrange and HaloTextHelper.getColorOrange() or nil)
         end
         
         return true, "rare_item"
