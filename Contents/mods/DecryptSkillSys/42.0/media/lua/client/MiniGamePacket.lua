@@ -34,13 +34,13 @@ end
 
 -- ========== WINDOW CONFIGURATION ==========
 local WINDOW_WIDTH_PERCENT = 25      -- % of screen width (20-60 recommended)
-local WINDOW_HEIGHT_PERCENT = 40     -- % of screen height (40-80 recommended)
+local WINDOW_HEIGHT_PERCENT = 36     -- % of screen height (40-80 recommended)
 local TITLE_TYPEWRITER_DELAY = 3     -- Ticks between title letters
 
 -- ========== GAME SETTINGS ==========
-local LANE_COUNTS = { Easy = 3, Moderate = 4, Expert = 5 }
-local TIME_LIMITS = { Easy = 15, Moderate = 18, Expert = 20 } -- ⚡ Reducido significativamente
-local PACKET_SPEEDS = { Easy = 7, Moderate = 9, Expert = 11 } -- pixels/tick (6-8x más rápido)
+local LANE_COUNTS = { Easy = 3, Moderate = 4, Expert = 4 }
+local TIME_LIMITS = { Easy = 18, Moderate = 20, Expert = 22 } -- ⚡ Reducido significativamente
+local PACKET_SPEEDS = { Easy = 8, Moderate = 9, Expert = 11 } -- pixels/tick (6-8x más rápido)
 local SPAWN_RATES = { Easy = 50, Moderate = 45, Expert = 40 } -- ⚡ Ligeramente más espaciado
 local HIT_WINDOWS = { Easy = 25, Moderate = 18, Expert = 15 } -- pixels tolerance (más generoso)
 local MISS_PENALTIES = { Easy = 0, Moderate = -1, Expert = -1 } -- seconds

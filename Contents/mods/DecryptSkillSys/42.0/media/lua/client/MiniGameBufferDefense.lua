@@ -18,10 +18,10 @@ local W_PCT,H_PCT=30,48
 local GRID_PADDING={top=120,left=70,right=70,bottom=140}
 
 -- 🎮 OLEADAS Y DIFICULTAD ESCALADA
-local WAVE_COUNTS={Easy=2,Moderate=3,Expert=4}
+local WAVE_COUNTS={Easy=2,Moderate=3,Expert=3}
 
 -- 🏃 VELOCIDAD BASE DE ENEMIGOS (se incrementa cada oleada)
-local EXPLOIT_SPEEDS={Easy=4.5,Moderate=6.5,Expert=8.5}
+local EXPLOIT_SPEEDS={Easy=5.5,Moderate=6.9,Expert=8.8}
 
 -- ⏱️ SPAWN RATE (ticks entre spawns)
 local SPAWN_RATES={Easy=24,Moderate=18,Expert=12}
@@ -33,7 +33,7 @@ local EXPLOITS_PER_WAVE={Easy=14,Moderate=20,Expert=28}
 local EXPLOIT_HPS={Easy=1,Moderate=2,Expert=3}
 local ELITE_INTERVAL={Easy=6,Moderate=5,Expert=4}
 local ELITE_HP_BONUS=2
-local ELITE_SPEED_BONUS=1.4
+local ELITE_SPEED_BONUS=1.5
 
 -- 🛡️ CONFIGURACIÓN ESTRATÉGICA
 local LANE_COUNTS={Easy=4,Moderate=5,Expert=6}
