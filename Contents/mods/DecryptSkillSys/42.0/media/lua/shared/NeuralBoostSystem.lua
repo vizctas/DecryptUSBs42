@@ -23,6 +23,28 @@ local function shouldPrintWarning()
     return false
 end
 
+local function SafeHaloText(player, text, color)
+    if not (player and HaloTextHelper) then return false end
+
+    local col = color
+    if not col and HaloTextHelper.getColorGreen then
+        local ok, value = pcall(function() return HaloTextHelper.getColorGreen() end)
+        if ok then col = value end
+    end
+
+    if HaloTextHelper.addText then
+        local ok = pcall(HaloTextHelper.addText, player, tostring(text), false, col)
+        if ok then return true end
+    end
+
+    if HaloTextHelper.AddText then
+        local ok = pcall(HaloTextHelper.AddText, HaloTextHelper, player, tostring(text), false, col)
+        if ok then return true end
+    end
+
+    return false
+end
+
 -- ============================================================================
 -- CONFIGURACIÓN
 -- ============================================================================
@@ -161,24 +183,17 @@ function NeuralBoostSystem.addBoost(player, boostType)
     -- Aplicar efecto inmediato si es Pack Mule
     if boostType == "pack_mule" then
         NeuralBoostSystem.applyPackMuleBoost(player, true)
-    end
-    
-    -- Mensaje al jugador
     player:Say(boostData.icon .. " " .. boostData.name .. " ACTIVATED!")
     print("[NeuralBoost] Boost activated: " .. boostType .. " for " .. duration .. " minutes")
     
     -- Notificación visual con HaloText
-    if HaloTextHelper and HaloTextHelper.addText then
-        pcall(function()
-            HaloTextHelper.addText(player, boostData.name .. " (" .. duration .. "min)", false,
-                HaloTextHelper.getColorGreen())
-        end)
-    end
+    SafeHaloText(player, boostData.name .. " (" .. duration .. "min)", HaloTextHelper and HaloTextHelper.getColorGreen and HaloTextHelper.getColorGreen() or nil)
     
     return true
 end
 
 -- Remover un boost expirado
+{{ ... }}
 function NeuralBoostSystem.removeBoost(player, boostType)
     if not player then return end
     

@@ -572,8 +572,8 @@ end
 
 function GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
     -- Calcular XP usando configuración sandbox
-    local minXP = getSandboxNumber("USB_Min_Experience", 25)
-    local maxXP = getSandboxNumber("USB_Max_Experience", 50)
+    local minXP = getSandboxNumber("USB_Min_Experience", 10)
+    local maxXP = getSandboxNumber("USB_Max_Experience", 45)
 
     -- Generar valor aleatorio
     local baseXP = ZombRand(minXP, maxXP + 1)
@@ -581,11 +581,11 @@ function GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
     -- Aplicar multiplicador por dificultad
     local multiplier = 1.0
     if difficulty == "Easy" then
-        multiplier = getSandboxNumber("Facil_Success_Bonus", 0.8)
+        multiplier = getSandboxNumber("Facil_XP_Bonus", 1.55)
     elseif difficulty == "Moderate" then
-        multiplier = getSandboxNumber("Moderado_Success_Bonus", 1.2)
+        multiplier = getSandboxNumber("Moderado_XP_Bonus", 2.85)
     elseif difficulty == "Expert" then
-        multiplier = getSandboxNumber("Dificil_Success_Bonus", 1.5)
+        multiplier = getSandboxNumber("Dificil_XP_Bonus", 4.5)
     end
 
     local finalXP = math.floor(baseXP * multiplier)
@@ -633,7 +633,11 @@ function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, diffic
         end
         
         player:getXp():AddXP(perk, xp)
-        print("GVDrive_Utils: Awarded " .. xp .. " XP in " .. skillType)
+        
+        -- Calcular XP real considerando multiplicador global del juego
+        local xpMultiplier = SandboxVars.XPMultiplier or 1.0
+        local actualXP = xp * xpMultiplier
+        print("GVDrive_Utils: Awarded " .. math.floor(actualXP * 10) / 10 .. " XP in " .. skillType)
         
         -- 🎁 USB SURPRISE: Verificar si hay sorpresa
         if USBSurpriseSystem and USBSurpriseSystem.triggerSurprise then

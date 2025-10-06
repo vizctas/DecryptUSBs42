@@ -236,15 +236,16 @@ function DynamicSoundSystem.onTemperatureCheck(player, laptop)
     if LaptopThermalSystem and LaptopThermalSystem.getTemperature then
         local temp = LaptopThermalSystem.getTemperature(laptop)
         
-        -- Ventilador si está caliente
-        if temp >= 60 and temp < 85 then
-            DynamicSoundSystem.playFanSound(player, temp)
-        end
+        -- Ventilador si está caliente (DESACTIVADO - sonido alarm.ogg deshabilitado)
+        -- if temp >= 60 and temp < 85 then
+        --     DynamicSoundSystem.playFanSound(player, temp)
+        -- end
         
         -- Alarma si está crítico
         if temp >= 85 then
             DynamicSoundSystem.playOverheatAlarm(player)
         end
+        -- close outer LaptopThermalSystem check
     end
 end
 
@@ -255,10 +256,10 @@ function DynamicSoundSystem.onLaptopHealthCheck(player, laptop)
     if LaptopSystem and LaptopSystem.getLaptopHealth then
         local health = LaptopSystem.getLaptopHealth(laptop)
         
-        -- Beep de advertencia si salud baja
-        if health <= 15 and health > 0 then
-            DynamicSoundSystem.playWarningBeep(player, health <= 5)
-        end
+        -- Beep de advertencia si salud baja (DESACTIVADO - sonido alarm.ogg deshabilitado)
+        -- if health <= 15 and health > 0 then
+        --     DynamicSoundSystem.playWarningBeep(player, health <= 5)
+        -- end
     end
 end
 
