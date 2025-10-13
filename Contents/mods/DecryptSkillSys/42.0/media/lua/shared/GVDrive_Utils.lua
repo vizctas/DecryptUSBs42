@@ -117,15 +117,9 @@ function GVDrive_Utils.getSandboxNumber(name, default)
     local v = getSandboxNumber(name, default)
     -- Conversion table: keys that use the 0..5 scale and should be mapped to base percent or numeric
     local scale5_keys = {
-        USB_WorldLoot_Chance = true,
         Laptop_WorldLoot_Chance = true,
         EliteDrive_WorldLoot_Chance = true,
         SkillUSB_WorldLoot_Chance = true,
-        USB_ZombieDrop_Chance = true,
-        Laptop_ZombieDrop_Chance = true,
-        EliteDrive_ZombieDrop_Chance = true,
-        Antivirus_ZombieDrop_Chance = true,
-        Antivirus_Norton_Drop_Rate = true,
         Antivirus_Kaspersky_Drop_Rate = true,
         Antivirus_McAfee_Drop_Rate = true,
         Antivirus_MalwareBytes_Drop_Rate = true,
@@ -481,14 +475,9 @@ function GVDrive_Utils.getSandboxKeyMeta(name)
     local defaultMeta = { min = 0.0, max = 100.0, def = 0.0, scale = "percent" }
 
     local scale5 = {
-        USB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
         Laptop_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
         EliteDrive_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.1, scale = "0-5" },
         SkillUSB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
-        USB_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
-        Laptop_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.125, scale = "0-5" },
-        EliteDrive_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.05, scale = "0-5" },
-        Antivirus_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.167, scale = "0-5" },
         Antivirus_Norton_Drop_Rate = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
         Antivirus_Kaspersky_Drop_Rate = { min = 0.0, max = 5.0, def = 0.3, scale = "0-5" },
         Antivirus_McAfee_Drop_Rate = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
@@ -496,8 +485,20 @@ function GVDrive_Utils.getSandboxKeyMeta(name)
         Antivirus_Spawn_Rate = { min = 0.0, max = 5.0, def = 2.0, scale = "0-5" },
     }
 
+    local percentMeta = {
+        USB_WorldLoot_Chance = { min = 0.0, max = 100.0, def = 2.0, scale = "percent" },
+        USB_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 60.0, scale = "percent" },
+        Laptop_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 24.0, scale = "percent" },
+        EliteDrive_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 18.0, scale = "percent" },
+        Antivirus_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 30.0, scale = "percent" },
+    }
+
     if name and scale5[name] then
         return scale5[name]
+    end
+
+    if name and percentMeta[name] then
+        return percentMeta[name]
     end
 
     -- Numeric keys that are direct percentages or counts
@@ -550,14 +551,9 @@ function GVDrive_Utils.getSandboxPercent(name, default)
     if n < 0 then return 0 end
     -- If the key is one that uses the 0..5 normalized scale, convert to percent
     local scale5_keys = {
-        USB_WorldLoot_Chance = true,
         Laptop_WorldLoot_Chance = true,
         EliteDrive_WorldLoot_Chance = true,
         SkillUSB_WorldLoot_Chance = true,
-        USB_ZombieDrop_Chance = true,
-        Laptop_ZombieDrop_Chance = true,
-        EliteDrive_ZombieDrop_Chance = true,
-        Antivirus_ZombieDrop_Chance = true,
         Antivirus_Spawn_Rate = true,
     }
 

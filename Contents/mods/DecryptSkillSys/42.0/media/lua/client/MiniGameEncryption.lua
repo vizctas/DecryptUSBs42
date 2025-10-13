@@ -405,7 +405,14 @@ function MiniGameEncryptionWindow:processFinalResult(success)
     -- Increment failure count if failed
     if not success and self.laptopItem then
         if isClient() then
-            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+            -- ✅ MULTIPLAYER: Enviar solo ID del item
+            local laptopID = self.laptopItem:getID()
+            if laptopID then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { 
+                    laptopID = laptopID,
+                    playerIndex = self.player:getPlayerNum()
+                })
+            end
         else
             if LaptopSystem and LaptopSystem.incrementFailureCount then
                 local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)

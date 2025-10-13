@@ -757,13 +757,13 @@ function MiniGameFalloutWindow:onTimeUp()
     -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
     if self.laptopItem then
         if isClient() then
-            -- Multiplayer: enviar comando al servidor
-            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
-        else
-            -- Singleplayer: incrementar directamente
-            if LaptopSystem and LaptopSystem.incrementFailureCount then
-                local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)
-                print("[MiniGameFallout] Failure count incremented to: " .. tostring(newCount))
+            -- ✅ MULTIPLAYER: Enviar solo ID del item
+            local laptopID = self.laptopItem:getID()
+            if laptopID then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { 
+                    laptopID = laptopID,
+                    playerIndex = self.player:getPlayerNum()
+                })
             end
         end
     end
@@ -851,7 +851,14 @@ function MiniGameFalloutWindow:onTry()
         -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
         if self.laptopItem then
             if isClient() then
-                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+                -- ✅ MULTIPLAYER: Enviar solo ID del item
+                local laptopID = self.laptopItem:getID()
+                if laptopID then
+                    sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { 
+                        laptopID = laptopID,
+                        playerIndex = self.player:getPlayerNum()
+                    })
+                end
             else
                 if LaptopSystem and LaptopSystem.incrementFailureCount then
                     local newCount = LaptopSystem.incrementFailureCount(self.laptopItem)

@@ -21,10 +21,19 @@ end
 
 require("client/TimedActions/LaptopFill")
 
--- Load MiniGame UI
-require("client/MiniGameUI")
-require("client/MiniGameFallout")
-require("client/MiniGameCircuit")
+-- Load all MiniGames
+print("[DecryptSkillSys][DEBUG] ClientInit: Loading minigames...")
+pcall(require, "client/MiniGameUI")
+pcall(require, "client/MiniGameFallout")
+pcall(require, "client/MiniGameCircuit")
+pcall(require, "client/MiniGamePacket")
+pcall(require, "client/MiniGameEncryption")
+pcall(require, "client/MiniGameLaser")
+pcall(require, "client/MiniGameHexFlood")
+pcall(require, "client/MiniGameBitShift")
+pcall(require, "client/MiniGameBufferDefense")
+pcall(require, "client/MiniGameRewardHelper")
+print("[DecryptSkillSys][DEBUG] ClientInit: Minigames loaded")
 
 -- Load Laptop Events System
 pcall(require, "shared/LaptopEvents")

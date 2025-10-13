@@ -183,6 +183,8 @@ function NeuralBoostSystem.addBoost(player, boostType)
     -- Aplicar efecto inmediato si es Pack Mule
     if boostType == "pack_mule" then
         NeuralBoostSystem.applyPackMuleBoost(player, true)
+    end
+    
     player:Say(boostData.icon .. " " .. boostData.name .. " ACTIVATED!")
     print("[NeuralBoost] Boost activated: " .. boostType .. " for " .. duration .. " minutes")
     
@@ -193,7 +195,6 @@ function NeuralBoostSystem.addBoost(player, boostType)
 end
 
 -- Remover un boost expirado
-{{ ... }}
 function NeuralBoostSystem.removeBoost(player, boostType)
     if not player then return end
     
@@ -291,10 +292,16 @@ function NeuralBoostSystem.applyMetabolicBoost(player)
     if stats then
         local currentHunger = stats:getHunger()
         local currentThirst = stats:getThirst()
-        
-        -- Reducir progresión de hambre/sed en 50%
-        stats:setHunger(currentHunger * 0.98)  -- Compensar acumulación
-        stats:setThirst(currentThirst * 0.98)
+
+        local boost = NeuralBoostSystem.BOOST_TYPES.metabolic
+        local hungerMultiplier = boost and tonumber(boost.hungerMultiplier) or 0.5
+        local thirstMultiplier = boost and tonumber(boost.thirstMultiplier) or hungerMultiplier
+
+        local hungerFactor = 1 - ((1 - hungerMultiplier) * 0.04)  -- 0.5 => 0.98
+        local thirstFactor = 1 - ((1 - thirstMultiplier) * 0.04)
+
+        stats:setHunger(currentHunger * hungerFactor)
+        stats:setThirst(currentThirst * thirstFactor)
     end
 end
 
@@ -327,6 +334,7 @@ function NeuralBoostSystem.applyPackMuleBoost(player, isActivating)
         
         if baseWeight then
             player:setMaxWeight(baseWeight)
+            modData.GVDrive_BaseMaxWeight = nil
             print("[NeuralBoost] Pack Mule deactivated: restored to " .. baseWeight .. " kg")
         else
             -- Fallback: reducir por el bonus
@@ -334,6 +342,7 @@ function NeuralBoostSystem.applyPackMuleBoost(player, isActivating)
             local newMax = math.max(8, currentMax - carryBonus)  -- Mínimo 8kg
             player:setMaxWeight(newMax)
             print("[NeuralBoost] Pack Mule deactivated: " .. currentMax .. " -> " .. newMax .. " kg")
+            modData.GVDrive_BaseMaxWeight = nil
         end
     end
 end
@@ -362,6 +371,8 @@ function NeuralBoostSystem.shouldBeBoost(difficulty)
         chance = chance * modifier
     end
     
+    chance = math.max(0, math.min(chance, 100))
+
     local roll = ZombRand(100)
     print("[NeuralBoost] Boost roll: " .. roll .. " vs " .. chance .. "% (difficulty: " .. difficulty .. ")")
     
@@ -397,8 +408,20 @@ function NeuralBoostSystem.activateBoost(player, difficulty)
     
     if success then
         -- Efecto visual/sonido
-        if getSoundManager() then
-            getSoundManager():PlaySound("USBkeyboard", false, 0.7)
+        local soundManager = getSoundManager()
+        if soundManager then
+            local played = false
+            if soundManager.playUISound then
+                local ok = pcall(function()
+                    soundManager:playUISound("USBkeyboard")
+                end)
+                played = ok and true or played
+            end
+            if not played and soundManager.playSound then
+                pcall(function()
+                    soundManager:playSound("USBkeyboard")
+                end)
+            end
         end
         
         print("[NeuralBoost] Neural Boost activated: " .. boostType)

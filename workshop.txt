@@ -1,6 +1,8 @@
 version=1
 id=3561701883
-title=DecryptUSB
-description=Old mod ported to v42 UNSTABLE
+title=DecryptUSB v0.0.1
+description=Old mod ported to v42
+description=
+description=Minigames implemented
 tags=Build 42;Items
 visibility=unlisted

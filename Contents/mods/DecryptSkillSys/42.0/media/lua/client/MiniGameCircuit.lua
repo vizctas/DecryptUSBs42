@@ -260,8 +260,14 @@ function MiniGameCircuitWindow:processFinalResult(success)
     -- ✅ INCREMENTAR CONTADOR DE FALLOS (funciona en SP y MP)
     if not success and self.laptopItem then
         if isClient() then
-            -- Multiplayer: enviar comando al servidor
-            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { laptop = self.laptopItem })
+            -- ✅ MULTIPLAYER: Enviar solo ID del item
+            local laptopID = self.laptopItem:getID()
+            if laptopID then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { 
+                    laptopID = laptopID,
+                    playerIndex = self.player:getPlayerNum()
+                })
+            end
         else
             -- Singleplayer: incrementar directamente
             if LaptopSystem and LaptopSystem.incrementFailureCount then

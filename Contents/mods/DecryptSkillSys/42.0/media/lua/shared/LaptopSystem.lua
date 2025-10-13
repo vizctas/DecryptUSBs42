@@ -3,6 +3,23 @@
 
 LaptopSystem = {}
 
+-- ========== MULTIPLAYER SYNC HELPER ==========
+-- Sincroniza ModData de items en multiplayer
+local function syncModData(item)
+    if not item then return end
+    
+    -- Verificar si estamos en cliente y si el método existe
+    if isClient and isClient() then
+        if item.transmitModData and type(item.transmitModData) == "function" then
+            local ok, err = pcall(function() item:transmitModData() end)
+            if not ok then
+                print("[LaptopSystem] Error syncing ModData: " .. tostring(err))
+            end
+        end
+    end
+end
+-- ==============================================
+
 -- Check if player has access to electricity (DISABLED - laptops work without power)
 function LaptopSystem.hasElectricity(player)
     -- Power requirement disabled for laptops
@@ -114,6 +131,9 @@ function LaptopSystem.setLaptopHealth(item, health)
 
     local clamped = math.floor(math.max(0, math.min(100, health or 0)))
     modData.laptopHealth = clamped
+    
+    -- ✅ MULTIPLAYER: Sincronizar ModData
+    syncModData(item)
 
     if item.setCondition then
         local maxCondition = 100
@@ -187,6 +207,10 @@ function LaptopSystem.incrementFailureCount(item)
     if not modData then return end
 
     modData.GVDrive_Failures = currentFails + 1
+    
+    -- ✅ MULTIPLAYER: Sincronizar ModData
+    syncModData(item)
+    
     return modData.GVDrive_Failures
 end
 
@@ -199,6 +223,10 @@ function LaptopSystem.setFailureCount(item, count)
     if not modData then return end
 
     modData.GVDrive_Failures = math.max(0, count or 0)
+    
+    -- ✅ MULTIPLAYER: Sincronizar ModData
+    syncModData(item)
+    
     return modData.GVDrive_Failures
 end
 
@@ -246,6 +274,9 @@ function LaptopSystem.applyMalware(item)
     local malwareDamage = (getNum and getNum('Malware_Damage_Per_Use', 5)) or 5
         LaptopSystem.damageLaptop(item, malwareDamage)
         
+        -- ✅ MULTIPLAYER: Sincronizar ModData
+        syncModData(item)
+        
         return true -- New malware infection
     else
         -- Existing malware gets worse
@@ -254,6 +285,9 @@ function LaptopSystem.applyMalware(item)
         local baseDamage = (sandboxGV and sandboxGV.Malware_Damage_Per_Use) or 5
         local malwareDamage = baseDamage * (modData.malwareLevel or 1)
         LaptopSystem.damageLaptop(item, malwareDamage)
+        
+        -- ✅ MULTIPLAYER: Sincronizar ModData
+        syncModData(item)
         
         return false -- Existing malware worsened
     end
@@ -351,6 +385,10 @@ function LaptopSystem.cleanMalware(item, healOrType)
 
     local currentHealth = LaptopSystem.getLaptopHealth(item)
     LaptopSystem.setLaptopHealth(item, currentHealth + healAmount)
+    
+    -- ✅ MULTIPLAYER: Sincronizar ModData (setLaptopHealth ya sincroniza, pero por seguridad)
+    syncModData(item)
+    
     return true
 end
 

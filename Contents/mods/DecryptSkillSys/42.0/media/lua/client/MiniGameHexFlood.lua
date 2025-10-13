@@ -452,8 +452,15 @@ function MiniGameHexFloodWindow:processFinalResult(success)
     
     -- Incrementar contador de fallos en laptop
     if not success and self.laptopItem then 
-        if isClient() then 
-            sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", {laptop=self.laptopItem})
+        if isClient() then
+            -- ✅ MULTIPLAYER: Enviar solo ID del item
+            local laptopID = self.laptopItem:getID()
+            if laptopID then
+                sendClientCommand(self.player, "GVDrive", "IncrementFailureCount", { 
+                    laptopID = laptopID,
+                    playerIndex = self.player:getPlayerNum()
+                })
+            end
         elseif LaptopSystem and LaptopSystem.incrementFailureCount then 
             LaptopSystem.incrementFailureCount(self.laptopItem)
         end

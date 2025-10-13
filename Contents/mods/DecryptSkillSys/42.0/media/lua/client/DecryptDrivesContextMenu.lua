@@ -3,6 +3,39 @@ local DecryptDrivesContextMenu = {}
 DecryptDrivesContextMenu.MODERN_MENU_ACTIVE = true
 pcall(function() _G.DecryptDrivesContextMenu_MODERN = true end)
 
+-- ========== SISTEMA DE DEBUG CONFIGURABLE ==========
+-- 🔧 SWITCH MAESTRO DE DEBUG
+-- true = Todos los debugs activos | false = Solo errores críticos
+local DEBUG_ENABLED = false  -- ⚠️ Cambiar a true para ver debugs
+
+-- Categorías de debug (para control granular cuando DEBUG_ENABLED = true)
+local DEBUG_CATEGORIES = {
+    MINIGAME_SELECTION = true,   -- Selección aleatoria de minijuegos
+    USB_SCANNING = true,         -- Escaneo de USBs en inventario
+    LAPTOP_VALIDATION = true,    -- Validación de laptops
+    MENU_CREATION = true,        -- Creación de menús contextuales
+    USB_SELECTION = true,        -- Selección y uso de USBs
+    EVENT_SYSTEM = true,         -- Sistema de eventos
+    CRITICAL_ONLY = true         -- Solo errores críticos (siempre activo)
+}
+-- =====================================================
+
+-- Import centralized config
+pcall(require, "shared/GVDrive_Config")
+
+-- Debug print function con categorías
+local function debugPrint(category, ...)
+    -- Si DEBUG_ENABLED está desactivado, solo mostrar errores críticos
+    if not DEBUG_ENABLED and category ~= "CRITICAL" then
+        return
+    end
+    
+    -- Verificar si la categoría está habilitada
+    if category == "CRITICAL" or (DEBUG_CATEGORIES[category] == true) then
+        print("[DecryptSkillSys][" .. category .. "]", ...)
+    end
+end
+
 -- ========== CONFIGURACIÓN DE MINIJUEGO ==========
 -- Sistema de selección aleatoria entre minijuegos disponibles:
 -- "sequence" = Minijuego de secuencia (MiniGameUI.lua) - Memoria de secuencia
@@ -57,38 +90,6 @@ end
 -- Seleccionar minijuego aleatorio para esta sesión (ahora se hace por USB, no solo al cargar)
 -- local ACTIVE_MINIGAME = selectRandomMinigame()
 -- Eliminada la línea de debug que causaba error: print("[DEBUG] ACTIVE_MINIGAME set to: " .. ACTIVE_MINIGAME)
-
--- ========== SISTEMA DE DEBUG CONFIGURABLE ==========
--- Interruptor maestro de debug: true = debug activo, false = debug silencioso
-local DEBUG_ENABLED = false
-
--- Categorías de debug (para control granular)
-local DEBUG_CATEGORIES = {
-    MINIGAME_SELECTION = false,  -- Selección aleatoria de minijuegos
-    USB_SCANNING = false,        -- Escaneo de USBs en inventario
-    LAPTOP_VALIDATION = false,   -- Validación de laptops
-    MENU_CREATION = false,       -- Creación de menús contextuales
-    USB_SELECTION = false,       -- Selección y uso de USBs
-    EVENT_SYSTEM = false,        -- Sistema de eventos
-    CRITICAL_ONLY = true         -- Solo errores críticos (siempre activo)
-}
--- =====================================================
-
--- Import centralized config
-pcall(require, "shared/GVDrive_Config")
-
--- Debug print function con categorías
-local function debugPrint(category, ...)
-    -- Si DEBUG_ENABLED está desactivado, solo mostrar errores críticos
-    if not DEBUG_ENABLED and category ~= "CRITICAL" then
-        return
-    end
-    
-    -- Verificar si la categoría está habilitada
-    if category == "CRITICAL" or (DEBUG_CATEGORIES[category] == true) then
-        print("[DecryptSkillSys][" .. category .. "]", ...)
-    end
-end
 
 -- ✅ CARGAR MINIJUEGO SELECCIONADO - PATRÓN MODULAR DEL CODEBASE
 local miniGameLoaded = false
@@ -345,35 +346,114 @@ function DecryptDrivesContextMenu.isValidLaptop(worldObject)
         return false, "No se proporcionó ningún objeto"
     end
     
-    -- Verificar si el objeto es un IsoObject
-    if not instanceof(worldObject, "IsoObject") then
-        local objType = "desconocido"
-        if worldObject.getClass and worldObject:getClass() then
-            objType = tostring(worldObject:getClass():getName())
+    -- ✅ MULTIPLAYER: Validación mínima de sincronización (MUY PERMISIVO)
+    -- NOTA: En multiplayer, los objetos pueden tener delays de sincronización
+    -- Solo validamos que el objeto exista, no su estado de sincronización
+    if isClient and isClient() then
+        debugPrint("LAPTOP_VALIDATION", "Running in multiplayer client mode - using permissive validation")
+    end
+    
+    -- 🔍 DIAGNÓSTICO: Imprimir información detallada del objeto
+    local objClassName = "unknown"
+    if worldObject.getClass then
+        local ok, classObj = pcall(function() return worldObject:getClass() end)
+        if ok and classObj then
+            -- getClass() devuelve un objeto Java, usar tostring directamente
+            objClassName = tostring(classObj)
         end
-        debugPrint("LAPTOP_VALIDATION", "No es un IsoObject, tipo: " .. objType)
+    end
+    debugPrint("LAPTOP_VALIDATION", "🔍 Objeto detectado - Clase: " .. objClassName)
+    
+    -- Verificar tipos específicos
+    local isIsoObject = instanceof(worldObject, "IsoObject")
+    local isIsoWorldInventoryObject = instanceof(worldObject, "IsoWorldInventoryObject")
+    local isIsoThumpable = instanceof(worldObject, "IsoThumpable")
+    
+    debugPrint("LAPTOP_VALIDATION", string.format("  - IsoObject: %s", tostring(isIsoObject)))
+    debugPrint("LAPTOP_VALIDATION", string.format("  - IsoWorldInventoryObject: %s", tostring(isIsoWorldInventoryObject)))
+    debugPrint("LAPTOP_VALIDATION", string.format("  - IsoThumpable: %s", tostring(isIsoThumpable)))
+    
+    -- Verificar si el objeto es un IsoObject
+    if not isIsoObject then
+        debugPrint("LAPTOP_VALIDATION", "❌ No es un IsoObject, tipo: " .. objClassName)
         return false, "No es un objeto del mundo válido"
     end
     
-    -- Verificar si es un IsoWorldInventoryObject (objetos con inventario como laptops)
-    if not instanceof(worldObject, "IsoWorldInventoryObject") then
-        debugPrint("LAPTOP_VALIDATION", "No es un IsoWorldInventoryObject")
-        return false, "No es un objeto con inventario"
+    -- ✅ MULTIPLAYER FIX: Intentar obtener el ítem de múltiples formas
+    local item = nil
+    
+    -- Método 1: IsoWorldInventoryObject (objetos en el suelo con inventario)
+    if instanceof(worldObject, "IsoWorldInventoryObject") then
+        debugPrint("LAPTOP_VALIDATION", "Es un IsoWorldInventoryObject, usando getItem()")
+        local success, result = pcall(function() return worldObject:getItem() end)
+        if success and result then
+            item = result
+        end
     end
     
-    -- Obtener el ítem del objeto del mundo con manejo de errores
-    local item, itemErr
-    local success, result = pcall(function() return worldObject:getItem() end)
+    -- Método 2: IsoThumpable con getItem() (laptops en el suelo)
+    if not item and instanceof(worldObject, "IsoThumpable") then
+        debugPrint("LAPTOP_VALIDATION", "Es un IsoThumpable, intentando getItem()")
+        if worldObject.getItem and type(worldObject.getItem) == "function" then
+            local success, result = pcall(function() return worldObject:getItem() end)
+            if success and result then
+                item = result
+                debugPrint("LAPTOP_VALIDATION", "✅ Item obtenido via IsoThumpable:getItem()")
+            end
+        end
+    end
     
-    if success then
-        item = result
-    else
-        itemErr = result
-        debugPrint("LAPTOP_VALIDATION", "Error al obtener el ítem: " .. tostring(itemErr))
+    -- Método 3: IsoObject genérico (puede tener getModData con referencia al item)
+    if not item and worldObject.getModData then
+        debugPrint("LAPTOP_VALIDATION", "Intentando obtener item via getModData()")
+        local success, modData = pcall(function() return worldObject:getModData() end)
+        if success and modData and modData.item then
+            item = modData.item
+            debugPrint("LAPTOP_VALIDATION", "✅ Item obtenido via getModData()")
+        end
+    end
+    
+    -- Método 4: Verificar sprite del objeto (detección por nombre)
+    if not item and worldObject.getSprite then
+        debugPrint("LAPTOP_VALIDATION", "Verificando sprite del objeto")
+        local success, sprite = pcall(function() return worldObject:getSprite() end)
+        if success and sprite then
+            local spriteName = ""
+            if sprite.getName and type(sprite.getName) == "function" then
+                local nameSuccess, name = pcall(function() return sprite:getName() end)
+                if nameSuccess and name then
+                    spriteName = tostring(name):lower()
+                    debugPrint("LAPTOP_VALIDATION", "Sprite detectado: " .. spriteName)
+                end
+            end
+            
+            -- Si el sprite contiene "laptop", validar por nombre del objeto
+            if spriteName:find("laptop") or spriteName:find("computer") or spriteName:find("asus") or spriteName:find("toshiba") or spriteName:find("ibm") then
+                debugPrint("LAPTOP_VALIDATION", "Sprite de laptop detectado: " .. spriteName)
+                
+                -- Verificar nombre del objeto
+                local objName = ""
+                if worldObject.getName and type(worldObject.getName) == "function" then
+                    local nameOk, name = pcall(function() return worldObject:getName() end)
+                    if nameOk and name then
+                        objName = tostring(name):lower()
+                        debugPrint("LAPTOP_VALIDATION", "Nombre del objeto: " .. objName)
+                    end
+                end
+                
+                -- Validar por nombre o sprite
+                if objName:find("laptop") or objName:find("asus") or objName:find("toshiba") or objName:find("ibm") or
+                   spriteName:find("laptop") or spriteName:find("asus") or spriteName:find("toshiba") or spriteName:find("ibm") then
+                    debugPrint("LAPTOP_VALIDATION", "✅ Laptop detectada por sprite/nombre (IsoThumpable sin item)")
+                    -- Retornar el worldObject como "laptop válida" para que se maneje en addContextMenuOption
+                    return true, "Laptop válida (IsoThumpable)", worldObject
+                end
+            end
+        end
     end
     
     if not item then
-        debugPrint("LAPTOP_VALIDATION", "No se pudo obtener el ítem del objeto")
+        debugPrint("LAPTOP_VALIDATION", "❌ No se pudo obtener el ítem del objeto por ningún método")
         return false, "No se pudo obtener el ítem del objeto"
     end
     
@@ -608,66 +688,117 @@ end
 -- ============================================================================
 
 -- Main context menu handler
-function DecryptDrivesContextMenu.addContextMenuOption(player, context, worldobjects, test)
-    debugPrint("MENU_CREATION", "addContextMenuOption STARTED")
-
-    -- Normalize player (events may pass player index rather than IsoPlayer)
-    local playerObj = player
-    if type(player) == "number" then
-        local ok, res = pcall(function() return getSpecificPlayer(player) end)
-        if ok and res then playerObj = res end
+-- ✅ MULTIPLAYER FIX: Usar firma estándar con playerIndex (número)
+function DecryptDrivesContextMenu.addContextMenuOption(playerIndex, context, worldobjects, test)
+    debugPrint("MENU_CREATION", "========== addContextMenuOption STARTED ==========")
+    debugPrint("MENU_CREATION", "PlayerIndex type: " .. type(playerIndex) .. ", value: " .. tostring(playerIndex))
+    debugPrint("MENU_CREATION", "Context: " .. tostring(context))
+    debugPrint("MENU_CREATION", "WorldObjects count: " .. (worldobjects and #worldobjects or 0))
+    debugPrint("MENU_CREATION", "Test mode: " .. tostring(test))
+    
+    -- Skip if test mode
+    if test then
+        debugPrint("MENU_CREATION", "Skipping - test mode active")
+        return
+    end
+    
+    -- ✅ MULTIPLAYER: Verificar si estamos en cliente
+    if isClient then
+        debugPrint("MENU_CREATION", "Running in MULTIPLAYER CLIENT mode")
+    else
+        debugPrint("MENU_CREATION", "Running in SINGLEPLAYER mode")
     end
 
-    -- Skip if test mode or missing params
-    if test or not playerObj or not context or not worldobjects then
-        debugPrint("MENU_CREATION", "Skipping (test or missing parameters)")
+    -- ✅ MULTIPLAYER FIX: Convertir playerIndex a IsoPlayer (patrón estándar)
+    local playerObj = getSpecificPlayer(playerIndex)
+    
+    if not playerObj then
+        debugPrint("CRITICAL", "Skipping - failed to get player from index: " .. tostring(playerIndex))
+        return
+    end
+    
+    if playerObj:isDead() then
+        debugPrint("MENU_CREATION", "Skipping - player is dead")
+        return
+    end
+    
+    if not context then
+        debugPrint("CRITICAL", "Skipping - context is nil")
+        return
+    end
+    
+    if not worldobjects then
+        debugPrint("CRITICAL", "Skipping - worldobjects is nil")
         return
     end
 
-    -- Check each world object for valid laptops
-    for i, worldObject in ipairs(worldobjects) do
-        debugPrint("MENU_CREATION", "Checking worldObject " .. tostring(i))
-        local isValid, reason = DecryptDrivesContextMenu.isValidLaptop(worldObject)
-
-        if isValid then
-            debugPrint("MENU_CREATION", "Valid laptop found!")
-
-            -- Get laptop item for health and other operations
-            local laptopItem = worldObject:getItem()
-            local healthOption = nil
-            if laptopItem then
-                -- Add laptop health status at the top with battery icon
-                healthOption = DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
-                debugPrint("MENU_CREATION", "Health status added to menu")
+    -- ✅ PATRÓN DEL JUEGO: Buscar laptops en el square como hace el juego con generadores
+    local laptopItem = nil
+    local laptopSquare = nil
+    
+    for _, object in ipairs(worldobjects) do
+        local square = object:getSquare()
+        if square then
+            debugPrint("MENU_CREATION", "Checking square for laptops...")
+            -- Buscar en los worldObjects del square (como hace ISBBQMenu)
+            local wobs = square:getWorldObjects()
+            for i = 0, wobs:size() - 1 do
+                local wo = wobs:get(i)
+                local item = wo:getItem()
+                if item then
+                    local itemType = item:getFullType()
+                    debugPrint("MENU_CREATION", "Found item in square: " .. tostring(itemType))
+                    
+                    -- Verificar si es una laptop válida
+                    if itemType and (
+                        itemType:find("AsusZeph") or 
+                        itemType:find("Laptop90s") or 
+                        itemType:find("PBIBM_LP90") or
+                        itemType:find("LaptopOpened")
+                    ) then
+                        laptopItem = item
+                        laptopSquare = square
+                        debugPrint("MENU_CREATION", "✅ Valid laptop found in square: " .. itemType)
+                        break
+                    end
+                end
             end
-
-            -- Scan for USBs in player inventory
-            local usbList = DecryptDrivesContextMenu.scanPlayerUSBs(playerObj)
-
-            if #usbList > 0 then
-                debugPrint("MENU_CREATION", "USBs found: " .. #usbList)
-                -- Create hierarchical menu
-                local mainOption = DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, worldObject, usbList, healthOption)
-                DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, healthOption)
-                debugPrint("MENU_CREATION", "USB menu created")
-            else
-                debugPrint("MENU_CREATION", "No USBs found in player inventory")
-            end
-
-            -- Add antivirus options
-            DecryptDrivesContextMenu.addAntivirusOptions(context, playerObj, worldObject)
-
-            -- Add elite drive options
-            DecryptDrivesContextMenu.addEliteDriveOptions(context, playerObj)
-
-            -- Mark context to indicate modern menu has been attached (defensive against other handlers)
-            context._DecryptDrives_ModernMenu = true
-
-            debugPrint("MENU_CREATION", "addContextMenuOption ENDED (complete menu created)")
-            break -- Only need one laptop
-        else
-            debugPrint("MENU_CREATION", "Invalid laptop: " .. tostring(reason))
+            if laptopItem then break end
         end
+    end
+
+    if laptopItem and laptopSquare then
+        debugPrint("MENU_CREATION", "Valid laptop found!")
+        
+        -- Add laptop health status at the top with battery icon
+        local healthOption = DecryptDrivesContextMenu.addLaptopHealthStatus(context, playerObj, laptopItem)
+        debugPrint("MENU_CREATION", "Health status added to menu")
+
+        -- Scan for USBs in player inventory
+        local usbList = DecryptDrivesContextMenu.scanPlayerUSBs(playerObj)
+
+        if #usbList > 0 then
+            debugPrint("MENU_CREATION", "USBs found: " .. #usbList)
+            -- Create hierarchical menu (pasar laptopItem en lugar de worldObject)
+            local mainOption = DecryptDrivesContextMenu.createHierarchicalMenu(playerObj, context, laptopItem, usbList, healthOption)
+            DecryptDrivesContextMenu.applyUSBMenuFormatting(context, mainOption, healthOption)
+            debugPrint("MENU_CREATION", "USB menu created")
+        else
+            debugPrint("MENU_CREATION", "No USBs found in player inventory")
+        end
+
+        -- Add antivirus options (pasar laptopItem)
+        DecryptDrivesContextMenu.addAntivirusOptions(context, playerObj, laptopItem)
+
+        -- Add elite drive options
+        DecryptDrivesContextMenu.addEliteDriveOptions(context, playerObj)
+
+        -- Mark context to indicate modern menu has been attached (defensive against other handlers)
+        context._DecryptDrives_ModernMenu = true
+
+        debugPrint("MENU_CREATION", "addContextMenuOption ENDED (complete menu created)")
+    else
+        debugPrint("MENU_CREATION", "No valid laptop found in worldobjects")
     end
 end
 
@@ -773,11 +904,8 @@ function DecryptDrivesContextMenu.onUSBSelected(player, laptop, usbData)
 
     debugPrint("USB_SELECTION", "USB selected: " .. usbData.displayName)
 
-    -- Obtener laptop item para integración
-    local laptopItem = nil
-    if laptop then
-        laptopItem = laptop:getItem()
-    end
+    -- ✅ FIX: laptop ahora es directamente el item, no un worldObject
+    local laptopItem = laptop
 
     -- Verificación crítica: Verificar salud de la laptop antes de iniciar minijuego
     if laptopItem and LaptopSystem then
@@ -973,14 +1101,13 @@ function DecryptDrivesContextMenu.addLaptopHealthStatus(context, player, laptopI
 
     return healthOption
 end
-
 -- ============================================================================
 -- ANTIVIRUS SYSTEM
 -- ============================================================================
 
 -- Add antivirus options to context menu
-function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObject)
-    if not player or not worldObject then return end
+function DecryptDrivesContextMenu.addAntivirusOptions(context, player, laptopItem)
+    if not player or not laptopItem then return end
 
     local inv = player:getInventory()
     if not inv then return end
@@ -1009,7 +1136,7 @@ function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObje
             local count = inv:getItemCount(avType.id)
             if count > 0 then
                 antivirusSubMenu:addOption(avType.name .. " (" .. count .. ") - Heal +" .. avType.heal .. "%", player, function()
-                    DecryptDrivesContextMenu.useAntivirus(player, worldObject, avType)
+                    DecryptDrivesContextMenu.useAntivirus(player, laptopItem, avType)
                 end)
             end
         end
@@ -1017,7 +1144,7 @@ function DecryptDrivesContextMenu.addAntivirusOptions(context, player, worldObje
 end
 
 -- Use antivirus on laptop
-function DecryptDrivesContextMenu.useAntivirus(player, worldObject, avType)
+function DecryptDrivesContextMenu.useAntivirus(player, laptopItem, avType)
     local inv = player:getInventory()
     if not inv then
         player:Say("Cannot access inventory.")
@@ -1046,8 +1173,7 @@ function DecryptDrivesContextMenu.useAntivirus(player, worldObject, avType)
     end
 
     if antivirusItem then
-        -- Use the antivirus on the world object laptop
-        local laptopItem = worldObject:getItem()
+        -- ✅ FIX: laptopItem ya es el item directamente
         if laptopItem and LaptopSystem then
             -- Get current health before treatment
             local beforeHealth = LaptopSystem.getLaptopHealth(laptopItem)
@@ -1239,10 +1365,26 @@ local function debugContextMenu(player, context, worldobjects, test)
                     
                     -- Intentar obtener el ítem del inventario
                     local success, item = pcall(function() return obj:getItem() end)
-                    if success and item then
-                        local itemName = item:getName() or "Sin nombre"
-                        local itemType = item:getType() or "Sin tipo"
-                        local itemFullType = item:getFullType() or "Sin tipo completo"
+                    if success and item and type(item) == "table" then
+                        -- Validar que item tenga los métodos necesarios
+                        local itemName = "Sin nombre"
+                        local itemType = "Sin tipo"
+                        local itemFullType = "Sin tipo completo"
+                        
+                        if item.getName and type(item.getName) == "function" then
+                            local ok, name = pcall(function() return item:getName() end)
+                            if ok and name then itemName = name end
+                        end
+                        
+                        if item.getType and type(item.getType) == "function" then
+                            local ok, itype = pcall(function() return item:getType() end)
+                            if ok and itype then itemType = itype end
+                        end
+                        
+                        if item.getFullType and type(item.getFullType) == "function" then
+                            local ok, ftype = pcall(function() return item:getFullType() end)
+                            if ok and ftype then itemFullType = ftype end
+                        end
                         
                         debugPrint(string.format("  - Ítem: %s", itemName))
                         debugPrint(string.format("  - Tipo: %s", itemType))
@@ -1263,10 +1405,15 @@ local function debugContextMenu(player, context, worldobjects, test)
                     debugPrint("  - Tipo: IsoObject genérico")
                     
                     -- Verificar si tiene propiedades específicas
-                    if obj.getSprite then
+                    if obj.getSprite and type(obj.getSprite) == "function" then
                         local success, sprite = pcall(function() return obj:getSprite() end)
-                        if success and sprite then
-                            debugPrint(string.format("  - Sprite: %s", tostring(sprite:getName())))
+                        if success and sprite and type(sprite) == "table" then
+                            if sprite.getName and type(sprite.getName) == "function" then
+                                local ok, spriteName = pcall(function() return sprite:getName() end)
+                                if ok and spriteName then
+                                    debugPrint(string.format("  - Sprite: %s", tostring(spriteName)))
+                                end
+                            end
                         end
                     end
                     
@@ -1295,69 +1442,27 @@ local function debugContextMenu(player, context, worldobjects, test)
     debugPrint("===================================")
 end
 
--- Registrar manejadores de eventos
-debugPrint("DecryptDrivesContextMenu: Registrando manejadores de menú contextual...")
+-- ============================================================================
+-- REGISTRO DE EVENTO - PATRÓN SIMPLE Y CONFIABLE
+-- ============================================================================
+-- Basado en mods funcionales: MeatCurse y BurnCorpses
+-- Ambos usan OnFillWorldObjectContextMenu de forma directa sin complicaciones
+-- Referencia: MeatCurseContextMenu.lua línea 122, BurnCorpsePilesContextMenu.lua línea 133
 
--- INTENTAR múltiples eventos posibles para el menú contextual
-local eventRegistered = false
-
--- Evento principal para objetos del mundo
-if Events and Events.OnFillWorldObjectContextMenu and Events.OnFillWorldObjectContextMenu.Add then
-    Events.OnFillWorldObjectContextMenu.Add(DecryptDrivesContextMenu.addContextMenuOption)
-    debugPrint("DecryptDrivesContextMenu: Manejador principal registrado exitosamente")
-    eventRegistered = true
-end
-
--- Evento alternativo 1
-if not eventRegistered and Events and Events.OnObjectRightClicked and Events.OnObjectRightClicked.Add then
-    Events.OnObjectRightClicked.Add(DecryptDrivesContextMenu.addContextMenuOption)
-    debugPrint("DecryptDrivesContextMenu: Manejador alternativo 1 registrado")
-    eventRegistered = true
-end
-
--- Evento alternativo 2
-if not eventRegistered and Events and Events.OnRightMouseUp and Events.OnRightMouseUp.Add then
-    Events.OnRightMouseUp.Add(DecryptDrivesContextMenu.addContextMenuOption)
-    debugPrint("DecryptDrivesContextMenu: Manejador alternativo 2 registrado")
-    eventRegistered = true
-end
-
--- Verificar si Events existe
-if not Events then
-    debugPrint("[ERROR] DecryptDrivesContextMenu: Events es nil - no se pueden registrar eventos")
-    debugPrint("[ERROR] DecryptDrivesContextMenu: Esto indica que el sistema de eventos no está disponible")
-else
-    debugPrint("DecryptDrivesContextMenu: Events está disponible")
-
-    -- Listar eventos disponibles para debugging
-    local availableEvents = {}
-    for key, value in pairs(Events) do
-        if type(value) == "table" and value.Add then
-            table.insert(availableEvents, key)
-        end
+-- ✅ FIX: Wrapper function para evitar "__call metatable not set"
+local function onFillWorldObjectContextMenuWrapper(playerIndex, context, worldobjects, test)
+    if DecryptDrivesContextMenu and DecryptDrivesContextMenu.addContextMenuOption then
+        DecryptDrivesContextMenu.addContextMenuOption(playerIndex, context, worldobjects, test)
+    else
+        print("[ERROR] DecryptDrivesContextMenu.addContextMenuOption not available")
     end
-
-    debugPrint("DecryptDrivesContextMenu: Eventos disponibles con Add(): " .. table.concat(availableEvents, ", "))
 end
 
-if not eventRegistered then
-    debugPrint("[ERROR] DecryptDrivesContextMenu: No se pudo registrar ningún manejador de eventos")
-    debugPrint("[ERROR] DecryptDrivesContextMenu: El menú contextual no funcionará")
-else
-    debugPrint("DecryptDrivesContextMenu: Al menos un manejador de eventos registrado exitosamente")
-end
+Events.OnFillWorldObjectContextMenu.Add(onFillWorldObjectContextMenuWrapper)
 
--- Registrar también el depurador si está en modo DEBUG
-if getDebug() then
-    if Events.OnFillWorldObjectContextMenu then
-        Events.OnFillWorldObjectContextMenu.Add(debugContextMenu)
-        debugPrint("DecryptDrivesContextMenu: Depurador de menú contextual habilitado")
-    end
-else
-    debugPrint("[ERROR] DecryptDrivesContextMenu: No se pudo registrar el depurador para OnFillWorldObjectContextMenu")
-end
-
-debugPrint("DecryptDrivesContextMenu: Cargado correctamente")
+print("[DecryptSkillSys] ✅ Evento OnFillWorldObjectContextMenu registrado exitosamente")
+print("[DecryptSkillSys] Sistema de menú contextual cargado")
+print("[DecryptSkillSys] DEBUG_ENABLED: " .. tostring(DEBUG_ENABLED))
 
 -- ✅ FUNCIÓN DE DEBUG PARA PROBAR AMBOS MINIJUEGOS
 function TestBothMinigames()

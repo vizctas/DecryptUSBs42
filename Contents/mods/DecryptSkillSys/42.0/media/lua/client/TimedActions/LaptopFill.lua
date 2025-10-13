@@ -631,9 +631,8 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
     end
 end
 
--- Register the backup context menu event
+-- Register the backup context menu event (patrón simple)
 debugPrint("LaptopFill: Registering backup context menu event...")
 Events.OnFillWorldObjectContextMenu.Add(LaptopOnFillWorldObjectContextMenu)
-debugPrint("LaptopFill: Backup context menu event registered successfully")
-
+debugPrint("LaptopFill: ✅ Backup event registered successfully")
 debugPrint("LaptopFill: Backup system loaded - modern menu should take precedence")

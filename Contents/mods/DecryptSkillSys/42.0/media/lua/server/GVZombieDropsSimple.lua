@@ -39,9 +39,9 @@ local DROP_DISTRIBUTIONS = {
 }
 
 local RARITY_CHANCE_OFFSETS = {
-    Facil = 0.3,
-    Moderado = 0.6,
-    Dificil = 0.9,
+    Facil = 0.05,
+    Moderado = 0.15,
+    Dificil = 0.30,
 }
 
 -- Function to get drop chance for a category from sandbox
@@ -53,8 +53,9 @@ local function getDropChance(category, specificItem)
     if gv and gv[sandboxKey] then
         baseChance = gv[sandboxKey]
     else
-        -- Defaults if not found
-        local defaults = {USB = 2.86, Laptop = 1.0, Elite = 0.25, Antivirus = 2.2}
+        -- Defaults if not found (matching sandbox-options.txt)
+        -- USB: ~1 every 20 zombies, Laptop: ~1 every 100 zombies, EliteDrive: ~1 every 120 zombies, Antivirus: ~1 every 60 zombies
+        local defaults = {USB = 5.0, Laptop = 1.0, EliteDrive = 0.83, Antivirus = 1.67}
         baseChance = defaults[category] or 0
     end
     
@@ -72,14 +73,14 @@ local function getDropChance(category, specificItem)
             -- Norton mantiene el porcentaje del sandbox (0% reducción)
             return baseChance
         elseif specificItem == "GValley.Antivirus_Kaspersky" then
-            -- Kaspersky reduce 0.3%
-            return math.max(0, baseChance - 0.3)
+            -- Kaspersky reduce 0.05%
+            return math.max(0, baseChance - 0.05)
         elseif specificItem == "GValley.Antivirus_McAfee" then
-            -- McAfee reduce 0.5%
-            return math.max(0, baseChance - 0.5)
+            -- McAfee reduce 0.1%
+            return math.max(0, baseChance - 0.1)
         elseif specificItem == "GValley.Antivirus_MalwareBytes" then
-            -- MalwareBytes reduce 0.8% (más difícil de conseguir)
-            return math.max(0, baseChance - 0.8)
+            -- MalwareBytes reduce 0.2% (más difícil de conseguir)
+            return math.max(0, baseChance - 0.2)
         end
     end
     
@@ -96,7 +97,7 @@ local function spawnItem(zombie, itemType, rarityOverride)
         itemToSpawn = string.format("GValley.SkillDrive_%s_%s", skill, rarity)
     elseif itemType == "Laptop" then
         itemToSpawn = DROP_DISTRIBUTIONS.laptops[ZombRand(#DROP_DISTRIBUTIONS.laptops) + 1]
-    elseif itemType == "Elite" then
+    elseif itemType == "EliteDrive" then
         local eliteType = DROP_DISTRIBUTIONS.eliteTypes[ZombRand(#DROP_DISTRIBUTIONS.eliteTypes) + 1]
         itemToSpawn = string.format("GValley.EliteDrive_%s", eliteType)
     elseif itemType == "Antivirus" then
@@ -131,7 +132,8 @@ local function onZombieDead(zombie)
     local usbDropped = false
     for _, rarity in ipairs(DROP_DISTRIBUTIONS.rarities) do
         local chance = getDropChance("USB", rarity)
-        local roll = ZombRand(0, 100)
+        -- Use ZombRand(10000) for precise percentage checks (0.08% = 8 out of 10000)
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
         if roll < chance then
             spawnItem(zombie, "USB", rarity)
             usbDropped = true
@@ -140,10 +142,11 @@ local function onZombieDead(zombie)
     end
 
     -- Check drops for other categories independently
-    local categories = {"Laptop", "Elite"}
+    local categories = {"Laptop", "EliteDrive"}
     for _, category in ipairs(categories) do
         local chance = getDropChance(category)
-        local roll = ZombRand(0, 100)
+        -- Use ZombRand(10000) for precise percentage checks
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
         if roll < chance then
             spawnItem(zombie, category)
         end
@@ -152,7 +155,8 @@ local function onZombieDead(zombie)
     -- Special handling for antivirus - each type has its own chance
     for _, antivirusItem in ipairs(DROP_DISTRIBUTIONS.antivirusTypes) do
         local chance = getDropChance("Antivirus", antivirusItem)
-        local roll = ZombRand(0, 100)
+        -- Use ZombRand(10000) for precise percentage checks
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
         if roll < chance then
             -- Spawn the specific antivirus item
             local spawned = false
