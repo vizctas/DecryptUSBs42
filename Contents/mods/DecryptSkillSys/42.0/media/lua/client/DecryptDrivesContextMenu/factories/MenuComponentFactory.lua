@@ -3,6 +3,11 @@
 -- Centralizes creation of menu components (options, submenus, etc.)
 -- ============================================================================
 
+-- Safe debug print function
+if not debugPrint then
+    debugPrint = function(msg) print("[DecryptSkillSys][DEBUG] " .. tostring(msg)) end
+end
+
 MenuComponentFactory = {}
 
 -- Create a new factory instance
@@ -46,7 +51,6 @@ end
 -- Create main menu option with submenu
 function MenuComponentFactory:createMainMenuOption(context, text)
     debugPrint("MenuComponentFactory: Creating main menu option '" .. text .. "'")
-
     if not context or not text then
         debugPrint("[ERROR] MenuComponentFactory: Invalid parameters for main menu option")
         return nil, nil
@@ -59,6 +63,8 @@ function MenuComponentFactory:createMainMenuOption(context, text)
         context:addSubMenu(mainOption, subMenu)
         -- Mark context to indicate modern menu has been attached
         context._DecryptDrives_ModernMenu = true
+        context._DecryptDrives_MainOption = mainOption
+        context._DecryptDrives_MainMenu = context
         debugPrint("MenuComponentFactory: Main menu option created successfully")
         return mainOption, subMenu
     else
@@ -69,8 +75,6 @@ end
 
 -- Create skill category option with submenu
 function MenuComponentFactory:createSkillCategoryOption(parentMenu, skillName)
-    debugPrint("MenuComponentFactory: Creating skill category '" .. skillName .. "'")
-
     if not parentMenu or not skillName then
         debugPrint("[ERROR] MenuComponentFactory: Invalid parameters for skill category")
         return nil, nil

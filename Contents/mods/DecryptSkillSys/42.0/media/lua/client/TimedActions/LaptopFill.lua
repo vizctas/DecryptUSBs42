@@ -542,17 +542,27 @@ LaptopFloppyAllowed = {
     "GValley.PBIBM_LP90Closed",
 }
 
--- Main context menu function
+-- ============================================================================
+-- LAPTOP FILL - SIMPLIFIED BACKUP SYSTEM
+-- ============================================================================
+-- This file now serves as a backup system in case the modern DecryptDrivesContextMenu fails
+-- All main functionality has been moved to DecryptDrivesContextMenu.lua
+
+-- Main context menu function - SIMPLIFIED BACKUP
 function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
     if not player or not context or not worldobjects then return end
-    
+
     local playerObj = getSpecificPlayer(player)
     if not playerObj then return end
-    
-    -- Simplified laptop detection
-    debugPrint("Context menu checking " .. #worldobjects .. " objects")
 
-    -- Check each world object for laptops
+    local modernMenuActive = context and context._DecryptDrives_ModernMenu
+    if modernMenuActive then
+        debugPrint("LaptopFill: Backup hook invoked after modern menu - nothing to do")
+    else
+        debugPrint("LaptopFill: Backup system evaluating context (modern menu not detected yet)")
+    end
+
+    -- Simplified laptop detection
     for _, worldObject in ipairs(worldobjects) do
         if not worldObject or not worldObject.getItem then
             -- Skip this object and continue with next
@@ -561,465 +571,68 @@ function LaptopOnFillWorldObjectContextMenu(player, context, worldobjects, test)
             if not item or not item.getFullType then
                 -- Skip this object and continue with next
             else
-        
-        local itemType = item:getFullType()
-        
-        -- Enhanced laptop detection for all laptop types
-            if string.find(itemType, "Laptop") or string.find(itemType, "AsusZeph") or string.find(itemType, "IBM_LP90") or string.find(itemType, "PBIBM_LP90") then
-            debugPrint("Found laptop: " .. itemType)
-            
-            -- Add laptop health status at top with improved visual representation
-            -- Get laptop health first
-            local laptopItem = worldObject:getItem()
-            local laptopHealth = 0
-            if laptopItem and LaptopSystem then
-                laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
-                debugPrint("Laptop health retrieved: " .. tostring(laptopHealth))
-            else
-                debugPrint("Failed to get laptop health - laptopItem or LaptopSystem is nil")
-            end
-            
-            -- Get battery texture based on health percentage for context menu icon
-            local function getBatteryTextureForHealth(healthPercent)
-                -- Ensure healthPercent is a valid number
-                if type(healthPercent) ~= "number" then
-                    debugPrint("getBatteryTextureForHealth: healthPercent is not a number, type=" .. type(healthPercent) .. ", value=" .. tostring(healthPercent))
-                    healthPercent = 0 -- Default to 0 if invalid
-                end
+                local itemType = item:getFullType()
 
-                -- Clamp to valid range
-                if healthPercent < 0 then healthPercent = 0 end
-                if healthPercent > 100 then healthPercent = 100 end
+                -- Enhanced laptop detection for all laptop types
+                if string.find(itemType, "Laptop") or string.find(itemType, "AsusZeph") or string.find(itemType, "IBM_LP90") or string.find(itemType, "PBIBM_LP90") then
+                    debugPrint("LaptopFill: Backup system found laptop: " .. itemType)
 
-                -- Return texture object for context menu icon
-                if healthPercent <= 12 then
-                    return getTexture("media/textures/ui/health/batt0.png")
-                elseif healthPercent <= 37 then
-                    return getTexture("media/textures/ui/health/batt25.png")
-                elseif healthPercent <= 62 then
-                    return getTexture("media/textures/ui/health/batt50.png")
-                elseif healthPercent <= 87 then
-                    return getTexture("media/textures/ui/health/batt75.png")
-                else
-                    return getTexture("media/textures/ui/health/batt100.png")
-                end
-            end
-
-            -- Ensure laptopHealth is valid
-            if type(laptopHealth) ~= "number" then
-                debugPrint("LaptopOnFillWorldObjectContextMenu: laptopHealth is not a number, type=" .. type(laptopHealth) .. ", value=" .. tostring(laptopHealth))
-                laptopHealth = 0 -- Default to 0 if invalid
-            end
-
-            -- Get battery texture for menu icon
-            local batteryTexture = getBatteryTextureForHealth(laptopHealth)
-
-            -- Determine health status based on percentage
-            local healthStatus = ""
-            if laptopHealth >= 80 then
-                healthStatus = "Excellent"
-            elseif laptopHealth >= 60 then
-                healthStatus = "Good"
-            elseif laptopHealth >= 40 then
-                healthStatus = "Fair"
-            elseif laptopHealth >= 20 then
-                healthStatus = "Poor"
-            else
-                healthStatus = "Critical"
-            end
-
-            -- Display format: Health: percentage (status)
-            -- Icon will be displayed via option.iconTexture
-            local healthDisplay = "Health: " .. laptopHealth .. "% (" .. healthStatus .. ")"
-
-            -- Create a custom option with texture icon
-            local healthOption = context:addOptionOnTop(healthDisplay, playerObj, function()
-                local messages = {
-                    "The laptop hums softly, displaying its current condition.",
-                    "You examine the laptop's status indicators carefully.",
-                    "The screen flickers slightly as you check the system diagnostics.",
-                    "You run a quick hardware diagnostic on the laptop.",
-                    "The laptop responds to your touch, showing its current state."
-                }
-
-                if laptopHealth <= 0 then
-                    playerObj:Say("This laptop is completely dead. It's nothing more than expensive paperweight now.")
-                elseif laptopHealth < 20 then
-                    playerObj:Say("This laptop is barely hanging on. One wrong move and it'll be toast.")
-                elseif laptopHealth < 40 then
-                    playerObj:Say("This laptop has seen better days. Some TLC with antivirus might help.")
-                elseif laptopHealth < 60 then
-                    playerObj:Say("This laptop is holding up okay, but could use some maintenance.")
-                elseif laptopHealth < 80 then
-                    playerObj:Say("This laptop is in good shape and should serve you well.")
-                else
-                    local randomMsg = messages[ZombRand(#messages) + 1]
-                    playerObj:Say(randomMsg)
-                end
-            end)
-
-            -- Assign battery texture as icon to the context menu option
-            if batteryTexture then
-                healthOption.iconTexture = batteryTexture
-                debugPrint("Battery texture assigned to menu option iconTexture successfully")
-            else
-                debugPrint("Failed to load battery texture - no icon will be displayed")
-            end            -- Check for USB drives and organize by type
-            local inv = playerObj:getInventory()
-            if inv then
-                -- Collect and organize USB drives by skill type
-                local usbBySkill = {}
-                local totalUSBCount = 0
-                local items = inv:getItems()
-                
-                for i = 0, items:size() - 1 do
-                    local invItem = items:get(i)
-                    if invItem and invItem.getFullType then
-                        local fullType = invItem:getFullType()
-                        if string.find(fullType, "SkillDrive_") then
-                            totalUSBCount = totalUSBCount + 1
-                            
-                            -- Extract skill name from item type (e.g. "SkillDrive_Carpinteria_Facil")
-                            local skillName = "Unknown"
-                            local itemName = invItem:getDisplayName() or fullType
-                            
-                            -- Try to extract skill from display name or type
-                            if string.find(itemName, "Carpinteria") or string.find(fullType, "Carpinteria") then
-                                skillName = "Carpentry"
-                            elseif string.find(itemName, "Electricidad") or string.find(fullType, "Electricidad") then
-                                skillName = "Electrical"
-                            elseif string.find(itemName, "Mecanica") or string.find(fullType, "Mecanica") then
-                                skillName = "Mechanics"
-                            elseif string.find(itemName, "Medicina") or string.find(fullType, "Medicina") then
-                                skillName = "FirstAid"
-                            elseif string.find(itemName, "Cocina") or string.find(fullType, "Cocina") then
-                                skillName = "Cooking"
-                            elseif string.find(itemName, "Metalurgia") or string.find(fullType, "Metalurgia") then
-                                skillName = "MetalWelding"
-                            elseif string.find(itemName, "Sastre") or string.find(fullType, "Sastre") then
-                                skillName = "Tailoring"
-                            elseif string.find(itemName, "Punteria") or string.find(fullType, "Punteria") then
-                                skillName = "Aiming"
-                            elseif string.find(itemName, "Farmacia") or string.find(fullType, "Farmacia") then
-                                skillName = "Pharmacy"
-                            else
-                                -- Try to extract from the type pattern
-                                local extracted = string.match(fullType, "SkillDrive_([^_]+)")
-                                if extracted then
-                                    skillName = extracted
-                                end
-                            end
-                            
-                            if not usbBySkill[skillName] then
-                                usbBySkill[skillName] = {}
-                            end
-                            table.insert(usbBySkill[skillName], invItem)
-                        end
-                    end
-                end
-                
-                if totalUSBCount > 0 then
-                    -- Check if modern menu system is available and working
-                    local modernMenuActive = false
-                    local modernMenuError = nil
-
-                    -- Try to check if modern menu is loaded
-                    if type(_G) == 'table' and _G.DecryptDrivesContextMenu_MODERN then
-                        modernMenuActive = true
-                        debugPrint("LaptopFill: Modern menu detected via global flag")
-                    else
-                        local ok, mod = pcall(function() return require "client/DecryptDrivesContextMenu" end)
-                        if ok and type(mod) == 'table' and mod.MODERN_MENU_ACTIVE then
-                            modernMenuActive = true
-                            debugPrint("LaptopFill: Modern menu detected via require")
-                        elseif not ok then
-                            modernMenuError = mod
-                            debugPrint("LaptopFill: Modern menu require failed: " .. tostring(mod))
-                        else
-                            debugPrint("LaptopFill: Modern menu module loaded but MODERN_MENU_ACTIVE is " .. tostring(mod and mod.MODERN_MENU_ACTIVE or "nil"))
-                        end
+                    -- Get laptop health
+                    local laptopItem = worldObject:getItem()
+                    local laptopHealth = 0
+                    if laptopItem and LaptopSystem then
+                        laptopHealth = LaptopSystem.getLaptopHealth(laptopItem)
                     end
 
-                    debugPrint("LaptopFill: modernMenuActive = " .. tostring(modernMenuActive))
-                    debugPrint("LaptopFill: context._DecryptDrives_ModernMenu = " .. tostring(context and context._DecryptDrives_ModernMenu or "nil"))
-
-                    -- If modern menu is active, try to call it directly instead of relying on event order
-                    if modernMenuActive then
-                        debugPrint("LaptopFill: Attempting to call modern menu directly")
-                        local ok, result = pcall(function()
-                            local modernMenu = require "DecryptDrivesContextMenu"
-                            if modernMenu and modernMenu.addContextMenuOption then
-                                modernMenu.addContextMenuOption(playerObj, context, worldobjects, test)
-                                debugPrint("LaptopFill: Modern menu called successfully")
-                                return true
-                            end
-                            return false
-                        end)
-                        
-                        if ok and result then
-                            debugPrint("LaptopFill: Modern menu executed successfully - skipping legacy menu")
-                            return
-                        else
-                            debugPrint("LaptopFill: Modern menu call failed: " .. tostring(result) .. " - falling back to legacy")
-                        end
-                    end
-
-                    -- Fallback to legacy menu if modern menu failed
-                    debugPrint("LaptopFill: Using legacy menu implementation")
                     -- Check if laptop can be used for decryption
                     if laptopHealth <= 0 then
-                        local brokenOption = context:addOption("Drives Available (" .. totalUSBCount .. ") - LAPTOP BROKEN", playerObj, function()
+                        local brokenOption = context:addOption("Drives Available - LAPTOP BROKEN", playerObj, function()
                             playerObj:Say("This laptop is completely broken and cannot decrypt anything. Use antivirus to repair it.")
                         end)
                         brokenOption.notAvailable = true
-                    elseif laptopHealth < 10 then
-                        local riskOption = context:addOption("Drives Available (" .. totalUSBCount .. ") - HIGH RISK", playerObj, function() end)
-                        local riskSubMenu = ISContextMenu:getNew(context)
-                        context:addSubMenu(riskOption, riskSubMenu)
-                        
-                        -- Add warning at top of submenu
-                        local warningOpt = riskSubMenu:addOption("WARNING: CRITICAL LAPTOP - HIGH RISK", playerObj, function()
-                            playerObj:Say("Warning: This laptop is in critical condition. Decryption may fail or damage the laptop further.")
-                        end)
-                        warningOpt.notAvailable = true
-                        riskSubMenu:addOption("---------", playerObj, function() end).notAvailable = true
-                        
-                        -- Add skill-based options
-                        for skillName, driveList in pairs(usbBySkill) do
-                            riskSubMenu:addOption("USB " .. skillName .. " (" .. #driveList .. ")", playerObj, function()
-                                playerObj:Say("WARNING: High risk decryption of " .. skillName .. " drives...")
-                                queueDecryptActions(playerObj, worldObject, driveList)
-                            end)
-                        end
                     else
-                        -- Normal operation - create submenu
-                        local drivesOption = context:addOption("Drives Available (" .. totalUSBCount .. ")", playerObj, function() end)
-                        local subMenu = ISContextMenu:getNew(context)
-                        context:addSubMenu(drivesOption, subMenu)
-                        
-                        -- Add "Decrypt All" option at top
-                        if totalUSBCount > 1 then
-                            local allDrives = {}
-                            for _, driveList in pairs(usbBySkill) do
-                                for _, drive in ipairs(driveList) do
-                                    table.insert(allDrives, drive)
-                                end
-                            end
-                            subMenu:addOption("= Decrypt All (" .. totalUSBCount .. ")", playerObj, function()
-                                queueDecryptActions(playerObj, worldObject, allDrives)
-                            end)
-                            subMenu:addOption("---------", playerObj, function() end).notAvailable = true
-                        end
-                        
-                        -- Add skill-based options
-                        for skillName, driveList in pairs(usbBySkill) do
-                            subMenu:addOption("USB " .. skillName .. " (" .. #driveList .. ")", playerObj, function()
-                                queueDecryptActions(playerObj, worldObject, driveList)
-                            end)
-                        end
-                    end
-                else
-                    local noUSBOption = context:addOption("No USB drives found", playerObj, function() end)
-                    noUSBOption.notAvailable = true
-                end
-                
-                -- Check for antivirus (both old and new item names)
-                local antivirusCount = inv:getItemCount("GValley.AntivirusDisk_Basic") + 
-                                       inv:getItemCount("GValley.AntivirusDisk_Advanced") + 
-                                       inv:getItemCount("GValley.AntivirusDisk_Premium") +
-                                       inv:getItemCount("GValley.Antivirus_Norton") +
-                                       inv:getItemCount("GValley.Antivirus_Kaspersky") +
-                                       inv:getItemCount("GValley.Antivirus_McAfee") +
-                                       inv:getItemCount("GValley.Antivirus_MalwareBytes")
-                
-                if antivirusCount > 0 then
-                    -- Create antivirus submenu
-                    local antivirusOption = context:addOption("Use Antivirus (" .. antivirusCount .. ")", playerObj, function() end)
-                    local antivirusSubMenu = ISContextMenu:getNew(context)
-                    context:addSubMenu(antivirusOption, antivirusSubMenu)
-                    
-                    -- Check each antivirus type and add to submenu
-                    local antivirusTypes = {
-                        {id = "GValley.Antivirus_MalwareBytes", name = "MalwareBytes", heal = 12},
-                        {id = "GValley.Antivirus_McAfee", name = "McAfee", heal = 10},
-                        {id = "GValley.Antivirus_Kaspersky", name = "Kaspersky", heal = 8},
-                        {id = "GValley.Antivirus_Norton", name = "Norton", heal = 5},
-                        {id = "GValley.AntivirusDisk_Premium", name = "Premium", heal = 75},
-                        {id = "GValley.AntivirusDisk_Advanced", name = "Advanced", heal = 50},
-                        {id = "GValley.AntivirusDisk_Basic", name = "Basic", heal = 25}
-                    }
-                    
-                    for _, avType in ipairs(antivirusTypes) do
-                        local count = inv:getItemCount(avType.id)
-                        if count > 0 then
-                            antivirusSubMenu:addOption(avType.name .. " (" .. count .. ") - Heal +" .. avType.heal .. "%", playerObj, function()
-                                -- Find and use this specific antivirus type
-                                local antivirusItem = nil
-                                
-                                -- Try multiple methods to find the item
+                        -- Check if modern menu system is already active
+                        if modernMenuActive then
+                            debugPrint("LaptopFill: Backup system not adding menu options (modern menu is active)")
+                        else
+                            -- Simple USB check
+                            local inv = playerObj:getInventory()
+                            local totalUSBCount = 0
+
+                            if inv then
                                 local items = inv:getItems()
                                 for i = 0, items:size() - 1 do
-                                    local checkItem = items:get(i)
-                                    if checkItem and checkItem:getFullType() == avType.id then
-                                        antivirusItem = checkItem
-                                        break
+                                    local invItem = items:get(i)
+                                    if invItem and invItem.getFullType and string.find(invItem:getFullType(), "SkillDrive_") then
+                                        totalUSBCount = totalUSBCount + 1
                                     end
-                                end
-                                
-                                -- Fallback: try getItemsFromType
-                                if not antivirusItem then
-                                    local itemList = inv:getItemsFromType(avType.id)
-                                    if itemList and itemList:size() > 0 then
-                                        antivirusItem = itemList:get(0)
-                                    end
-                                end
-                                
-                                if antivirusItem then
-                                    -- Use the antivirus on the world object laptop
-                                    local laptopItem = worldObject:getItem()
-                                    if laptopItem and LaptopSystem then
-                                        -- Get current health before treatment
-                                        local beforeHealth = LaptopSystem.getLaptopHealth(laptopItem)
-                                        
-                                        -- Remove the antivirus item
-                                        inv:DoRemoveItem(antivirusItem)
-                                        
-                                        -- Apply antivirus cleaning directly to world object
-                                        local cleaned = false
-                                        if LaptopSystem.cleanMalware then
-                                            cleaned = LaptopSystem.cleanMalware(laptopItem, avType.heal)
-                                        end
-                                        local afterHealth = LaptopSystem.getLaptopHealth(laptopItem)
-                                        local healthGain = afterHealth - beforeHealth
-                                        
-                                        if cleaned then
-                                            playerObj:Say("Antivirus " .. avType.name .. " successfully cleaned malware! Health: " .. beforeHealth .. "% -> " .. afterHealth .. "% (+" .. healthGain .. "%)")
-                                        else
-                                            playerObj:Say("No malware detected. " .. avType.name .. " improved laptop condition: " .. beforeHealth .. "% -> " .. afterHealth .. "% (+" .. healthGain .. "%)")
-                                            if LaptopSystem.damageLaptop then
-                                                LaptopSystem.damageLaptop(laptopItem, -math.floor(avType.heal / 2))
-                                            end
-                                            -- Update after the additional healing
-                                            local finalHealth = LaptopSystem.getLaptopHealth(laptopItem)
-                                            if finalHealth ~= afterHealth then
-                                                playerObj:Say("Additional maintenance applied. Final health: " .. finalHealth .. "%")
-                                            end
-                                        end
-                                    else
-                                        playerObj:Say("Cannot access laptop for cleaning.")
-                                    end
-                                else
-                                    playerObj:Say("No " .. avType.name .. " antivirus found in inventory.")
-                                end
-                            end)
-                        end
-                    end
-                end
-                
-                -- Check for elite drives and create submenu
-                local eliteCount = 0
-                local eliteTypes = {{"Strength", "Force"}, {"Endurance", "Resistance"}, {"Capacity", "Weight"}, {"Speed", "Movement"}, {"Luck", "Fortune"}}
-                local availableElites = {}
-                
-                for _, eData in ipairs(eliteTypes) do
-                    local eType = eData[1]
-                    local displayName = eData[2]
-                    local fullTypeName = "GValley.EliteDrive_" .. eType
-                    
-                    -- Use multiple methods to count elite drives
-                    local count = 0
-                    
-                    -- Method 1: getItemCount
-                    count = inv:getItemCount(fullTypeName)
-                    
-                    -- Method 2: Manual count if getItemCount fails
-                    if count == 0 then
-                        local items = inv:getItems()
-                        for i = 0, items:size() - 1 do
-                            local checkItem = items:get(i)
-                            if checkItem and checkItem:getFullType() == fullTypeName then
-                                count = count + 1
-                            end
-                        end
-                    end
-                    
-                    if count >= 2 then
-                        eliteCount = eliteCount + 1
-                        table.insert(availableElites, {type = eType, name = displayName, count = count, fullType = fullTypeName})
-                    end
-                end
-                
-                if eliteCount > 0 then
-                    -- Create elite drives submenu
-                    local eliteOption = context:addOption("Use Elite Enhancement (" .. eliteCount .. " types)", playerObj, function() end)
-                    local eliteSubMenu = ISContextMenu:getNew(context)
-                    context:addSubMenu(eliteOption, eliteSubMenu)
-                    
-                    -- Add info header
-                    local infoOpt = eliteSubMenu:addOption("Elite Enhancements Available:", playerObj, function() end)
-                    infoOpt.notAvailable = true
-                    eliteSubMenu:addOption("---------", playerObj, function() end).notAvailable = true
-                    
-                    -- Add each available elite type
-                    for _, elite in ipairs(availableElites) do
-                        eliteSubMenu:addOption("Elite " .. elite.name .. " (" .. elite.count .. "/2)", playerObj, function()
-                            -- Find elite drives in inventory
-                            local eliteItems = {}
-                            local items = inv:getItems()
-                            for i = 0, items:size() - 1 do
-                                local checkItem = items:get(i)
-                                if checkItem and checkItem:getFullType() == elite.fullType then
-                                    table.insert(eliteItems, checkItem)
-                                    if #eliteItems >= 2 then break end -- Only need 2
                                 end
                             end
-                            
-                            if #eliteItems >= 2 then
-                                -- Remove 2 elite drives from inventory
-                                inv:DoRemoveItem(eliteItems[1])
-                                inv:DoRemoveItem(eliteItems[2])
-                                
-                                -- Apply elite enhancement
-                                if EliteDriveSystem and EliteDriveSystem.useEliteDrive then
-                                    local success = EliteDriveSystem.useEliteDrive(playerObj, elite.type)
-                                    if success then
-                                        playerObj:Say("Elite " .. elite.name .. " enhancement successfully applied! You feel more powerful...")
-                                    else
-                                        playerObj:Say("Elite " .. elite.name .. " enhancement failed. You may have already used this enhancement.")
-                                        -- Return items if failed
-                                        inv:AddItem(elite.fullType)
-                                        inv:AddItem(elite.fullType)
-                                    end
-                                else
-                                    playerObj:Say("Elite enhancement system not available.")
-                                    -- Return items if system not available
-                                    inv:AddItem(elite.fullType)
-                                    inv:AddItem(elite.fullType)
-                                end
+
+                            if totalUSBCount > 0 then
+                                local drivesOption = context:addOption("Drives Available (BACKUP: " .. totalUSBCount .. ")", playerObj, function()
+                                    playerObj:Say("Backup system: Please use the modern menu system for full functionality.")
+                                end)
+                                drivesOption.notAvailable = true
                             else
-                                playerObj:Say("Not enough Elite " .. elite.name .. " drives found. Need 2, have " .. #eliteItems)
+                                local noUSBOption = context:addOption("No USB drives found (BACKUP)", playerObj, function() end)
+                                noUSBOption.notAvailable = true
                             end
-                        end)
+
+                            debugPrint("LaptopFill: Backup menu options added (modern menu not detected)")
+                        end
                     end
-                    
-                    eliteSubMenu:addOption("---------", playerObj, function() end).notAvailable = true
-                    eliteSubMenu:addOption("Note: Elite drives work independently", playerObj, function()
-                        playerObj:Say("Elite drives can be used directly from inventory without requiring a laptop.")
-                    end).notAvailable = true
+
+                    debugPrint("LaptopFill: Menu processing completed (backup layer)")
+                    break -- Only add menu once per laptop found
                 end
             end
-            
-                debugPrint("Simple menu added successfully")
-                break -- Only add menu once per laptop found
-            end
-        end
         end
     end
 end
 
--- Register the context menu event
-debugPrint("==> Registering context menu event...")
+-- Register the backup context menu event (patrón simple)
+debugPrint("LaptopFill: Registering backup context menu event...")
 Events.OnFillWorldObjectContextMenu.Add(LaptopOnFillWorldObjectContextMenu)
-debugPrint("==> Context menu event registered successfully")
-
-debugPrint("LaptopFill.lua loaded successfully")
+debugPrint("LaptopFill: ✅ Backup event registered successfully")
+debugPrint("LaptopFill: Backup system loaded - modern menu should take precedence")

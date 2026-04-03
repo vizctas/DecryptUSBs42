@@ -3,48 +3,34 @@ Sandbox_EN = {
     Sandbox_Drive_Decrypt = "Decrypt Drive Settings",
 
     -- General Settings
-    Sandbox_GVDrive_EnableWorldLoot = "Enable World Loot",
+    -- World Loot Spawn Rates (percent scale 0-100)
+    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World, 0-100%)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World, 0-100%)",
+    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Elite Drive Spawn Rate (World, 0-100%)",
+    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Skill USB Spawn Rate (World, 0-100%)",
 
-    -- World Loot Spawn Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
-    Sandbox_GVDrive_USB_WorldLoot = "USB Spawn Rate (World, 0.0-5.0)",
-    Sandbox_GVDrive_Laptop_WorldLoot = "Laptop Spawn Rate (World, 0.0-5.0)",
-    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Elite Drive Spawn Rate (World, 0.0-5.0)",
-    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Skill USB Spawn Rate (World, 0.0-5.0)",
-    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Antivirus Disk Spawn Rate (World, 0.0-5.0)",
 
-    -- Zombie Drop Rates (scale 0.0 - 5.0 where 5.0 ~= 100%)
-    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies, 0.0-5.0)",
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies, 0.0-5.0)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies, 0.0-5.0)",
-    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies, 0.0-5.0)",
-
-    -- Decryption Mechanics
-    Sandbox_GVDrive_USB_Decrypt_Success = "USB Decrypt Success Rate (%)",
-    Sandbox_GVDrive_Drive_Preserve = "Drive Preservation Chance (%)",
-    Sandbox_GVDrive_Malware_Chance = "Malware Infection Chance (%)",
-    Sandbox_GVDrive_Malware_Damage = "Malware Damage Per Use",
-
-    -- XP Rewards
-    Sandbox_GVDrive_USB_Min_Exp = "USB Min Experience",
-    Sandbox_GVDrive_USB_Max_Exp = "USB Max Experience",
-
+    -- Zombie Drop Rates (percent scale 0-100)
+    Sandbox_GVDrive_USB_ZombieDrop = "USB Drop Rate (Zombies, 0-100%)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Laptop Drop Rate (Zombies, 0-100%)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Elite Drive Drop Rate (Zombies, 0-100%)",
     -- Laptop Health
     Sandbox_GVDrive_Laptop_Initial_Health = "Laptop Initial Health",
     Sandbox_GVDrive_Laptop_Random_Health_Min = "Laptop Random Health Min (%)",
     Sandbox_GVDrive_Laptop_Random_Health_Max = "Laptop Random Health Max (%)",
 
-    -- Elite Drive Bonuses
-    Sandbox_GVDrive_Elite_Strength = "Elite Strength Bonus",
-    Sandbox_GVDrive_Elite_Endurance = "Elite Endurance Bonus",
-    Sandbox_GVDrive_Elite_Capacity = "Elite Capacity Bonus",
-    Sandbox_GVDrive_Elite_Speed = "Elite Speed Bonus",
-    Sandbox_GVDrive_Elite_Luck = "Elite Luck Bonus",
+    -- elite Drive Bonuses
+    Sandbox_GVDrive_Elite_Required_Count = "Elite Drive Requirement",
+    Sandbox_GVDrive_EliteBonus_Strength = "Elite Strength Bonus",
+    Sandbox_GVDrive_EliteBonus_Endurance = "Elite Endurance Bonus",
+    Sandbox_GVDrive_EliteBonus_Capacity = "Elite Capacity Bonus (kg)",
+    Sandbox_GVDrive_EliteBonus_Speed = "Elite Speed Bonus",
+    Sandbox_GVDrive_EliteBonus_Luck = "Elite Luck Bonus",
 
     -- Rarity: Facil (Easy)
     Sandbox_GVDrive_Normal_Success_Bonus = "Easy Drives: Success Bonus (%)",
     Sandbox_GVDrive_Normal_Malware_Chance = "Easy Drives: Malware Chance (%)",
     Sandbox_GVDrive_Normal_Laptop_Damage_Min = "Easy Drives: Laptop Damage Min",
-    Sandbox_GVDrive_Normal_Laptop_Damage_Max = "Easy Drives: Laptop Damage Max",
     Sandbox_GVDrive_Normal_XP_Bonus = "Easy Drives: XP Bonus (%)",
     Sandbox_GVDrive_Normal_Loot_Chance = "Easy Drives: Loot Weight (%)",
 
@@ -58,9 +44,8 @@ Sandbox_EN = {
 
     -- Rarity: Dificil (Hard)
     Sandbox_GVDrive_Advanced_Success_Bonus = "Hard Drives: Success Bonus (%)",
-    Sandbox_GVDrive_Advanced_Malware_Chance = "Hard Drives: Malware Chance (%)",
     Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Hard Drives: Laptop Damage Min",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Hard Drives: Laptop Damage Max",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Hard Drives: laptop Damage Max",
     Sandbox_GVDrive_Advanced_XP_Bonus = "Hard Drives: XP Bonus (%)",
     Sandbox_GVDrive_Advanced_Loot_Chance = "Hard Drives: Loot Weight (%)",
 
@@ -69,4 +54,32 @@ Sandbox_EN = {
     Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Kaspersky Antivirus Drop Rate (%)",
     Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "McAfee Antivirus Drop Rate (%)",
     Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "MalwareBytes Antivirus Drop Rate (%)",
+
+    -- Antivirus Zombie Drop
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Antivirus Drop Rate (Zombies, 0-100%)",
+
+    -- USB Experience
+    Sandbox_GVDrive_USB_Min_Exp = "USB Minimum Experience",
+    Sandbox_GVDrive_USB_Max_Exp = "USB Maximum Experience",
+
+    -- Laptop Damage - Easy
+    Sandbox_GVDrive_Normal_Laptop_Damage_Max = "Easy Drives: Laptop Damage Max",
+
+    -- System Modifiers
+    Sandbox_GVDrive_USB_Surprise_Chance_Modifier = "USB Surprise Chance Modifier",
+    Sandbox_GVDrive_NeuralBoost_Chance_Modifier = "Neural Boost Chance Modifier",
+    Sandbox_GVDrive_Thermal_System_Enabled = "Thermal System Enabled",
+    Sandbox_GVDrive_Contextual_Messages_Enabled = "Contextual Messages Enabled",
+    Sandbox_GVDrive_Dynamic_Sounds_Enabled = "Dynamic Sounds Enabled",
+
+    -- Laptop Events System
+    Sandbox_GVDrive_Event_Trigger_Chance = "Event Trigger Chance (%) - When failures >= threshold",
+    Sandbox_GVDrive_Event_Threshold_Low = "Low Failure Threshold - Minimum failures to trigger events",
+    Sandbox_GVDrive_Event_Threshold_High = "High Failure Threshold - Increased event chance",
+    Sandbox_GVDrive_Event_DistressSignal_ZombieCount = "Distress Signal: Zombie Count (3-15)",
+    Sandbox_GVDrive_Event_DistressSignal_SpawnRadius = "Distress Signal: Spawn Radius (tiles)",
+    Sandbox_GVDrive_Event_AcceleratedDamage_Amount = "Accelerated Damage: Amount (%)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Duration = "Security Alarm: Duration (seconds)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Radius = "Security Alarm: Sound Radius (tiles)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Volume = "Security Alarm: Volume (50-200)",
 }

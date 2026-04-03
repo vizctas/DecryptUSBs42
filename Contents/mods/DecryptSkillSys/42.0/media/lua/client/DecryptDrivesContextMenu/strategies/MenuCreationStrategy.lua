@@ -2,6 +2,11 @@
 -- STRATEGY PATTERN - Menu Creation Strategies
 -- ============================================================================
 
+-- Safe debug print function
+if not debugPrint then
+    debugPrint = function(msg) print("[DecryptSkillSys][DEBUG] " .. tostring(msg)) end
+end
+
 -- Base Strategy Interface
 MenuCreationStrategy = {}
 
@@ -53,7 +58,13 @@ function MenuCreationStrategy:groupUSBsBySkill(usbList)
         debugPrint("  Added USB to skill: " .. skill)
     end
 
-    debugPrint("Grouping complete. Skills found: " .. table.count(grouped))
+    -- Count skills safely
+    local skillCount = 0
+    for _ in pairs(grouped) do
+        skillCount = skillCount + 1
+    end
+
+    debugPrint("Grouping complete. Skills found: " .. skillCount)
     return grouped
 end
 

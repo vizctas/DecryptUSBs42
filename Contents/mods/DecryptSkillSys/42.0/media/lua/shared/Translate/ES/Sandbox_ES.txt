@@ -3,70 +3,82 @@ Sandbox_ES = {
     Sandbox_Drive_Decrypt = "Ajustes de Desencriptado",
 
     -- Ajustes Generales
-    Sandbox_GVDrive_EnableWorldLoot = "Activar Botín en el Mundo",
+    -- Tasas de Aparicion en el Mundo (escala 0-100)
+    Sandbox_GVDrive_USB_WorldLoot = "Tasa de Aparicion de USB (Mundo, 0-100%)",
+    Sandbox_GVDrive_Laptop_WorldLoot = "Tasa de Aparicion de Laptops (Mundo, 0-100%)",
+    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Tasa de Aparicion de Unidades Elite (Mundo, 0-100%)",
+    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Tasa de Aparicion de USB de Habilidad (Mundo, 0-100%)",
 
-    -- Tasas de Aparición en el Mundo (escala 0.0 - 5.0 donde 5.0 ~= 100%)
-    Sandbox_GVDrive_USB_WorldLoot = "Tasa de Aparición de USB (Mundo, 0.0-5.0)",
-    Sandbox_GVDrive_Laptop_WorldLoot = "Tasa de Aparición de Laptops (Mundo, 0.0-5.0)",
-    Sandbox_GVDrive_EliteDrive_WorldLoot_Chance = "Tasa de Aparición de Unidades Élite (Mundo, 0.0-5.0)",
-    Sandbox_GVDrive_SkillUSB_WorldLoot_Chance = "Tasa de Aparición de USB de Habilidad (Mundo, 0.0-5.0)",
-    Sandbox_GVDrive_Antivirus_Spawn_Rate = "Tasa de Aparición de Discos Antivirus (Mundo, 0.0-5.0)",
 
-    -- Tasas de Caída de Zombis (escala 0.0 - 5.0 donde 5.0 ~= 100%)
-    Sandbox_GVDrive_USB_ZombieDrop = "Tasa de Caída de USB (Zombis, 0.0-5.0)",
-    Sandbox_GVDrive_Laptop_ZombieDrop = "Tasa de Caída de Laptops (Zombis, 0.0-5.0)",
-    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Tasa de Caída de Unidades Élite (Zombis, 0.0-5.0)",
-    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Tasa de Caída de Antivirus (Zombis, 0.0-5.0)",
-
-    -- Mecánicas de Desencriptado
-    Sandbox_GVDrive_USB_Decrypt_Success = "Tasa de Éxito de Desencriptado de USB (%)",
-    Sandbox_GVDrive_Drive_Preserve = "Probabilidad de Conservar Unidad (%)",
-    Sandbox_GVDrive_Malware_Chance = "Probabilidad de Infección con Malware (%)",
-    Sandbox_GVDrive_Malware_Damage = "Daño por Uso con Malware",
-
-    -- Recompensas de XP
-    Sandbox_GVDrive_USB_Min_Exp = "Experiencia Mínima de USB",
-    Sandbox_GVDrive_USB_Max_Exp = "Experiencia Máxima de USB",
-
-    -- Salud de Laptops
+    -- Tasas de Caida de Zombis (escala 0-100)
+    Sandbox_GVDrive_USB_ZombieDrop = "Tasa de Caida de USB (Zombis, 0-100%)",
+    Sandbox_GVDrive_Laptop_ZombieDrop = "Tasa de Caida de Laptops (Zombis, 0-100%)",
+    Sandbox_GVDrive_EliteDrive_ZombieDrop = "Tasa de Caida de Unidades Elite (Zombis, 0-100%)",
+{{ ... }}
     Sandbox_GVDrive_Laptop_Initial_Health = "Salud Inicial de Laptops",
     Sandbox_GVDrive_Laptop_Random_Health_Min = "Salud Aleatoria Mínima de Laptops (%)",
     Sandbox_GVDrive_Laptop_Random_Health_Max = "Salud Aleatoria Máxima de Laptops (%)",
 
     -- Bonificaciones de Unidades Élite
-    Sandbox_GVDrive_Elite_Strength = "Bonificación de Fuerza Élite",
-    Sandbox_GVDrive_Elite_Endurance = "Bonificación de Resistencia Élite",
-    Sandbox_GVDrive_Elite_Capacity = "Bonificación de Capacidad Élite",
-    Sandbox_GVDrive_Elite_Speed = "Bonificación de Velocidad Élite",
-    Sandbox_GVDrive_Elite_Luck = "Bonificación de Suerte Élite",
+    Sandbox_GVDrive_Elite_Required_Count = "Cantidad Requerida para Bonus Elite",
+    Sandbox_GVDrive_EliteBonus_Strength = "Bonificacion de Fuerza Elite",
+    Sandbox_GVDrive_EliteBonus_Endurance = "Bonificacion de Resistencia Elite",
+    Sandbox_GVDrive_EliteBonus_Capacity = "Bonificacion de Capacidad Elite (kg)",
+    Sandbox_GVDrive_EliteBonus_Speed = "Bonificacion de Velocidad Elite",
+    Sandbox_GVDrive_EliteBonus_Luck = "Bonificacion de Suerte Elite",
 
     -- Rareza: Fácil
-    Sandbox_GVDrive_Normal_Success_Bonus = "Unidades Fáciles: Bono de Éxito (%)",
-    Sandbox_GVDrive_Normal_Malware_Chance = "Unidades Fáciles: Probabilidad de Malware (%)",
-    Sandbox_GVDrive_Normal_Laptop_Damage_Min = "Unidades Fáciles: Daño Mínimo a Laptop",
-    Sandbox_GVDrive_Normal_Laptop_Damage_Max = "Unidades Fáciles: Daño Máximo a Laptop",
-    Sandbox_GVDrive_Normal_XP_Bonus = "Unidades Fáciles: Bono de XP (%)",
-    Sandbox_GVDrive_Normal_Loot_Chance = "Unidades Fáciles: Peso de Botín (%)",
+    Sandbox_GVDrive_Normal_Success_Bonus = "Unidades Faciles: Bono de Exito (%)",
+    Sandbox_GVDrive_Normal_Malware_Chance = "Unidades Faciles: Probabilidad de Malware (%)",
+    Sandbox_GVDrive_Normal_Laptop_Damage_Min = "Unidades Faciles: Dano Minimo a laptop",
+    Sandbox_GVDrive_Normal_XP_Bonus = "Unidades Faciles: Bono de XP (%)",
+    Sandbox_GVDrive_Normal_Loot_Chance = "Unidades Faciles: Peso de Botin (%)",
 
     -- Rareza: Moderado
-    Sandbox_GVDrive_Common_Success_Bonus = "Unidades Moderadas: Bono de Éxito (%)",
+    Sandbox_GVDrive_Common_Success_Bonus = "Unidades Moderadas: Bono de Exito (%)",
     Sandbox_GVDrive_Common_Malware_Chance = "Unidades Moderadas: Probabilidad de Malware (%)",
-    Sandbox_GVDrive_Common_Laptop_Damage_Min = "Unidades Moderadas: Daño Mínimo a Laptop",
-    Sandbox_GVDrive_Common_Laptop_Damage_Max = "Unidades Moderadas: Daño Máximo a Laptop",
+    Sandbox_GVDrive_Common_Laptop_Damage_Min = "Unidades Moderadas: Dano Minimo a Laptop",
+    Sandbox_GVDrive_Common_Laptop_Damage_Max = "Unidades Moderadas: Dano Maximo a Laptop",
     Sandbox_GVDrive_Common_XP_Bonus = "Unidades Moderadas: Bono de XP (%)",
-    Sandbox_GVDrive_Common_Loot_Chance = "Unidades Moderadas: Peso de Botín (%)",
+    Sandbox_GVDrive_Common_Loot_Chance = "Unidades Moderadas: Peso de Botin (%)",
 
     -- Rareza: Difícil
-    Sandbox_GVDrive_Advanced_Success_Bonus = "Unidades Difíciles: Bono de Éxito (%)",
-    Sandbox_GVDrive_Advanced_Malware_Chance = "Unidades Difíciles: Probabilidad de Malware (%)",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Unidades Difíciles: Daño Mínimo a Laptop",
-    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Unidades Difíciles: Daño Máximo a Laptop",
-    Sandbox_GVDrive_Advanced_XP_Bonus = "Unidades Difíciles: Bono de XP (%)",
-    Sandbox_GVDrive_Advanced_Loot_Chance = "Unidades Difíciles: Peso de Botín (%)",
+    Sandbox_GVDrive_Advanced_Success_Bonus = "Unidades Dificiles: Bono de Exito (%)",
+    Sandbox_GVDrive_Advanced_Malware_Chance = "Unidades Dificiles: Probabilidad de Malware (%)",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Min = "Unidades Dificiles: Dano Minimo a Laptop",
+    Sandbox_GVDrive_Advanced_Laptop_Damage_Max = "Unidades Dificiles: Dano Maximo a Laptop",
+    Sandbox_GVDrive_Advanced_XP_Bonus = "Unidades Dificiles: Bono de XP (%)",
+    Sandbox_GVDrive_Advanced_Loot_Chance = "Unidades Dificiles: Peso de Botin (%)",
 
     -- Tasas de Caída de Antivirus
-    Sandbox_GVDrive_Antivirus_Norton_Drop_Rate = "Tasa de Caída de Antivirus Norton (%)",
-    Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Tasa de Caída de Antivirus Kaspersky (%)",
-    Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "Tasa de Caída de Antivirus McAfee (%)",
-    Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "Tasa de Caída de Antivirus MalwareBytes (%)",
+    Sandbox_GVDrive_Antivirus_Norton_Drop_Rate = "Tasa de Caida de Antivirus Norton (%)",
+    Sandbox_GVDrive_Antivirus_Kaspersky_Drop_Rate = "Tasa de Caida de Antivirus Kaspersky (%)",
+    Sandbox_GVDrive_Antivirus_McAfee_Drop_Rate = "Tasa de Caida de Antivirus McAfee (%)",
+    Sandbox_GVDrive_Antivirus_MalwareBytes_Drop_Rate = "Tasa de Caida de Antivirus MalwareBytes (%)",
+    Sandbox_GVDrive_Antivirus_ZombieDrop_Chance = "Tasa de Caida de Antivirus (Zombis, 0-100%)",
+
+    -- Experiencia de USB
+    Sandbox_GVDrive_USB_Min_Exp = "Experiencia Minima de USB",
+    Sandbox_GVDrive_USB_Max_Exp = "Experiencia Maxima de USB",
+
+    -- Daño a Laptop - Fácil
+    Sandbox_GVDrive_Normal_Laptop_Damage_Max = "Unidades Fáciles: Daño Máximo a Laptop",
+
+    -- Modificadores de Sistema
+    Sandbox_GVDrive_USB_Surprise_Chance_Modifier = "Modificador de Probabilidad de Sorpresa USB",
+    Sandbox_GVDrive_NeuralBoost_Chance_Modifier = "Modificador de Probabilidad de Impulso Neural",
+    Sandbox_GVDrive_Thermal_System_Enabled = "Sistema Termico Habilitado",
+    Sandbox_GVDrive_Contextual_Messages_Enabled = "Mensajes Contextuales Habilitados",
+    Sandbox_GVDrive_Dynamic_Sounds_Enabled = "Sonidos Dinamicos Habilitados",
+
+    -- Sistema de Eventos de Laptop
+    Sandbox_GVDrive_Event_Trigger_Chance = "Probabilidad de Evento (%) - Cuando fallos >= umbral",
+    Sandbox_GVDrive_Event_Threshold_Low = "Umbral Bajo de Fallos - Minimo de fallos para activar eventos",
+    Sandbox_GVDrive_Event_Threshold_High = "Umbral Alto de Fallos - Probabilidad aumentada de eventos",
+    Sandbox_GVDrive_Event_DistressSignal_ZombieCount = "Senal de Auxilio: Cantidad de Zombis (3-15)",
+    Sandbox_GVDrive_Event_DistressSignal_SpawnRadius = "Senal de Auxilio: Radio de Aparicion (casillas)",
+    Sandbox_GVDrive_Event_AcceleratedDamage_Amount = "Dano Acelerado: Cantidad (%)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Duration = "Alarma de Seguridad: Duracion (segundos)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Radius = "Alarma de Seguridad: Radio de Sonido (casillas)",
+    Sandbox_GVDrive_Event_SecurityAlarm_Volume = "Alarma de Seguridad: Volumen (50-200)",
 }

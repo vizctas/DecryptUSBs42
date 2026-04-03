@@ -122,3 +122,111 @@ function OnUse_AntivirusPremium(items, result, player)
         end
     end
 end
+
+-- ✅ MULTIPLAYER: Handler mejorado para comandos de cliente
+local function handleClientCommand(playerIndex, module, command, args)
+    -- Validar parámetros básicos
+    if module ~= "GVDrive" then return end
+    if not args then return end
+    
+    -- Obtener jugador
+    local player = nil
+    if type(playerIndex) == "number" then
+        player = getSpecificPlayer(playerIndex)
+    end
+    
+    if not player then
+        debugPrint("CRITICAL", "Invalid player in handleClientCommand")
+        return
+    end
+    
+    -- ✅ COMANDO: IncrementFailureCount
+    if command == "IncrementFailureCount" and args.laptopID then
+        -- Buscar laptop por ID en inventario del jugador
+        local inventory = player:getInventory()
+        if not inventory then return end
+        
+        local laptop = nil
+        for i = 0, inventory:getItems():size() - 1 do
+            local item = inventory:getItems():get(i)
+            if item and item:getID() == args.laptopID then
+                laptop = item
+                break
+            end
+        end
+        
+        -- Si no está en inventario, buscar en objetos del mundo cercanos
+        if not laptop then
+            local square = player:getCurrentSquare()
+            if square then
+                local objects = square:getWorldObjects()
+                if objects then
+                    for i = 0, objects:size() - 1 do
+                        local obj = objects:get(i)
+                        if obj and instanceof(obj, "IsoWorldInventoryObject") then
+                            local item = obj:getItem()
+                            if item and item:getID() == args.laptopID then
+                                laptop = item
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        -- Aplicar incremento si se encontró la laptop
+        if laptop and LaptopSystem and LaptopSystem.incrementFailureCount then
+            local newCount = LaptopSystem.incrementFailureCount(laptop)
+            debugPrint("Laptop failure count incremented to: " .. tostring(newCount))
+        else
+            debugPrint("CRITICAL", "Laptop not found for ID: " .. tostring(args.laptopID))
+        end
+    end
+    
+    -- ✅ COMANDO: ConsumeUSB (nuevo)
+    if command == "ConsumeUSB" and args.usbID then
+        local inventory = player:getInventory()
+        if not inventory then return end
+        
+        for i = 0, inventory:getItems():size() - 1 do
+            local item = inventory:getItems():get(i)
+            if item and item:getID() == args.usbID then
+                inventory:Remove(item)
+                debugPrint("USB consumed: " .. tostring(args.usbID))
+                break
+            end
+        end
+    end
+    
+    -- ✅ COMANDO: ApplyXP (nuevo)
+    if command == "ApplyXP" and args.usbType and args.difficulty then
+        if GVDrive_Utils and GVDrive_Utils.applyMinigameResult then
+            -- Buscar laptop si se proporcionó ID
+            local laptop = nil
+            if args.laptopID then
+                local inventory = player:getInventory()
+                if inventory then
+                    for i = 0, inventory:getItems():size() - 1 do
+                        local item = inventory:getItems():get(i)
+                        if item and item:getID() == args.laptopID then
+                            laptop = item
+                            break
+                        end
+                    end
+                end
+            end
+            
+            local isSuccess = args.isSuccess
+            if isSuccess == nil then isSuccess = true end
+            
+            GVDrive_Utils.applyMinigameResult(player, laptop, args.usbType, args.difficulty, isSuccess)
+            debugPrint("XP applied for " .. args.usbType .. " (" .. args.difficulty .. ")")
+        end
+    end
+end
+
+if Events and Events.OnClientCommand and Events.OnClientCommand.Add then
+    Events.OnClientCommand.Add(handleClientCommand)
+    debugPrint("Server command handler registered for GVDrive")
+end

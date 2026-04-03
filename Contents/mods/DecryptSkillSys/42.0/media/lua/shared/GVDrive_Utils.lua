@@ -9,7 +9,7 @@ local rarityDefaults = {
         laptopDamageMin = 3,
         laptopDamageMax = 5,
         xpBonus = 0.0,
-        lootChance = 0.8,
+        lootChance = 0.1,
     },
     Facil = {
         successBonus = 4.5,
@@ -17,7 +17,7 @@ local rarityDefaults = {
         laptopDamageMin = 5,
         laptopDamageMax = 10,
         xpBonus = 0.0,
-        lootChance = 0.4,
+        lootChance = 0.1,
     },
     Dificil = {
         successBonus = 6.5,
@@ -25,7 +25,7 @@ local rarityDefaults = {
         laptopDamageMin = 15,
         laptopDamageMax = 20,
         xpBonus = 0.0,
-        lootChance = 1.8,
+        lootChance = 0.3,
     },
 }
 
@@ -117,15 +117,9 @@ function GVDrive_Utils.getSandboxNumber(name, default)
     local v = getSandboxNumber(name, default)
     -- Conversion table: keys that use the 0..5 scale and should be mapped to base percent or numeric
     local scale5_keys = {
-        USB_WorldLoot_Chance = true,
         Laptop_WorldLoot_Chance = true,
         EliteDrive_WorldLoot_Chance = true,
         SkillUSB_WorldLoot_Chance = true,
-        USB_ZombieDrop_Chance = true,
-        Laptop_ZombieDrop_Chance = true,
-        EliteDrive_ZombieDrop_Chance = true,
-        Antivirus_ZombieDrop_Chance = true,
-        Antivirus_Norton_Drop_Rate = true,
         Antivirus_Kaspersky_Drop_Rate = true,
         Antivirus_McAfee_Drop_Rate = true,
         Antivirus_MalwareBytes_Drop_Rate = true,
@@ -481,14 +475,9 @@ function GVDrive_Utils.getSandboxKeyMeta(name)
     local defaultMeta = { min = 0.0, max = 100.0, def = 0.0, scale = "percent" }
 
     local scale5 = {
-        USB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
         Laptop_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 1.0, scale = "0-5" },
         EliteDrive_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.1, scale = "0-5" },
         SkillUSB_WorldLoot_Chance = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
-        USB_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
-        Laptop_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.125, scale = "0-5" },
-        EliteDrive_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.05, scale = "0-5" },
-        Antivirus_ZombieDrop_Chance = { min = 0.0, max = 5.0, def = 0.167, scale = "0-5" },
         Antivirus_Norton_Drop_Rate = { min = 0.0, max = 5.0, def = 0.4, scale = "0-5" },
         Antivirus_Kaspersky_Drop_Rate = { min = 0.0, max = 5.0, def = 0.3, scale = "0-5" },
         Antivirus_McAfee_Drop_Rate = { min = 0.0, max = 5.0, def = 0.2, scale = "0-5" },
@@ -496,8 +485,20 @@ function GVDrive_Utils.getSandboxKeyMeta(name)
         Antivirus_Spawn_Rate = { min = 0.0, max = 5.0, def = 2.0, scale = "0-5" },
     }
 
+    local percentMeta = {
+        USB_WorldLoot_Chance = { min = 0.0, max = 100.0, def = 2.0, scale = "percent" },
+        USB_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 60.0, scale = "percent" },
+        Laptop_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 24.0, scale = "percent" },
+        EliteDrive_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 18.0, scale = "percent" },
+        Antivirus_ZombieDrop_Chance = { min = 0.0, max = 100.0, def = 30.0, scale = "percent" },
+    }
+
     if name and scale5[name] then
         return scale5[name]
+    end
+
+    if name and percentMeta[name] then
+        return percentMeta[name]
     end
 
     -- Numeric keys that are direct percentages or counts
@@ -550,16 +551,12 @@ function GVDrive_Utils.getSandboxPercent(name, default)
     if n < 0 then return 0 end
     -- If the key is one that uses the 0..5 normalized scale, convert to percent
     local scale5_keys = {
-        USB_WorldLoot_Chance = true,
         Laptop_WorldLoot_Chance = true,
         EliteDrive_WorldLoot_Chance = true,
         SkillUSB_WorldLoot_Chance = true,
-        USB_ZombieDrop_Chance = true,
-        Laptop_ZombieDrop_Chance = true,
-        EliteDrive_ZombieDrop_Chance = true,
-        Antivirus_ZombieDrop_Chance = true,
         Antivirus_Spawn_Rate = true,
     }
+
     if scale5_keys[name] then
         -- raw is expected in 0..5, map to 0..100
         if n > 5 then n = 5 end
@@ -568,3 +565,333 @@ function GVDrive_Utils.getSandboxPercent(name, default)
     if n > 100 then return 100 end
     return n
 end
+
+function GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
+    -- Calcular XP usando configuración sandbox
+    local minXP = getSandboxNumber("USB_Min_Experience", 10)
+    local maxXP = getSandboxNumber("USB_Max_Experience", 45)
+
+    -- Generar valor aleatorio
+    local baseXP = ZombRand(minXP, maxXP + 1)
+
+    -- Aplicar multiplicador por dificultad
+    local multiplier = 1.0
+    if difficulty == "Easy" then
+        multiplier = getSandboxNumber("Facil_XP_Bonus", 1.55)
+    elseif difficulty == "Moderate" then
+        multiplier = getSandboxNumber("Moderado_XP_Bonus", 2.85)
+    elseif difficulty == "Expert" then
+        multiplier = getSandboxNumber("Dificil_XP_Bonus", 4.5)
+    end
+
+    local finalXP = math.floor(baseXP * multiplier)
+    return math.max(1, finalXP)
+end
+
+function GVDrive_Utils.calculateMinigameDamage(difficulty)
+    -- Calcular daño a laptop según dificultad
+    local minDamage = 0
+    local maxDamage = 0
+
+    if difficulty == "Easy" then
+        minDamage = getSandboxNumber("Facil_Laptop_Damage_Min", 3)
+        maxDamage = getSandboxNumber("Facil_Laptop_Damage_Max", 5)
+    elseif difficulty == "Moderate" then
+        minDamage = getSandboxNumber("Moderado_Laptop_Damage_Min", 8)
+        maxDamage = getSandboxNumber("Moderado_Laptop_Damage_Max", 12)
+    elseif difficulty == "Expert" then
+        minDamage = getSandboxNumber("Dificil_Laptop_Damage_Min", 15)
+        maxDamage = getSandboxNumber("Dificil_Laptop_Damage_Max", 20)
+    end
+
+    return ZombRand(minDamage, maxDamage + 1)
+end
+
+function GVDrive_Utils.applyMinigameResult(player, laptopItem, skillType, difficulty, success)
+    if not player or not skillType then
+        return false
+    end
+
+    -- Obtener perk correspondiente a la habilidad
+    local perk = GVDrive_Utils.getSkillPerk(skillType)
+    if not perk then
+        print("GVDrive_Utils: Could not find perk for skill: " .. tostring(skillType))
+        return false
+    end
+
+    if success then
+        -- ✅ ÉXITO: Otorgar experiencia
+        local xp = GVDrive_Utils.calculateMinigameXP(skillType, difficulty)
+        
+        -- 🎯 NEURAL BOOST: Aplicar multiplicador de XP si está activo
+        if NeuralBoostSystem and NeuralBoostSystem.modifyXPGain then
+            xp = NeuralBoostSystem.modifyXPGain(player, skillType, xp)
+        end
+        
+        player:getXp():AddXP(perk, xp)
+        
+        -- Calcular XP real considerando multiplicador global del juego
+        local xpMultiplier = SandboxVars.XPMultiplier or 1.0
+        local actualXP = xp * xpMultiplier
+        print("GVDrive_Utils: Awarded " .. math.floor(actualXP * 10) / 10 .. " XP in " .. skillType)
+        
+        -- 🎁 USB SURPRISE: Verificar si hay sorpresa
+        if USBSurpriseSystem and USBSurpriseSystem.triggerSurprise then
+            local hasSurprise = USBSurpriseSystem.triggerSurprise(player, difficulty)
+            if hasSurprise then
+                -- Mensaje contextual de sorpresa
+                if ContextualMessages and ContextualMessages.onSpecialEvent then
+                    ContextualMessages.onSpecialEvent(player, laptopItem, "surprise_found")
+                end
+            end
+        end
+        
+        -- ⚡ NEURAL BOOST: Verificar si este USB otorga buff temporal
+        if NeuralBoostSystem and NeuralBoostSystem.activateBoost then
+            NeuralBoostSystem.activateBoost(player, difficulty)
+        end
+        
+        -- 🔊 SONIDO: Reproducir sonido de éxito
+        if DynamicSoundSystem and DynamicSoundSystem.playSuccessSound then
+            local isEpic = (difficulty == "Expert" or difficulty == "Elite")
+            DynamicSoundSystem.playSuccessSound(player, isEpic)
+        end
+        
+        -- 💬 MENSAJE CONTEXTUAL: Éxito
+        if ContextualMessages and ContextualMessages.onMinigameSuccess then
+            ContextualMessages.onMinigameSuccess(player, laptopItem)
+        end
+        
+        return true
+    else
+        -- ❌ FALLO: Aplicar daño a laptop
+        if laptopItem then
+            local damage = GVDrive_Utils.calculateMinigameDamage(difficulty)
+            local currentHealth = 0
+
+            -- Obtener health actual usando LaptopSystem si está disponible
+            if LaptopSystem and LaptopSystem.getLaptopHealth then
+                currentHealth = LaptopSystem.getLaptopHealth(laptopItem)
+                LaptopSystem.damageLaptop(laptopItem, damage)
+                print("GVDrive_Utils: Laptop damaged by " .. damage .. "% (" .. currentHealth .. "% -> " .. (currentHealth - damage) .. "%)")
+            end
+            
+            -- 🌡️ THERMAL SYSTEM: Agregar calor por usar el minijuego
+            if LaptopThermalSystem and LaptopThermalSystem.addHeat then
+                local newTemp = LaptopThermalSystem.addHeat(laptopItem, difficulty)
+                
+                -- Verificar sobrecalentamiento
+                if LaptopThermalSystem.checkOverheat then
+                    local isOverheated = LaptopThermalSystem.checkOverheat(player, laptopItem)
+                    
+                    if isOverheated then
+                        -- Mensaje contextual de sobrecalentamiento
+                        if ContextualMessages and ContextualMessages.onSpecialEvent then
+                            ContextualMessages.onSpecialEvent(player, laptopItem, "overheat_warning")
+                        end
+                        
+                        -- Sonido de alarma
+                        if DynamicSoundSystem and DynamicSoundSystem.playOverheatAlarm then
+                            DynamicSoundSystem.playOverheatAlarm(player)
+                        end
+                    end
+                end
+            end
+            
+            -- ⚠️ VERIFICAR Y EJECUTAR EVENTOS ALEATORIOS POR FALLOS
+            if LaptopEvents and LaptopEvents.checkAndTriggerEvent then
+                -- Obtener square de la laptop
+                local laptopSquare = nil
+                
+                -- Intentar obtener square del worldItem
+                if laptopItem.getWorldItem and type(laptopItem.getWorldItem) == "function" then
+                    local worldItem = laptopItem:getWorldItem()
+                    if worldItem and worldItem.getSquare then
+                        laptopSquare = worldItem:getSquare()
+                    end
+                end
+                
+                -- Fallback: usar square del jugador
+                if not laptopSquare and player and player.getCurrentSquare then
+                    laptopSquare = player:getCurrentSquare()
+                end
+                
+                -- Ejecutar verificación de eventos
+                if laptopSquare then
+                    LaptopEvents.checkAndTriggerEvent(player, laptopItem, laptopSquare)
+                else
+                    print("GVDrive_Utils: Could not determine laptop square for event trigger")
+                end
+            end
+            
+            -- 🔊 SONIDO: Reproducir sonido de fallo
+            if DynamicSoundSystem and DynamicSoundSystem.playFailureSound then
+                DynamicSoundSystem.playFailureSound(player)
+            end
+            
+            -- 💬 MENSAJE CONTEXTUAL: Fallo
+            if ContextualMessages and ContextualMessages.onMinigameFailure then
+                ContextualMessages.onMinigameFailure(player, laptopItem)
+            end
+        end
+        return false
+    end
+end
+
+-- ✅ Las funciones ya están expuestas automáticamente como parte del módulo GVDrive_Utils
+-- No es necesario reasignarlas explícitamente
+
+-- ========== COLORES POR SKILL PARA MINIJUEGOS ==========
+-- Diccionario centralizado de colores temáticos por skill para reutilización en múltiples minijuegos
+-- Formato: {border = {r,g,b,a}, title = {r,g,b,a}, accent = {r,g,b,a}}
+GVDrive_Utils.skillColors = {
+    -- Skills básicas de supervivencia
+    ["Farming"] = {
+        border = {r=0.2, g=0.8, b=0.2, a=1},    -- Verde agrícola
+        title = {r=0.3, g=1, b=0.3, a=1},       -- Verde brillante
+        accent = {r=0.4, g=0.9, b=0.4, a=1}     -- Verde claro
+    },
+    ["Electricity"] = {
+        border = {r=1, g=1, b=0.2, a=1},        -- Amarillo eléctrico
+        title = {r=1, g=1, b=0.4, a=1},         -- Amarillo brillante
+        accent = {r=1, g=1, b=0.6, a=1}         -- Amarillo claro
+    },
+    ["Woodwork"] = {
+        border = {r=0.6, g=0.4, b=0.2, a=1},    -- Marrón madera
+        title = {r=0.8, g=0.6, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.7, g=0.5, b=0.3, a=1}     -- Marrón medio
+    },
+    ["Cooking"] = {
+        border = {r=1, g=0.6, b=0.2, a=1},      -- Naranja cocción
+        title = {r=1, g=0.8, b=0.4, a=1},       -- Naranja brillante
+        accent = {r=1, g=0.7, b=0.3, a=1}       -- Naranja medio
+    },
+    ["Doctor"] = {
+        border = {r=1, g=0.2, b=0.2, a=1},      -- Rojo médico
+        title = {r=1, g=0.4, b=0.4, a=1},       -- Rojo claro
+        accent = {r=1, g=0.3, b=0.3, a=1}       -- Rojo medio
+    },
+    ["Fitness"] = {
+        border = {r=0.8, g=0.2, b=0.8, a=1},    -- Magenta fitness
+        title = {r=1, g=0.4, b=1, a=1},         -- Magenta brillante
+        accent = {r=0.9, g=0.3, b=0.9, a=1}     -- Magenta medio
+    },
+    ["Aiming"] = {
+        border = {r=0.2, g=0.2, b=1, a=1},      -- Azul precisión
+        title = {r=0.4, g=0.4, b=1, a=1},       -- Azul brillante
+        accent = {r=0.3, g=0.3, b=1, a=1}       -- Azul medio
+    },
+    ["Sneak"] = {
+        border = {r=0.5, g=0.5, b=0.5, a=1},    -- Gris sigilo
+        title = {r=0.7, g=0.7, b=0.7, a=1},     -- Gris claro
+        accent = {r=0.6, g=0.6, b=0.6, a=1}     -- Gris medio
+    },
+    ["Axe"] = {
+        border = {r=0.4, g=0.2, b=0.1, a=1},    -- Marrón oscuro hacha
+        title = {r=0.6, g=0.4, b=0.2, a=1},     -- Marrón rojizo
+        accent = {r=0.5, g=0.3, b=0.15, a=1}    -- Marrón rojizo oscuro
+    },
+    ["Survivalist"] = {
+        border = {r=0.3, g=0.6, b=0.3, a=1},    -- Verde oliva supervivencia
+        title = {r=0.5, g=0.8, b=0.5, a=1},     -- Verde oliva claro
+        accent = {r=0.4, g=0.7, b=0.4, a=1}     -- Verde oliva medio
+    },
+    -- Skills avanzadas
+    ["Mechanics"] = {
+        border = {r=0.7, g=0.7, b=0.2, a=1},    -- Dorado mecánico
+        title = {r=0.9, g=0.9, b=0.4, a=1},     -- Dorado brillante
+        accent = {r=0.8, g=0.8, b=0.3, a=1}     -- Dorado medio
+    },
+    ["Tailoring"] = {
+        border = {r=0.8, g=0.4, b=0.8, a=1},    -- Lila costura
+        title = {r=1, g=0.6, b=1, a=1},         -- Lila brillante
+        accent = {r=0.9, g=0.5, b=0.9, a=1}     -- Lila medio
+    },
+    ["Maintenance"] = {
+        border = {r=0.5, g=0.5, b=0.8, a=1},    -- Azul grisáceo mantenimiento
+        title = {r=0.7, g=0.7, b=1, a=1},       -- Azul grisáceo claro
+        accent = {r=0.6, g=0.6, b=0.9, a=1}     -- Azul grisáceo medio
+    },
+    -- Skills de combate cuerpo a cuerpo
+    ["SmallBlade"] = {
+        border = {r=0.9, g=0.9, b=0.9, a=1},    -- Plata cuchillos
+        title = {r=1, g=1, b=1, a=1},           -- Blanco brillante
+        accent = {r=0.95, g=0.95, b=0.95, a=1}  -- Plata claro
+    },
+    ["LongBlade"] = {
+        border = {r=0.8, g=0.8, b=0.8, a=1},    -- Plata espadas
+        title = {r=0.95, g=0.95, b=0.95, a=1},  -- Plata brillante
+        accent = {r=0.85, g=0.85, b=0.85, a=1}  -- Plata medio
+    },
+    ["SmallBlunt"] = {
+        border = {r=0.6, g=0.4, b=0.2, a=1},    -- Marrón oscuro mazas
+        title = {r=0.8, g=0.6, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.7, g=0.5, b=0.3, a=1}     -- Marrón medio
+    },
+    ["LongBlunt"] = {
+        border = {r=0.5, g=0.3, b=0.1, a=1},    -- Marrón muy oscuro
+        title = {r=0.7, g=0.5, b=0.3, a=1},     -- Marrón rojizo oscuro
+        accent = {r=0.6, g=0.4, b=0.2, a=1}     -- Marrón rojizo
+    },
+    ["Spear"] = {
+        border = {r=0.4, g=0.6, b=0.8, a=1},    -- Azul lanza
+        title = {r=0.6, g=0.8, b=1, a=1},       -- Azul brillante
+        accent = {r=0.5, g=0.7, b=0.9, a=1}     -- Azul medio
+    },
+    -- Skills de caza/supervivencia avanzada
+    ["Trapping"] = {
+        border = {r=0.4, g=0.3, b=0.2, a=1},    -- Marrón trampa
+        title = {r=0.6, g=0.5, b=0.4, a=1},     -- Marrón claro
+        accent = {r=0.5, g=0.4, b=0.3, a=1}     -- Marrón medio
+    },
+    ["Fishing"] = {
+        border = {r=0.2, g=0.5, b=0.8, a=1},    -- Azul agua
+        title = {r=0.4, g=0.7, b=1, a=1},       -- Azul brillante
+        accent = {r=0.3, g=0.6, b=0.9, a=1}     -- Azul medio
+    },
+    -- Skills físicas
+    ["Sprinting"] = {
+        border = {r=1, g=0.8, b=0.2, a=1},      -- Amarillo velocidad
+        title = {r=1, g=0.9, b=0.4, a=1},       -- Amarillo brillante
+        accent = {r=1, g=0.85, b=0.3, a=1}      -- Amarillo medio
+    },
+    ["Strength"] = {
+        border = {r=0.8, g=0.3, b=0.3, a=1},    -- Rojo fuerza
+        title = {r=1, g=0.5, b=0.5, a=1},       -- Rojo brillante
+        accent = {r=0.9, g=0.4, b=0.4, a=1}     -- Rojo medio
+    },
+    ["Nimble"] = {
+        border = {r=0.6, g=0.8, b=0.4, a=1},    -- Verde lima agilidad
+        title = {r=0.8, g=1, b=0.6, a=1},       -- Verde lima brillante
+        accent = {r=0.7, g=0.9, b=0.5, a=1}     -- Verde lima medio
+    },
+    ["Lightfoot"] = {
+        border = {r=0.7, g=0.5, b=0.9, a=1},    -- Púrpura sigilo
+        title = {r=0.9, g=0.7, b=1, a=1},       -- Púrpura brillante
+        accent = {r=0.8, g=0.6, b=0.95, a=1}    -- Púrpura medio
+    }
+}
+
+-- Función para obtener colores por skill (con fallback seguro)
+function GVDrive_Utils.getSkillColors(skillName)
+    if not skillName then
+        return GVDrive_Utils.skillColors["Farming"] -- Fallback por defecto
+    end
+
+    -- Buscar por nombre exacto
+    if GVDrive_Utils.skillColors[skillName] then
+        return GVDrive_Utils.skillColors[skillName]
+    end
+
+    -- Buscar por nombre capitalizado
+    local capName = tostring(skillName):gsub("^%l", string.upper)
+    if GVDrive_Utils.skillColors[capName] then
+        return GVDrive_Utils.skillColors[capName]
+    end
+
+    -- Fallback a Farming si no se encuentra
+    return GVDrive_Utils.skillColors["Farming"]
+end
+
+-- ✅ EXPONER MÓDULO GLOBALMENTE PARA QUE ESTÉ DISPONIBLE EN TODOS LOS ARCHIVOS
+_G.GVDrive_Utils = GVDrive_Utils

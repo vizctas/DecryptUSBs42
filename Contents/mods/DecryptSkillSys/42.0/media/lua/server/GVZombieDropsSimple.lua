@@ -1,172 +1,192 @@
--- Sistema simplificado de zombie drops usando OnZombieDead nativo
--- Reemplaza el sistema complejo anterior con approach directo
+-- Simplified Zombie Drops for Decrypt Skill Sys
+-- This file contains simplified distribution tables for all USB types, laptops, elite drives, and antivirus
 
-require "shared/GVDrive_Utils"
 local ok_debug, GVDebug = pcall(require, "shared/GVDebug")
 if not ok_debug or not GVDebug then
-    GVDebug = { debugPrint = function(...) end }
+    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
 end
 
-local DEBUG = false
-pcall(function()
-    local ok_cfg, GVDrive_Config = pcall(require, "shared/GVDrive_Config")
-    if ok_cfg and GVDrive_Config and GVDrive_Config.getDebug then
-        DEBUG = GVDrive_Config.getDebug()
-    end
-end)
-
-local function debugPrint(...)
-    if DEBUG then
-        GVDebug.debugPrint(...)
-    end
-end
-
--- CONFIGURACIÓN SIMPLE: Probabilidades y items
-local DROP_CONFIG = {
-    -- Probabilidades base (en porcentaje)
-    chances = {
-        skillDrive = 8.0,  -- 8% chance de drop de skilldrive
-        laptop = 3.0,      -- 3% chance de drop de laptop  
-        elite = 0.5,       -- 0.5% chance de drop elite (muy raro)
-        antivirus = 4.0    -- 4% chance de drop antivirus
+-- Simplified distribution tables
+local DROP_DISTRIBUTIONS = {
+    -- Skill drives: uniform distribution across all skills and rarities
+    skills = {
+        "Woodwork", "Electricity", "Farming", "Aiming", "Cooking", "Sneak",
+        "Axe", "Fitness", "Doctor", "Survivalist", "Mechanics", "Tailoring",
+        "Maintenance", "SmallBlade", "LongBlade", "SmallBlunt", "LongBlunt",
+        "Spear", "Trapping", "Fishing", "Sprinting", "Strength", "Nimble", "Lightfoot"
     },
-    
-    -- Listas de items disponibles
-    items = {
-        skillDrives = {
-            "GValley.SkillDrive_Woodwork_Facil",
-            "GValley.SkillDrive_Mechanics_Facil", 
-            "GValley.SkillDrive_Electricity_Facil",
-            "GValley.SkillDrive_Cooking_Facil",
-            "GValley.SkillDrive_Farming_Facil",
-            "GValley.SkillDrive_Aiming_Facil",
-            "GValley.SkillDrive_Woodwork_Moderado",
-            "GValley.SkillDrive_Mechanics_Moderado",
-            "GValley.SkillDrive_Woodwork_Dificil",
-            "GValley.SkillDrive_Mechanics_Dificil"
-        },
-        laptops = {
-            "GValley.AsusZephLaptopClosed",
-            "GValley.Laptop90sClosed",
-            "GValley.PBIBM_LP90Closed"
-        },
-        elites = {
-            "GValley.EliteDrive_Strength",
-            "GValley.EliteDrive_Endurance", 
-            "GValley.EliteDrive_Capacity",
-            "GValley.EliteDrive_Speed",
-            "GValley.EliteDrive_Luck"
-        },
-        antivirus = {
-            "GValley.Antivirus_Norton",
-            "GValley.Antivirus_Kaspersky",
-            "GValley.Antivirus_McAfee",
-            "GValley.Antivirus_MalwareBytes"
-        }
+
+    -- All rarities have equal chance
+    rarities = {"Facil", "Moderado", "Dificil"},
+
+    -- Laptops: uniform distribution
+    laptops = {
+        "GValley.AsusZephLaptopOpened",
+        "GValley.Laptop90sOpened",
+        "GValley.PBIBM_LP90Opened"
+    },
+
+    -- Elite drives: uniform distribution
+    eliteTypes = {"Strength", "Endurance", "Capacity", "Speed", "Luck"},
+
+    -- Antivirus: uniform distribution
+    antivirusTypes = {
+        "GValley.Antivirus_Norton",
+        "GValley.Antivirus_Kaspersky",
+        "GValley.Antivirus_McAfee",
+        "GValley.Antivirus_MalwareBytes"
     }
 }
 
--- Función simple para añadir item al zombie o al suelo
-local function addItemToZombie(zombie, itemType)
-    if not zombie then return false end
-    
-    local success = false
-    
-    -- Intentar añadir al inventario del zombie primero
-    pcall(function()
-        local inv = zombie:getInventory()
-        if inv then
-            inv:AddItem(itemType)
-            success = true
-            debugPrint("✅ Added", itemType, "to zombie inventory")
-        end
-    end)
-    
-    -- Si falla, añadir al suelo
-    if not success then
-        pcall(function()
-            local square = zombie:getCurrentSquare()
-            if square then
-                square:AddWorldInventoryItem(itemType, 0, 0, 0)
-                success = true
-                debugPrint("✅ Added", itemType, "to ground")
-            end
-        end)
-    end
-    
-    return success
-end
+local RARITY_CHANCE_OFFSETS = {
+    Facil = 0.05,
+    Moderado = 0.15,
+    Dificil = 0.30,
+}
 
--- Función principal de drops simplificada
-local function onZombieDeadSimple(zombie)
-    if not zombie or instanceof(zombie, "IsoPlayer") then
-        return
-    end
+-- Function to get drop chance for a category from sandbox
+local function getDropChance(category, specificItem)
+    local sandboxKey = category .. "_ZombieDrop_Chance"
+    local gv = SandboxVars and SandboxVars.GVDrive
+    local baseChance = 0
     
-    debugPrint("🧟 Zombie killed, checking drops...")
-    
-    -- Verificar cada tipo de drop independientemente
-    local dropTypes = {
-        {name = "skillDrive", chance = DROP_CONFIG.chances.skillDrive, items = DROP_CONFIG.items.skillDrives},
-        {name = "laptop", chance = DROP_CONFIG.chances.laptop, items = DROP_CONFIG.items.laptops},
-        {name = "elite", chance = DROP_CONFIG.chances.elite, items = DROP_CONFIG.items.elites},
-        {name = "antivirus", chance = DROP_CONFIG.chances.antivirus, items = DROP_CONFIG.items.antivirus}
-    }
-    
-    for _, dropType in ipairs(dropTypes) do
-        local roll = ZombRand(0, 10000) / 100.0  -- 0.00 a 100.00
-        
-        if roll < dropType.chance then
-            -- Seleccionar item aleatorio de la categoría
-            -- Defensive: ensure items is a table with a usable length
-            local itemsTbl = (type(dropType.items) == "table") and dropType.items or {}
-            local itemCount = 0
-            if itemsTbl then
-                -- protect against non-array-like tables
-                local ok, cnt = pcall(function() return #itemsTbl end)
-                if ok and type(cnt) == "number" then
-                    itemCount = cnt
-                end
-            end
-            local randomItem = nil
-            if itemCount > 0 then
-                randomItem = itemsTbl[ZombRand(itemCount) + 1]
-            end
-            local success = addItemToZombie(zombie, randomItem)
-            
-            debugPrint(string.format("🎯 %s DROP: %.2f%% < %.2f%% = %s (%s)", 
-                dropType.name:upper(), roll, dropType.chance, 
-                success and "SUCCESS" or "FAILED", randomItem))
-        else
-            debugPrint(string.format("❌ %s: %.2f%% >= %.2f%% = NO DROP", 
-                dropType.name, roll, dropType.chance))
-        end
-    end
-end
-
--- Registro simple del evento
-local function registerSimpleHandler()
-    if Events and Events.OnZombieDead then
-        Events.OnZombieDead.Add(onZombieDeadSimple)
-        debugPrint("✅ Simple zombie drop handler registered")
-        
-        -- Log configuración
-        debugPrint("📊 DROP CONFIGURATION:")
-        for category, chance in pairs(DROP_CONFIG.chances) do
-                local itemsList = DROP_CONFIG.items[category .. "s"] or DROP_CONFIG.items[category]
-                local itemCount = 0
-                if type(itemsList) == "table" then
-                    local ok, cnt = pcall(function() return #itemsList end)
-                    if ok and type(cnt) == "number" then itemCount = cnt end
-                end
-                debugPrint(string.format("   %s: %.1f%% chance, %d items available", category, chance, itemCount))
-        end
+    if gv and gv[sandboxKey] then
+        baseChance = gv[sandboxKey]
     else
-        debugPrint("❌ Events.OnZombieDead not available")
+        -- Defaults if not found (matching sandbox-options.txt)
+        -- USB: ~1 every 20 zombies, Laptop: ~1 every 100 zombies, EliteDrive: ~1 every 120 zombies, Antivirus: ~1 every 60 zombies
+        local defaults = {USB = 5.0, Laptop = 1.0, EliteDrive = 0.83, Antivirus = 1.67}
+        baseChance = defaults[category] or 0
+    end
+    
+    -- Apply hardcoded modifiers for USB rarities
+    if category == "USB" and specificItem then
+        local offset = RARITY_CHANCE_OFFSETS[specificItem]
+        if offset then
+            return math.max(0, baseChance - offset)
+        end
+    end
+
+    -- Apply hardcoded modifiers for specific antivirus types
+    if category == "Antivirus" and specificItem then
+        if specificItem == "GValley.Antivirus_Norton" then
+            -- Norton mantiene el porcentaje del sandbox (0% reducción)
+            return baseChance
+        elseif specificItem == "GValley.Antivirus_Kaspersky" then
+            -- Kaspersky reduce 0.05%
+            return math.max(0, baseChance - 0.05)
+        elseif specificItem == "GValley.Antivirus_McAfee" then
+            -- McAfee reduce 0.1%
+            return math.max(0, baseChance - 0.1)
+        elseif specificItem == "GValley.Antivirus_MalwareBytes" then
+            -- MalwareBytes reduce 0.2% (más difícil de conseguir)
+            return math.max(0, baseChance - 0.2)
+        end
+    end
+    
+    return baseChance
+end
+
+-- Function to spawn an item of the given type
+local function spawnItem(zombie, itemType, rarityOverride)
+    local itemToSpawn = nil
+
+    if itemType == "USB" then
+        local skill = DROP_DISTRIBUTIONS.skills[ZombRand(#DROP_DISTRIBUTIONS.skills) + 1]
+        local rarity = rarityOverride or DROP_DISTRIBUTIONS.rarities[ZombRand(#DROP_DISTRIBUTIONS.rarities) + 1]
+        itemToSpawn = string.format("GValley.SkillDrive_%s_%s", skill, rarity)
+    elseif itemType == "Laptop" then
+        itemToSpawn = DROP_DISTRIBUTIONS.laptops[ZombRand(#DROP_DISTRIBUTIONS.laptops) + 1]
+    elseif itemType == "EliteDrive" then
+        local eliteType = DROP_DISTRIBUTIONS.eliteTypes[ZombRand(#DROP_DISTRIBUTIONS.eliteTypes) + 1]
+        itemToSpawn = string.format("GValley.EliteDrive_%s", eliteType)
+    elseif itemType == "Antivirus" then
+        itemToSpawn = DROP_DISTRIBUTIONS.antivirusTypes[ZombRand(#DROP_DISTRIBUTIONS.antivirusTypes) + 1]
+    end
+
+    if not itemToSpawn then return end
+
+    -- Try to spawn in zombie inventory first, then on ground
+    local spawned = false
+    if zombie and zombie.getInventory then
+        local inv = zombie:getInventory()
+        if inv and inv.AddItem then
+            inv:AddItem(itemToSpawn)
+            spawned = true
+        end
+    end
+
+    if not spawned then
+        local sq = zombie and zombie:getCurrentSquare()
+        if sq then
+            sq:AddWorldInventoryItem(itemToSpawn, 0, 0, 0)
+        end
     end
 end
 
--- Ejecutar registro
-registerSimpleHandler()
+-- Main zombie death handler
+local function onZombieDead(zombie)
+    if not zombie or instanceof(zombie, "IsoPlayer") then return end
 
-debugPrint("Simple zombie loot system loaded")
+    -- Handle USB drops with rarity-specific offsets
+    local usbDropped = false
+    for _, rarity in ipairs(DROP_DISTRIBUTIONS.rarities) do
+        local chance = getDropChance("USB", rarity)
+        -- Use ZombRand(10000) for precise percentage checks (0.08% = 8 out of 10000)
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
+        if roll < chance then
+            spawnItem(zombie, "USB", rarity)
+            usbDropped = true
+            break
+        end
+    end
+
+    -- Check drops for other categories independently
+    local categories = {"Laptop", "EliteDrive"}
+    for _, category in ipairs(categories) do
+        local chance = getDropChance(category)
+        -- Use ZombRand(10000) for precise percentage checks
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
+        if roll < chance then
+            spawnItem(zombie, category)
+        end
+    end
+    
+    -- Special handling for antivirus - each type has its own chance
+    for _, antivirusItem in ipairs(DROP_DISTRIBUTIONS.antivirusTypes) do
+        local chance = getDropChance("Antivirus", antivirusItem)
+        -- Use ZombRand(10000) for precise percentage checks
+        local roll = ZombRand(10000) / 100.0  -- Convert to 0-100 range with decimals
+        if roll < chance then
+            -- Spawn the specific antivirus item
+            local spawned = false
+            if zombie and zombie.getInventory then
+                local inv = zombie:getInventory()
+                if inv and inv.AddItem then
+                    inv:AddItem(antivirusItem)
+                    spawned = true
+                end
+            end
+            
+            if not spawned then
+                local sq = zombie and zombie:getCurrentSquare()
+                if sq then
+                    sq:AddWorldInventoryItem(antivirusItem, 0, 0, 0)
+                end
+            end
+            break -- Only drop one antivirus per zombie
+        end
+    end
+end
+
+-- Register the handler
+if Events and Events.OnZombieDead then
+    Events.OnZombieDead.Add(onZombieDead)
+end
+
+-- Export for debugging
+GVZombieDrops = {
+    distributions = DROP_DISTRIBUTIONS,
+    getDropChance = getDropChance,
+    spawnItem = spawnItem
+}

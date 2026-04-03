@@ -8,4 +8,55 @@ module Base
 	            file = media/sound/USBkeyboard.ogg,         
 	        }
 	}
-}	
+	sound alarm
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/alarm.ogg,
+	        }
+	}
+	
+	-- ✨ NUEVOS SONIDOS AGREGADOS
+	sound button_click
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/button_click.ogg,
+	        }
+	}
+	sound hdd_access
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/hdd_access.ogg,
+	        }
+	}
+	sound laptop_startup
+	{
+			category = Object,
+        	clip
+	        {
+	            file = media/sound/laptop_startup.ogg,
+	        }
+	}
+	sound laptop_shutdown
+	{
+			category = Object,
+	        clip
+	        {
+	            file = media/sound/laptop_shutdown.ogg,
+	        }
+	}
+	sound failure
+	{
+			category = Object,
+	        clip
+	        {
+	            file = media/sound/failure.ogg,
+	        }
+	}
+}
+}

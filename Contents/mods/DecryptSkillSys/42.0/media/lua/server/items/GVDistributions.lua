@@ -1,190 +1,190 @@
--- Project Zomboid Native Distribution System para DecryptSkillSys
--- Simplifica el sistema de loot usando el approach nativo de PZ
+-- -- Project Zomboid Native Distribution System para DecryptSkillSys
+-- -- Simplifica el sistema de loot usando el approach nativo de PZ
 
--- Safe requires
-pcall(require, "Items/SuburbsDistributions")
-pcall(require, "Items/Distributions")
-local ok, GVDebug = pcall(require, "shared/GVDebug")
-if not ok or not GVDebug then
-    -- Fallback quiet logger
-    GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
-end
+-- -- Safe requires
+-- pcall(require, "Items/SuburbsDistributions")
+-- pcall(require, "Items/Distributions")
+-- local ok, GVDebug = pcall(require, "shared/GVDebug")
+-- if not ok or not GVDebug then
+--     -- Fallback quiet logger
+--     GVDebug = { debugPrint = function(...) end, testPrint = function(...) end }
+-- end
 
--- Verificar que SuburbsDistributions existe
-if not SuburbsDistributions then
-    GVDebug.debugPrint("[ERROR] SuburbsDistributions not found!")
-    return
-end
+-- -- Verificar que SuburbsDistributions existe
+-- if not SuburbsDistributions then
+--     GVDebug.debugPrint("[ERROR] SuburbsDistributions not found!")
+--     return
+-- end
 
-GVDebug.debugPrint("Loading native distributions...")
+-- GVDebug.debugPrint("Loading native distributions...")
 
--- PASO 1: Añadir items a distribuciones de contenedores del mundo
-local function addToWorldDistributions()
-    local distributions = {
-        -- USBs en oficinas, computadoras, etc.
-        {
-            containers = {"office", "computerstoreoffice", "electronicsstore"},
-            items = {
-                "GValley.SkillDrive_Woodwork_Facil", 0.5,
-                "GValley.SkillDrive_Mechanics_Facil", 0.5,
-                "GValley.SkillDrive_Electricity_Facil", 0.5,
-                "GValley.SkillDrive_Woodwork_Moderado", 0.3,
-                "GValley.SkillDrive_Mechanics_Moderado", 0.3,
-                "GValley.SkillDrive_Woodwork_Dificil", 0.1,
-                "GValley.SkillDrive_Mechanics_Dificil", 0.1,
-            }
-        },
-        -- Laptops en oficinas y casas
-        {
-            containers = {"office", "bedroom", "livingroom"},
-            items = {
-                "GValley.AsusZephLaptopClosed", 0.8,
-                "GValley.Laptop90sClosed", 0.6,
-                "GValley.PBIBM_LP90Closed", 0.4,
-            }
-        },
-        -- Elite drives en bases militares (muy raros)
-        {
-            containers = {"militarybase", "policestation"},
-            items = {
-                "GValley.EliteDrive_Strength", 0.05,
-                "GValley.EliteDrive_Endurance", 0.05,
-                "GValley.EliteDrive_Capacity", 0.05,
-                "GValley.EliteDrive_Speed", 0.05,
-                "GValley.EliteDrive_Luck", 0.05,
-            }
-        },
-        -- Antivirus en tiendas de computadoras
-        {
-            containers = {"electronicsstore", "computerstoreoffice"},
-            items = {
-                "GValley.Antivirus_Norton", 0.3,
-                "GValley.Antivirus_Kaspersky", 0.3,
-                "GValley.Antivirus_McAfee", 0.3,
-                "GValley.Antivirus_MalwareBytes", 0.2,
-            }
-        }
-    }
+-- -- PASO 1: Añadir items a distribuciones de contenedores del mundo
+-- local function addToWorldDistributions()
+--     local distributions = {
+--         -- USBs en oficinas, computadoras, etc.
+--         {
+--             containers = {"office", "computerstoreoffice", "electronicsstore"},
+--             items = {
+--                 "GValley.SkillDrive_Woodwork_Facil", 0.5,
+--                 "GValley.SkillDrive_Mechanics_Facil", 0.5,
+--                 "GValley.SkillDrive_Electricity_Facil", 0.5,
+--                 "GValley.SkillDrive_Woodwork_Moderado", 0.3,
+--                 "GValley.SkillDrive_Mechanics_Moderado", 0.3,
+--                 "GValley.SkillDrive_Woodwork_Dificil", 0.1,
+--                 "GValley.SkillDrive_Mechanics_Dificil", 0.1,
+--             }
+--         },
+--         -- Laptops en oficinas y casas
+--         {
+--             containers = {"office", "bedroom", "livingroom"},
+--             items = {
+--                 "GValley.AsusZephLaptopClosed", 0.8,
+--                 "GValley.Laptop90sClosed", 0.6,
+--                 "GValley.PBIBM_LP90Closed", 0.4,
+--             }
+--         },
+--         -- Elite drives en bases militares (muy raros)
+--         {
+--             containers = {"militarybase", "policestation"},
+--             items = {
+--                 "GValley.EliteDrive_Strength", 0.05,
+--                 "GValley.EliteDrive_Endurance", 0.05,
+--                 "GValley.EliteDrive_Capacity", 0.05,
+--                 "GValley.EliteDrive_Speed", 0.05,
+--                 "GValley.EliteDrive_Luck", 0.05,
+--             }
+--         },
+--         -- Antivirus en tiendas de computadoras
+--         {
+--             containers = {"electronicsstore", "computerstoreoffice"},
+--             items = {
+--                 "GValley.Antivirus_Norton", 0.3,
+--                 "GValley.Antivirus_Kaspersky", 0.3,
+--                 "GValley.Antivirus_McAfee", 0.3,
+--                 "GValley.Antivirus_MalwareBytes", 0.2,
+--             }
+--         }
+--     }
 
-    -- Aplicar distribuciones
-    for _, dist in ipairs(distributions) do
-        for _, container in ipairs(dist.containers) do
-            if SuburbsDistributions["all"] and SuburbsDistributions["all"][container] then
-                local containerDist = SuburbsDistributions["all"][container]
-                if containerDist.items then
-                    for i = 1, #dist.items, 2 do
-                        local item = dist.items[i]
-                        local chance = dist.items[i+1]
-                        table.insert(containerDist.items, item)
-                        table.insert(containerDist.items, chance)
-                        GVDebug.debugPrint("Added", item, "to", container, "with chance", chance)
-                    end
-                end
-            end
-        end
-    end
-end
+--     -- Aplicar distribuciones
+--     for _, dist in ipairs(distributions) do
+--         for _, container in ipairs(dist.containers) do
+--             if SuburbsDistributions["all"] and SuburbsDistributions["all"][container] then
+--                 local containerDist = SuburbsDistributions["all"][container]
+--                 if containerDist.items then
+--                     for i = 1, #dist.items, 2 do
+--                         local item = dist.items[i]
+--                         local chance = dist.items[i+1]
+--                         table.insert(containerDist.items, item)
+--                         table.insert(containerDist.items, chance)
+--                         GVDebug.debugPrint("Added", item, "to", container, "with chance", chance)
+--                     end
+--                 end
+--             end
+--         end
+--     end
+-- end
 
--- PASO 2: Añadir items a zombie drops usando sistema nativo
-local function addToZombieDistributions()
-    -- Acceder al sistema nativo de zombie loot
-    local zombieTypes = {"Survivalist", "Police", "Soldier", "Scientist", "Teacher"}
+-- -- PASO 2: Añadir items a zombie drops usando sistema nativo
+-- local function addToZombieDistributions()
+--     -- Acceder al sistema nativo de zombie loot
+--     local zombieTypes = {"Survivalist", "Police", "Soldier", "Scientist", "Teacher"}
     
-    -- Items para diferentes tipos de zombies
-    local zombieDrops = {
-        Survivalist = {
-            "GValley.SkillDrive_Survivalist_Facil", 2.0,
-            "GValley.SkillDrive_Trapping_Facil", 1.5,
-        },
-        Police = {
-            "GValley.SkillDrive_Aiming_Facil", 2.0,
-            "GValley.EliteDrive_Strength", 0.1,
-        },
-        Soldier = {
-            "GValley.EliteDrive_Strength", 0.5,
-            "GValley.EliteDrive_Endurance", 0.5,
-        },
-        Scientist = {
-            "GValley.SkillDrive_Electricity_Moderado", 3.0,
-            "GValley.Antivirus_Norton", 2.0,
-        },
-        Teacher = {
-            "GValley.SkillDrive_Woodwork_Facil", 2.0,
-            "GValley.SkillDrive_Cooking_Facil", 2.0,
-        }
-    }
+--     -- Items para diferentes tipos de zombies
+--     local zombieDrops = {
+--         Survivalist = {
+--             "GValley.SkillDrive_Survivalist_Facil", 2.0,
+--             "GValley.SkillDrive_Trapping_Facil", 1.5,
+--         },
+--         Police = {
+--             "GValley.SkillDrive_Aiming_Facil", 2.0,
+--             "GValley.EliteDrive_Strength", 0.1,
+--         },
+--         Soldier = {
+--             "GValley.EliteDrive_Strength", 0.5,
+--             "GValley.EliteDrive_Endurance", 0.5,
+--         },
+--         Scientist = {
+--             "GValley.SkillDrive_Electricity_Moderado", 3.0,
+--             "GValley.Antivirus_Norton", 2.0,
+--         },
+--         Teacher = {
+--             "GValley.SkillDrive_Woodwork_Facil", 2.0,
+--             "GValley.SkillDrive_Cooking_Facil", 2.0,
+--         }
+--     }
 
-    -- Aplicar drops específicos por tipo de zombie
-    for zombieType, drops in pairs(zombieDrops) do
-        -- Usar el sistema nativo de PZ para zombie drops
-        if ZombiesZoneDefinition and ZombiesZoneDefinition[zombieType] then
-            for i = 1, #drops, 2 do
-                local item = drops[i]
-                local chance = drops[i+1] / 100 -- Convertir a decimal
-                table.insert(ZombiesZoneDefinition[zombieType], {name = item, chance = chance})
-                GVDebug.debugPrint("[INFO] Added", item, "to zombie", zombieType, "with chance", chance)
-            end
-        end
-    end
+--     -- Aplicar drops específicos por tipo de zombie
+--     for zombieType, drops in pairs(zombieDrops) do
+--         -- Usar el sistema nativo de PZ para zombie drops
+--         if ZombiesZoneDefinition and ZombiesZoneDefinition[zombieType] then
+--             for i = 1, #drops, 2 do
+--                 local item = drops[i]
+--                 local chance = drops[i+1] / 100 -- Convertir a decimal
+--                 table.insert(ZombiesZoneDefinition[zombieType], {name = item, chance = chance})
+--                 GVDebug.debugPrint("[INFO] Added", item, "to zombie", zombieType, "with chance", chance)
+--             end
+--         end
+--     end
 
-    -- DROPS GENERALES: Todos los zombies pueden dropear items básicos
-    local generalDrops = {
-        "GValley.SkillDrive_Woodwork_Facil", 0.8,
-        "GValley.SkillDrive_Mechanics_Facil", 0.8,
-        "GValley.SkillDrive_Cooking_Facil", 0.8,
-        "GValley.AsusZephLaptopClosed", 0.3,
-        "GValley.Laptop90sClosed", 0.3,
-        "GValley.Antivirus_Norton", 0.4,
-        "GValley.Antivirus_Kaspersky", 0.4,
-    }
+--     -- DROPS GENERALES: Todos los zombies pueden dropear items básicos
+--     local generalDrops = {
+--         "GValley.SkillDrive_Woodwork_Facil", 0.8,
+--         "GValley.SkillDrive_Mechanics_Facil", 0.8,
+--         "GValley.SkillDrive_Cooking_Facil", 0.8,
+--         "GValley.AsusZephLaptopClosed", 0.3,
+--         "GValley.Laptop90sClosed", 0.3,
+--         "GValley.Antivirus_Norton", 0.4,
+--         "GValley.Antivirus_Kaspersky", 0.4,
+--     }
 
-    -- Añadir a zombie general/default
-    if ZombiesZoneDefinition and ZombiesZoneDefinition.Default then
-        for i = 1, #generalDrops, 2 do
-            local item = generalDrops[i]
-            local chance = generalDrops[i+1] / 100 -- Convertir a decimal
-            table.insert(ZombiesZoneDefinition.Default, {name = item, chance = chance})
-            GVDebug.debugPrint("[INFO] Added", item, "to general zombies with chance", chance)
-        end
-    end
-end
+--     -- Añadir a zombie general/default
+--     if ZombiesZoneDefinition and ZombiesZoneDefinition.Default then
+--         for i = 1, #generalDrops, 2 do
+--             local item = generalDrops[i]
+--             local chance = generalDrops[i+1] / 100 -- Convertir a decimal
+--             table.insert(ZombiesZoneDefinition.Default, {name = item, chance = chance})
+--             GVDebug.debugPrint("[INFO] Added", item, "to general zombies with chance", chance)
+--         end
+--     end
+-- end
 
--- PASO 3: Ejecutar configuración
-local function setupNativeDistributions()
-    GVDebug.debugPrint("Setting up native PZ distributions...")
+-- -- PASO 3: Ejecutar configuración
+-- local function setupNativeDistributions()
+--     GVDebug.debugPrint("Setting up native PZ distributions...")
     
-    local success = 0
-    local errors = 0
+--     local success = 0
+--     local errors = 0
     
-    -- Configurar distribuciones de mundo
-    local ok1, err1 = pcall(addToWorldDistributions)
-    if ok1 then 
-        success = success + 1
-    GVDebug.debugPrint("World distributions configured")
-    else 
-        errors = errors + 1
-    GVDebug.debugPrint("World distributions failed:", err1)
-    end
+--     -- Configurar distribuciones de mundo
+--     local ok1, err1 = pcall(addToWorldDistributions)
+--     if ok1 then 
+--         success = success + 1
+--     GVDebug.debugPrint("World distributions configured")
+--     else 
+--         errors = errors + 1
+--     GVDebug.debugPrint("World distributions failed:", err1)
+--     end
     
-    -- Configurar drops de zombies
-    local ok2, err2 = pcall(addToZombieDistributions)
-    if ok2 then 
-        success = success + 1
-    GVDebug.debugPrint("Zombie distributions configured")
-    else 
-        errors = errors + 1
-    GVDebug.debugPrint("Zombie distributions failed:", err2)
-    end
+--     -- Configurar drops de zombies
+--     local ok2, err2 = pcall(addToZombieDistributions)
+--     if ok2 then 
+--         success = success + 1
+--     GVDebug.debugPrint("Zombie distributions configured")
+--     else 
+--         errors = errors + 1
+--     GVDebug.debugPrint("Zombie distributions failed:", err2)
+--     end
     
-    GVDebug.debugPrint(string.format("Native setup complete: %d success, %d errors", success, errors))
-end
+--     GVDebug.debugPrint(string.format("Native setup complete: %d success, %d errors", success, errors))
+-- end
 
--- PASO 4: Registrar carga al inicio del juego
-if Events and Events.OnGameBoot then
-    Events.OnGameBoot.Add(setupNativeDistributions)
-else
-    -- Fallback: ejecutar inmediatamente
-    setupNativeDistributions()
-end
+-- -- PASO 4: Registrar carga al inicio del juego
+-- if Events and Events.OnGameBoot then
+--     Events.OnGameBoot.Add(setupNativeDistributions)
+-- else
+--     -- Fallback: ejecutar inmediatamente
+--     setupNativeDistributions()
+-- end
 
-GVDebug.debugPrint("Native distribution system loaded")
+-- GVDebug.debugPrint("Native distribution system loaded")
