@@ -1,58 +1,58 @@
-#  DecryptUSBs42  Sistema de Desencriptaci髇 de USBs
+#  DecryptUSBs42  Sistema de Desencriptaci贸n de USBs - (DEPRECATED - OUTDATED)
 
 ![Version](https://img.shields.io/badge/version-1.5.0-blue)
 ![Build](https://img.shields.io/badge/build-42.12%20Unstable-orange)
 ![Status](https://img.shields.io/badge/status-Estable-brightgreen)
 
-Mod para Project Zomboid que introduce un ecosistema completo de desencriptaci髇 de unidades USB y minijuegos tem醫icos para desbloquear recompensas, buffs temporales y progresi髇 de habilidades.
+Mod para Project Zomboid que introduce un ecosistema completo de desencriptaci贸n de unidades USB y minijuegos tem谩ticos para desbloquear recompensas, buffs temporales y progresi贸n de habilidades.
 
 ---
 
-##  Caracter韘ticas Clave
-- **[Minijuegos din醡icos]** Tres experiencias 鷑icas: Decrypt Sequence Terminal, Buffer Defense (tower-defense) y Packet Interceptor (ritmo/precisi髇).
-- **[Sistemas conectados]** Salud de laptop, t閞mico, eventos aleatorios, Neural Boosts y recompensas sorpresa totalmente integrados.
+##  Caracter铆sticas Clave
+- **[Minijuegos din谩micos]** Tres experiencias 煤nicas: Decrypt Sequence Terminal, Buffer Defense (tower-defense) y Packet Interceptor (ritmo/precisi贸n).
+- **[Sistemas conectados]** Salud de laptop, t茅rmico, eventos aleatorios, Neural Boosts y recompensas sorpresa totalmente integrados.
 - **[Dificultad escalable]** Configurable por sandbox y ajustable en tiempo real mediante comandos de debug (ReloadMiniGame*).
-- **[XP y bot韓 balanceado]** C醠culos dependientes de rareza, dificultad y multiplicadores sandbox, con soporte para bonificaciones como Neural Focus.
+- **[XP y bot铆n balanceado]** C谩lculos dependientes de rareza, dificultad y multiplicadores sandbox, con soporte para bonificaciones como Neural Focus.
 - **[Herramientas de desarrollo]** Recarga en vivo, pruebas dirigidas (TestMiniGame, TestBufferDefense, TestPacketInterceptor) y registro detallado.
 
 ---
 
 ##  Minijuegos Disponibles
-- **Decrypt Sequence Terminal**  Memoria secuencial con est閠ica CRT alien韌ena, patrones m鷏tiples y feedback visual inmediato.
+- **Decrypt Sequence Terminal**  Memoria secuencial con est茅tica CRT alien铆gena, patrones m煤ltiples y feedback visual inmediato.
 - **Buffer Defense**  Defiende firewalls contra exploits; incorpora oleadas, power-ups y eventos especiales.
-- **Packet Interceptor**  Ritmo y reflejos para sincronizar paquetes; combo system y bonificaciones por precisi髇 perfecta.
+- **Packet Interceptor**  Ritmo y reflejos para sincronizar paquetes; combo system y bonificaciones por precisi贸n perfecta.
 
-Cada minijuego expone funciones Reload* y Test* para ajustes r醦idos desde la consola de debug (/ o L).
+Cada minijuego expone funciones Reload* y Test* para ajustes r谩pidos desde la consola de debug (/ o L).
 
 ---
 
 ##  Sistemas Complementarios
-- **LaptopSystem**: Durabilidad, da駉 escalado y sobrecalentamiento (LaptopThermalSystem).
+- **LaptopSystem**: Durabilidad, da帽o escalado y sobrecalentamiento (LaptopThermalSystem).
 - **NeuralBoostSystem**: Buffs temporales (Focus, Adrenaline, Iron Mind, Pack Mule, etc.) ahora con notificaciones seguras usando SafeHaloText.
 - **USBSurpriseSystem**: Recetas, rare items, mapas y XP sorpresa basados en probabilidades configurables.
-- **DynamicSoundSystem** & **ContextualMessages**: Audio y mensajes reactivos seg鷑 閤ito, fallo o eventos especiales.
+- **DynamicSoundSystem** & **ContextualMessages**: Audio y mensajes reactivos seg煤n 茅xito, fallo o eventos especiales.
 
 ---
 
-##  Configuraci髇 Sandbox
+##  Configuraci贸n Sandbox
 Archivo: Contents/mods/DecryptSkillSys/42.0/media/sandbox-options.txt
 
-- **Probabilidades** de aparici髇 (loot/zombies), da駉s a laptop y XP por dificultad (Facil/Moderado/Dificil).
+- **Probabilidades** de aparici贸n (loot/zombies), da帽os a laptop y XP por dificultad (Facil/Moderado/Dificil).
 - **Modificadores** de Neural Boost, sorpresas y eventos (Event_*).
 - **Multiplicadores** de XP por dificultad (Facil_XP_Bonus, Moderado_XP_Bonus, Dificil_XP_Bonus).
 
-> Recuerda que Project Zomboid aplica adem醩 SandboxVars.XPMultiplier del mundo activo. Ajusta ambos valores si deseas XP final espec韋ica.
+> Recuerda que Project Zomboid aplica adem谩s SandboxVars.XPMultiplier del mundo activo. Ajusta ambos valores si deseas XP final espec铆fica.
 
 ---
 
-##  Instalaci髇
-- **Steam Workshop**: Suscr韇ete y activa el mod in-game.
+##  Instalaci贸n
+- **Steam Workshop**: Suscr铆bete y activa el mod in-game.
 - **Manual**: Copia el contenido de este repositorio a Zomboid/mods/DecryptUSBs42.
 - **Dependencias**: Ninguna adicional; compatible con la build 42.12 Unstable.
 
 ---
 
-##  Comandos de Debug 趖iles
+##  Comandos de Debug 脷tiles
 `lua
 ReloadMiniGame()
 ReloadMiniGameBufferDefense()
@@ -64,24 +64,24 @@ TestPacketInterceptor("Moderate")
 
 ---
 
-##  Documentaci髇
+##  Documentaci贸n
 - **[CHANGELOG.md](CHANGELOG.md)**  Historial de versiones.
-- **[WORKFLOW.md](WORKFLOW.md)**  Bit醕ora diaria y tareas pendientes.
-- **docs/**  Auditor韆s, res鷐enes ejecutivos y an醠isis detallados.
+- **[WORKFLOW.md](WORKFLOW.md)**  Bit谩cora diaria y tareas pendientes.
+- **docs/**  Auditor铆as, res煤menes ejecutivos y an谩lisis detallados.
 
 ---
 
 ##  Roadmap
-- **Fase 1  Entregado**: Separaci髇 modular de minijuegos, sistemas de eventos, balancing de XP/da駉.
-- **Fase 2  Planificado**: Nuevos puzzles, upgrades de laptops, reputaci髇 como hacker.
+- **Fase 1  Entregado**: Separaci贸n modular de minijuegos, sistemas de eventos, balancing de XP/da帽o.
+- **Fase 2  Planificado**: Nuevos puzzles, upgrades de laptops, reputaci贸n como hacker.
 - **Fase 3  Futuro**: Data terminals en el mundo, crafteo avanzado de USBs, trader NPC y modo competitivo.
 
 ---
 
-##  C髆o Contribuir
+##  C贸mo Contribuir
 1. Haz fork del repositorio y crea tu rama (eature/<tu_feature> o ix/<bug>).
-2. Mant閚 commits peque駉s y descriptivos siguiendo convenci髇 conventional commits.
-3. Ejecuta tus pruebas, actualiza documentaci髇 y abre un Pull Request detallado.
+2. Mant茅n commits peque帽os y descriptivos siguiendo convenci贸n conventional commits.
+3. Ejecuta tus pruebas, actualiza documentaci贸n y abre un Pull Request detallado.
 
 ---
 
@@ -104,6 +104,6 @@ Distribuido bajo licencia **MIT**. Revisa [LICENSE](LICENSE).
 ---
 
 ##  Estado del Proyecto
-- **趌tima actualizaci髇**: 5 de octubre de 2025
-- **Versi髇**: 1.5.0  Enhanced Gameplay Update
+- **脷ltima actualizaci贸n**: 5 de octubre de 2025
+- **Versi贸n**: 1.5.0  Enhanced Gameplay Update
 - **Estado**: Production Ready 
